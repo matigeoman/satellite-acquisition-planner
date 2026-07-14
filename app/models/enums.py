@@ -95,3 +95,23 @@ class OpportunitySourceType(str, Enum):
     EXTERNAL = "EXTERNAL"
     STK = "STK"
     SAVOIR = "SAVOIR"
+
+
+class PlanningAlgorithm(str, Enum):
+    GREEDY = "GREEDY"
+    CP_SAT = "CP_SAT"
+    MANUAL = "MANUAL"
+
+
+class ScheduleEntryStatus(str, Enum):
+    PLANNED = "PLANNED"
+    FROZEN = "FROZEN"
+    EXECUTED = "EXECUTED"
+    CANCELLED = "CANCELLED"
+
+
+class ScheduleStatus(str, Enum):
+    DRAFT = "DRAFT"
+    FEASIBLE = "FEASIBLE"
+    INFEASIBLE = "INFEASIBLE"
+    FINAL = "FINAL"
