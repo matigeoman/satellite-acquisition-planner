@@ -16,3 +16,23 @@ class OrbitSourceType(str, Enum):
     PUBLIC_DATA = "PUBLIC_DATA"
     TLE = "TLE"
     EXTERNAL = "EXTERNAL"
+
+
+class SensorType(str, Enum):
+    SAR = "SAR"
+    OPTICAL = "OPTICAL"
+
+
+class ModeCategory(str, Enum):
+    SPOTLIGHT = "SPOTLIGHT"
+    STRIPMAP = "STRIPMAP"
+    SCANSAR = "SCANSAR"
+    PUSHBROOM = "PUSHBROOM"
+    FRAME = "FRAME"
+
+
+class ProductType(str, Enum):
+    SAR_IMAGE = "SAR_IMAGE"
+    PANCHROMATIC = "PANCHROMATIC"
+    MULTISPECTRAL = "MULTISPECTRAL"
+    PANSHARPENED = "PANSHARPENED"
