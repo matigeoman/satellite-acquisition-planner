@@ -2,6 +2,8 @@ from app.models.enums import (
     FrequencyBand,
     LookSideCapability,
     ModeCategory,
+    ObservationSide,
+    OpportunitySourceType,
     OrbitSourceType,
     OrbitType,
     ProductType,
@@ -19,17 +21,21 @@ from app.models.geometry import (
     TargetGeometry,
 )
 from app.models.imaging import ImagingMode
+from app.models.opportunity import AcquisitionOpportunity
 from app.models.orbit import OrbitDefinition
 from app.models.request import ObservationRequest
 from app.models.satellite import Satellite
 from app.models.sensor import Sensor
 
 __all__ = [
+    "AcquisitionOpportunity",
     "FrequencyBand",
     "ImagingMode",
     "LookSideCapability",
     "ModeCategory",
     "ObservationRequest",
+    "ObservationSide",
+    "OpportunitySourceType",
     "OrbitDefinition",
     "OrbitSourceType",
     "OrbitType",

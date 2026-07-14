@@ -82,3 +82,16 @@ class RequestStatus(str, Enum):
     ACTIVE = "ACTIVE"
     CANCELLED = "CANCELLED"
     COMPLETED = "COMPLETED"
+
+
+class ObservationSide(str, Enum):
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    NADIR = "NADIR"
+
+
+class OpportunitySourceType(str, Enum):
+    SYNTHETIC = "SYNTHETIC"
+    EXTERNAL = "EXTERNAL"
+    STK = "STK"
+    SAVOIR = "SAVOIR"
