@@ -395,7 +395,7 @@
   "frozen_until_utc": null,
   "memory_reserve_ratio": 0.0,
   "objective_value": 2437.320613,
-  "solver_runtime_s": 0.000463,
+  "solver_runtime_s": 0.000432,
   "unassigned_request_ids": [],
   "notes": "Harmonogram wygenerowany deterministycznym algorytmem zachłannym."
 }
