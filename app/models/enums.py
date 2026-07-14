@@ -36,3 +36,24 @@ class ProductType(str, Enum):
     PANCHROMATIC = "PANCHROMATIC"
     MULTISPECTRAL = "MULTISPECTRAL"
     PANSHARPENED = "PANSHARPENED"
+
+
+class FrequencyBand(str, Enum):
+    X = "X"
+    C = "C"
+    L = "L"
+    S = "S"
+    OTHER = "OTHER"
+
+
+class LookSideCapability(str, Enum):
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    BOTH = "BOTH"
+    NADIR_ONLY = "NADIR_ONLY"
+
+
+class SensorSourceType(str, Enum):
+    MODEL = "MODEL"
+    PUBLIC_DATA = "PUBLIC_DATA"
+    EXTERNAL = "EXTERNAL"
