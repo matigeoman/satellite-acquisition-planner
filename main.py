@@ -3,10 +3,11 @@ from pathlib import Path
 from app.catalog_loader import load_system_catalog
 from app.opportunity_loader import load_opportunity_set
 from app.request_loader import load_request_set
+from app.schedule_loader import load_schedule
 
 
 def main() -> None:
-    """Wczytuje i waliduje dane wejściowe planera."""
+    """Wczytuje i waliduje dane wejściowe oraz harmonogram."""
 
     project_directory = Path(__file__).resolve().parent
 
@@ -26,6 +27,12 @@ def main() -> None:
         project_directory
         / "data"
         / "example_opportunities.json"
+    )
+
+    schedule_path = (
+        project_directory
+        / "data"
+        / "example_schedule_greedy.json"
     )
 
     catalog = load_system_catalog(
@@ -72,11 +79,11 @@ def main() -> None:
     print(f"Aktywne: {len(request_set.active_requests)}")
     print(f"Obowiązkowe: {len(request_set.mandatory_requests)}")
     print(
-        "Tryby zleceń: "
+        f"Tryby zleceń: "
         f"{request_set.request_mode_counts}"
     )
     print(
-        "Typy geometrii: "
+        f"Typy geometrii: "
         f"{request_set.geometry_type_counts}"
     )
     print()
@@ -84,26 +91,61 @@ def main() -> None:
     print("OKAZJE AKWIZYCYJNE")
     print(f"Zbiór: {opportunity_set.name}")
     print(
-        f"Wszystkie: {len(opportunity_set.opportunities)}"
+        f"Wszystkie: "
+        f"{len(opportunity_set.opportunities)}"
     )
     print(
-        "Wykonalne: "
+        f"Wykonalne: "
         f"{len(opportunity_set.feasible_opportunities)}"
     )
     print(
-        "Niewykonalne: "
+        f"Niewykonalne: "
         f"{len(opportunity_set.infeasible_opportunities)}"
     )
     print(
-        "Typy sensorów: "
+        f"Typy sensorów: "
         f"{opportunity_set.sensor_type_counts}"
-    )
-    print(
-        "Satelity: "
-        f"{opportunity_set.satellite_counts}"
     )
     print()
 
+    print("HARMONOGRAM GREEDY")
+
+    if schedule_path.exists():
+        schedule = load_schedule(
+            schedule_path
+        )
+
+        print(f"Status: {schedule.status.value}")
+        print(
+            f"Akwizycje: "
+            f"{schedule.total_acquisitions}"
+        )
+        print(
+            f"Zaplanowane zlecenia: "
+            f"{len(schedule.scheduled_request_ids)}"
+        )
+        print(
+            f"Nieprzypisane zlecenia: "
+            f"{len(schedule.unassigned_request_ids)}"
+        )
+        print(
+            f"Rozmiar danych: "
+            f"{schedule.total_data_volume_mb:.3f} MB"
+        )
+        print(
+            f"Funkcja celu: "
+            f"{schedule.objective_value:.6f}"
+        )
+    else:
+        print(
+            "Harmonogram nie został jeszcze wygenerowany."
+        )
+        print(
+            "Uruchom: "
+            "python .\\scripts\\run_greedy.py"
+        )
+
+    print()
     print("Dane zostały wczytane i zwalidowane poprawnie.")
 
 
