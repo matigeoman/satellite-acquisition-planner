@@ -1,0 +1,715 @@
+{
+  "request_set_id": "REQSET-PL-DEMO",
+  "name": "Przykładowe dobowe zlecenia obserwacyjne",
+  "version": "1.0.0",
+  "horizon_start_utc": "2026-07-15T00:00:00Z",
+  "horizon_end_utc": "2026-07-16T00:00:00Z",
+  "generated_at_utc": "2026-07-14T20:00:00Z",
+  "requests": [
+    {
+      "request_id": "REQ-SAR-001",
+      "name": "Pilna obserwacja SAR Warszawy",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-15T06:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.5,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "ORDER-REQ-SAR-001",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-002",
+      "name": "Obserwacja SAR Gdańska",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.6466,
+          54.352
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T01:00:00Z",
+      "latest_end_utc": "2026-07-15T08:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-002",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-003",
+      "name": "Obserwacja SAR Krakowa",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T02:00:00Z",
+      "latest_end_utc": "2026-07-15T10:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-003",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-004",
+      "name": "Obserwacja SAR Wrocławia",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.0385,
+          51.1079
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-15T03:00:00Z",
+      "latest_end_utc": "2026-07-15T11:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-004",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-005",
+      "name": "Obserwacja SAR Poznania",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-15T04:00:00Z",
+      "latest_end_utc": "2026-07-15T12:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-005",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-006",
+      "name": "Obserwacja SAR Lublina",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T05:00:00Z",
+      "latest_end_utc": "2026-07-15T13:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-006",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-007",
+      "name": "Obserwacja SAR wybrzeża Bałtyku",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              17.7,
+              54.2
+            ],
+            [
+              19.3,
+              54.2
+            ],
+            [
+              19.3,
+              54.8
+            ],
+            [
+              17.7,
+              54.8
+            ],
+            [
+              17.7,
+              54.2
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T06:00:00Z",
+      "latest_end_utc": "2026-07-15T15:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-007",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-SAR-008",
+      "name": "Obserwacja SAR Górnego Śląska",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.5,
+              49.9
+            ],
+            [
+              19.4,
+              49.9
+            ],
+            [
+              19.4,
+              50.5
+            ],
+            [
+              18.5,
+              50.5
+            ],
+            [
+              18.5,
+              49.9
+            ]
+          ]
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T08:00:00Z",
+      "latest_end_utc": "2026-07-15T18:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-SAR-008",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-001",
+      "name": "Pilna obserwacja optyczna Warszawy",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T06:00:00Z",
+      "latest_end_utc": "2026-07-15T12:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": 0.2,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "ORDER-REQ-EO-001",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-002",
+      "name": "Obserwacja optyczna Gdańska",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.6466,
+          54.352
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T07:00:00Z",
+      "latest_end_utc": "2026-07-15T14:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": 0.3,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-002",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-003",
+      "name": "Obserwacja optyczna Krakowa",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T08:00:00Z",
+      "latest_end_utc": "2026-07-15T15:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": 0.3,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-003",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-004",
+      "name": "Obserwacja optyczna Wrocławia",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.0385,
+          51.1079
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-15T09:00:00Z",
+      "latest_end_utc": "2026-07-15T16:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.3,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-004",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-005",
+      "name": "Obserwacja optyczna Poznania",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-15T10:00:00Z",
+      "latest_end_utc": "2026-07-15T17:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-005",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-006",
+      "name": "Obserwacja optyczna Lublina",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T11:00:00Z",
+      "latest_end_utc": "2026-07-15T18:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 1.0,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-006",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-007",
+      "name": "Obserwacja optyczna Mazur",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.8,
+              53.5
+            ],
+            [
+              22.2,
+              53.5
+            ],
+            [
+              22.2,
+              54.3
+            ],
+            [
+              20.8,
+              54.3
+            ],
+            [
+              20.8,
+              53.5
+            ]
+          ]
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T08:00:00Z",
+      "latest_end_utc": "2026-07-15T16:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-007",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-EO-008",
+      "name": "Obserwacja optyczna Puszczy Białowieskiej",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.5,
+              52.5
+            ],
+            [
+              24.2,
+              52.5
+            ],
+            [
+              24.2,
+              53.1
+            ],
+            [
+              23.5,
+              53.1
+            ],
+            [
+              23.5,
+              52.5
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T09:00:00Z",
+      "latest_end_utc": "2026-07-15T17:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-EO-008",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-DUAL-OPT-001",
+      "name": "Opcjonalna obserwacja podwójna aglomeracji warszawskiej",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.7,
+              52.0
+            ],
+            [
+              21.4,
+              52.0
+            ],
+            [
+              21.4,
+              52.5
+            ],
+            [
+              20.7,
+              52.5
+            ],
+            [
+              20.7,
+              52.0
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T05:00:00Z",
+      "latest_end_utc": "2026-07-15T20:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.3,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-DUAL-OPT-001",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-DUAL-OPT-002",
+      "name": "Opcjonalna obserwacja podwójna Zatoki Gdańskiej",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.2,
+              54.2
+            ],
+            [
+              19.2,
+              54.2
+            ],
+            [
+              19.2,
+              54.8
+            ],
+            [
+              18.2,
+              54.8
+            ],
+            [
+              18.2,
+              54.2
+            ]
+          ]
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T04:00:00Z",
+      "latest_end_utc": "2026-07-15T22:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "ORDER-REQ-DUAL-OPT-002",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-DUAL-REQ-001",
+      "name": "Obowiązkowe monitorowanie obszaru powodziowego",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.0,
+              50.0
+            ],
+            [
+              21.2,
+              50.0
+            ],
+            [
+              21.2,
+              50.8
+            ],
+            [
+              20.0,
+              50.8
+            ],
+            [
+              20.0,
+              50.0
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-15T23:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.4,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "ORDER-REQ-DUAL-REQ-001",
+      "notes": null
+    },
+    {
+      "request_id": "REQ-DUAL-REQ-002",
+      "name": "Obowiązkowe monitorowanie wschodniego odcinka granicy",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.8,
+              51.0
+            ],
+            [
+              24.0,
+              51.0
+            ],
+            [
+              24.0,
+              52.2
+            ],
+            [
+              22.8,
+              52.2
+            ],
+            [
+              22.8,
+              51.0
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-15T23:30:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.4,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "ORDER-REQ-DUAL-REQ-002",
+      "notes": null
+    }
+  ],
+  "notes": "Zestaw danych syntetycznych przeznaczony do testowania generatora okazji i algorytmów harmonogramowania."
+}
