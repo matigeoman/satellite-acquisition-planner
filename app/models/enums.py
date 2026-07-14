@@ -70,3 +70,15 @@ class SatelliteSourceType(str, Enum):
     MODEL = "MODEL"
     PUBLIC_DATA = "PUBLIC_DATA"
     EXTERNAL = "EXTERNAL"
+
+
+class RequestMode(str, Enum):
+    SINGLE = "SINGLE"
+    DUAL_OPTIONAL = "DUAL_OPTIONAL"
+    DUAL_REQUIRED = "DUAL_REQUIRED"
+
+
+class RequestStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    CANCELLED = "CANCELLED"
+    COMPLETED = "COMPLETED"
