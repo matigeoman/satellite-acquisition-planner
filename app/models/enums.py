@@ -57,3 +57,16 @@ class SensorSourceType(str, Enum):
     MODEL = "MODEL"
     PUBLIC_DATA = "PUBLIC_DATA"
     EXTERNAL = "EXTERNAL"
+
+
+class SatelliteStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    MAINTENANCE = "MAINTENANCE"
+    FAILED = "FAILED"
+
+
+class SatelliteSourceType(str, Enum):
+    MODEL = "MODEL"
+    PUBLIC_DATA = "PUBLIC_DATA"
+    EXTERNAL = "EXTERNAL"
