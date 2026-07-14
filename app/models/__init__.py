@@ -1,3 +1,4 @@
+from app.models.catalog import SystemCatalog
 from app.models.enums import (
     FrequencyBand,
     LookSideCapability,
@@ -60,5 +61,6 @@ __all__ = [
     "Sensor",
     "SensorSourceType",
     "SensorType",
+    "SystemCatalog",
     "TargetGeometry",
 ]
