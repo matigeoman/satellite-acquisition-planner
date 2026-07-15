@@ -103,6 +103,37 @@ def group_entries_by_request(
     return grouped
 
 
+def acquisition_score(
+    opportunity,
+    config: GreedyPlannerConfig,
+) -> float:
+    return round(
+        opportunity.quality_score
+        * config.quality_weight
+        + opportunity.coverage_ratio
+        * config.coverage_weight,
+        6,
+    )
+
+
+def request_reward(
+    request,
+    config: GreedyPlannerConfig,
+) -> float:
+    reward = (
+        request.priority
+        * config.priority_weight
+    )
+
+    if request.is_mandatory:
+        reward += config.mandatory_bonus
+
+    return round(
+        reward,
+        6,
+    )
+
+
 def test_greedy_builds_nonempty_schedule(
     greedy_schedule,
 ) -> None:
@@ -179,7 +210,10 @@ def test_dual_optional_requests_use_at_most_one_per_sensor(
     )
 
     for request in request_set.active_requests:
-        if request.request_mode != RequestMode.DUAL_OPTIONAL:
+        if (
+            request.request_mode
+            != RequestMode.DUAL_OPTIONAL
+        ):
             continue
 
         entries = grouped[
@@ -351,6 +385,150 @@ def test_objective_value_matches_entries(
     )
 
 
+def test_single_request_reward_is_added_once(
+    reference_data,
+    greedy_schedule,
+) -> None:
+    _, request_set, opportunity_set = reference_data
+
+    config = GreedyPlannerConfig()
+
+    grouped = group_entries_by_request(
+        greedy_schedule
+    )
+
+    request = next(
+        request
+        for request in request_set.active_requests
+        if (
+            request.request_mode == RequestMode.SINGLE
+            and grouped[request.request_id]
+        )
+    )
+
+    entry = grouped[
+        request.request_id
+    ][0]
+
+    opportunity = opportunity_set.get_opportunity(
+        entry.opportunity_id
+    )
+
+    expected_contribution = (
+        request_reward(request, config)
+        + acquisition_score(opportunity, config)
+    )
+
+    assert entry.objective_contribution == pytest.approx(
+        expected_contribution
+    )
+
+
+def test_dual_required_reward_is_added_once(
+    reference_data,
+    greedy_schedule,
+) -> None:
+    _, request_set, opportunity_set = reference_data
+
+    config = GreedyPlannerConfig()
+
+    grouped = group_entries_by_request(
+        greedy_schedule
+    )
+
+    request = next(
+        request
+        for request in request_set.dual_required_requests
+        if len(grouped[request.request_id]) == 2
+    )
+
+    entries = grouped[
+        request.request_id
+    ]
+
+    opportunities = [
+        opportunity_set.get_opportunity(
+            entry.opportunity_id
+        )
+        for entry in entries
+    ]
+
+    expected_total = (
+        request_reward(request, config)
+        + sum(
+            acquisition_score(
+                opportunity,
+                config,
+            )
+            for opportunity in opportunities
+        )
+    )
+
+    actual_total = sum(
+        entry.objective_contribution
+        for entry in entries
+    )
+
+    assert actual_total == pytest.approx(
+        expected_total
+    )
+
+
+def test_dual_optional_second_acquisition_uses_bonus(
+    reference_data,
+    greedy_schedule,
+) -> None:
+    _, request_set, opportunity_set = reference_data
+
+    config = GreedyPlannerConfig()
+
+    grouped = group_entries_by_request(
+        greedy_schedule
+    )
+
+    request = next(
+        request
+        for request in request_set.active_requests
+        if (
+            request.request_mode
+            == RequestMode.DUAL_OPTIONAL
+            and len(grouped[request.request_id]) == 2
+        )
+    )
+
+    entries = grouped[
+        request.request_id
+    ]
+
+    opportunities = [
+        opportunity_set.get_opportunity(
+            entry.opportunity_id
+        )
+        for entry in entries
+    ]
+
+    expected_total = (
+        request_reward(request, config)
+        + sum(
+            acquisition_score(
+                opportunity,
+                config,
+            )
+            for opportunity in opportunities
+        )
+        + config.dual_optional_second_bonus
+    )
+
+    actual_total = sum(
+        entry.objective_contribution
+        for entry in entries
+    )
+
+    assert actual_total == pytest.approx(
+        expected_total
+    )
+
+
 def test_unassigned_requests_are_not_scheduled(
     greedy_schedule,
 ) -> None:
@@ -403,6 +581,7 @@ def test_greedy_is_deterministic(
     ]
 
     assert first_ids == second_ids
+
     assert (
         greedy_schedule.objective_value
         == second_schedule.objective_value
@@ -464,6 +643,13 @@ def test_negative_weight_is_rejected() -> None:
     with pytest.raises(ValueError):
         GreedyPlannerConfig(
             priority_weight=-1.0
+        )
+
+
+def test_negative_dual_optional_bonus_is_rejected() -> None:
+    with pytest.raises(ValueError):
+        GreedyPlannerConfig(
+            dual_optional_second_bonus=-1.0
         )
 
 

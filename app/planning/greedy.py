@@ -30,20 +30,25 @@ class GreedyPlannerConfig:
     coverage_weight: float = 2.0
     mandatory_bonus: float = 100.0
 
+    dual_optional_second_bonus: float = 5.0
+
     def __post_init__(self) -> None:
         if not 0.0 <= self.memory_reserve_ratio <= 1.0:
             raise ValueError(
                 "memory_reserve_ratio musi należeć do zakresu [0, 1]"
             )
 
-        weights = {
+        nonnegative_parameters = {
             "priority_weight": self.priority_weight,
             "quality_weight": self.quality_weight,
             "coverage_weight": self.coverage_weight,
             "mandatory_bonus": self.mandatory_bonus,
+            "dual_optional_second_bonus": (
+                self.dual_optional_second_bonus
+            ),
         }
 
-        for name, value in weights.items():
+        for name, value in nonnegative_parameters.items():
             if value < 0.0:
                 raise ValueError(
                     f"{name} nie może być wartością ujemną"
@@ -98,7 +103,11 @@ class GreedyScheduler:
                 opportunity.request_id
             ].append(opportunity)
 
-        self._states: dict[str, _SatellitePlanState] = {}
+        self._states: dict[
+            str,
+            _SatellitePlanState,
+        ] = {}
+
         self._selected_opportunities: list[
             AcquisitionOpportunity
         ] = []
@@ -143,8 +152,19 @@ class GreedyScheduler:
         for request in self._sorted_requests():
             self._plan_request(request)
 
+        objective_contributions = (
+            self._calculate_objective_contributions()
+        )
+
         entries = [
-            self._create_schedule_entry(opportunity)
+            self._create_schedule_entry(
+                opportunity=opportunity,
+                objective_contribution=(
+                    objective_contributions[
+                        opportunity.opportunity_id
+                    ]
+                ),
+            )
             for opportunity in sorted(
                 self._selected_opportunities,
                 key=lambda item: (
@@ -211,7 +231,8 @@ class GreedyScheduler:
             unassigned_request_ids=unassigned_request_ids,
             notes=(
                 "Harmonogram wygenerowany deterministycznym "
-                "algorytmem zachłannym."
+                "algorytmem zachłannym. Nagroda priorytetowa jest "
+                "naliczana raz na zrealizowane zlecenie."
             ),
         )
 
@@ -246,7 +267,6 @@ class GreedyScheduler:
         request: ObservationRequest,
     ) -> None:
         candidates = self._sorted_candidates(
-            request,
             self._opportunities_by_request.get(
                 request.request_id,
                 [],
@@ -261,16 +281,10 @@ class GreedyScheduler:
             return
 
         if request.request_mode == RequestMode.DUAL_OPTIONAL:
-            self._plan_dual_optional(
-                request,
-                candidates,
-            )
+            self._plan_dual_optional(candidates)
             return
 
-        self._plan_dual_required(
-            request,
-            candidates,
-        )
+        self._plan_dual_required(candidates)
 
     def _plan_single(
         self,
@@ -285,7 +299,6 @@ class GreedyScheduler:
 
     def _plan_dual_optional(
         self,
-        request: ObservationRequest,
         candidates: list[AcquisitionOpportunity],
     ) -> None:
         first_opportunity = self._first_assignable(
@@ -304,7 +317,6 @@ class GreedyScheduler:
         )
 
         second_candidates = self._sorted_candidates(
-            request,
             [
                 opportunity
                 for opportunity in candidates
@@ -321,7 +333,6 @@ class GreedyScheduler:
 
     def _plan_dual_required(
         self,
-        request: ObservationRequest,
         candidates: list[AcquisitionOpportunity],
     ) -> None:
         sar_candidates = [
@@ -355,14 +366,8 @@ class GreedyScheduler:
         pairs.sort(
             key=lambda pair: (
                 -(
-                    self._score_opportunity(
-                        pair[0],
-                        request,
-                    )
-                    + self._score_opportunity(
-                        pair[1],
-                        request,
-                    )
+                    self._acquisition_score(pair[0])
+                    + self._acquisition_score(pair[1])
                 ),
                 max(
                     pair[0].end_utc,
@@ -386,16 +391,12 @@ class GreedyScheduler:
 
     def _sorted_candidates(
         self,
-        request: ObservationRequest,
         candidates: list[AcquisitionOpportunity],
     ) -> list[AcquisitionOpportunity]:
         return sorted(
             candidates,
             key=lambda opportunity: (
-                -self._score_opportunity(
-                    opportunity,
-                    request,
-                ),
+                -self._acquisition_score(opportunity),
                 opportunity.start_utc,
                 opportunity.opportunity_id,
             ),
@@ -411,30 +412,155 @@ class GreedyScheduler:
 
         return None
 
-    def _score_opportunity(
+    def _request_reward(
         self,
-        opportunity: AcquisitionOpportunity,
         request: ObservationRequest,
     ) -> float:
-        mandatory_bonus_share = 0.0
+        """Nagroda przyznawana raz za realizację zlecenia."""
 
-        if request.is_mandatory:
-            mandatory_bonus_share = (
-                self.config.mandatory_bonus
-                / request.maximum_allowed_acquisitions
-            )
-
-        score = (
+        reward = (
             request.priority
             * self.config.priority_weight
-            + opportunity.quality_score
+        )
+
+        if request.is_mandatory:
+            reward += self.config.mandatory_bonus
+
+        return round(
+            reward,
+            6,
+        )
+
+    def _acquisition_score(
+        self,
+        opportunity: AcquisitionOpportunity,
+    ) -> float:
+        """Ocena jakości pojedynczej akwizycji."""
+
+        score = (
+            opportunity.quality_score
             * self.config.quality_weight
             + opportunity.coverage_ratio
             * self.config.coverage_weight
-            + mandatory_bonus_share
         )
 
-        return round(score, 6)
+        return round(
+            score,
+            6,
+        )
+
+    def _calculate_objective_contributions(
+        self,
+    ) -> dict[str, float]:
+        """Rozdziela nagrodę zlecenia pomiędzy wybrane wpisy."""
+
+        selected_by_request: dict[
+            str,
+            list[AcquisitionOpportunity],
+        ] = defaultdict(list)
+
+        for opportunity in self._selected_opportunities:
+            selected_by_request[
+                opportunity.request_id
+            ].append(opportunity)
+
+        contributions: dict[str, float] = {}
+
+        for request_id, opportunities in (
+            selected_by_request.items()
+        ):
+            request = self.request_set.get_request(
+                request_id
+            )
+
+            request_reward = self._request_reward(
+                request
+            )
+
+            if request.request_mode == RequestMode.SINGLE:
+                opportunity = opportunities[0]
+
+                contributions[
+                    opportunity.opportunity_id
+                ] = round(
+                    request_reward
+                    + self._acquisition_score(opportunity),
+                    6,
+                )
+
+                continue
+
+            if (
+                request.request_mode
+                == RequestMode.DUAL_REQUIRED
+            ):
+                sensor_types = {
+                    opportunity.sensor_type
+                    for opportunity in opportunities
+                }
+
+                is_complete = (
+                    len(opportunities) == 2
+                    and sensor_types
+                    == {
+                        SensorType.SAR,
+                        SensorType.OPTICAL,
+                    }
+                )
+
+                if is_complete:
+                    reward_share = (
+                        request_reward
+                        / len(opportunities)
+                    )
+                else:
+                    reward_share = 0.0
+
+                for opportunity in opportunities:
+                    contributions[
+                        opportunity.opportunity_id
+                    ] = round(
+                        reward_share
+                        + self._acquisition_score(opportunity),
+                        6,
+                    )
+
+                continue
+
+            ordered_opportunities = sorted(
+                opportunities,
+                key=lambda opportunity: (
+                    -self._acquisition_score(opportunity),
+                    opportunity.opportunity_id,
+                ),
+            )
+
+            primary_opportunity = ordered_opportunities[0]
+
+            contributions[
+                primary_opportunity.opportunity_id
+            ] = round(
+                request_reward
+                + self._acquisition_score(
+                    primary_opportunity
+                ),
+                6,
+            )
+
+            for secondary_opportunity in (
+                ordered_opportunities[1:]
+            ):
+                contributions[
+                    secondary_opportunity.opportunity_id
+                ] = round(
+                    self._acquisition_score(
+                        secondary_opportunity
+                    )
+                    + self.config.dual_optional_second_bonus,
+                    6,
+                )
+
+        return contributions
 
     def _can_assign(
         self,
@@ -560,12 +686,10 @@ class GreedyScheduler:
 
     def _create_schedule_entry(
         self,
+        *,
         opportunity: AcquisitionOpportunity,
+        objective_contribution: float,
     ) -> ScheduleEntry:
-        request = self.request_set.get_request(
-            opportunity.request_id
-        )
-
         entry_suffix = opportunity.opportunity_id.removeprefix(
             "OPP-"
         )
@@ -585,10 +709,7 @@ class GreedyScheduler:
                 opportunity.estimated_data_volume_mb
             ),
             objective_contribution=(
-                self._score_opportunity(
-                    opportunity,
-                    request,
-                )
+                objective_contribution
             ),
             lock_reason=None,
             notes=None,

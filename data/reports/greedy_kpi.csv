@@ -15,7 +15,7 @@ sar_acquisitions,12
 optical_acquisitions,12
 total_duration_s,636.674
 total_data_volume_mb,11240.137
-objective_value,2437.320613
+objective_value,2077.320613
 average_selected_quality,0.707053
 average_selected_coverage,0.966933
 selected_to_feasible_ratio,0.421053

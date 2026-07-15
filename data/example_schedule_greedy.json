@@ -67,7 +67,7 @@
       "end_utc": "2026-07-15T03:46:25.391142Z",
       "status": "PLANNED",
       "estimated_data_volume_mb": 255.006,
-      "objective_contribution": 154.465,
+      "objective_contribution": 104.465,
       "lock_reason": null,
       "notes": null
     },
@@ -83,7 +83,7 @@
       "end_utc": "2026-07-15T03:49:33.278541Z",
       "status": "PLANNED",
       "estimated_data_volume_mb": 660.006,
-      "objective_contribution": 153.649582,
+      "objective_contribution": 103.649582,
       "lock_reason": null,
       "notes": null
     },
@@ -99,7 +99,7 @@
       "end_utc": "2026-07-15T03:55:06.635458Z",
       "status": "PLANNED",
       "estimated_data_volume_mb": 660.006,
-      "objective_contribution": 153.649582,
+      "objective_contribution": 103.649582,
       "lock_reason": null,
       "notes": null
     },
@@ -115,7 +115,7 @@
       "end_utc": "2026-07-15T03:56:33.741764Z",
       "status": "PLANNED",
       "estimated_data_volume_mb": 255.006,
-      "objective_contribution": 154.465,
+      "objective_contribution": 104.465,
       "lock_reason": null,
       "notes": null
     },
@@ -211,7 +211,7 @@
       "end_utc": "2026-07-15T07:03:13.388424Z",
       "status": "PLANNED",
       "estimated_data_volume_mb": 660.006,
-      "objective_contribution": 83.649582,
+      "objective_contribution": 8.649582,
       "lock_reason": null,
       "notes": null
     },
@@ -243,7 +243,7 @@
       "end_utc": "2026-07-15T07:34:55.628708Z",
       "status": "PLANNED",
       "estimated_data_volume_mb": 660.006,
-      "objective_contribution": 93.649582,
+      "objective_contribution": 8.649582,
       "lock_reason": null,
       "notes": null
     },
@@ -394,8 +394,8 @@
   ],
   "frozen_until_utc": null,
   "memory_reserve_ratio": 0.0,
-  "objective_value": 2437.320613,
-  "solver_runtime_s": 0.000432,
+  "objective_value": 2077.320613,
+  "solver_runtime_s": 0.000449,
   "unassigned_request_ids": [],
-  "notes": "Harmonogram wygenerowany deterministycznym algorytmem zachłannym."
+  "notes": "Harmonogram wygenerowany deterministycznym algorytmem zachłannym. Nagroda priorytetowa jest naliczana raz na zrealizowane zlecenie."
 }
