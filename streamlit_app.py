@@ -28,6 +28,7 @@ from app.services.scenario_service import (
     ScenarioService,
 )
 from app.ui import (
+    build_gantt_figure,
     build_planning_metrics,
     build_request_status_dataframe,
     build_satellite_usage_dataframe,
@@ -107,7 +108,7 @@ def main() -> None:
     (
         submitted,
         scenario_id,
-        algorithm,
+        _algorithm,
         options,
     ) = render_sidebar_form(
         definitions_by_id
@@ -121,9 +122,11 @@ def main() -> None:
         st.error(
             "Nie udało się załadować scenariusza."
         )
+
         st.exception(
             error
         )
+
         st.stop()
 
     render_scenario_overview(
@@ -145,6 +148,7 @@ def main() -> None:
             "Skonfiguruj parametry w panelu bocznym "
             "i uruchom planowanie."
         )
+
         return
 
     if not isinstance(
@@ -159,6 +163,7 @@ def main() -> None:
         st.error(
             "Stan aplikacji zawiera niepoprawny wynik."
         )
+
         return
 
     render_planning_result(
@@ -567,12 +572,14 @@ def render_result_tabs(
     result: PlanningResult,
 ) -> None:
     (
+        gantt_tab,
         schedule_tab,
         requests_tab,
         satellites_tab,
         export_tab,
     ) = st.tabs(
         [
+            "Gantt",
             "Harmonogram",
             "Zlecenia",
             "Satelity",
@@ -603,6 +610,111 @@ def render_result_tabs(
             result
         )
     )
+
+    schedule_key = (
+        result.schedule.schedule_id
+    )
+
+    with gantt_tab:
+        st.markdown(
+            "### Oś czasu akwizycji"
+        )
+
+        if entries_dataframe.empty:
+            st.warning(
+                "Harmonogram nie zawiera aktywnych akwizycji."
+            )
+        else:
+            satellite_options = [
+                satellite.satellite_id
+                for satellite
+                in result.scenario.catalog.satellites
+            ]
+
+            sensor_options = sorted(
+                entries_dataframe[
+                    "sensor_type"
+                ].dropna().unique()
+            )
+
+            first_filter, second_filter, third_filter = (
+                st.columns(
+                    [
+                        3,
+                        2,
+                        2,
+                    ]
+                )
+            )
+
+            with first_filter:
+                selected_satellites = st.multiselect(
+                    "Satelity",
+                    options=satellite_options,
+                    default=satellite_options,
+                    key=(
+                        "gantt_satellites_"
+                        f"{schedule_key}"
+                    ),
+                )
+
+            with second_filter:
+                selected_sensor_types = st.multiselect(
+                    "Typy sensorów",
+                    options=sensor_options,
+                    default=sensor_options,
+                    key=(
+                        "gantt_sensors_"
+                        f"{schedule_key}"
+                    ),
+                )
+
+            with third_filter:
+                full_horizon = st.checkbox(
+                    "Pełny horyzont 24 h",
+                    value=False,
+                    key=(
+                        "gantt_full_horizon_"
+                        f"{schedule_key}"
+                    ),
+                )
+
+            if (
+                not selected_satellites
+                or not selected_sensor_types
+            ):
+                st.info(
+                    "Wybierz co najmniej jednego satelitę "
+                    "i jeden typ sensora."
+                )
+            else:
+                figure = build_gantt_figure(
+                    result,
+                    satellite_ids=selected_satellites,
+                    sensor_types=selected_sensor_types,
+                    full_horizon=full_horizon,
+                )
+
+                st.plotly_chart(
+                    figure,
+                    width="stretch",
+                    height="content",
+                    key=(
+                        "gantt_chart_"
+                        f"{schedule_key}"
+                    ),
+                    on_select="ignore",
+                    config={
+                        "displaylogo": False,
+                        "scrollZoom": True,
+                    },
+                )
+
+                st.caption(
+                    "Najedź kursorem na akwizycję, aby "
+                    "wyświetlić szczegóły. Użyj dolnego "
+                    "suwaka albo narzędzi powiększenia."
+                )
 
     with schedule_tab:
         st.markdown(
@@ -646,9 +758,11 @@ def render_result_tabs(
                 height=520,
                 hide_index=True,
                 column_config={
-                    "duration_s": st.column_config.NumberColumn(
-                        "Czas [s]",
-                        format="%.3f",
+                    "duration_s": (
+                        st.column_config.NumberColumn(
+                            "Czas [s]",
+                            format="%.3f",
+                        )
                     ),
                     "estimated_data_volume_mb": (
                         st.column_config.NumberColumn(
@@ -716,7 +830,8 @@ def render_result_tabs(
 
         if unfulfilled_dataframe.empty:
             st.success(
-                "Wszystkie zlecenia zostały w pełni zrealizowane."
+                "Wszystkie zlecenia zostały "
+                "w pełni zrealizowane."
             )
         else:
             st.dataframe(
@@ -855,10 +970,16 @@ def render_result_tabs(
 def algorithm_display_name(
     algorithm_value: str,
 ) -> str:
-    if algorithm_value == PlanningAlgorithm.GREEDY.value:
+    if (
+        algorithm_value
+        == PlanningAlgorithm.GREEDY.value
+    ):
         return "Greedy"
 
-    if algorithm_value == PlanningAlgorithm.CP_SAT.value:
+    if (
+        algorithm_value
+        == PlanningAlgorithm.CP_SAT.value
+    ):
         return "CP-SAT"
 
     return algorithm_value.replace(

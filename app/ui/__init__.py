@@ -7,6 +7,11 @@ from app.ui.dataframes import (
     build_schedule_entries_dataframe,
     build_unfulfilled_requests_dataframe,
 )
+from app.ui.gantt import (
+    GANTT_COLUMNS,
+    build_gantt_dataframe,
+    build_gantt_figure,
+)
 from app.ui.metrics import (
     PlanningMetrics,
     build_planning_metrics,
@@ -16,10 +21,13 @@ from app.ui.metrics import (
 )
 
 __all__ = [
+    "GANTT_COLUMNS",
     "PlanningMetrics",
     "REQUEST_STATUS_COLUMNS",
     "SATELLITE_USAGE_COLUMNS",
     "SCHEDULE_ENTRY_COLUMNS",
+    "build_gantt_dataframe",
+    "build_gantt_figure",
     "build_planning_metrics",
     "build_request_status_dataframe",
     "build_satellite_usage_dataframe",
