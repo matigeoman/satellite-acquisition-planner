@@ -827,8 +827,8 @@ def render_result_tabs(
             st.caption(
                 f"Widoczne zlecenia: "
                 f"{visible_request_count}. "
-                "Romb oznacza obowiązkowe zlecenie "
-                "punktowe, a grubsza obwódka — "
+                "Większy punkt oznacza zlecenie "
+                "obowiązkowe, a grubsza obwódka — "
                 "obowiązkowy poligon."
             )
 

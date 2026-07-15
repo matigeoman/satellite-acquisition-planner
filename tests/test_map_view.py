@@ -133,6 +133,39 @@ def test_polygon_rings_are_closed(
     )
 
 
+def test_polygon_rings_are_counterclockwise(
+    example_result,
+) -> None:
+    dataframe = build_request_map_dataframe(
+        example_result
+    )
+
+    polygons = dataframe.loc[
+        dataframe["geometry_type"]
+        == "POLYGON"
+    ]
+
+    for coordinates in polygons[
+        "coordinates"
+    ]:
+        signed_area = 0.5 * sum(
+            (
+                current[0]
+                * following[1]
+                - following[0]
+                * current[1]
+            )
+            for current, following
+            in zip(
+                coordinates[:-1],
+                coordinates[1:],
+                strict=True,
+            )
+        )
+
+        assert signed_area >= 0.0
+
+
 def test_map_figure_metadata_matches_requests(
     example_result,
 ) -> None:
@@ -160,6 +193,26 @@ def test_map_figure_metadata_matches_requests(
             "polygon_count"
         ]
         == 20
+    )
+
+
+def test_map_uses_planar_scattermap_traces(
+    example_result,
+) -> None:
+    figure = build_request_map_figure(
+        example_result
+    )
+
+    assert figure.data
+
+    assert all(
+        trace.type == "scattermap"
+        for trace in figure.data
+    )
+
+    assert (
+        figure.layout.map.style
+        == "carto-positron"
     )
 
 

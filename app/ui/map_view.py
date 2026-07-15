@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from html import escape
+from math import log2
 from typing import Any
 
 import pandas as pd
@@ -30,7 +31,7 @@ MAP_COLUMNS = [
 STATUS_STYLES = {
     "FULLY_SATISFIED": {
         "label": "W pełni zrealizowane",
-        "color": "#2E8B57",
+        "color": "#16A34A",
     },
     "PARTIALLY_SATISFIED": {
         "label": "Częściowo zrealizowane",
@@ -139,7 +140,13 @@ def build_request_map_figure(
     geometry_types: Iterable[str] | None = None,
     mandatory_only: bool = False,
 ) -> go.Figure:
-    """Buduje interaktywną mapę geometrii Point i Polygon."""
+    """
+    Buduje interaktywną mapę geometrii Point i Polygon.
+
+    Mapa używa płaskiego układu Web Mercator. Dzięki temu poligony
+    są wypełniane lokalnie, zamiast obejmować dopełnienie obszaru
+    na projekcji globu.
+    """
 
     dataframe = build_request_map_dataframe(
         result
@@ -182,9 +189,9 @@ def build_request_map_figure(
         return _build_empty_map_figure()
 
     figure = go.Figure()
-    legend_keys: set[tuple[str, str]] = set()
+    statuses_in_legend: set[str] = set()
 
-    for status in STATUS_STYLES:
+    for status, style in STATUS_STYLES.items():
         status_dataframe = dataframe.loc[
             dataframe["fulfillment_status"]
             == status
@@ -198,63 +205,45 @@ def build_request_map_figure(
             == "POINT"
         ]
 
-        if not point_dataframe.empty:
-            legend_key = (
-                status,
-                "POINT",
+        for is_mandatory, marker_size in (
+            (False, 12),
+            (True, 18),
+        ):
+            selected_points = point_dataframe.loc[
+                point_dataframe["is_mandatory"]
+                == is_mandatory
+            ]
+
+            if selected_points.empty:
+                continue
+
+            show_legend = (
+                status not in statuses_in_legend
             )
 
             figure.add_trace(
-                go.Scattergeo(
-                    lon=point_dataframe[
+                go.Scattermap(
+                    lon=selected_points[
                         "centroid_lon"
                     ],
-                    lat=point_dataframe[
+                    lat=selected_points[
                         "centroid_lat"
                     ],
                     mode="markers",
-                    name=(
-                        f"{STATUS_STYLES[status]['label']} "
-                        "— punkt"
-                    ),
+                    name=style["label"],
                     legendgroup=status,
-                    showlegend=(
-                        legend_key
-                        not in legend_keys
-                    ),
+                    showlegend=show_legend,
                     marker={
-                        "size": [
-                            15
-                            if is_mandatory
-                            else 10
-                            for is_mandatory
-                            in point_dataframe[
-                                "is_mandatory"
-                            ]
-                        ],
-                        "symbol": [
-                            "diamond"
-                            if is_mandatory
-                            else "circle"
-                            for is_mandatory
-                            in point_dataframe[
-                                "is_mandatory"
-                            ]
-                        ],
-                        "color": (
-                            STATUS_STYLES[
-                                status
-                            ]["color"]
-                        ),
-                        "opacity": 0.9,
-                        "line": {
-                            "width": 1,
-                            "color": "#111827",
-                        },
+                        "size": marker_size,
+                        "symbol": "circle",
+                        "color": style["color"],
+                        "opacity": 0.92,
+                        "allowoverlap": True,
                     },
                     hovertext=[
                         _build_hover_text(row)
-                        for row in point_dataframe.to_dict(
+                        for row
+                        in selected_points.to_dict(
                             orient="records"
                         )
                     ],
@@ -262,8 +251,8 @@ def build_request_map_figure(
                 )
             )
 
-            legend_keys.add(
-                legend_key
+            statuses_in_legend.add(
+                status
             )
 
         polygon_dataframe = status_dataframe.loc[
@@ -274,60 +263,41 @@ def build_request_map_figure(
         for row in polygon_dataframe.to_dict(
             orient="records"
         ):
-            legend_key = (
-                status,
-                "POLYGON",
-            )
-
             outer_ring = row[
                 "coordinates"
             ]
 
-            longitudes = [
-                position[0]
-                for position in outer_ring
-            ]
-
-            latitudes = [
-                position[1]
-                for position in outer_ring
-            ]
+            show_legend = (
+                status not in statuses_in_legend
+            )
 
             figure.add_trace(
-                go.Scattergeo(
-                    lon=longitudes,
-                    lat=latitudes,
+                go.Scattermap(
+                    lon=[
+                        position[0]
+                        for position in outer_ring
+                    ],
+                    lat=[
+                        position[1]
+                        for position in outer_ring
+                    ],
                     mode="lines",
                     fill="toself",
                     fillcolor=_with_alpha(
-                        STATUS_STYLES[
-                            status
-                        ]["color"],
-                        0.22,
+                        style["color"],
+                        0.18,
                     ),
                     line={
-                        "color": (
-                            STATUS_STYLES[
-                                status
-                            ]["color"]
-                        ),
+                        "color": style["color"],
                         "width": (
-                            3
-                            if row[
-                                "is_mandatory"
-                            ]
+                            4
+                            if row["is_mandatory"]
                             else 2
                         ),
                     },
-                    name=(
-                        f"{STATUS_STYLES[status]['label']} "
-                        "— poligon"
-                    ),
+                    name=style["label"],
                     legendgroup=status,
-                    showlegend=(
-                        legend_key
-                        not in legend_keys
-                    ),
+                    showlegend=show_legend,
                     hovertext=[
                         _build_hover_text(row)
                         for _ in outer_ring
@@ -336,14 +306,12 @@ def build_request_map_figure(
                 )
             )
 
-            legend_keys.add(
-                legend_key
+            statuses_in_legend.add(
+                status
             )
 
-    longitude_range, latitude_range = (
-        _calculate_map_ranges(
-            dataframe
-        )
+    center, zoom = _calculate_map_view(
+        dataframe
     )
 
     point_count = int(
@@ -360,58 +328,39 @@ def build_request_map_figure(
         ).sum()
     )
 
-    figure.update_geos(
-        scope="europe",
-        projection_type="mercator",
-        showland=True,
-        landcolor="#F3F4F6",
-        showocean=True,
-        oceancolor="#EAF2F8",
-        showlakes=True,
-        lakecolor="#EAF2F8",
-        showcountries=True,
-        countrycolor="#9CA3AF",
-        showcoastlines=True,
-        coastlinecolor="#6B7280",
-        lonaxis={
-            "range": longitude_range,
-            "showgrid": True,
-            "gridwidth": 0.5,
-            "gridcolor": "#D1D5DB",
-        },
-        lataxis={
-            "range": latitude_range,
-            "showgrid": True,
-            "gridwidth": 0.5,
-            "gridcolor": "#D1D5DB",
-        },
-        resolution=50,
-    )
-
     figure.update_layout(
-        title="Mapa zleceń obserwacyjnych",
         height=650,
         hovermode="closest",
+        dragmode="pan",
         uirevision=(
             "request-map-"
             f"{result.schedule.schedule_id}"
         ),
+        map={
+            "style": "carto-positron",
+            "center": center,
+            "zoom": zoom,
+            "bearing": 0,
+            "pitch": 0,
+        },
         legend={
             "title": {
-                "text": "Status i geometria",
+                "text": "Status realizacji",
             },
             "orientation": "h",
-            "yanchor": "bottom",
-            "y": 1.01,
-            "xanchor": "left",
-            "x": 0.0,
+            "yanchor": "top",
+            "y": -0.04,
+            "xanchor": "center",
+            "x": 0.5,
         },
         margin={
-            "l": 10,
-            "r": 10,
-            "t": 95,
-            "b": 10,
+            "l": 0,
+            "r": 0,
+            "t": 10,
+            "b": 80,
         },
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         meta={
             "request_count": len(
                 dataframe
@@ -531,12 +480,13 @@ def _normalize_geometry(
                 "Pierścień Polygon wymaga co najmniej czterech pozycji"
             )
 
-        if outer_ring[0] != outer_ring[-1]:
-            outer_ring.append(
-                list(
-                    outer_ring[0]
-                )
-            )
+        outer_ring = _close_ring(
+            outer_ring
+        )
+
+        outer_ring = _ensure_counterclockwise_ring(
+            outer_ring
+        )
 
         centroid_lon, centroid_lat = (
             _polygon_centroid(
@@ -597,6 +547,81 @@ def _normalize_position(
         longitude,
         latitude,
     ]
+
+
+def _close_ring(
+    ring: list[list[float]],
+) -> list[list[float]]:
+    closed_ring = [
+        list(position)
+        for position in ring
+    ]
+
+    if closed_ring[0] != closed_ring[-1]:
+        closed_ring.append(
+            list(
+                closed_ring[0]
+            )
+        )
+
+    return closed_ring
+
+
+def _ensure_counterclockwise_ring(
+    ring: list[list[float]],
+) -> list[list[float]]:
+    """
+    Normalizuje kierunek zewnętrznego pierścienia.
+
+    Dodatnie pole skierowane oznacza kolejność przeciwną
+    do ruchu wskazówek zegara.
+    """
+
+    closed_ring = _close_ring(
+        ring
+    )
+
+    if _ring_signed_area(
+        closed_ring
+    ) >= 0.0:
+        return closed_ring
+
+    reversed_vertices = list(
+        reversed(
+            closed_ring[:-1]
+        )
+    )
+
+    return _close_ring(
+        reversed_vertices
+    )
+
+
+def _ring_signed_area(
+    ring: Sequence[Sequence[float]],
+) -> float:
+    closed_ring = (
+        list(ring)
+        if ring[0] == ring[-1]
+        else [
+            *ring,
+            ring[0],
+        ]
+    )
+
+    return 0.5 * sum(
+        (
+            current[0]
+            * following[1]
+            - following[0]
+            * current[1]
+        )
+        for current, following in zip(
+            closed_ring[:-1],
+            closed_ring[1:],
+            strict=True,
+        )
+    )
 
 
 def _polygon_centroid(
@@ -666,9 +691,9 @@ def _polygon_centroid(
     )
 
 
-def _calculate_map_ranges(
+def _calculate_map_view(
     dataframe: pd.DataFrame,
-) -> tuple[list[float], list[float]]:
+) -> tuple[dict[str, float], float]:
     longitudes: list[float] = []
     latitudes: list[float] = []
 
@@ -711,49 +736,72 @@ def _calculate_map_ranges(
         latitudes
     )
 
-    longitude_padding = max(
+    center = {
+        "lon": (
+            minimum_longitude
+            + maximum_longitude
+        )
+        / 2.0,
+        "lat": (
+            minimum_latitude
+            + maximum_latitude
+        )
+        / 2.0,
+    }
+
+    longitude_span = max(
         (
             maximum_longitude
             - minimum_longitude
         )
-        * 0.12,
+        * 1.35,
         0.35,
     )
 
-    latitude_padding = max(
+    latitude_span = max(
         (
             maximum_latitude
             - minimum_latitude
         )
-        * 0.12,
+        * 1.35,
         0.25,
     )
 
+    longitude_zoom = (
+        log2(
+            360.0
+            / longitude_span
+        )
+        - 1.0
+    )
+
+    latitude_zoom = (
+        log2(
+            170.0
+            / latitude_span
+        )
+        - 1.0
+    )
+
+    zoom = min(
+        longitude_zoom,
+        latitude_zoom,
+    )
+
+    zoom = max(
+        3.0,
+        min(
+            11.0,
+            zoom,
+        ),
+    )
+
     return (
-        [
-            max(
-                -180.0,
-                minimum_longitude
-                - longitude_padding,
-            ),
-            min(
-                180.0,
-                maximum_longitude
-                + longitude_padding,
-            ),
-        ],
-        [
-            max(
-                -90.0,
-                minimum_latitude
-                - latitude_padding,
-            ),
-            min(
-                90.0,
-                maximum_latitude
-                + latitude_padding,
-            ),
-        ],
+        center,
+        round(
+            zoom,
+            3,
+        ),
     )
 
 
@@ -804,6 +852,11 @@ def _with_alpha(
             "Kolor musi mieć format #RRGGBB"
         )
 
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError(
+            "alpha musi należeć do zakresu [0, 1]"
+        )
+
     red = int(
         normalized[0:2],
         16,
@@ -842,14 +895,23 @@ def _build_empty_map_figure() -> go.Figure:
     )
 
     figure.update_layout(
-        title="Mapa zleceń obserwacyjnych",
         height=520,
+        map={
+            "style": "carto-positron",
+            "center": {
+                "lon": 19.0,
+                "lat": 52.0,
+            },
+            "zoom": 4.5,
+        },
         margin={
-            "l": 10,
-            "r": 10,
-            "t": 70,
+            "l": 0,
+            "r": 0,
+            "t": 10,
             "b": 10,
         },
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         meta={
             "request_count": 0,
             "point_count": 0,
