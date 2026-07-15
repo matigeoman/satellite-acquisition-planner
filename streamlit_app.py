@@ -30,6 +30,8 @@ from app.services.scenario_service import (
 from app.ui import (
     build_gantt_figure,
     build_planning_metrics,
+    build_request_map_dataframe,
+    build_request_map_figure,
     build_request_status_dataframe,
     build_satellite_usage_dataframe,
     build_schedule_download_filename,
@@ -573,6 +575,7 @@ def render_result_tabs(
 ) -> None:
     (
         gantt_tab,
+        map_tab,
         schedule_tab,
         requests_tab,
         satellites_tab,
@@ -580,6 +583,7 @@ def render_result_tabs(
     ) = st.tabs(
         [
             "Gantt",
+            "Mapa",
             "Harmonogram",
             "Zlecenia",
             "Satelity",
@@ -595,6 +599,12 @@ def render_result_tabs(
 
     request_dataframe = (
         build_request_status_dataframe(
+            result
+        )
+    )
+
+    request_map_dataframe = (
+        build_request_map_dataframe(
             result
         )
     )
@@ -715,6 +725,112 @@ def render_result_tabs(
                     "wyświetlić szczegóły. Użyj dolnego "
                     "suwaka albo narzędzi powiększenia."
                 )
+
+    with map_tab:
+        st.markdown(
+            "### Geometrie zleceń obserwacyjnych"
+        )
+
+        status_options = sorted(
+            request_map_dataframe[
+                "fulfillment_status"
+            ].unique()
+        )
+
+        geometry_options = sorted(
+            request_map_dataframe[
+                "geometry_type"
+            ].unique()
+        )
+
+        first_filter, second_filter, third_filter = (
+            st.columns(
+                [
+                    3,
+                    2,
+                    2,
+                ]
+            )
+        )
+
+        with first_filter:
+            selected_statuses = st.multiselect(
+                "Status realizacji",
+                options=status_options,
+                default=status_options,
+                key=(
+                    "map_statuses_"
+                    f"{schedule_key}"
+                ),
+            )
+
+        with second_filter:
+            selected_geometry_types = st.multiselect(
+                "Typ geometrii",
+                options=geometry_options,
+                default=geometry_options,
+                key=(
+                    "map_geometries_"
+                    f"{schedule_key}"
+                ),
+            )
+
+        with third_filter:
+            mandatory_only = st.checkbox(
+                "Tylko obowiązkowe",
+                value=False,
+                key=(
+                    "map_mandatory_"
+                    f"{schedule_key}"
+                ),
+            )
+
+        if (
+            not selected_statuses
+            or not selected_geometry_types
+        ):
+            st.info(
+                "Wybierz co najmniej jeden status "
+                "i jeden typ geometrii."
+            )
+        else:
+            map_figure = build_request_map_figure(
+                result,
+                fulfillment_statuses=selected_statuses,
+                geometry_types=(
+                    selected_geometry_types
+                ),
+                mandatory_only=mandatory_only,
+            )
+
+            st.plotly_chart(
+                map_figure,
+                width="stretch",
+                height="content",
+                key=(
+                    "request_map_"
+                    f"{schedule_key}"
+                ),
+                on_select="ignore",
+                config={
+                    "displaylogo": False,
+                    "scrollZoom": True,
+                },
+            )
+
+            visible_request_count = (
+                map_figure.layout.meta[
+                    "request_count"
+                ]
+            )
+
+            st.caption(
+                f"Widoczne zlecenia: "
+                f"{visible_request_count}. "
+                "Romb oznacza obowiązkowe zlecenie "
+                "punktowe, a grubsza obwódka — "
+                "obowiązkowy poligon."
+            )
 
     with schedule_tab:
         st.markdown(
