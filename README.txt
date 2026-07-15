@@ -1,13 +1,21 @@
-MAP HOTFIX V2
+GREEDY VS CP-SAT COMPARISON STAGE
 
-Poprawia błąd:
-ValueError: zip() argument 2 is shorter than argument 1
+Dodaje:
+- app/services/comparison_service.py
+- app/ui/comparison.py
+- tests/test_comparison_service.py
+- tests/test_comparison_ui.py
 
-Przyczyna:
-dla zamkniętego pierścienia listy `ring` i `ring[1:]`
-mają różne długości. Poprawka porównuje:
-`ring[:-1]` z `ring[1:]`.
+Aktualizuje:
+- app/services/__init__.py
+- app/ui/__init__.py
+- streamlit_app.py
 
-Nadpisywane pliki:
-- app/ui/map_view.py
-- tests/test_map_view.py
+Funkcje UI:
+- tryb "Porównaj Greedy i CP-SAT"
+- KPI i wykresy porównawcze
+- tabela różnic na poziomie zleceń
+- wspólny Gantt obu harmonogramów
+- eksport dwóch plików CSV
+
+Rozpakuj do katalogu głównego projektu z opcją -Force.

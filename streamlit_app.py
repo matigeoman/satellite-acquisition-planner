@@ -18,6 +18,10 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from app.models.enums import PlanningAlgorithm
+from app.services.comparison_service import (
+    PlanningComparisonResult,
+    PlanningComparisonService,
+)
 from app.services.planning_service import (
     PlanningOptions,
     PlanningResult,
@@ -28,8 +32,14 @@ from app.services.scenario_service import (
     ScenarioService,
 )
 from app.ui import (
+    build_comparison_gantt_figure,
+    build_comparison_metrics,
+    build_comparison_summary_dataframe,
     build_gantt_figure,
+    build_objective_comparison_figure,
     build_planning_metrics,
+    build_request_comparison_dataframe,
+    build_request_counts_comparison_figure,
     build_request_map_dataframe,
     build_request_map_figure,
     build_request_status_dataframe,
@@ -79,6 +89,16 @@ def get_planning_service() -> PlanningService:
     scope="session",
     show_spinner=False,
 )
+def get_comparison_service() -> PlanningComparisonService:
+    return PlanningComparisonService(
+        planning_service=get_planning_service()
+    )
+
+
+@st.cache_resource(
+    scope="session",
+    show_spinner=False,
+)
 def load_scenario(
     scenario_id: str,
 ) -> LoadedScenario:
@@ -109,6 +129,7 @@ def main() -> None:
 
     (
         submitted,
+        comparison_mode,
         scenario_id,
         _algorithm,
         options,
@@ -136,10 +157,46 @@ def main() -> None:
     )
 
     if submitted:
-        run_planning(
-            scenario=selected_scenario,
-            options=options,
+        if comparison_mode:
+            run_comparison(
+                scenario=selected_scenario,
+                options=options,
+            )
+        else:
+            run_planning(
+                scenario=selected_scenario,
+                options=options,
+            )
+
+    if comparison_mode:
+        comparison = st.session_state.get(
+            "comparison_result"
         )
+
+        if comparison is None:
+            st.info(
+                "Uruchom porównanie Greedy i CP-SAT "
+                "z panelu bocznego."
+            )
+            return
+
+        if not isinstance(
+            comparison,
+            PlanningComparisonResult,
+        ):
+            st.session_state.pop(
+                "comparison_result",
+                None,
+            )
+            st.error(
+                "Stan aplikacji zawiera niepoprawne porównanie."
+            )
+            return
+
+        render_comparison_result(
+            comparison
+        )
+        return
 
     result = st.session_state.get(
         "planning_result"
@@ -177,6 +234,7 @@ def render_sidebar_form(
     definitions_by_id,
 ) -> tuple[
     bool,
+    bool,
     str,
     PlanningAlgorithm,
     PlanningOptions,
@@ -207,8 +265,17 @@ def render_sidebar_form(
                 ),
             )
 
+            comparison_mode = st.checkbox(
+                "Porównaj Greedy i CP-SAT",
+                value=False,
+                help=(
+                    "Uruchamia oba algorytmy z tymi samymi "
+                    "wagami i ograniczeniami."
+                ),
+            )
+
             algorithm_value = st.radio(
-                "Algorytm",
+                "Algorytm pojedynczy",
                 options=[
                     PlanningAlgorithm.GREEDY.value,
                     PlanningAlgorithm.CP_SAT.value,
@@ -228,6 +295,11 @@ def render_sidebar_form(
                     "Część pamięci pokładowej wyłączona "
                     "z bieżącego planowania."
                 ),
+            )
+
+            st.caption(
+                "W trybie porównania wybór algorytmu "
+                "pojedynczego jest ignorowany."
             )
 
             st.divider()
@@ -366,6 +438,7 @@ def render_sidebar_form(
 
     return (
         submitted,
+        comparison_mode,
         scenario_id,
         algorithm,
         options,
@@ -400,6 +473,11 @@ def run_planning(
             "planning_result"
         ] = result
 
+        st.session_state.pop(
+            "comparison_result",
+            None,
+        )
+
         st.success(
             "Planowanie zakończone."
         )
@@ -417,6 +495,428 @@ def run_planning(
         st.exception(
             error
         )
+
+
+
+def run_comparison(
+    *,
+    scenario: LoadedScenario,
+    options: PlanningOptions,
+) -> None:
+    comparison_service = (
+        get_comparison_service()
+    )
+
+    try:
+        with st.spinner(
+            "Uruchamianie Greedy i CP-SAT..."
+        ):
+            comparison = comparison_service.run(
+                scenario=scenario,
+                options=options,
+            )
+
+        st.session_state[
+            "comparison_result"
+        ] = comparison
+
+        st.session_state.pop(
+            "planning_result",
+            None,
+        )
+
+        st.success(
+            "Porównanie algorytmów zakończone."
+        )
+
+    except Exception as error:
+        st.session_state.pop(
+            "comparison_result",
+            None,
+        )
+
+        st.error(
+            "Porównanie zakończyło się błędem."
+        )
+
+        st.exception(
+            error
+        )
+
+
+def render_comparison_result(
+    comparison: PlanningComparisonResult,
+) -> None:
+    metrics = build_comparison_metrics(
+        comparison
+    )
+
+    st.divider()
+    st.subheader(
+        "Porównanie Greedy vs CP-SAT"
+    )
+
+    first_row = st.columns(6)
+
+    first_row[0].metric(
+        "Funkcja celu CP-SAT",
+        f"{metrics.cp_sat_objective:.3f}",
+        delta=(
+            f"{metrics.objective_difference:+.3f} "
+            "vs Greedy"
+        ),
+    )
+
+    first_row[1].metric(
+        "Poprawa celu",
+        f"{metrics.objective_improvement_pct:.2f}%",
+    )
+
+    first_row[2].metric(
+        "Zrealizowane CP-SAT",
+        metrics.cp_sat_fully_satisfied,
+        delta=(
+            f"{metrics.fully_satisfied_difference:+d}"
+        ),
+    )
+
+    first_row[3].metric(
+        "Nieprzypisane CP-SAT",
+        metrics.cp_sat_unassigned,
+        delta=(
+            f"{-metrics.unassigned_reduction:+d}"
+        ),
+        delta_color="inverse",
+    )
+
+    first_row[4].metric(
+        "Akwizycje CP-SAT",
+        metrics.cp_sat_acquisitions,
+        delta=(
+            f"{metrics.acquisition_difference:+d}"
+        ),
+    )
+
+    first_row[5].metric(
+        "Status CP-SAT",
+        metrics.cp_sat_solver_status,
+    )
+
+    second_row = st.columns(4)
+
+    second_row[0].metric(
+        "Cel Greedy",
+        f"{metrics.greedy_objective:.3f}",
+    )
+
+    second_row[1].metric(
+        "Zrealizowane Greedy",
+        metrics.greedy_fully_satisfied,
+    )
+
+    second_row[2].metric(
+        "Czas Greedy",
+        f"{metrics.greedy_runtime_s:.4f} s",
+    )
+
+    second_row[3].metric(
+        "Czas CP-SAT",
+        f"{metrics.cp_sat_runtime_s:.3f} s",
+    )
+
+    st.caption(
+        f"Scenariusz: {comparison.scenario.name} · "
+        f"łączny czas porównania: "
+        f"{comparison.wall_clock_runtime_s:.3f} s"
+    )
+
+    render_comparison_tabs(
+        comparison
+    )
+
+
+def render_comparison_tabs(
+    comparison: PlanningComparisonResult,
+) -> None:
+    (
+        summary_tab,
+        requests_tab,
+        gantt_tab,
+        export_tab,
+    ) = st.tabs(
+        [
+            "Podsumowanie",
+            "Różnice zleceń",
+            "Gantt porównawczy",
+            "Eksport porównania",
+        ]
+    )
+
+    summary_dataframe = (
+        build_comparison_summary_dataframe(
+            comparison
+        )
+    )
+
+    request_dataframe = (
+        build_request_comparison_dataframe(
+            comparison
+        )
+    )
+
+    comparison_key = (
+        comparison.scenario.scenario_id
+    )
+
+    with summary_tab:
+        first_chart, second_chart = st.columns(2)
+
+        with first_chart:
+            st.plotly_chart(
+                build_objective_comparison_figure(
+                    comparison
+                ),
+                width="stretch",
+                key=(
+                    "comparison_objective_"
+                    f"{comparison_key}"
+                ),
+                config={
+                    "displaylogo": False,
+                },
+            )
+
+        with second_chart:
+            st.plotly_chart(
+                build_request_counts_comparison_figure(
+                    comparison
+                ),
+                width="stretch",
+                key=(
+                    "comparison_requests_"
+                    f"{comparison_key}"
+                ),
+                config={
+                    "displaylogo": False,
+                },
+            )
+
+        st.markdown(
+            "### Zestawienie KPI"
+        )
+
+        st.dataframe(
+            summary_dataframe,
+            width="stretch",
+            hide_index=True,
+            column_config={
+                "objective_value": (
+                    st.column_config.NumberColumn(
+                        "Funkcja celu",
+                        format="%.3f",
+                    )
+                ),
+                "satisfaction_ratio": (
+                    st.column_config.ProgressColumn(
+                        "Realizacja",
+                        min_value=0.0,
+                        max_value=1.0,
+                        format="%.1f%%",
+                    )
+                ),
+                "solver_runtime_s": (
+                    st.column_config.NumberColumn(
+                        "Czas solvera [s]",
+                        format="%.4f",
+                    )
+                ),
+                "wall_clock_runtime_s": (
+                    st.column_config.NumberColumn(
+                        "Czas usługi [s]",
+                        format="%.4f",
+                    )
+                ),
+            },
+        )
+
+    with requests_tab:
+        st.markdown(
+            "### Zlecenia różniące wyniki algorytmów"
+        )
+
+        outcome_options = sorted(
+            request_dataframe[
+                "status_outcome"
+            ].unique()
+        )
+
+        relation_options = sorted(
+            request_dataframe[
+                "selection_relation"
+            ].unique()
+        )
+
+        first_filter, second_filter, third_filter = (
+            st.columns(
+                [
+                    3,
+                    3,
+                    2,
+                ]
+            )
+        )
+
+        with first_filter:
+            selected_outcomes = st.multiselect(
+                "Porównanie statusu",
+                options=outcome_options,
+                default=[
+                    outcome
+                    for outcome in outcome_options
+                    if outcome != "SAME_STATUS"
+                ],
+                key=(
+                    "comparison_outcomes_"
+                    f"{comparison_key}"
+                ),
+            )
+
+        with second_filter:
+            selected_relations = st.multiselect(
+                "Relacja wyboru okazji",
+                options=relation_options,
+                default=[
+                    relation
+                    for relation in relation_options
+                    if relation
+                    not in {
+                        "BOTH_SAME",
+                        "NEITHER",
+                    }
+                ],
+                key=(
+                    "comparison_relations_"
+                    f"{comparison_key}"
+                ),
+            )
+
+        with third_filter:
+            mandatory_only = st.checkbox(
+                "Tylko obowiązkowe",
+                value=False,
+                key=(
+                    "comparison_mandatory_"
+                    f"{comparison_key}"
+                ),
+            )
+
+        displayed_requests = request_dataframe.loc[
+            (
+                request_dataframe[
+                    "status_outcome"
+                ].isin(
+                    selected_outcomes
+                )
+            )
+            | (
+                request_dataframe[
+                    "selection_relation"
+                ].isin(
+                    selected_relations
+                )
+            )
+        ]
+
+        if mandatory_only:
+            displayed_requests = displayed_requests.loc[
+                displayed_requests[
+                    "is_mandatory"
+                ]
+            ]
+
+        if displayed_requests.empty:
+            st.info(
+                "Brak zleceń spełniających filtry."
+            )
+        else:
+            st.dataframe(
+                displayed_requests,
+                width="stretch",
+                height=520,
+                hide_index=True,
+            )
+
+        st.caption(
+            "CP_SAT_BETTER oznacza wyższy poziom "
+            "realizacji zlecenia. BOTH_DIFFERENT "
+            "oznacza, że oba algorytmy wybrały zlecenie, "
+            "ale użyły innych okazji akwizycyjnych."
+        )
+
+    with gantt_tab:
+        st.markdown(
+            "### Harmonogramy na wspólnej osi czasu"
+        )
+
+        st.plotly_chart(
+            build_comparison_gantt_figure(
+                comparison
+            ),
+            width="stretch",
+            key=(
+                "comparison_gantt_"
+                f"{comparison_key}"
+            ),
+            config={
+                "displaylogo": False,
+                "scrollZoom": True,
+            },
+        )
+
+    with export_tab:
+        st.markdown(
+            "### Eksport porównania"
+        )
+
+        summary_csv = summary_dataframe.to_csv(
+            index=False
+        ).encode(
+            "utf-8-sig"
+        )
+
+        requests_csv = request_dataframe.to_csv(
+            index=False
+        ).encode(
+            "utf-8-sig"
+        )
+
+        first, second = st.columns(2)
+
+        with first:
+            st.download_button(
+                "Pobierz KPI porównania CSV",
+                data=summary_csv,
+                file_name=(
+                    "comparison_"
+                    f"{comparison_key.lower()}_kpi.csv"
+                ),
+                mime="text/csv",
+                on_click="ignore",
+                width="stretch",
+            )
+
+        with second:
+            st.download_button(
+                "Pobierz różnice zleceń CSV",
+                data=requests_csv,
+                file_name=(
+                    "comparison_"
+                    f"{comparison_key.lower()}_requests.csv"
+                ),
+                mime="text/csv",
+                on_click="ignore",
+                width="stretch",
+            )
 
 
 def render_scenario_overview(

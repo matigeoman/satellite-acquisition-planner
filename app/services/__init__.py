@@ -1,3 +1,7 @@
+from app.services.comparison_service import (
+    PlanningComparisonResult,
+    PlanningComparisonService,
+)
 from app.services.planning_service import (
     PlanningOptions,
     PlanningResult,
@@ -12,6 +16,8 @@ from app.services.scenario_service import (
 
 __all__ = [
     "LoadedScenario",
+    "PlanningComparisonResult",
+    "PlanningComparisonService",
     "PlanningOptions",
     "PlanningResult",
     "PlanningService",

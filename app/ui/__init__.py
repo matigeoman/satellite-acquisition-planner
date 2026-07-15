@@ -1,3 +1,15 @@
+from app.ui.comparison import (
+    COMPARISON_SUMMARY_COLUMNS,
+    REQUEST_COMPARISON_COLUMNS,
+    ComparisonMetrics,
+    build_comparison_gantt_dataframe,
+    build_comparison_gantt_figure,
+    build_comparison_metrics,
+    build_comparison_summary_dataframe,
+    build_objective_comparison_figure,
+    build_request_comparison_dataframe,
+    build_request_counts_comparison_figure,
+)
 from app.ui.dataframes import (
     REQUEST_STATUS_COLUMNS,
     SATELLITE_USAGE_COLUMNS,
@@ -27,16 +39,26 @@ from app.ui.metrics import (
 )
 
 __all__ = [
+    "COMPARISON_SUMMARY_COLUMNS",
+    "ComparisonMetrics",
     "GANTT_COLUMNS",
     "MAP_COLUMNS",
     "PlanningMetrics",
+    "REQUEST_COMPARISON_COLUMNS",
     "REQUEST_STATUS_COLUMNS",
     "SATELLITE_USAGE_COLUMNS",
     "SCHEDULE_ENTRY_COLUMNS",
     "STATUS_STYLES",
+    "build_comparison_gantt_dataframe",
+    "build_comparison_gantt_figure",
+    "build_comparison_metrics",
+    "build_comparison_summary_dataframe",
     "build_gantt_dataframe",
     "build_gantt_figure",
+    "build_objective_comparison_figure",
     "build_planning_metrics",
+    "build_request_comparison_dataframe",
+    "build_request_counts_comparison_figure",
     "build_request_map_dataframe",
     "build_request_map_figure",
     "build_request_status_dataframe",
