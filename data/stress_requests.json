@@ -1,0 +1,2987 @@
+{
+  "request_set_id": "REQSET-PL-STRESS",
+  "name": "Dobowy scenariusz stresowy",
+  "version": "1.0.0",
+  "horizon_start_utc": "2026-07-16T00:00:00Z",
+  "horizon_end_utc": "2026-07-17T00:00:00Z",
+  "generated_at_utc": "2026-07-15T20:00:00Z",
+  "requests": [
+    {
+      "request_id": "REQ-STRESS-SAR-T01-A",
+      "name": "Pułapka SAR 01 — kotwica A",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T00:58:00Z",
+      "latest_end_utc": "2026-07-16T01:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T01-A",
+      "notes": "TRAP|SAR|01|A"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T01-B",
+      "name": "Pułapka SAR 01 — zlecenie zależne B",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.5666,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.272
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T00:58:00Z",
+      "latest_end_utc": "2026-07-16T01:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T01-B",
+      "notes": "TRAP|SAR|01|B"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T01-C",
+      "name": "Pułapka SAR 01 — zlecenie zależne C",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T00:58:00Z",
+      "latest_end_utc": "2026-07-16T01:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T01-C",
+      "notes": "TRAP|SAR|01|C"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T02-A",
+      "name": "Pułapka SAR 02 — kotwica A",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.9585,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.0279
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T02:28:00Z",
+      "latest_end_utc": "2026-07-16T03:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T02-A",
+      "notes": "TRAP|SAR|02|A"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T02-B",
+      "name": "Pułapka SAR 02 — zlecenie zależne B",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T02:28:00Z",
+      "latest_end_utc": "2026-07-16T02:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T02-B",
+      "notes": "TRAP|SAR|02|B"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T02-C",
+      "name": "Pułapka SAR 02 — zlecenie zależne C",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              14.4728,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.3485
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T02:28:00Z",
+      "latest_end_utc": "2026-07-16T02:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T02-C",
+      "notes": "TRAP|SAR|02|C"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T03-A",
+      "name": "Pułapka SAR 03 — kotwica A",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T03:58:00Z",
+      "latest_end_utc": "2026-07-16T04:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T03-A",
+      "notes": "TRAP|SAR|03|A"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T03-B",
+      "name": "Pułapka SAR 03 — zlecenie zależne B",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.088800000000003,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.0525
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T03:58:00Z",
+      "latest_end_utc": "2026-07-16T04:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T03-B",
+      "notes": "TRAP|SAR|03|B"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T03-C",
+      "name": "Pułapka SAR 03 — zlecenie zależne C",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.0238,
+          50.2649
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T03:58:00Z",
+      "latest_end_utc": "2026-07-16T04:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T03-C",
+      "notes": "TRAP|SAR|03|C"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T04-A",
+      "name": "Pułapka SAR 04 — kotwica A",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              21.9247,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              50.1212
+            ],
+            [
+              21.9247,
+              50.1212
+            ],
+            [
+              21.9247,
+              49.961200000000005
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T05:28:00Z",
+      "latest_end_utc": "2026-07-16T06:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T04-A",
+      "notes": "TRAP|SAR|04|A"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T04-B",
+      "name": "Pułapka SAR 04 — zlecenie zależne B",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.5984,
+          53.0138
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T05:28:00Z",
+      "latest_end_utc": "2026-07-16T05:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T04-B",
+      "notes": "TRAP|SAR|04|B"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T04-C",
+      "name": "Pułapka SAR 04 — zlecenie zależne C",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.376,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.8392
+            ],
+            [
+              19.376,
+              51.8392
+            ],
+            [
+              19.376,
+              51.6792
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T05:28:00Z",
+      "latest_end_utc": "2026-07-16T05:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T04-C",
+      "notes": "TRAP|SAR|04|C"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T05-A",
+      "name": "Pułapka SAR 05 — kotwica A",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.4801,
+          53.7784
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T06:58:00Z",
+      "latest_end_utc": "2026-07-16T07:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T05-A",
+      "notes": "TRAP|SAR|05|A"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T05-B",
+      "name": "Pułapka SAR 05 — zlecenie zależne B",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              17.8413,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.5951
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T06:58:00Z",
+      "latest_end_utc": "2026-07-16T07:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T05-B",
+      "notes": "TRAP|SAR|05|B"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T05-C",
+      "name": "Pułapka SAR 05 — zlecenie zależne C",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.6286,
+          50.8661
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T06:58:00Z",
+      "latest_end_utc": "2026-07-16T07:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T05-C",
+      "notes": "TRAP|SAR|05|C"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T06-A",
+      "name": "Pułapka SAR 06 — kotwica A",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.4262,
+              51.8556
+            ],
+            [
+              15.5862,
+              51.8556
+            ],
+            [
+              15.5862,
+              52.0156
+            ],
+            [
+              15.4262,
+              52.0156
+            ],
+            [
+              15.4262,
+              51.8556
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T08:28:00Z",
+      "latest_end_utc": "2026-07-16T09:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T06-A",
+      "notes": "TRAP|SAR|06|A"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T06-B",
+      "name": "Pułapka SAR 06 — zlecenie zależne B",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.1471,
+          51.4027
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T08:28:00Z",
+      "latest_end_utc": "2026-07-16T08:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T06-B",
+      "notes": "TRAP|SAR|06|B"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-T06-C",
+      "name": "Pułapka SAR 06 — zlecenie zależne C",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.4505,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.438900000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T08:28:00Z",
+      "latest_end_utc": "2026-07-16T08:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-T06-C",
+      "notes": "TRAP|SAR|06|C"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T01-A",
+      "name": "Pułapka EO 01 — kotwica A",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.1801,
+          54.1944
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T09:58:00Z",
+      "latest_end_utc": "2026-07-16T10:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T01-A",
+      "notes": "TRAP|EO|01|A"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T01-B",
+      "name": "Pułapka EO 01 — zlecenie zależne B",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.8103,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.527
+            ],
+            [
+              23.8103,
+              50.527
+            ],
+            [
+              23.8103,
+              50.367000000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T09:58:00Z",
+      "latest_end_utc": "2026-07-16T10:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T01-B",
+      "notes": "TRAP|EO|01|B"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T01-C",
+      "name": "Pułapka EO 01 — zlecenie zależne C",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T09:58:00Z",
+      "latest_end_utc": "2026-07-16T10:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T01-C",
+      "notes": "TRAP|EO|01|C"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T02-A",
+      "name": "Pułapka EO 02 — kotwica A",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.5666,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.272
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T11:28:00Z",
+      "latest_end_utc": "2026-07-16T12:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T02-A",
+      "notes": "TRAP|EO|02|A"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T02-B",
+      "name": "Pułapka EO 02 — zlecenie zależne B",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T11:28:00Z",
+      "latest_end_utc": "2026-07-16T11:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T02-B",
+      "notes": "TRAP|EO|02|B"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T02-C",
+      "name": "Pułapka EO 02 — zlecenie zależne C",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.9585,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.0279
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T11:28:00Z",
+      "latest_end_utc": "2026-07-16T11:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T02-C",
+      "notes": "TRAP|EO|02|C"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T03-A",
+      "name": "Pułapka EO 03 — kotwica A",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T12:58:00Z",
+      "latest_end_utc": "2026-07-16T13:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T03-A",
+      "notes": "TRAP|EO|03|A"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T03-B",
+      "name": "Pułapka EO 03 — zlecenie zależne B",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              14.4728,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.3485
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T12:58:00Z",
+      "latest_end_utc": "2026-07-16T13:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T03-B",
+      "notes": "TRAP|EO|03|B"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T03-C",
+      "name": "Pułapka EO 03 — zlecenie zależne C",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T12:58:00Z",
+      "latest_end_utc": "2026-07-16T13:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T03-C",
+      "notes": "TRAP|EO|03|C"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T04-A",
+      "name": "Pułapka EO 04 — kotwica A",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.088800000000003,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.0525
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T14:28:00Z",
+      "latest_end_utc": "2026-07-16T15:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T04-A",
+      "notes": "TRAP|EO|04|A"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T04-B",
+      "name": "Pułapka EO 04 — zlecenie zależne B",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.0238,
+          50.2649
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T14:28:00Z",
+      "latest_end_utc": "2026-07-16T14:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T04-B",
+      "notes": "TRAP|EO|04|B"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T04-C",
+      "name": "Pułapka EO 04 — zlecenie zależne C",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              21.9247,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              50.1212
+            ],
+            [
+              21.9247,
+              50.1212
+            ],
+            [
+              21.9247,
+              49.961200000000005
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T14:28:00Z",
+      "latest_end_utc": "2026-07-16T14:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T04-C",
+      "notes": "TRAP|EO|04|C"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T05-A",
+      "name": "Pułapka EO 05 — kotwica A",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.5984,
+          53.0138
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T15:58:00Z",
+      "latest_end_utc": "2026-07-16T16:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T05-A",
+      "notes": "TRAP|EO|05|A"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T05-B",
+      "name": "Pułapka EO 05 — zlecenie zależne B",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.376,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.8392
+            ],
+            [
+              19.376,
+              51.8392
+            ],
+            [
+              19.376,
+              51.6792
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T15:58:00Z",
+      "latest_end_utc": "2026-07-16T16:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T05-B",
+      "notes": "TRAP|EO|05|B"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T05-C",
+      "name": "Pułapka EO 05 — zlecenie zależne C",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.4801,
+          53.7784
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T15:58:00Z",
+      "latest_end_utc": "2026-07-16T16:12:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T05-C",
+      "notes": "TRAP|EO|05|C"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T06-A",
+      "name": "Pułapka EO 06 — kotwica A",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              17.8413,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.5951
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T17:28:00Z",
+      "latest_end_utc": "2026-07-16T18:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T06-A",
+      "notes": "TRAP|EO|06|A"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T06-B",
+      "name": "Pułapka EO 06 — zlecenie zależne B",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.6286,
+          50.8661
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T17:28:00Z",
+      "latest_end_utc": "2026-07-16T17:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T06-B",
+      "notes": "TRAP|EO|06|B"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-T06-C",
+      "name": "Pułapka EO 06 — zlecenie zależne C",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.4262,
+              51.8556
+            ],
+            [
+              15.5862,
+              51.8556
+            ],
+            [
+              15.5862,
+              52.0156
+            ],
+            [
+              15.4262,
+              52.0156
+            ],
+            [
+              15.4262,
+              51.8556
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T17:28:00Z",
+      "latest_end_utc": "2026-07-16T17:42:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-T06-C",
+      "notes": "TRAP|EO|06|C"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-001",
+      "name": "Stresowe zlecenie SAR 001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.1471,
+          51.4027
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T01:00:00Z",
+      "latest_end_utc": "2026-07-16T02:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.5,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-001",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-002",
+      "name": "Stresowe zlecenie SAR 002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.4505,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.438900000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T03:00:00Z",
+      "latest_end_utc": "2026-07-16T04:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-002",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-003",
+      "name": "Stresowe zlecenie SAR 003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.1801,
+          54.1944
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T05:00:00Z",
+      "latest_end_utc": "2026-07-16T06:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-003",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-004",
+      "name": "Stresowe zlecenie SAR 004",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.8103,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.527
+            ],
+            [
+              23.8103,
+              50.527
+            ],
+            [
+              23.8103,
+              50.367000000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T07:00:00Z",
+      "latest_end_utc": "2026-07-16T08:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.5,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-004",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-005",
+      "name": "Stresowe zlecenie SAR 005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T09:00:00Z",
+      "latest_end_utc": "2026-07-16T10:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-005",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-006",
+      "name": "Stresowe zlecenie SAR 006",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.5666,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.272
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T11:00:00Z",
+      "latest_end_utc": "2026-07-16T12:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-006",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-007",
+      "name": "Stresowe zlecenie SAR 007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T13:00:00Z",
+      "latest_end_utc": "2026-07-16T14:40:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.5,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-007",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-008",
+      "name": "Stresowe zlecenie SAR 008",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.9585,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.0279
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T01:15:00Z",
+      "latest_end_utc": "2026-07-16T02:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-008",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-009",
+      "name": "Stresowe zlecenie SAR 009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T03:15:00Z",
+      "latest_end_utc": "2026-07-16T04:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-009",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-010",
+      "name": "Stresowe zlecenie SAR 010",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              14.4728,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.3485
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T05:15:00Z",
+      "latest_end_utc": "2026-07-16T06:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.5,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-010",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-011",
+      "name": "Stresowe zlecenie SAR 011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T07:15:00Z",
+      "latest_end_utc": "2026-07-16T08:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-011",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-012",
+      "name": "Stresowe zlecenie SAR 012",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.088800000000003,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.0525
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T09:15:00Z",
+      "latest_end_utc": "2026-07-16T10:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-012",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-013",
+      "name": "Stresowe zlecenie SAR 013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.0238,
+          50.2649
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T11:15:00Z",
+      "latest_end_utc": "2026-07-16T12:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.5,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-013",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-SAR-014",
+      "name": "Stresowe zlecenie SAR 014",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              21.9247,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              50.1212
+            ],
+            [
+              21.9247,
+              50.1212
+            ],
+            [
+              21.9247,
+              49.961200000000005
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T13:15:00Z",
+      "latest_end_utc": "2026-07-16T14:55:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-SAR-014",
+      "notes": "STRESS|SINGLE|SAR"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-001",
+      "name": "Stresowe zlecenie optyczne 001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.5984,
+          53.0138
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T01:30:00Z",
+      "latest_end_utc": "2026-07-16T03:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-001",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-002",
+      "name": "Stresowe zlecenie optyczne 002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.376,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.8392
+            ],
+            [
+              19.376,
+              51.8392
+            ],
+            [
+              19.376,
+              51.6792
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T03:30:00Z",
+      "latest_end_utc": "2026-07-16T05:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-002",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-003",
+      "name": "Stresowe zlecenie optyczne 003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.4801,
+          53.7784
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T05:30:00Z",
+      "latest_end_utc": "2026-07-16T07:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-003",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-004",
+      "name": "Stresowe zlecenie optyczne 004",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              17.8413,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.5951
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T07:30:00Z",
+      "latest_end_utc": "2026-07-16T09:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-004",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-005",
+      "name": "Stresowe zlecenie optyczne 005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.6286,
+          50.8661
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T09:30:00Z",
+      "latest_end_utc": "2026-07-16T11:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-005",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-006",
+      "name": "Stresowe zlecenie optyczne 006",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.4262,
+              51.8556
+            ],
+            [
+              15.5862,
+              51.8556
+            ],
+            [
+              15.5862,
+              52.0156
+            ],
+            [
+              15.4262,
+              52.0156
+            ],
+            [
+              15.4262,
+              51.8556
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T11:30:00Z",
+      "latest_end_utc": "2026-07-16T13:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-006",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-007",
+      "name": "Stresowe zlecenie optyczne 007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.1471,
+          51.4027
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T13:30:00Z",
+      "latest_end_utc": "2026-07-16T15:10:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-007",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-008",
+      "name": "Stresowe zlecenie optyczne 008",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.4505,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.438900000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T01:45:00Z",
+      "latest_end_utc": "2026-07-16T03:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-008",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-009",
+      "name": "Stresowe zlecenie optyczne 009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.1801,
+          54.1944
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T03:45:00Z",
+      "latest_end_utc": "2026-07-16T05:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-009",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-010",
+      "name": "Stresowe zlecenie optyczne 010",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.8103,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.527
+            ],
+            [
+              23.8103,
+              50.527
+            ],
+            [
+              23.8103,
+              50.367000000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T05:45:00Z",
+      "latest_end_utc": "2026-07-16T07:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-010",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-011",
+      "name": "Stresowe zlecenie optyczne 011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T07:45:00Z",
+      "latest_end_utc": "2026-07-16T09:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-011",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-012",
+      "name": "Stresowe zlecenie optyczne 012",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.5666,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.272
+            ],
+            [
+              18.726599999999998,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.431999999999995
+            ],
+            [
+              18.5666,
+              54.272
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T09:45:00Z",
+      "latest_end_utc": "2026-07-16T11:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-012",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-013",
+      "name": "Stresowe zlecenie optyczne 013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T11:45:00Z",
+      "latest_end_utc": "2026-07-16T13:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-013",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-EO-014",
+      "name": "Stresowe zlecenie optyczne 014",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.9585,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.0279
+            ],
+            [
+              17.118499999999997,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.1879
+            ],
+            [
+              16.9585,
+              51.0279
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T13:45:00Z",
+      "latest_end_utc": "2026-07-16T15:25:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-EO-014",
+      "notes": "STRESS|SINGLE|OPTICAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-001",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T02:00:00Z",
+      "latest_end_utc": "2026-07-16T05:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-001",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-002",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              14.4728,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.3485
+            ],
+            [
+              14.6328,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.5085
+            ],
+            [
+              14.4728,
+              53.3485
+            ]
+          ]
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T04:00:00Z",
+      "latest_end_utc": "2026-07-16T07:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-002",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-003",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T06:00:00Z",
+      "latest_end_utc": "2026-07-16T09:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-003",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-004",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 004",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.088800000000003,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.0525
+            ],
+            [
+              23.2488,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.2125
+            ],
+            [
+              23.088800000000003,
+              53.0525
+            ]
+          ]
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T08:00:00Z",
+      "latest_end_utc": "2026-07-16T11:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-004",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-005",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.0238,
+          50.2649
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T10:00:00Z",
+      "latest_end_utc": "2026-07-16T13:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-005",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-006",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 006",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              21.9247,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              49.961200000000005
+            ],
+            [
+              22.084699999999998,
+              50.1212
+            ],
+            [
+              21.9247,
+              50.1212
+            ],
+            [
+              21.9247,
+              49.961200000000005
+            ]
+          ]
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T12:00:00Z",
+      "latest_end_utc": "2026-07-16T15:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-006",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-007",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.5984,
+          53.0138
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T14:00:00Z",
+      "latest_end_utc": "2026-07-16T17:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-007",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DOPT-008",
+      "name": "Stresowe zlecenie DUAL_OPTIONAL 008",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.376,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.6792
+            ],
+            [
+              19.535999999999998,
+              51.8392
+            ],
+            [
+              19.376,
+              51.8392
+            ],
+            [
+              19.376,
+              51.6792
+            ]
+          ]
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T16:00:00Z",
+      "latest_end_utc": "2026-07-16T19:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DOPT-008",
+      "notes": "STRESS|DUAL_OPTIONAL"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-001",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.4801,
+          53.7784
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T03:00:00Z",
+      "latest_end_utc": "2026-07-16T07:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-001",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-002",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              17.8413,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.5951
+            ],
+            [
+              18.001299999999997,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.7551
+            ],
+            [
+              17.8413,
+              50.5951
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T05:00:00Z",
+      "latest_end_utc": "2026-07-16T09:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-002",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-003",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.6286,
+          50.8661
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T07:00:00Z",
+      "latest_end_utc": "2026-07-16T11:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-003",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-004",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 004",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.4262,
+              51.8556
+            ],
+            [
+              15.5862,
+              51.8556
+            ],
+            [
+              15.5862,
+              52.0156
+            ],
+            [
+              15.4262,
+              52.0156
+            ],
+            [
+              15.4262,
+              51.8556
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T09:00:00Z",
+      "latest_end_utc": "2026-07-16T13:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-004",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-005",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.1471,
+          51.4027
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T11:00:00Z",
+      "latest_end_utc": "2026-07-16T15:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-005",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-006",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 006",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.4505,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.438900000000004
+            ],
+            [
+              18.6105,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.5989
+            ],
+            [
+              18.4505,
+              54.438900000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T13:00:00Z",
+      "latest_end_utc": "2026-07-16T17:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-006",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-007",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.1801,
+          54.1944
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T15:00:00Z",
+      "latest_end_utc": "2026-07-16T19:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-007",
+      "notes": "STRESS|DUAL_REQUIRED"
+    },
+    {
+      "request_id": "REQ-STRESS-DREQ-008",
+      "name": "Stresowe zlecenie DUAL_REQUIRED 008",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.8103,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.367000000000004
+            ],
+            [
+              23.970299999999998,
+              50.527
+            ],
+            [
+              23.8103,
+              50.527
+            ],
+            [
+              23.8103,
+              50.367000000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T17:00:00Z",
+      "latest_end_utc": "2026-07-16T21:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.9,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "STRESS-REQ-STRESS-DREQ-008",
+      "notes": "STRESS|DUAL_REQUIRED"
+    }
+  ],
+  "notes": "Scenariusz zawiera 80 zleceń, w tym celowo skonstruowane lokalne pułapki dla Greedy."
+}
