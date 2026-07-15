@@ -2,11 +2,13 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from time import perf_counter
+from typing import Iterable
 
 from app.models.catalog import SystemCatalog
 from app.models.enums import (
     PlanningAlgorithm,
     RequestMode,
+    ScheduleEntryStatus,
     ScheduleStatus,
     SensorType,
 )
@@ -17,6 +19,7 @@ from app.models.request_set import ObservationRequestSet
 from app.models.satellite import Satellite
 from app.models.schedule import Schedule, ScheduleEntry
 from app.models.sensor import Sensor
+from app.planning.fixed import FixedOpportunityAssignment
 
 
 @dataclass(frozen=True)
@@ -77,11 +80,34 @@ class GreedyScheduler:
         request_set: ObservationRequestSet,
         opportunity_set: AcquisitionOpportunitySet,
         config: GreedyPlannerConfig | None = None,
+        fixed_assignments: Iterable[
+            FixedOpportunityAssignment
+        ] | None = None,
+        frozen_until_utc: datetime | None = None,
     ) -> None:
         self.catalog = catalog
         self.request_set = request_set
         self.opportunity_set = opportunity_set
         self.config = config or GreedyPlannerConfig()
+        self.frozen_until_utc = self._normalize_frozen_until(
+            frozen_until_utc
+        )
+        self.fixed_assignments = tuple(
+            fixed_assignments or ()
+        )
+        self._fixed_assignments_by_id = {
+            assignment.opportunity_id: assignment
+            for assignment in self.fixed_assignments
+        }
+
+        if (
+            len(self._fixed_assignments_by_id)
+            != len(self.fixed_assignments)
+        ):
+            raise ValueError(
+                "fixed_assignments zawiera powtórzone "
+                "opportunity_id"
+            )
 
         self._satellites_by_id = {
             satellite.satellite_id: satellite
@@ -98,7 +124,18 @@ class GreedyScheduler:
             list[AcquisitionOpportunity],
         ] = defaultdict(list)
 
+        self._feasible_opportunities_by_id = {
+            opportunity.opportunity_id: opportunity
+            for opportunity
+            in opportunity_set.feasible_opportunities
+        }
+
         for opportunity in opportunity_set.feasible_opportunities:
+            if not self._is_candidate_available(
+                opportunity
+            ):
+                continue
+
             self._opportunities_by_request[
                 opportunity.request_id
             ].append(opportunity)
@@ -113,6 +150,7 @@ class GreedyScheduler:
         ] = []
 
         self._validate_input_sets()
+        self._validate_fixed_assignments()
 
     def _validate_input_sets(self) -> None:
         self.opportunity_set.validate_against(
@@ -136,6 +174,98 @@ class GreedyScheduler:
                 "Koniec horyzontu zleceń i okazji jest niezgodny"
             )
 
+    def _normalize_frozen_until(
+        self,
+        value: datetime | None,
+    ) -> datetime | None:
+        if value is None:
+            return None
+
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError(
+                "frozen_until_utc musi zawierać strefę czasową"
+            )
+
+        normalized = value.astimezone(
+            timezone.utc
+        )
+
+        if not (
+            self.request_set.horizon_start_utc
+            <= normalized
+            <= self.request_set.horizon_end_utc
+        ):
+            raise ValueError(
+                "frozen_until_utc musi znajdować się "
+                "wewnątrz horyzontu planowania"
+            )
+
+        return normalized
+
+    def _validate_fixed_assignments(self) -> None:
+        for assignment in self.fixed_assignments:
+            opportunity = (
+                self._feasible_opportunities_by_id.get(
+                    assignment.opportunity_id
+                )
+            )
+
+            if opportunity is None:
+                raise ValueError(
+                    "Stała okazja nie istnieje albo nie jest "
+                    f"wykonalna: {assignment.opportunity_id}"
+                )
+
+            if (
+                opportunity.request_id
+                not in {
+                    request.request_id
+                    for request in self.request_set.active_requests
+                }
+            ):
+                raise ValueError(
+                    "Stała okazja odwołuje się do nieaktywnego "
+                    f"zlecenia: {assignment.opportunity_id}"
+                )
+
+            if (
+                assignment.status
+                == ScheduleEntryStatus.FROZEN
+                and self.frozen_until_utc is None
+            ):
+                raise ValueError(
+                    "Stała okazja FROZEN wymaga "
+                    "frozen_until_utc"
+                )
+
+            if (
+                self.frozen_until_utc is not None
+                and opportunity.start_utc
+                >= self.frozen_until_utc
+            ):
+                raise ValueError(
+                    "Stała okazja musi rozpoczynać się przed "
+                    f"frozen_until_utc: {assignment.opportunity_id}"
+                )
+
+    def _is_candidate_available(
+        self,
+        opportunity: AcquisitionOpportunity,
+    ) -> bool:
+        if (
+            opportunity.opportunity_id
+            in self._fixed_assignments_by_id
+        ):
+            return True
+
+        if self.frozen_until_utc is None:
+            return True
+
+        return (
+            opportunity.start_utc
+            >= self.frozen_until_utc
+        )
+
     def build_schedule(
         self,
         *,
@@ -148,6 +278,7 @@ class GreedyScheduler:
         calculation_start = perf_counter()
 
         self._reset_state()
+        self._commit_fixed_assignments()
 
         for request in self._sorted_requests():
             self._plan_request(request)
@@ -222,7 +353,7 @@ class GreedyScheduler:
             algorithm=PlanningAlgorithm.GREEDY,
             status=schedule_status,
             entries=entries,
-            frozen_until_utc=None,
+            frozen_until_utc=self.frozen_until_utc,
             memory_reserve_ratio=(
                 self.config.memory_reserve_ratio
             ),
@@ -232,7 +363,9 @@ class GreedyScheduler:
             notes=(
                 "Harmonogram wygenerowany deterministycznym "
                 "algorytmem zachłannym. Nagroda priorytetowa jest "
-                "naliczana raz na zrealizowane zlecenie."
+                "naliczana raz na zrealizowane zlecenie. "
+                f"Liczba stałych akwizycji: "
+                f"{len(self.fixed_assignments)}."
             ),
         )
 
@@ -243,6 +376,33 @@ class GreedyScheduler:
         }
 
         self._selected_opportunities = []
+
+    def _commit_fixed_assignments(self) -> None:
+        ordered_assignments = sorted(
+            self.fixed_assignments,
+            key=lambda assignment: (
+                self._feasible_opportunities_by_id[
+                    assignment.opportunity_id
+                ].start_utc,
+                assignment.opportunity_id,
+            ),
+        )
+
+        for assignment in ordered_assignments:
+            opportunity = (
+                self._feasible_opportunities_by_id[
+                    assignment.opportunity_id
+                ]
+            )
+
+            if not self._can_assign(opportunity):
+                raise ValueError(
+                    "Stała okazja narusza ograniczenia zasobów "
+                    "albo przejść satelity: "
+                    f"{assignment.opportunity_id}"
+                )
+
+            self._commit(opportunity)
 
     def _sorted_requests(self) -> list[ObservationRequest]:
         mode_rank = {
@@ -266,25 +426,51 @@ class GreedyScheduler:
         self,
         request: ObservationRequest,
     ) -> None:
+        already_selected = [
+            opportunity
+            for opportunity in self._selected_opportunities
+            if opportunity.request_id == request.request_id
+        ]
+
         candidates = self._sorted_candidates(
-            self._opportunities_by_request.get(
-                request.request_id,
-                [],
-            ),
+            [
+                opportunity
+                for opportunity
+                in self._opportunities_by_request.get(
+                    request.request_id,
+                    [],
+                )
+                if opportunity.opportunity_id
+                not in {
+                    selected.opportunity_id
+                    for selected in already_selected
+                }
+            ],
         )
 
-        if not candidates:
-            return
-
         if request.request_mode == RequestMode.SINGLE:
+            if already_selected:
+                return
+
             self._plan_single(candidates)
             return
 
+        selected_sensor_types = {
+            opportunity.sensor_type
+            for opportunity in already_selected
+        }
+
         if request.request_mode == RequestMode.DUAL_OPTIONAL:
-            self._plan_dual_optional(candidates)
+            self._plan_dual_optional(
+                candidates,
+                selected_sensor_types=selected_sensor_types,
+            )
             return
 
-        self._plan_dual_required(candidates)
+        self._plan_dual_required(
+            candidates,
+            selected_sensor_types=selected_sensor_types,
+        )
 
     def _plan_single(
         self,
@@ -300,7 +486,38 @@ class GreedyScheduler:
     def _plan_dual_optional(
         self,
         candidates: list[AcquisitionOpportunity],
+        *,
+        selected_sensor_types: set[SensorType],
     ) -> None:
+        if selected_sensor_types == {
+            SensorType.SAR,
+            SensorType.OPTICAL,
+        }:
+            return
+
+        if selected_sensor_types:
+            missing_sensor_type = (
+                SensorType.OPTICAL
+                if SensorType.SAR in selected_sensor_types
+                else SensorType.SAR
+            )
+
+            second_opportunity = self._first_assignable(
+                self._sorted_candidates(
+                    [
+                        opportunity
+                        for opportunity in candidates
+                        if opportunity.sensor_type
+                        == missing_sensor_type
+                    ]
+                )
+            )
+
+            if second_opportunity is not None:
+                self._commit(second_opportunity)
+
+            return
+
         first_opportunity = self._first_assignable(
             candidates
         )
@@ -334,7 +551,38 @@ class GreedyScheduler:
     def _plan_dual_required(
         self,
         candidates: list[AcquisitionOpportunity],
+        *,
+        selected_sensor_types: set[SensorType],
     ) -> None:
+        if selected_sensor_types == {
+            SensorType.SAR,
+            SensorType.OPTICAL,
+        }:
+            return
+
+        if selected_sensor_types:
+            missing_sensor_type = (
+                SensorType.OPTICAL
+                if SensorType.SAR in selected_sensor_types
+                else SensorType.SAR
+            )
+
+            missing_opportunity = self._first_assignable(
+                self._sorted_candidates(
+                    [
+                        opportunity
+                        for opportunity in candidates
+                        if opportunity.sensor_type
+                        == missing_sensor_type
+                    ]
+                )
+            )
+
+            if missing_opportunity is not None:
+                self._commit(missing_opportunity)
+
+            return
+
         sar_candidates = [
             opportunity
             for opportunity in candidates
@@ -694,6 +942,24 @@ class GreedyScheduler:
             "OPP-"
         )
 
+        fixed_assignment = (
+            self._fixed_assignments_by_id.get(
+                opportunity.opportunity_id
+            )
+        )
+
+        status = (
+            fixed_assignment.status
+            if fixed_assignment is not None
+            else ScheduleEntryStatus.PLANNED
+        )
+
+        lock_reason = (
+            fixed_assignment.lock_reason
+            if fixed_assignment is not None
+            else None
+        )
+
         return ScheduleEntry(
             entry_id=f"ENTRY-{entry_suffix}",
             opportunity_id=opportunity.opportunity_id,
@@ -704,14 +970,14 @@ class GreedyScheduler:
             sensor_type=opportunity.sensor_type,
             start_utc=opportunity.start_utc,
             end_utc=opportunity.end_utc,
-            status="PLANNED",
+            status=status,
             estimated_data_volume_mb=(
                 opportunity.estimated_data_volume_mb
             ),
             objective_contribution=(
                 objective_contribution
             ),
-            lock_reason=None,
+            lock_reason=lock_reason,
             notes=None,
         )
 
@@ -725,6 +991,10 @@ def build_greedy_schedule(
     schedule_id: str = "SCHEDULE-GREEDY-001",
     name: str = "Dobowy harmonogram Greedy",
     created_at_utc: datetime | None = None,
+    fixed_assignments: Iterable[
+        FixedOpportunityAssignment
+    ] | None = None,
+    frozen_until_utc: datetime | None = None,
 ) -> Schedule:
     """Funkcja pomocnicza budująca harmonogram Greedy."""
 
@@ -733,6 +1003,8 @@ def build_greedy_schedule(
         request_set=request_set,
         opportunity_set=opportunity_set,
         config=config,
+        fixed_assignments=fixed_assignments,
+        frozen_until_utc=frozen_until_utc,
     )
 
     return scheduler.build_schedule(

@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from time import perf_counter
+from typing import Iterable
 
 from ortools.sat.python import cp_model
 
@@ -9,6 +10,7 @@ from app.models.catalog import SystemCatalog
 from app.models.enums import (
     PlanningAlgorithm,
     RequestMode,
+    ScheduleEntryStatus,
     ScheduleStatus,
     SensorType,
 )
@@ -19,6 +21,7 @@ from app.models.request_set import ObservationRequestSet
 from app.models.satellite import Satellite
 from app.models.schedule import Schedule, ScheduleEntry
 from app.models.sensor import Sensor
+from app.planning.fixed import FixedOpportunityAssignment
 
 
 @dataclass(frozen=True)
@@ -102,11 +105,34 @@ class CpSatScheduler:
         request_set: ObservationRequestSet,
         opportunity_set: AcquisitionOpportunitySet,
         config: CpSatPlannerConfig | None = None,
+        fixed_assignments: Iterable[
+            FixedOpportunityAssignment
+        ] | None = None,
+        frozen_until_utc: datetime | None = None,
     ) -> None:
         self.catalog = catalog
         self.request_set = request_set
         self.opportunity_set = opportunity_set
         self.config = config or CpSatPlannerConfig()
+        self.frozen_until_utc = self._normalize_frozen_until(
+            frozen_until_utc
+        )
+        self.fixed_assignments = tuple(
+            fixed_assignments or ()
+        )
+        self._fixed_assignments_by_id = {
+            assignment.opportunity_id: assignment
+            for assignment in self.fixed_assignments
+        }
+
+        if (
+            len(self._fixed_assignments_by_id)
+            != len(self.fixed_assignments)
+        ):
+            raise ValueError(
+                "fixed_assignments zawiera powtórzone "
+                "opportunity_id"
+            )
 
         self.last_solver_status: str | None = None
 
@@ -123,6 +149,12 @@ class CpSatScheduler:
         self._active_requests_by_id = {
             request.request_id: request
             for request in request_set.active_requests
+        }
+
+        self._feasible_opportunities_by_id = {
+            opportunity.opportunity_id: opportunity
+            for opportunity
+            in opportunity_set.feasible_opportunities
         }
 
         self._candidate_opportunities = [
@@ -168,6 +200,7 @@ class CpSatScheduler:
         ] = {}
 
         self._validate_input_sets()
+        self._validate_fixed_assignments()
 
     def _validate_input_sets(self) -> None:
         self.opportunity_set.validate_against(
@@ -192,6 +225,77 @@ class CpSatScheduler:
                 "Koniec horyzontu zleceń i okazji "
                 "jest niezgodny"
             )
+
+    def _normalize_frozen_until(
+        self,
+        value: datetime | None,
+    ) -> datetime | None:
+        if value is None:
+            return None
+
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError(
+                "frozen_until_utc musi zawierać strefę czasową"
+            )
+
+        normalized = value.astimezone(
+            timezone.utc
+        )
+
+        if not (
+            self.request_set.horizon_start_utc
+            <= normalized
+            <= self.request_set.horizon_end_utc
+        ):
+            raise ValueError(
+                "frozen_until_utc musi znajdować się "
+                "wewnątrz horyzontu planowania"
+            )
+
+        return normalized
+
+    def _validate_fixed_assignments(self) -> None:
+        for assignment in self.fixed_assignments:
+            opportunity = (
+                self._feasible_opportunities_by_id.get(
+                    assignment.opportunity_id
+                )
+            )
+
+            if opportunity is None:
+                raise ValueError(
+                    "Stała okazja nie istnieje albo nie jest "
+                    f"wykonalna: {assignment.opportunity_id}"
+                )
+
+            if (
+                opportunity.request_id
+                not in self._active_requests_by_id
+            ):
+                raise ValueError(
+                    "Stała okazja odwołuje się do nieaktywnego "
+                    f"zlecenia: {assignment.opportunity_id}"
+                )
+
+            if (
+                assignment.status
+                == ScheduleEntryStatus.FROZEN
+                and self.frozen_until_utc is None
+            ):
+                raise ValueError(
+                    "Stała okazja FROZEN wymaga "
+                    "frozen_until_utc"
+                )
+
+            if (
+                self.frozen_until_utc is not None
+                and opportunity.start_utc
+                >= self.frozen_until_utc
+            ):
+                raise ValueError(
+                    "Stała okazja musi rozpoczynać się przed "
+                    f"frozen_until_utc: {assignment.opportunity_id}"
+                )
 
     def build_schedule(
         self,
@@ -346,7 +450,7 @@ class CpSatScheduler:
             algorithm=PlanningAlgorithm.CP_SAT,
             status=schedule_status,
             entries=entries,
-            frozen_until_utc=None,
+            frozen_until_utc=self.frozen_until_utc,
             memory_reserve_ratio=(
                 self.config.memory_reserve_ratio
             ),
@@ -359,7 +463,9 @@ class CpSatScheduler:
                 "Harmonogram wygenerowany przez CP-SAT. "
                 f"Status solvera: {self.last_solver_status}. "
                 "Nagroda priorytetowa jest naliczana raz "
-                "na zrealizowane zlecenie."
+                "na zrealizowane zlecenie. "
+                f"Liczba stałych akwizycji: "
+                f"{len(self.fixed_assignments)}."
             ),
         )
 
@@ -384,6 +490,7 @@ class CpSatScheduler:
         self._dual_optional_second_variables = {}
 
         self._add_request_constraints(model)
+        self._add_fixed_opportunity_constraints(model)
         self._add_satellite_constraints(model)
         self._set_objective(model)
 
@@ -516,6 +623,32 @@ class CpSatScheduler:
             ):
                 model.add(
                     fulfilled == 1
+                )
+
+    def _add_fixed_opportunity_constraints(
+        self,
+        model: cp_model.CpModel,
+    ) -> None:
+        for opportunity in self._candidate_opportunities:
+            variable = self._selection_variables[
+                opportunity.opportunity_id
+            ]
+
+            if (
+                opportunity.opportunity_id
+                in self._fixed_assignments_by_id
+            ):
+                model.add(
+                    variable == 1
+                )
+
+            elif (
+                self.frozen_until_utc is not None
+                and opportunity.start_utc
+                < self.frozen_until_utc
+            ):
+                model.add(
+                    variable == 0
                 )
 
     def _add_satellite_constraints(
@@ -738,6 +871,46 @@ class CpSatScheduler:
         created_at_utc: datetime,
         solver_runtime_s: float,
     ) -> Schedule:
+        fixed_opportunities = [
+            self._feasible_opportunities_by_id[
+                assignment.opportunity_id
+            ]
+            for assignment in self.fixed_assignments
+        ]
+
+        fixed_contributions = (
+            self._calculate_objective_contributions(
+                fixed_opportunities
+            )
+        )
+
+        entries = [
+            self._create_schedule_entry(
+                opportunity=opportunity,
+                objective_contribution=(
+                    fixed_contributions.get(
+                        opportunity.opportunity_id,
+                        self._acquisition_score(
+                            opportunity
+                        ),
+                    )
+                ),
+            )
+            for opportunity in sorted(
+                fixed_opportunities,
+                key=lambda item: (
+                    item.start_utc,
+                    item.satellite_id,
+                    item.opportunity_id,
+                ),
+            )
+        ]
+
+        selected_request_ids = {
+            entry.request_id
+            for entry in entries
+        }
+
         return Schedule(
             schedule_id=schedule_id,
             name=name,
@@ -750,21 +923,31 @@ class CpSatScheduler:
             created_at_utc=created_at_utc,
             algorithm=PlanningAlgorithm.CP_SAT,
             status=ScheduleStatus.INFEASIBLE,
-            entries=[],
-            frozen_until_utc=None,
+            entries=entries,
+            frozen_until_utc=self.frozen_until_utc,
             memory_reserve_ratio=(
                 self.config.memory_reserve_ratio
             ),
-            objective_value=0.0,
+            objective_value=round(
+                sum(
+                    entry.objective_contribution
+                    for entry in entries
+                ),
+                6,
+            ),
             solver_runtime_s=solver_runtime_s,
             unassigned_request_ids=sorted(
                 request.request_id
                 for request
                 in self.request_set.active_requests
+                if request.request_id
+                not in selected_request_ids
             ),
             notes=(
                 "Model CP-SAT jest niewykonalny. "
-                f"Status solvera: {self.last_solver_status}."
+                f"Status solvera: {self.last_solver_status}. "
+                "Zachowano stałe akwizycje z okresu "
+                "zamrożonego."
             ),
         )
 
@@ -991,6 +1174,24 @@ class CpSatScheduler:
             )
         )
 
+        fixed_assignment = (
+            self._fixed_assignments_by_id.get(
+                opportunity.opportunity_id
+            )
+        )
+
+        status = (
+            fixed_assignment.status
+            if fixed_assignment is not None
+            else ScheduleEntryStatus.PLANNED
+        )
+
+        lock_reason = (
+            fixed_assignment.lock_reason
+            if fixed_assignment is not None
+            else None
+        )
+
         return ScheduleEntry(
             entry_id=f"ENTRY-{entry_suffix}",
             opportunity_id=opportunity.opportunity_id,
@@ -1001,14 +1202,14 @@ class CpSatScheduler:
             sensor_type=opportunity.sensor_type,
             start_utc=opportunity.start_utc,
             end_utc=opportunity.end_utc,
-            status="PLANNED",
+            status=status,
             estimated_data_volume_mb=(
                 opportunity.estimated_data_volume_mb
             ),
             objective_contribution=(
                 objective_contribution
             ),
-            lock_reason=None,
+            lock_reason=lock_reason,
             notes=None,
         )
 
@@ -1022,6 +1223,10 @@ def build_cp_sat_schedule(
     schedule_id: str = "SCHEDULE-CP-SAT-001",
     name: str = "Dobowy harmonogram CP-SAT",
     created_at_utc: datetime | None = None,
+    fixed_assignments: Iterable[
+        FixedOpportunityAssignment
+    ] | None = None,
+    frozen_until_utc: datetime | None = None,
 ) -> Schedule:
     """Funkcja pomocnicza budująca harmonogram CP-SAT."""
 
@@ -1030,6 +1235,8 @@ def build_cp_sat_schedule(
         request_set=request_set,
         opportunity_set=opportunity_set,
         config=config,
+        fixed_assignments=fixed_assignments,
+        frozen_until_utc=frozen_until_utc,
     )
 
     return scheduler.build_schedule(

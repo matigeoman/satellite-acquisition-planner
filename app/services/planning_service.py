@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from time import perf_counter
+from typing import Iterable
 
 from app.analysis.schedule_report import (
     ScheduleAnalysis,
@@ -15,6 +16,7 @@ from app.planning.cp_sat import (
     CpSatPlannerConfig,
     CpSatScheduler,
 )
+from app.planning.fixed import FixedOpportunityAssignment
 from app.planning.greedy import (
     GreedyPlannerConfig,
     build_greedy_schedule,
@@ -227,9 +229,22 @@ class PlanningService:
         schedule_id: str | None = None,
         schedule_name: str | None = None,
         created_at_utc: datetime | None = None,
+        fixed_assignments: Iterable[
+            FixedOpportunityAssignment
+        ] | None = None,
+        frozen_until_utc: datetime | None = None,
     ) -> PlanningResult:
         created_at = self._normalize_created_at(
             created_at_utc
+        )
+        normalized_frozen_until = (
+            self._normalize_optional_utc(
+                frozen_until_utc,
+                field_name="frozen_until_utc",
+            )
+        )
+        normalized_fixed_assignments = tuple(
+            fixed_assignments or ()
         )
 
         resolved_schedule_id = (
@@ -264,6 +279,12 @@ class PlanningService:
                 schedule_id=resolved_schedule_id,
                 schedule_name=resolved_schedule_name,
                 created_at_utc=created_at,
+                fixed_assignments=(
+                    normalized_fixed_assignments
+                ),
+                frozen_until_utc=(
+                    normalized_frozen_until
+                ),
             )
 
             solver_status = (
@@ -283,6 +304,12 @@ class PlanningService:
                 schedule_id=resolved_schedule_id,
                 schedule_name=resolved_schedule_name,
                 created_at_utc=created_at,
+                fixed_assignments=(
+                    normalized_fixed_assignments
+                ),
+                frozen_until_utc=(
+                    normalized_frozen_until
+                ),
             )
 
         else:
@@ -330,6 +357,10 @@ class PlanningService:
         schedule_id: str,
         schedule_name: str,
         created_at_utc: datetime,
+        fixed_assignments: tuple[
+            FixedOpportunityAssignment, ...
+        ],
+        frozen_until_utc: datetime | None,
     ) -> Schedule:
         config = GreedyPlannerConfig(
             memory_reserve_ratio=(
@@ -362,6 +393,8 @@ class PlanningService:
             schedule_id=schedule_id,
             name=schedule_name,
             created_at_utc=created_at_utc,
+            fixed_assignments=fixed_assignments,
+            frozen_until_utc=frozen_until_utc,
         )
 
     def _run_cp_sat(
@@ -372,6 +405,10 @@ class PlanningService:
         schedule_id: str,
         schedule_name: str,
         created_at_utc: datetime,
+        fixed_assignments: tuple[
+            FixedOpportunityAssignment, ...
+        ],
+        frozen_until_utc: datetime | None,
     ) -> tuple[Schedule, str]:
         config = CpSatPlannerConfig(
             memory_reserve_ratio=(
@@ -419,6 +456,8 @@ class PlanningService:
                 scenario.opportunity_set
             ),
             config=config,
+            fixed_assignments=fixed_assignments,
+            frozen_until_utc=frozen_until_utc,
         )
 
         schedule = scheduler.build_schedule(
@@ -490,6 +529,24 @@ class PlanningService:
         return (
             f"{normalized_name} — "
             f"{algorithm_label}"
+        )
+
+    @staticmethod
+    def _normalize_optional_utc(
+        value: datetime | None,
+        *,
+        field_name: str,
+    ) -> datetime | None:
+        if value is None:
+            return None
+
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError(
+                f"{field_name} musi zawierać strefę czasową"
+            )
+
+        return value.astimezone(
+            timezone.utc
         )
 
     @staticmethod
