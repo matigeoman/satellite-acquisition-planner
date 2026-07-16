@@ -24,6 +24,8 @@ def build_custom_request(
     max_incidence_angle_deg: float | None,
     max_off_nadir_deg: float | None,
     is_mandatory: bool,
+    max_sar_resolution_m: float | None = None,
+    max_optical_resolution_m: float | None = None,
     notes: str | None = None,
 ) -> ObservationRequest:
     """Tworzy walidowane zlecenie z geometrii pochodzącej z mapy."""
@@ -38,6 +40,8 @@ def build_custom_request(
         request_mode=request_mode,
         requested_sensor_types=requested_sensor_types,
         max_resolution_m=max_resolution_m,
+        max_sar_resolution_m=max_sar_resolution_m,
+        max_optical_resolution_m=max_optical_resolution_m,
         minimum_coverage_ratio=minimum_coverage_ratio,
         max_cloud_cover=max_cloud_cover,
         max_incidence_angle_deg=max_incidence_angle_deg,

@@ -366,7 +366,7 @@ class AcquisitionOpportunitySet(BaseModel):
     ) -> None:
         if (
             mode.nominal_resolution_m
-            > request.max_resolution_m
+            > request.resolution_limit_for(mode.sensor_type)
         ):
             raise ValueError(
                 f"Wykonalna okazja {opportunity.opportunity_id} "

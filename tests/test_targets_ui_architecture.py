@@ -15,3 +15,12 @@ def test_aoi_editor_dependency_is_declared() -> None:
 
     assert "folium" in requirements
     assert "streamlit-folium" in requirements
+
+
+def test_targets_page_exposes_clear_dual_sensor_variants() -> None:
+    source = Path("app/ui/pages/targets.py").read_text(encoding="utf-8")
+
+    assert "SAR + EO — oba wymagane" in source
+    assert "SAR + EO — drugi sensor opcjonalny" in source
+    assert "Maksymalna rozdzielczość SAR" in source
+    assert "Maksymalna GSD EO" in source

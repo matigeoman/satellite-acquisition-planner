@@ -31,3 +31,17 @@ są przechowywane w WGS84 w kolejności GeoJSON `[longitude, latitude]`.
 Profile nie są jeszcze przypisane do bieżących numerów NORAD. Szablony
 orbit służą wyłącznie interfejsowi. Kolejny etap pobierze aktualne GP/OMM,
 wykona propagację SGP4 i wygeneruje `AcquisitionOpportunitySet`.
+
+## Zlecenia łączone SAR + EO
+
+Formularz udostępnia cztery czytelne warianty:
+
+- tylko SAR,
+- tylko EO,
+- SAR + EO wymagane (`DUAL_REQUIRED`),
+- SAR + EO opcjonalne (`DUAL_OPTIONAL`).
+
+Dla zlecenia łączonego można podać osobny limit rozdzielczości SAR i EO.
+Pole `max_resolution_m` pozostaje wspólną wartością zapasową dla zgodności
+z wcześniejszymi scenariuszami, a metoda `resolution_limit_for()` zwraca
+limit właściwy dla typu sensora.

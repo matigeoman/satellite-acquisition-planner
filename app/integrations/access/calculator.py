@@ -84,7 +84,7 @@ def _sample_is_valid(
     sun_elevation: float | None,
     coverage_ratio: float,
 ) -> bool:
-    if mode.nominal_resolution_m > request.max_resolution_m:
+    if mode.nominal_resolution_m > request.resolution_limit_for(mode.sensor_type):
         return False
     if coverage_ratio < request.minimum_coverage_ratio:
         return False
@@ -372,7 +372,7 @@ class GeometricAccessCalculator:
                     continue
                 if selected_mode_ids and mode.mode_id not in selected_mode_ids:
                     continue
-                if mode.nominal_resolution_m > request.max_resolution_m:
+                if mode.nominal_resolution_m > request.resolution_limit_for(mode.sensor_type):
                     continue
 
                 evaluated_mode_ids.add(mode.mode_id)

@@ -256,3 +256,12 @@ textarea {
     padding: 0.25rem 0.55rem !important;
     font-size: 0.95rem !important;
 }
+
+/* Osadzony globus 3D: spójne obramowanie i pełna szerokość. */
+iframe[title="streamlit.components.v1.html"] {
+    width: 100% !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    border-radius: 0.85rem !important;
+    background: #060b14;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}

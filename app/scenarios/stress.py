@@ -1032,7 +1032,7 @@ def _select_mode(
         if (
             mode.is_active
             and mode.nominal_resolution_m
-            <= request.max_resolution_m
+            <= request.resolution_limit_for(mode.sensor_type)
         )
     ]
 

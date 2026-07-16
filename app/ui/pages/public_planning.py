@@ -6,6 +6,7 @@ import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
 from app.services.contracts.planning import PlanningOptions, PlanningResult
+from app.services.planning_service import PlanningService
 from app.ui.app_context import (
     get_planning_service,
     get_public_scenario_service,
@@ -19,6 +20,15 @@ from app.ui.pages.planning import (
 
 _PUBLIC_PLANNING_RESULT_KEY = "public_planning_result"
 _PUBLIC_BUILDS_STATE_KEY = "public_opportunity_builds"
+
+
+def build_public_schedule_id(algorithm: PlanningAlgorithm) -> str:
+    """Buduje identyfikator zgodny ze schematem Schedule także dla CP-SAT."""
+
+    return PlanningService.build_schedule_id(
+        scenario_id="PUBLIC",
+        algorithm=algorithm,
+    )
 
 
 def _build_scenario():
@@ -150,15 +160,15 @@ def render_public_planning_page() -> None:
             cp_sat_force_mandatory_requests=force_mandatory,
         )
         try:
+            algorithm = PlanningAlgorithm(algorithm_value)
+            planning_service = get_planning_service()
             with st.spinner(
                 f"Uruchamianie {algorithm_display_name(algorithm_value)}..."
             ):
-                result = get_planning_service().run(
+                result = planning_service.run(
                     scenario=scenario,
                     options=options,
-                    schedule_id=(
-                        f"SCHEDULE-PUBLIC-{PlanningAlgorithm(algorithm_value).value}"
-                    ),
+                    schedule_id=build_public_schedule_id(algorithm),
                     schedule_name=(
                         "Publiczne orbity i pogoda — "
                         f"{algorithm_display_name(algorithm_value)}"

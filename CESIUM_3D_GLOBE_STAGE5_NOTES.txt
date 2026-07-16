@@ -1,0 +1,45 @@
+SATELLITE ACQUISITION PLANNER — ETAP 5
+Globus 3D Cesium, animacja orbit i harmonogramu
+
+Zakres:
+- nowa strona „Globus 3D”;
+- animowane pozycje 4 ICEYE i 2 Pléiades Neo;
+- ślady orbitalne z OMM/SGP4;
+- punkty i poligony AOI;
+- wizualizacja ostatnio obliczonych okien dostępu;
+- wizualizacja akwizycji wybranych przez Greedy lub CP-SAT;
+- oś czasu, sterowanie animacją, tryb 2D/3D i informacje po kliknięciu;
+- eksport sceny do CZML;
+- brak nowych zależności Python.
+
+Instalacja:
+Expand-Archive `
+    -Path .\satplan-cesium-3d-globe-stage5.zip `
+    -DestinationPath . `
+    -Force
+
+Kontrola:
+pytest -q
+ruff check app tests streamlit_app.py scripts
+python -m app.cli check
+
+Zweryfikowany wynik:
+545 passed
+All checks passed!
+Struktura i dane wejściowe są poprawne.
+
+Uruchomienie:
+streamlit run .\streamlit_app.py
+
+Kolejność użycia:
+1. Cele i zlecenia — utwórz AOI.
+2. Orbity publiczne — pobierz OMM.
+3. Okna dostępu — oblicz okna i opcjonalnie pogodę.
+4. Planowanie publiczne — uruchom Greedy lub CP-SAT.
+5. Globus 3D — wyświetl wspólną scenę i animację.
+
+Uwagi:
+- CesiumJS 1.130.0 i podkład OpenStreetMap są pobierane z internetu.
+- Bez dostępu do CDN można nadal pobrać plik CZML.
+- Pomarańczowa wiązka pokazuje geometrię okna w chwili peak_utc.
+- Zielona wiązka jest widoczna tylko w czasie zaplanowanej akwizycji.

@@ -49,7 +49,7 @@ def _available_modes(request: ObservationRequest):
     return [
         mode
         for mode in modes
-        if mode.is_active and mode.nominal_resolution_m <= request.max_resolution_m
+        if mode.is_active and mode.nominal_resolution_m <= request.resolution_limit_for(mode.sensor_type)
     ]
 
 
