@@ -92,6 +92,7 @@ class ObservationSide(str, Enum):
 
 class OpportunitySourceType(str, Enum):
     SYNTHETIC = "SYNTHETIC"
+    PUBLIC_DATA = "PUBLIC_DATA"
     EXTERNAL = "EXTERNAL"
     STK = "STK"
     SAVOIR = "SAVOIR"

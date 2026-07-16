@@ -39,7 +39,8 @@ Dokumentacja techniczna:
 - [`docs/io_and_paths.md`](docs/io_and_paths.md),
 - [`docs/analysis_and_services.md`](docs/analysis_and_services.md),
 - [`docs/public_orbits_sgp4.md`](docs/public_orbits_sgp4.md),
-- [`docs/public_access_windows.md`](docs/public_access_windows.md).
+- [`docs/public_access_windows.md`](docs/public_access_windows.md),
+- [`docs/public_weather_and_opportunities.md`](docs/public_weather_and_opportunities.md).
 
 ## Instalacja
 
@@ -98,10 +99,16 @@ lokalnym cache i propaguje 4 obiekty ICEYE oraz 2 obiekty Pléiades Neo modelem
 SGP4. Zakładka **Okna dostępu** łączy propagację z Point/Polygon, publicznymi
 zakresami kątowymi sensorów, rozdzielczością, pokryciem i elewacją Słońca.
 
+Zakładka **Okna dostępu** może następnie pobrać godzinową prognozę
+zachmurzenia Open-Meteo dla punktu lub kilku punktów poligonu i utworzyć pełne
+`AcquisitionOpportunity`. Zakładka **Planowanie publiczne** przekazuje te
+okazje bezpośrednio do Greedy albo CP-SAT.
+
 Wyniki są orientacyjnymi oknami geometrycznymi. STK pozostaje narzędziem do
 walidacji wybranych przypadków, a nie jedynym źródłem działania aplikacji.
-Szczegóły opisano w `docs/public_orbits_sgp4.md` oraz
-`docs/public_access_windows.md`.
+Szczegóły opisano w `docs/public_orbits_sgp4.md`,
+`docs/public_access_windows.md` oraz
+`docs/public_weather_and_opportunities.md`.
 
 ## Uporządkowany układ danych
 

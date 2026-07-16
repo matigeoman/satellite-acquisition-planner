@@ -169,8 +169,8 @@ def _window_notes(
         )
     if mode.sensor_type == SensorType.OPTICAL:
         notes.append(
-            "Uwzględniono elewację Słońca, ale zachmurzenie zostanie "
-            "dołączone w kolejnym etapie."
+            "Okno geometryczne uwzględnia elewację Słońca. Prognoza "
+            "zachmurzenia jest przypisywana podczas budowy okazji EO."
         )
     return tuple(notes)
 

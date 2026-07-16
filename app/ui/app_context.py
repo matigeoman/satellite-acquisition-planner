@@ -10,7 +10,9 @@ from app.services.planning_service import PlanningService
 from app.services.orbit_service import PublicOrbitService
 from app.services.access_service import PublicAccessService
 from app.integrations.orbits import CelestrakClient
+from app.integrations.weather import CloudAssessmentService, OpenMeteoClient
 from app.services.replanning_service import ReplanningService
+from app.services.public_scenario_service import PublicScenarioService
 from app.services.scenario_service import LoadedScenario, ScenarioService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
@@ -82,6 +84,24 @@ def get_public_access_service() -> PublicAccessService:
     """Zwraca serwis wyznaczania publicznych okien dostępu."""
 
     return PublicAccessService(orbit_service=get_public_orbit_service())
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_cloud_assessment_service() -> CloudAssessmentService:
+    """Zwraca klienta Open-Meteo z cache prognozy zachmurzenia."""
+
+    return CloudAssessmentService(
+        client=OpenMeteoClient(
+            cache_directory=PROJECT_ROOT / "data" / "generated" / "weather"
+        )
+    )
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_public_scenario_service() -> PublicScenarioService:
+    """Zwraca budowniczego scenariusza z danych publicznych sesji."""
+
+    return PublicScenarioService()
 
 
 @st.cache_resource(scope="session", show_spinner=False)

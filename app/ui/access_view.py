@@ -265,3 +265,87 @@ def access_windows_dataframe(result: AccessCalculationResult) -> pd.DataFrame:
             for window in result.windows
         ]
     )
+
+
+def cloud_assessments_dataframe(assessments) -> pd.DataFrame:
+    """Tabela prognozy zachmurzenia przypisanej do okien EO."""
+
+    return pd.DataFrame(
+        [
+            {
+                "Okno": assessment.window_id,
+                "Czas prognozy UTC": assessment.assessed_at_utc.isoformat(),
+                "Agregacja": assessment.aggregation.value,
+                "Zachmurzenie": round(
+                    assessment.cloud_cover_percent / 100.0,
+                    4,
+                ),
+                "Chmury niskie": round(
+                    assessment.cloud_cover_low_percent / 100.0,
+                    4,
+                ),
+                "Chmury średnie": round(
+                    assessment.cloud_cover_mid_percent / 100.0,
+                    4,
+                ),
+                "Chmury wysokie": round(
+                    assessment.cloud_cover_high_percent / 100.0,
+                    4,
+                ),
+                "Limit": round(
+                    assessment.max_allowed_cloud_cover_percent / 100.0,
+                    4,
+                ),
+                "Punkty AOI": len(assessment.point_values),
+                "Wykonalne pogodowo": assessment.is_cloud_feasible,
+                "Cache": assessment.from_cache,
+                "Cache nieaktualny": assessment.is_stale,
+            }
+            for assessment in assessments
+        ]
+    )
+
+
+def public_opportunities_dataframe(build_result) -> pd.DataFrame:
+    """Tabela pełnych okazji przekazywanych do Greedy i CP-SAT."""
+
+    return pd.DataFrame(
+        [
+            {
+                "Okazja": opportunity.opportunity_id,
+                "Zlecenie": opportunity.request_id,
+                "Satelita": opportunity.satellite_id,
+                "Sensor": opportunity.sensor_type.value,
+                "Tryb": opportunity.mode_id,
+                "Początek UTC": opportunity.start_utc.isoformat(),
+                "Koniec UTC": opportunity.end_utc.isoformat(),
+                "Czas [s]": round(opportunity.duration_s, 1),
+                "Off-nadir [°]": round(
+                    opportunity.off_nadir_angle_deg,
+                    2,
+                ),
+                "Incidence [°]": (
+                    None
+                    if opportunity.incidence_angle_deg is None
+                    else round(opportunity.incidence_angle_deg, 2)
+                ),
+                "Zachmurzenie": opportunity.cloud_cover,
+                "Słońce [°]": (
+                    None
+                    if opportunity.sun_elevation_deg is None
+                    else round(opportunity.sun_elevation_deg, 2)
+                ),
+                "Pokrycie": round(opportunity.coverage_ratio, 4),
+                "Jakość": round(opportunity.quality_score, 4),
+                "Dane [MB]": round(
+                    opportunity.estimated_data_volume_mb,
+                    1,
+                ),
+                "Wykonalna": opportunity.is_feasible,
+                "Powody odrzucenia": "; ".join(
+                    opportunity.infeasibility_reasons
+                ),
+            }
+            for opportunity in build_result.opportunities
+        ]
+    )
