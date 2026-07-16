@@ -1,0 +1,179 @@
+/*
+         * Globalna skala typografii.
+         * Streamlit bazuje głównie na jednostkach rem, dlatego zmiana rozmiaru
+         * elementu html zwiększa równomiernie tekst, kontrolki i odstępy.
+         */
+        html {
+            font-size: 18px;
+        }
+
+        /*
+         * Ograniczenie szerokości treści zapobiega rozciąganiu metryk i tabel
+         * na całą szerokość monitora 4K.
+         */
+        [data-testid="stAppViewContainer"] .main .block-container {
+            max-width: 1720px;
+            padding-top: 2rem;
+            padding-right: 2.5rem;
+            padding-bottom: 3rem;
+            padding-left: 2.5rem;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        /*
+         * Szerszy panel boczny ułatwia obsługę formularzy i suwaków.
+         */
+        [data-testid="stSidebar"] {
+            min-width: 350px;
+            max-width: 350px;
+        }
+
+        [data-testid="stSidebar"] > div:first-child {
+            width: 350px;
+        }
+
+        /*
+         * Nagłówki i zwykły tekst.
+         */
+        h1 {
+            font-size: 2.35rem !important;
+            line-height: 1.18 !important;
+            margin-bottom: 0.75rem !important;
+        }
+
+        h2 {
+            font-size: 1.75rem !important;
+            line-height: 1.25 !important;
+            margin-top: 1.5rem !important;
+        }
+
+        h3 {
+            font-size: 1.35rem !important;
+            line-height: 1.3 !important;
+        }
+
+        p,
+        li,
+        label,
+        [data-testid="stMarkdownContainer"] {
+            font-size: 1rem;
+            line-height: 1.55;
+        }
+
+        [data-testid="stCaptionContainer"] {
+            font-size: 0.92rem;
+            line-height: 1.45;
+        }
+
+        /*
+         * Metryki na dashboardach.
+         */
+        [data-testid="stMetricLabel"] {
+            font-size: 0.95rem;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 2rem;
+            line-height: 1.15;
+        }
+
+        [data-testid="stMetricDelta"] {
+            font-size: 0.9rem;
+        }
+
+        /*
+         * Formularze i kontrolki.
+         */
+        [data-testid="stWidgetLabel"] p,
+        [data-testid="stRadio"] label,
+        [data-testid="stCheckbox"] label {
+            font-size: 0.98rem !important;
+        }
+
+        input,
+        textarea,
+        [data-baseweb="select"] > div,
+        [data-baseweb="input"] > div {
+            min-height: 2.65rem;
+            font-size: 1rem !important;
+        }
+
+        [data-testid="stButton"] button,
+        [data-testid="stDownloadButton"] button,
+        [data-testid="baseButton-primary"],
+        [data-testid="baseButton-secondary"] {
+            min-height: 2.75rem;
+            padding: 0.55rem 1rem;
+            font-size: 1rem !important;
+            font-weight: 600;
+        }
+
+        /*
+         * Czytelniejsze zakładki, alerty i ekspandery.
+         */
+        [data-baseweb="tab"] {
+            min-height: 3rem;
+            font-size: 1rem;
+        }
+
+        [data-testid="stAlertContainer"] {
+            font-size: 0.98rem;
+        }
+
+        [data-testid="stExpander"] summary {
+            font-size: 1rem;
+            min-height: 2.75rem;
+        }
+
+        /*
+         * Tabele i ramki danych.
+         */
+        [data-testid="stDataFrame"] {
+            font-size: 0.95rem;
+        }
+
+        /*
+         * Na bardzo szerokich ekranach zwiększamy skalę jeszcze nieznacznie.
+         */
+        @media (min-width: 2200px) {
+            html {
+                font-size: 20px;
+            }
+
+            [data-testid="stAppViewContainer"] .main .block-container {
+                max-width: 1840px;
+            }
+
+            [data-testid="stSidebar"] {
+                min-width: 380px;
+                max-width: 380px;
+            }
+
+            [data-testid="stSidebar"] > div:first-child {
+                width: 380px;
+            }
+        }
+
+        /*
+         * Na mniejszych ekranach zachowujemy miejsce na treść.
+         */
+        @media (max-width: 1100px) {
+            html {
+                font-size: 16px;
+            }
+
+            [data-testid="stAppViewContainer"] .main .block-container {
+                padding-right: 1.25rem;
+                padding-left: 1.25rem;
+            }
+
+            [data-testid="stSidebar"] {
+                min-width: 300px;
+                max-width: 300px;
+            }
+
+            [data-testid="stSidebar"] > div:first-child {
+                width: 300px;
+            }
+        }
