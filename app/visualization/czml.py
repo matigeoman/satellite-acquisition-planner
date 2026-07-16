@@ -194,7 +194,7 @@ def _ground_track_packets(
                 [
                     float(state.longitude_deg),
                     float(state.latitude_deg),
-                    250.0,
+                    25000.0,
                 ]
             )
         packets.append(
@@ -209,7 +209,7 @@ def _ground_track_packets(
                     "positions": {"cartographicDegrees": coordinates},
                     "width": 4,
                     "arcType": "GEODESIC",
-                    "clampToGround": True,
+                    "clampToGround": False,
                     "material": {
                         "polylineGlow": {
                             "color": _rgba(ground_color),
@@ -230,7 +230,7 @@ def _ground_track_packets(
                 float(offset),
                 float(state.longitude_deg),
                 float(state.latitude_deg),
-                500.0,
+                30000.0,
             ]
         )
     packets.append(
@@ -283,7 +283,7 @@ def _request_packet(request: ObservationRequest) -> dict[str, Any]:
         longitude, latitude = request.geometry.coordinates
         packet.update(
             {
-                "position": {"cartographicDegrees": [longitude, latitude, 0.0]},
+                "position": {"cartographicDegrees": [longitude, latitude, 30000.0]},
                 "point": {
                     "pixelSize": 16,
                     "color": _rgba(AOI_COLOR),
@@ -305,17 +305,16 @@ def _request_packet(request: ObservationRequest) -> dict[str, Any]:
 
     coordinates: list[float] = []
     for longitude, latitude in request.geometry.coordinates[0]:
-        coordinates.extend([longitude, latitude, 0.0])
+        coordinates.extend([longitude, latitude, 30000.0])
     packet["polygon"] = {
         "positions": {"cartographicDegrees": coordinates},
         "material": {"solidColor": {"color": _rgba((250, 204, 21, 72))}},
         "outline": True,
         "outlineColor": _rgba(AOI_COLOR),
-        "height": 0.0,
-        "perPositionHeight": False,
+        "perPositionHeight": True,
     }
     longitude, latitude = geometry_centroid(request.geometry)
-    packet["position"] = {"cartographicDegrees": [longitude, latitude, 0.0]}
+    packet["position"] = {"cartographicDegrees": [longitude, latitude, 35000.0]}
     packet["label"] = {
         "text": request.request_id,
         "font": "700 16px system-ui, sans-serif",
@@ -404,7 +403,7 @@ def _access_packets(
                         peak.satellite_altitude_km * 1000.0,
                         target_longitude,
                         target_latitude,
-                        0.0,
+                        30000.0,
                     ]
                 },
                 "width": 3,
@@ -421,7 +420,7 @@ def _access_packets(
                 "cartographicDegrees": [
                     target_longitude,
                     target_latitude,
-                    150.0,
+                    35000.0,
                 ]
             },
             "point": {
@@ -441,7 +440,7 @@ def _access_packets(
                 packet["ellipse"] = {
                     "semiMajorAxis": semi_major,
                     "semiMinorAxis": semi_minor,
-                    "height": 20.0,
+                    "height": 30000.0,
                     "material": {"solidColor": {"color": _rgba((245, 158, 11, 44))}},
                     "outline": True,
                     "outlineColor": _rgba(ACCESS_COLOR),
@@ -496,7 +495,7 @@ def _schedule_packets(
                             state.altitude_km * 1000.0,
                             target_longitude,
                             target_latitude,
-                            0.0,
+                            30000.0,
                         ]
                     },
                     "width": 6,
@@ -513,7 +512,7 @@ def _schedule_packets(
                     "cartographicDegrees": [
                         target_longitude,
                         target_latitude,
-                        300.0,
+                        35000.0,
                     ]
                 },
                 "point": {

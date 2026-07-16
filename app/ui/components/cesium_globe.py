@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import base64
 import json
+from pathlib import Path
 
 import streamlit.components.v1 as components
 
@@ -9,6 +11,17 @@ from app.visualization import CesiumScene
 
 CESIUM_VERSION = "1.130.0"
 CESIUM_BASE_URL = f"https://cdn.jsdelivr.net/npm/cesium@{CESIUM_VERSION}/Build/Cesium/"
+EARTH_TEXTURE_PATH = Path(__file__).resolve().parents[1] / "assets" / "earth_fallback.jpg"
+
+
+def _earth_texture_data_uri() -> str:
+    """Zwraca wbudowaną teksturę Ziemi, niezależną od usług kafelkowych."""
+
+    try:
+        payload = base64.b64encode(EARTH_TEXTURE_PATH.read_bytes()).decode("ascii")
+    except OSError:
+        return ""
+    return f"data:image/jpeg;base64,{payload}"
 
 
 def build_cesium_html(
@@ -30,6 +43,7 @@ def build_cesium_html(
             "schedule": scene.scheduled_acquisition_count,
         }
     )
+    earth_texture = json.dumps(_earth_texture_data_uri())
     return f"""<!doctype html>
 <html lang="pl">
 <head>
@@ -41,12 +55,12 @@ def build_cesium_html(
   <style>
     html, body, #cesiumContainer {{
       width: 100%; height: 100%; margin: 0; overflow: hidden;
-      background: #030712; font-family: Inter, system-ui, sans-serif;
+      background: #020617; font-family: Inter, system-ui, sans-serif;
     }}
     #cesiumContainer {{ height: {height_px}px; }}
     .legend {{
       position: absolute; z-index: 10; top: 14px; left: 14px;
-      min-width: 270px; padding: 13px 15px; border-radius: 12px;
+      min-width: 285px; padding: 13px 15px; border-radius: 12px;
       color: #f8fafc; background: rgba(5, 12, 24, 0.9);
       border: 1px solid rgba(148, 163, 184, 0.35);
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
@@ -60,8 +74,8 @@ def build_cesium_html(
     .meta {{ color: #cbd5e1; margin-top: 9px; font-size: 13px; }}
     .status {{
       display: inline-flex; margin-top: 8px; padding: 4px 8px; border-radius: 999px;
-      color: #bfdbfe; background: rgba(30, 64, 175, 0.25);
-      border: 1px solid rgba(96, 165, 250, 0.35); font-size: 12px;
+      color: #bbf7d0; background: rgba(22, 101, 52, 0.25);
+      border: 1px solid rgba(74, 222, 128, 0.35); font-size: 12px;
     }}
     .actions {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }}
     .actions button {{
@@ -90,12 +104,12 @@ def build_cesium_html(
     <strong>Globus operacyjny 3D</strong>
     <div class="legend-row"><span class="swatch" style="background:#ff636a"></span>ICEYE SAR — satelita/orbita</div>
     <div class="legend-row"><span class="swatch" style="background:#50a9ff"></span>Pléiades Neo EO — satelita/orbita</div>
-    <div class="legend-row"><span class="swatch ground"></span>Ground track na powierzchni</div>
+    <div class="legend-row"><span class="swatch ground"></span>Ground track nad powierzchnią</div>
     <div class="legend-row"><span class="dot" style="background:#facc15"></span>AOI / zlecenie</div>
     <div class="legend-row"><span class="swatch" style="background:#f59e0b"></span>Okno dostępu / footprint</div>
     <div class="legend-row"><span class="swatch" style="background:#34d399;height:7px"></span>Zaplanowana akwizycja</div>
     <div class="meta" id="sceneMeta"></div>
-    <div class="status" id="mapStatus">Ziemia: elipsoida awaryjna</div>
+    <div class="status" id="mapStatus">Ziemia: wbudowana tekstura offline</div>
     <div class="actions">
       <button id="earthButton" type="button">Pokaż Ziemię</button>
       <button id="sceneButton" type="button">Cała scena</button>
@@ -105,6 +119,7 @@ def build_cesium_html(
   <script>
     const czml = {czml_json};
     const metadata = {metadata_json};
+    const fallbackEarthTexture = {earth_texture};
     const errorBanner = document.getElementById("errorBanner");
     const mapStatus = document.getElementById("mapStatus");
     function showError(message) {{
@@ -136,52 +151,101 @@ def build_cesium_html(
         terrainProvider: new Cesium.EllipsoidTerrainProvider()
       }});
 
-      const globe = viewer.scene.globe;
-      globe.show = true;
-      globe.baseColor = Cesium.Color.fromCssColorString("#1d5f7a");
-      globe.undergroundColor = Cesium.Color.fromCssColorString("#0b2636");
-      globe.enableLighting = false;
-      globe.showGroundAtmosphere = true;
-      globe.depthTestAgainstTerrain = true;
-      globe.maximumScreenSpaceError = 2;
-      viewer.scene.skyAtmosphere.show = true;
+      // Nie polegamy na zewnętrznych kafelkach ani na warstwie Ion.
+      // Własna elipsoida jest zawsze renderowana i nie może zniknąć przy błędzie sieci.
+      viewer.scene.globe.show = false;
+      viewer.scene.skyAtmosphere.show = false;
+      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#020617");
       viewer.scene.highDynamicRange = true;
       viewer.scene.logarithmicDepthBuffer = true;
-      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#030712");
-      viewer.scene.screenSpaceCameraController.minimumZoomDistance = 800000;
-      viewer.scene.screenSpaceCameraController.maximumZoomDistance = 80000000;
+      viewer.scene.screenSpaceCameraController.minimumZoomDistance = 350000;
+      viewer.scene.screenSpaceCameraController.maximumZoomDistance = 90000000;
       viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 1.6);
 
-      function showEarth(duration = 1.2) {{
-        viewer.camera.flyTo({{
-          destination: Cesium.Cartesian3.fromDegrees(19.0, 51.5, 18500000.0),
-          orientation: {{
-            heading: 0.0,
-            pitch: Cesium.Math.toRadians(-90.0),
-            roll: 0.0
-          }},
-          duration
-        }});
-      }}
+      const earthRadii = new Cesium.Cartesian3(6363137.0, 6363137.0, 6341752.3);
+      const earthMaterial = fallbackEarthTexture
+        ? new Cesium.ImageMaterialProperty({{
+            image: fallbackEarthTexture,
+            transparent: false
+          }})
+        : new Cesium.GridMaterialProperty({{
+            color: Cesium.Color.fromCssColorString("#1479a8"),
+            cellAlpha: 0.35,
+            lineCount: new Cesium.Cartesian2(36, 18),
+            lineThickness: new Cesium.Cartesian2(1.0, 1.0)
+          }});
 
-      function addMapLayer() {{
-        try {{
-          const provider = new Cesium.OpenStreetMapImageryProvider({{
-            url: "https://tile.openstreetmap.org/"
+      viewer.entities.add({{
+        id: "offline-earth",
+        name: "Ziemia WGS84 — warstwa offline",
+        position: Cesium.Cartesian3.ZERO,
+        ellipsoid: {{
+          radii: earthRadii,
+          material: earthMaterial,
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString("#7dd3fc").withAlpha(0.45),
+          subdivisions: 128,
+          stackPartitions: 64,
+          slicePartitions: 128
+        }}
+      }});
+
+      // Delikatna powłoka atmosferyczna pomaga odróżnić krawędź globu od tła.
+      viewer.entities.add({{
+        id: "offline-atmosphere",
+        position: Cesium.Cartesian3.ZERO,
+        ellipsoid: {{
+          radii: new Cesium.Cartesian3(6443137.0, 6443137.0, 6421752.3),
+          material: Cesium.Color.fromCssColorString("#38bdf8").withAlpha(0.055),
+          outline: false
+        }}
+      }});
+
+      function addGraticule() {{
+        const height = 26000.0;
+        const lineColor = Cesium.Color.WHITE.withAlpha(0.18);
+        for (let latitude = -75; latitude <= 75; latitude += 15) {{
+          const positions = [];
+          for (let longitude = -180; longitude <= 180; longitude += 5) {{
+            positions.push(longitude, latitude, height);
+          }}
+          viewer.entities.add({{
+            polyline: {{
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights(positions),
+              width: latitude === 0 ? 1.5 : 1.0,
+              arcType: Cesium.ArcType.GEODESIC,
+              material: lineColor
+            }}
           }});
-          provider.errorEvent.addEventListener((error) => {{
-            mapStatus.textContent = "Ziemia: elipsoida awaryjna (błąd kafelków)";
-            console.warn("OSM imagery error", error);
+        }}
+        for (let longitude = -180; longitude < 180; longitude += 30) {{
+          const positions = [];
+          for (let latitude = -90; latitude <= 90; latitude += 5) {{
+            positions.push(longitude, latitude, height);
+          }}
+          viewer.entities.add({{
+            polyline: {{
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights(positions),
+              width: longitude === 0 ? 1.5 : 1.0,
+              arcType: Cesium.ArcType.GEODESIC,
+              material: lineColor
+            }}
           }});
-          const layer = viewer.imageryLayers.addImageryProvider(provider);
-          layer.alpha = 0.95;
-          mapStatus.textContent = "Ziemia: OpenStreetMap + elipsoida awaryjna";
-        }} catch (error) {{
-          mapStatus.textContent = "Ziemia: elipsoida awaryjna";
-          console.warn("Nie udało się dodać OSM", error);
         }}
       }}
-      addMapLayer();
+      addGraticule();
+
+      function showEarth(duration = 1.2) {{
+        const sphere = new Cesium.BoundingSphere(Cesium.Cartesian3.ZERO, 6378137.0);
+        viewer.camera.flyToBoundingSphere(sphere, {{
+          duration,
+          offset: new Cesium.HeadingPitchRange(
+            Cesium.Math.toRadians(12.0),
+            Cesium.Math.toRadians(-25.0),
+            17800000.0
+          )
+        }});
+      }}
 
       Cesium.CzmlDataSource.load(czml)
         .then((dataSource) => {{

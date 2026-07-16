@@ -142,6 +142,9 @@ def test_cesium_scene_contains_clock_satellite_and_aoi() -> None:
     assert "satellite-SAR-01" in packets
     assert "groundtrack-SAR-01-01" in packets
     assert "subsatellite-SAR-01" in packets
+    ground_track = packets["groundtrack-SAR-01-01"]["polyline"]
+    assert ground_track["clampToGround"] is False
+    assert 25000.0 in ground_track["positions"]["cartographicDegrees"]
     assert "path" not in packets["satellite-SAR-01"]
     assert "aoi-REQ-CESIUM-01" in packets
     assert packets["document"]["clock"]["range"] == "LOOP_STOP"
@@ -177,10 +180,12 @@ def test_cesium_html_contains_pinned_renderer_and_embedded_czml() -> None:
     assert "cesium@1.130.0" in rendered
     assert "CzmlDataSource.load" in rendered
     assert "satellite-SAR-01" in rendered
-    assert "OpenStreetMapImageryProvider" in rendered
     assert "baseLayer: false" in rendered
-    assert "globe.baseColor" in rendered
-    assert "globe.enableLighting = false" in rendered
+    assert 'viewer.scene.globe.show = false' in rendered
+    assert 'id: "offline-earth"' in rendered
+    assert "ImageMaterialProperty" in rendered
+    assert "data:image/jpeg;base64," in rendered
+    assert "flyToBoundingSphere" in rendered
     assert "Pokaż Ziemię" in rendered
 
 
