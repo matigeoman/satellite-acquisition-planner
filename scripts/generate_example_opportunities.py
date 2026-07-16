@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.io import load_system_catalog
@@ -19,23 +19,11 @@ from app.models.sensor import Sensor
 from app.io import load_request_set
 
 
-CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_system.json"
-)
+CATALOG_PATH = PROJECT_PATHS.scenario("EXAMPLE").catalog
 
-REQUEST_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_requests.json"
-)
+REQUEST_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
-OUTPUT_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_opportunities.json"
-)
+OUTPUT_PATH = PROJECT_PATHS.scenario("EXAMPLE").opportunities
 
 RANDOM_SEED = 20260715
 OPPORTUNITIES_PER_REQUEST = 10

@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.schedule_report import (
@@ -22,41 +22,17 @@ from app.io import (
 )
 
 
-CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_system.json"
-)
+CATALOG_PATH = PROJECT_PATHS.scenario("EXAMPLE").catalog
 
-REQUEST_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_requests.json"
-)
+REQUEST_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
-OPPORTUNITY_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_opportunities.json"
-)
+OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").opportunities
 
-GREEDY_SCHEDULE_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_schedule_greedy.json"
-)
+GREEDY_SCHEDULE_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="GREEDY")
 
-OUTPUT_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_schedule_cp_sat.json"
-)
+OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="CP_SAT")
 
-REPORT_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-    / "reports"
-)
+REPORT_DIRECTORY = PROJECT_PATHS.reports
 
 
 def main() -> None:

@@ -27,19 +27,25 @@ PROJECT_DIRECTORY = Path(__file__).resolve().parents[1]
 CATALOG_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "example_system.json"
+    / "scenarios"
+    / "example"
+    / "system.json"
 )
 
 REQUEST_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "example_requests.json"
+    / "scenarios"
+    / "example"
+    / "requests.json"
 )
 
 OPPORTUNITY_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "example_opportunities.json"
+    / "scenarios"
+    / "example"
+    / "opportunities.json"
 )
 
 FIXED_CREATED_AT = datetime(

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.disruption_report import export_disruption_report
@@ -64,7 +64,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--previous-schedule",
         type=Path,
         default=(
-            PROJECT_ROOT / "data" / "example_schedule_cp_sat.json"
+            PROJECT_PATHS.reference_schedule(
+                scenario_id="EXAMPLE",
+                algorithm_value="CP_SAT",
+            )
         ),
     )
     parser.add_argument(
@@ -126,16 +129,17 @@ def main() -> None:
 
     if output_path is None:
         output_path = (
-            PROJECT_ROOT
-            / "data"
-            / f"example_schedule_disrupted_{algorithm_slug}.json"
+            PROJECT_PATHS.generated_schedule(
+                scenario_id="EXAMPLE",
+                name=f"disrupted_{algorithm_slug}",
+            )
         )
     elif not output_path.is_absolute():
         output_path = PROJECT_ROOT / output_path
 
     save_schedule(result.schedule, output_path)
 
-    report_directory = PROJECT_ROOT / "data" / "reports"
+    report_directory = PROJECT_PATHS.reports
     schedule_report_paths = export_schedule_analysis(
         result.analysis,
         report_directory,

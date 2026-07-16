@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.io import load_system_catalog
@@ -15,29 +15,13 @@ from app.io import load_request_set
 from app.io import save_schedule
 
 
-CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_system.json"
-)
+CATALOG_PATH = PROJECT_PATHS.scenario("EXAMPLE").catalog
 
-REQUEST_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_requests.json"
-)
+REQUEST_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
-OPPORTUNITY_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_opportunities.json"
-)
+OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").opportunities
 
-OUTPUT_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_schedule_greedy.json"
-)
+OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="GREEDY")
 
 
 def main() -> None:

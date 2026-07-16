@@ -15,7 +15,9 @@ PROJECT_DIRECTORY = Path(__file__).resolve().parents[1]
 REQUEST_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "example_requests.json"
+    / "scenarios"
+    / "example"
+    / "requests.json"
 )
 
 

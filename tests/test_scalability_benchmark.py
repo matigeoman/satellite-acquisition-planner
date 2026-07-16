@@ -25,19 +25,25 @@ PROJECT_DIRECTORY = Path(__file__).resolve().parents[1]
 CATALOG_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_system.json"
+    / "scenarios"
+    / "stress"
+    / "system.json"
 )
 
 REQUEST_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_requests.json"
+    / "scenarios"
+    / "stress"
+    / "requests.json"
 )
 
 OPPORTUNITY_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_opportunities.json"
+    / "scenarios"
+    / "stress"
+    / "opportunities.json"
 )
 
 

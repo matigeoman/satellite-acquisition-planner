@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.experimental_validation import (
@@ -15,12 +15,7 @@ from app.analysis.experimental_validation import (
 from app.services.scenario_service import ScenarioService
 
 
-DEFAULT_OUTPUT_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-    / "reports"
-    / "experimental_validation"
-)
+DEFAULT_OUTPUT_DIRECTORY = PROJECT_PATHS.experimental_validation_reports
 
 
 def build_parser() -> argparse.ArgumentParser:

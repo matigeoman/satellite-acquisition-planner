@@ -25,9 +25,9 @@ class ScenarioPaths:
 class ProjectPaths:
     """Centralny rejestr ścieżek projektu.
 
-    Wszystkie moduły aplikacji korzystają z tej klasy zamiast samodzielnie
-    wyznaczać katalog główny i składać ścieżki do danych. Dzięki temu zmiana
-    układu katalogów nie wymaga edytowania wielu niezależnych plików.
+    Dane źródłowe, harmonogramy referencyjne, importy zewnętrzne i wyniki
+    generowane są rozdzielone. Moduły aplikacji nie powinny samodzielnie
+    składać ścieżek względem katalogu ``data``.
     """
 
     root: Path
@@ -40,12 +40,12 @@ class ProjectPaths:
         return self.root / "data"
 
     @property
-    def reports(self) -> Path:
-        return self.data / "reports"
+    def scenarios(self) -> Path:
+        return self.data / "scenarios"
 
     @property
-    def benchmarks(self) -> Path:
-        return self.data / "benchmarks"
+    def reference_schedules(self) -> Path:
+        return self.data / "reference_schedules"
 
     @property
     def imports(self) -> Path:
@@ -71,40 +71,45 @@ class ProjectPaths:
     def generated_benchmarks(self) -> Path:
         return self.generated / "benchmarks"
 
+    # Krótkie aliasy zachowują czytelność starszych modułów.
+    @property
+    def reports(self) -> Path:
+        return self.generated_reports
+
+    @property
+    def benchmarks(self) -> Path:
+        return self.generated_benchmarks
+
     @property
     def experimental_validation_reports(self) -> Path:
-        return self.reports / "experimental_validation"
+        return self.generated_reports / "experimental_validation"
 
-    def scenario(self, scenario_id: str) -> ScenarioPaths:
-        """Zwraca pliki wejściowe zarejestrowanego scenariusza."""
-
+    @staticmethod
+    def _scenario_slug(scenario_id: str) -> str:
         normalized = scenario_id.strip().upper()
-        filenames = {
-            "EXAMPLE": (
-                "example_system.json",
-                "example_requests.json",
-                "example_opportunities.json",
-            ),
-            "STRESS": (
-                "stress_system.json",
-                "stress_requests.json",
-                "stress_opportunities.json",
-            ),
+        slugs = {
+            "EXAMPLE": "example",
+            "STRESS": "stress",
         }
 
         try:
-            catalog_name, requests_name, opportunities_name = filenames[
-                normalized
-            ]
+            return slugs[normalized]
         except KeyError as error:
             raise ValueError(
                 f"Nieobsługiwany scenariusz: {scenario_id}"
             ) from error
 
+    def scenario_directory(self, scenario_id: str) -> Path:
+        return self.scenarios / self._scenario_slug(scenario_id)
+
+    def scenario(self, scenario_id: str) -> ScenarioPaths:
+        """Zwraca pliki wejściowe zarejestrowanego scenariusza."""
+
+        directory = self.scenario_directory(scenario_id)
         return ScenarioPaths(
-            catalog=self.data / catalog_name,
-            requests=self.data / requests_name,
-            opportunities=self.data / opportunities_name,
+            catalog=directory / "system.json",
+            requests=directory / "requests.json",
+            opportunities=directory / "opportunities.json",
         )
 
     def reference_schedule(
@@ -113,44 +118,63 @@ class ProjectPaths:
         scenario_id: str,
         algorithm_value: str,
     ) -> Path:
-        """Zwraca ścieżkę referencyjnego harmonogramu Greedy lub CP-SAT."""
+        """Zwraca referencyjny harmonogram Greedy lub CP-SAT."""
 
-        normalized_scenario = scenario_id.strip().upper()
         normalized_algorithm = algorithm_value.strip().upper()
-
-        scenario_prefixes = {
-            "EXAMPLE": "example_schedule",
-            "STRESS": "stress_schedule",
+        filenames = {
+            "GREEDY": "greedy.json",
+            "CP_SAT": "cp_sat.json",
         }
 
         try:
-            prefix = scenario_prefixes[normalized_scenario]
+            filename = filenames[normalized_algorithm]
         except KeyError as error:
             raise ValueError(
-                f"Nieobsługiwany scenariusz: {scenario_id}"
+                f"Nieobsługiwany algorytm: {algorithm_value}"
             ) from error
 
-        if normalized_algorithm not in {"GREEDY", "CP_SAT"}:
-            raise ValueError(
-                f"Nieobsługiwany algorytm: {algorithm_value}"
-            )
+        return (
+            self.reference_schedules
+            / self._scenario_slug(scenario_id)
+            / filename
+        )
 
-        return self.data / (
-            f"{prefix}_{normalized_algorithm.lower()}.json"
+    def generated_schedule(
+        self,
+        *,
+        scenario_id: str,
+        name: str,
+    ) -> Path:
+        """Buduje ścieżkę roboczego harmonogramu generowanego przez aplikację."""
+
+        normalized_name = name.strip().lower().replace(" ", "_")
+        if not normalized_name:
+            raise ValueError("name nie może być puste")
+
+        return (
+            self.generated_schedules
+            / self._scenario_slug(scenario_id)
+            / f"{normalized_name}.json"
         )
 
     def ensure_output_directories(self) -> None:
         """Tworzy katalogi przeznaczone na importy i wyniki programu."""
 
-        for directory in (
-            self.reports,
-            self.benchmarks,
+        directories = (
             self.stk_imports,
             self.generated_schedules,
             self.generated_reports,
             self.generated_benchmarks,
-        ):
+        )
+
+        for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
+
+        for scenario_id in ("EXAMPLE", "STRESS"):
+            self.generated_schedule(
+                scenario_id=scenario_id,
+                name="placeholder",
+            ).parent.mkdir(parents=True, exist_ok=True)
 
 
 DEFAULT_PROJECT_ROOT = Path(__file__).resolve().parents[2]

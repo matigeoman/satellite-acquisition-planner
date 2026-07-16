@@ -25,31 +25,41 @@ PROJECT_DIRECTORY = Path(__file__).resolve().parents[1]
 CATALOG_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_system.json"
+    / "scenarios"
+    / "stress"
+    / "system.json"
 )
 
 REQUEST_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_requests.json"
+    / "scenarios"
+    / "stress"
+    / "requests.json"
 )
 
 OPPORTUNITY_SET_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_opportunities.json"
+    / "scenarios"
+    / "stress"
+    / "opportunities.json"
 )
 
 GREEDY_SCHEDULE_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_schedule_greedy.json"
+    / "reference_schedules"
+    / "stress"
+    / "greedy.json"
 )
 
 CP_SAT_SCHEDULE_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "stress_schedule_cp_sat.json"
+    / "reference_schedules"
+    / "stress"
+    / "cp_sat.json"
 )
 
 

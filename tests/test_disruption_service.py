@@ -41,7 +41,7 @@ def example_scenario():
 @pytest.fixture(scope="module")
 def previous_schedule():
     return load_schedule(
-        PROJECT_ROOT / "data" / "example_schedule_cp_sat.json"
+        PROJECT_ROOT / "data" / "reference_schedules" / "example" / "cp_sat.json"
     )
 
 

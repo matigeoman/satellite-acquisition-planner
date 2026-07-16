@@ -95,3 +95,17 @@ Obecne scenariusze wykorzystują syntetyczne okna akwizycyjne. Kolejny etap
 integracji STK dostarczy okna wynikające z propagacji orbit i geometrii
 obserwacji. STK będzie źródłem dostępności, natomiast aplikacja pozostanie
 modułem optymalizacyjnym.
+
+## Uporządkowany układ danych
+
+Dane wejściowe znajdują się w `data/scenarios`, harmonogramy kontrolne w `data/reference_schedules`, a wyniki robocze w ignorowanym przez Git katalogu `data/generated`. Wszystkie ścieżki udostępnia `app.config.paths.ProjectPaths`.
+
+Podstawowe polecenia terminalowe mają wspólny punkt wejścia:
+
+```powershell
+python -m app.cli check
+python -m app.cli paths
+python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
+```
+
+Szczegóły opisano w `docs/data_layout_and_cli.md`.

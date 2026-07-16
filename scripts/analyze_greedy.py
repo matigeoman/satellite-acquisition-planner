@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.schedule_report import (
@@ -14,35 +14,15 @@ from app.io import load_request_set
 from app.io import load_schedule
 
 
-CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_system.json"
-)
+CATALOG_PATH = PROJECT_PATHS.scenario("EXAMPLE").catalog
 
-REQUEST_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_requests.json"
-)
+REQUEST_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
-OPPORTUNITY_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_opportunities.json"
-)
+OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").opportunities
 
-SCHEDULE_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_schedule_greedy.json"
-)
+SCHEDULE_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="GREEDY")
 
-REPORT_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-    / "reports"
-)
+REPORT_DIRECTORY = PROJECT_PATHS.reports
 
 
 def main() -> None:

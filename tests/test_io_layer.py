@@ -65,7 +65,7 @@ def test_legacy_catalog_import_uses_new_io_layer() -> None:
 
 def test_catalog_can_be_loaded_through_new_io_layer() -> None:
     catalog = load_system_catalog(
-        PROJECT_ROOT / "data" / "example_system.json"
+        PROJECT_ROOT / "data" / "scenarios" / "example" / "system.json"
     )
 
     assert len(catalog.satellites) == 6
@@ -73,7 +73,7 @@ def test_catalog_can_be_loaded_through_new_io_layer() -> None:
 
 def test_schedule_round_trip_through_new_io_layer(tmp_path: Path) -> None:
     source = load_schedule(
-        PROJECT_ROOT / "data" / "example_schedule_greedy.json"
+        PROJECT_ROOT / "data" / "reference_schedules" / "example" / "greedy.json"
     )
     destination = tmp_path / "schedule.json"
 

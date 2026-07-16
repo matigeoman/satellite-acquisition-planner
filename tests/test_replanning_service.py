@@ -23,7 +23,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PREVIOUS_SCHEDULE_PATH = (
     PROJECT_ROOT
     / "data"
-    / "example_schedule_cp_sat.json"
+    / "reference_schedules"
+    / "example"
+    / "cp_sat.json"
 )
 
 REPLAN_AT = datetime(

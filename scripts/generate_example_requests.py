@@ -3,17 +3,13 @@ from pathlib import Path
 from typing import Any
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.models.request_set import ObservationRequestSet
 
 
-OUTPUT_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_requests.json"
-)
+OUTPUT_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
 
 def point(

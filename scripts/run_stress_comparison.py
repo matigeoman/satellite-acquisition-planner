@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.schedule_report import (
@@ -23,41 +23,17 @@ from app.io import load_request_set
 from app.io import save_schedule
 
 
-CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_system.json"
-)
+CATALOG_PATH = PROJECT_PATHS.scenario("STRESS").catalog
 
-REQUEST_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_requests.json"
-)
+REQUEST_SET_PATH = PROJECT_PATHS.scenario("STRESS").requests
 
-OPPORTUNITY_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_opportunities.json"
-)
+OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("STRESS").opportunities
 
-GREEDY_OUTPUT_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_schedule_greedy.json"
-)
+GREEDY_OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="STRESS", algorithm_value="GREEDY")
 
-CP_SAT_OUTPUT_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_schedule_cp_sat.json"
-)
+CP_SAT_OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="STRESS", algorithm_value="CP_SAT")
 
-REPORT_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-    / "reports"
-)
+REPORT_DIRECTORY = PROJECT_PATHS.reports
 
 
 def main() -> None:

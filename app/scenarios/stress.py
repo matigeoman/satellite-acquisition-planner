@@ -477,11 +477,11 @@ def save_stress_scenario(
     )
 
     paths = {
-        "catalog": directory / "stress_system.json",
-        "requests": directory / "stress_requests.json",
+        "catalog": directory / "system.json",
+        "requests": directory / "requests.json",
         "opportunities": (
             directory
-            / "stress_opportunities.json"
+            / "opportunities.json"
         ),
     }
 

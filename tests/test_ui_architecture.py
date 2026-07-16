@@ -84,7 +84,7 @@ def test_reference_schedule_path_is_stable() -> None:
         algorithm_value="CP_SAT",
     )
 
-    assert path == PROJECT_ROOT / "data" / "example_schedule_cp_sat.json"
+    assert path == PROJECT_ROOT / "data" / "reference_schedules" / "example" / "cp_sat.json"
 
 
 def test_reference_schedule_path_rejects_unknown_scenario() -> None:

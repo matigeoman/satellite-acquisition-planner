@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.scalability_benchmark import (
@@ -32,36 +32,15 @@ from app.scenarios.scalability import (
 from app.io import save_schedule
 
 
-CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_system.json"
-)
+CATALOG_PATH = PROJECT_PATHS.scenario("STRESS").catalog
 
-REQUEST_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_requests.json"
-)
+REQUEST_SET_PATH = PROJECT_PATHS.scenario("STRESS").requests
 
-OPPORTUNITY_SET_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "stress_opportunities.json"
-)
+OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("STRESS").opportunities
 
-BENCHMARK_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-    / "benchmarks"
-    / "scalability"
-)
+BENCHMARK_DIRECTORY = PROJECT_PATHS.benchmarks / "scalability"
 
-REPORT_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-    / "reports"
-)
+REPORT_DIRECTORY = PROJECT_PATHS.reports
 
 REQUEST_COUNTS = (
     20,

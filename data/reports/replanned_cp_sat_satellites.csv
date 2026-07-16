@@ -1,7 +1,0 @@
-﻿satellite_id,sensor_type,scheduled_acquisitions,acquisition_limit,acquisition_utilization_ratio,imaging_time_s,imaging_time_limit_s,imaging_utilization_ratio,generated_data_mb,initial_memory_usage_mb,planning_memory_limit_mb,final_memory_usage_mb,memory_utilization_ratio
-EO-01,OPTICAL,6,40,0.15,85.002,3600.0,0.023612,1615.038,20000.0,512000.0,21615.038,0.042217
-EO-02,OPTICAL,6,40,0.15,85.002,3600.0,0.023612,1785.042,15000.0,512000.0,16785.042,0.032783
-SAR-01,SAR,2,30,0.066667,73.334,3600.0,0.020371,1320.012,10000.0,256000.0,11320.012,0.044219
-SAR-02,SAR,4,30,0.133333,163.334,3600.0,0.045371,2753.345,8000.0,256000.0,10753.345,0.042005
-SAR-03,SAR,3,30,0.1,110.001,3600.0,0.030556,1980.018,12000.0,256000.0,13980.018,0.054609
-SAR-04,SAR,3,30,0.1,120.001,3600.0,0.033334,1786.682,5000.0,256000.0,6786.682,0.02651

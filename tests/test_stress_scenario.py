@@ -25,7 +25,9 @@ PROJECT_DIRECTORY = Path(__file__).resolve().parents[1]
 BASE_CATALOG_PATH = (
     PROJECT_DIRECTORY
     / "data"
-    / "example_system.json"
+    / "scenarios"
+    / "example"
+    / "system.json"
 )
 
 

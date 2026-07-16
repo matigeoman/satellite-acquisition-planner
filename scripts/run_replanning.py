@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.analysis.schedule_report import export_schedule_analysis
@@ -83,12 +83,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--previous-schedule",
         type=Path,
-        default=(
-            PROJECT_ROOT
-            / "data"
-            / "example_schedule_cp_sat.json"
+        default=None,
+        help=(
+            "Ścieżka do poprzedniego harmonogramu JSON. "
+            "Domyślnie referencyjny CP-SAT wybranego scenariusza."
         ),
-        help="Ścieżka do poprzedniego harmonogramu JSON.",
     )
     parser.add_argument(
         "--output",
@@ -131,11 +130,14 @@ def main() -> None:
         args.scenario
     )
 
-    previous_schedule_path = (
-        args.previous_schedule
-        if args.previous_schedule.is_absolute()
-        else PROJECT_ROOT / args.previous_schedule
-    )
+    previous_schedule_path = args.previous_schedule
+    if previous_schedule_path is None:
+        previous_schedule_path = PROJECT_PATHS.reference_schedule(
+            scenario_id=args.scenario,
+            algorithm_value="CP_SAT",
+        )
+    elif not previous_schedule_path.is_absolute():
+        previous_schedule_path = PROJECT_ROOT / previous_schedule_path
 
     previous_schedule = load_schedule(
         previous_schedule_path
@@ -169,9 +171,10 @@ def main() -> None:
 
     if output_path is None:
         output_path = (
-            PROJECT_ROOT
-            / "data"
-            / f"example_schedule_replanned_{algorithm_slug}.json"
+            PROJECT_PATHS.generated_schedule(
+                scenario_id=args.scenario,
+                name=f"replanned_{algorithm_slug}",
+            )
         )
     elif not output_path.is_absolute():
         output_path = PROJECT_ROOT / output_path
@@ -183,7 +186,7 @@ def main() -> None:
 
     report_paths = export_schedule_analysis(
         result.analysis,
-        PROJECT_ROOT / "data" / "reports",
+        PROJECT_PATHS.reports,
         prefix=f"replanned_{algorithm_slug}",
     )
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-from _bootstrap import PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
 
 
 from app.io import load_system_catalog
@@ -11,16 +11,9 @@ from app.scenarios.stress import (
 )
 
 
-BASE_CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data"
-    / "example_system.json"
-)
+BASE_CATALOG_PATH = PROJECT_PATHS.scenario("EXAMPLE").catalog
 
-OUTPUT_DIRECTORY = (
-    PROJECT_ROOT
-    / "data"
-)
+OUTPUT_DIRECTORY = PROJECT_PATHS.scenario_directory("STRESS")
 
 
 def main() -> None:

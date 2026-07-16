@@ -1,28 +1,37 @@
-# Katalog danych
+# Katalog `data`
 
-Katalog `data` zawiera dane wejściowe, wyniki referencyjne oraz artefakty
-wygenerowane przez skrypty i aplikację.
+Dane są rozdzielone według ich roli:
 
-## Dane wejściowe
+```text
+data/
+├── scenarios/
+│   ├── example/
+│   │   ├── system.json
+│   │   ├── requests.json
+│   │   └── opportunities.json
+│   └── stress/
+│       ├── system.json
+│       ├── requests.json
+│       └── opportunities.json
+├── reference_schedules/
+│   ├── example/
+│   │   ├── greedy.json
+│   │   └── cp_sat.json
+│   └── stress/
+│       ├── greedy.json
+│       └── cp_sat.json
+├── imports/
+│   └── stk/
+└── generated/
+    ├── schedules/
+    ├── reports/
+    └── benchmarks/
+```
 
-Pliki `example_*.json` tworzą scenariusz podstawowy, a `stress_*.json`
-scenariusz przeciążony. Każdy scenariusz składa się z:
+## Zasady
 
-- katalogu systemu i satelitów,
-- zbioru zleceń,
-- zbioru okazji akwizycyjnych.
-
-## Wyniki referencyjne
-
-Pliki `*_schedule_greedy.json` oraz `*_schedule_cp_sat.json` są harmonogramami
-referencyjnymi używanymi przez interfejs i testy regresyjne.
-
-## Wyniki generowane
-
-- `reports/` — raporty CSV i wykresy z dotychczasowych eksperymentów,
-- `benchmarks/` — zapisane wyniki benchmarków,
-- `generated/` — docelowe miejsce nowych wyników generowanych podczas pracy,
-- `imports/stk/` — raporty dostępności eksportowane ze STK.
-
-Wewnętrzne wskaźniki udziałowe są przechowywane w zakresie `0–1`. Dopiero
-warstwa interfejsu formatuje je jako wartości procentowe `0–100%`.
+- `scenarios` zawiera wersjonowane dane wejściowe.
+- `reference_schedules` zawiera stabilne wyniki używane w testach i przykładach.
+- `imports/stk` jest przeznaczony na raporty wyeksportowane z STK.
+- `generated` zawiera wyniki robocze i jest ignorowany przez Git poza plikami `.gitkeep`.
+- Kod powinien korzystać z `app.config.paths.ProjectPaths`, a nie składać ścieżek ręcznie.

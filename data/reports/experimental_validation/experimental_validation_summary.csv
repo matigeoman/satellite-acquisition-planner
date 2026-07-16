@@ -1,7 +1,0 @@
-﻿profile_id,profile_name,algorithm,run_count,objective_mean,objective_std,objective_min,objective_max,satisfaction_ratio_mean,satisfaction_ratio_std,mandatory_satisfaction_ratio_mean,fully_satisfied_requests_mean,unassigned_requests_mean,runtime_mean_s,runtime_std_s
-DEGRADED,Umiarkowana degradacja dostępności,CP_SAT,10,4254.839,81.697769,4147.305,4366.382,0.53625,0.003953,1.0,42.9,37.1,5.029838,0.001328
-DEGRADED,Umiarkowana degradacja dostępności,GREEDY,10,3536.1482,103.875787,3426.445,3666.471,0.4625,0.011785,1.0,37,43,0.004186,0.000412
-NOMINAL,Warunki nominalne z niewielką zmiennością,CP_SAT,10,5114.1983,44.885042,5046.291,5147.55,0.675,0.0,1.0,54,26,5.032099,0.001944
-NOMINAL,Warunki nominalne z niewielką zmiennością,GREEDY,10,3960.2531,42.40351,3939.795,4050.598,0.575,0.0,1.0,46,34,0.004844,0.001005
-SEVERE,Silna degradacja dostępności,CP_SAT,10,3669.6729,59.436591,3551.682,3739.633,0.435,0.00527,1.0,34.8,45.2,5.02587,0.000966
-SEVERE,Silna degradacja dostępności,GREEDY,10,3245.1501,99.59917,3044.955,3438.727,0.4,0.013176,1.0,32,48,0.003777,7e-05
