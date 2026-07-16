@@ -70,6 +70,43 @@ SATELLITE_USAGE_COLUMNS = [
 ]
 
 
+def build_percentage_display_dataframe(
+    dataframe: pd.DataFrame,
+    ratio_columns: tuple[str, ...] | list[str],
+) -> pd.DataFrame:
+    """Tworzy kopię tabeli z wybranymi ratio przeliczonymi na procenty.
+
+    Dane modelowe pozostają zapisane w naturalnym zakresie 0–1. Funkcja
+    służy wyłącznie do przygotowania wartości dla komponentów interfejsu,
+    których format procentowy nie wykonuje automatycznie mnożenia przez 100.
+    """
+
+    missing_columns = [
+        column
+        for column in ratio_columns
+        if column not in dataframe.columns
+    ]
+
+    if missing_columns:
+        raise KeyError(
+            "Brak kolumn ratio wymaganych do prezentacji: "
+            + ", ".join(missing_columns)
+        )
+
+    display_dataframe = dataframe.copy()
+
+    for column in ratio_columns:
+        display_dataframe[column] = (
+            pd.to_numeric(
+                display_dataframe[column],
+                errors="coerce",
+            )
+            * 100.0
+        )
+
+    return display_dataframe
+
+
 def build_schedule_entries_dataframe(
     result: PlanningResult,
 ) -> pd.DataFrame:

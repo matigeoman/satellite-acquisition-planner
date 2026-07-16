@@ -119,6 +119,192 @@ def build_example_disruption_plan(
     )
 
 
+
+def build_configurable_disruption_plan(
+    *,
+    scenario: LoadedScenario,
+    previous_schedule: Schedule,
+    replan_at_utc: datetime,
+    freeze_duration: timedelta = timedelta(hours=2),
+    include_outage: bool = True,
+    outage_satellite_id: str | None = None,
+    include_weather: bool = True,
+    weather_opportunity_id: str | None = None,
+    include_urgent_request: bool = True,
+    urgent_priority: int = 10,
+) -> DisruptionPlan:
+    """Buduje konfigurowalny plan zakłóceń dla interfejsu aplikacji."""
+
+    replan_at = _normalize_utc(replan_at_utc)
+
+    if freeze_duration <= timedelta(0):
+        raise ValueError("freeze_duration musi być większe od zera")
+
+    if not 1 <= urgent_priority <= 10:
+        raise ValueError("urgent_priority musi należeć do zakresu [1, 10]")
+
+    if not any(
+        (include_outage, include_weather, include_urgent_request)
+    ):
+        raise ValueError(
+            "Plan musi zawierać co najmniej jedno zakłócenie"
+        )
+
+    frozen_until = min(
+        replan_at + freeze_duration,
+        scenario.request_set.horizon_end_utc,
+    )
+
+    request_by_id = {
+        request.request_id: request
+        for request in scenario.request_set.requests
+    }
+    opportunity_by_id = {
+        opportunity.opportunity_id: opportunity
+        for opportunity in scenario.opportunity_set.opportunities
+    }
+    future_entries = [
+        entry
+        for entry in previous_schedule.active_entries
+        if entry.start_utc >= frozen_until
+    ]
+
+    if not future_entries:
+        raise ValueError(
+            "Poprzedni harmonogram nie zawiera akwizycji po oknie zamrożonym"
+        )
+
+    selected_outage_satellite_id: str | None = None
+    outages: tuple[SatelliteOutage, ...] = ()
+
+    if include_outage:
+        selected_outage_satellite_id = (
+            outage_satellite_id.strip().upper()
+            if outage_satellite_id is not None
+            else _select_outage_satellite(
+                future_entries=future_entries,
+                request_by_id=request_by_id,
+            )
+        )
+
+        if selected_outage_satellite_id not in {
+            entry.satellite_id for entry in future_entries
+        }:
+            raise ValueError(
+                "Wybrany satelita nie ma przyszłych akwizycji "
+                "po oknie zamrożonym"
+            )
+
+        outages = (
+            SatelliteOutage(
+                satellite_id=selected_outage_satellite_id,
+                effective_from_utc=frozen_until,
+                reason=(
+                    f"Awaria {selected_outage_satellite_id} po zakończeniu "
+                    "operacyjnego okna zamrożonego."
+                ),
+            ),
+        )
+
+    weather_updates: tuple[CloudCoverUpdate, ...] = ()
+
+    if include_weather:
+        if weather_opportunity_id is None:
+            weather_entry = _select_weather_entry(
+                future_entries=future_entries,
+                request_by_id=request_by_id,
+                outage_satellite_id=(
+                    selected_outage_satellite_id or ""
+                ),
+            )
+        else:
+            normalized_id = weather_opportunity_id.strip().upper()
+            weather_entry = next(
+                (
+                    entry
+                    for entry in future_entries
+                    if entry.opportunity_id == normalized_id
+                ),
+                None,
+            )
+
+            if weather_entry is None:
+                raise ValueError(
+                    "Wybrana okazja pogodowa nie jest przyszłą "
+                    "akwizycją poprzedniego harmonogramu"
+                )
+
+            if weather_entry.sensor_type != SensorType.OPTICAL:
+                raise ValueError(
+                    "Aktualizacja pogody wymaga okazji optycznej"
+                )
+
+            if (
+                selected_outage_satellite_id is not None
+                and weather_entry.satellite_id
+                == selected_outage_satellite_id
+            ):
+                raise ValueError(
+                    "Okazja pogodowa nie może należeć do satelity "
+                    "objętego awarią"
+                )
+
+        weather_updates = (
+            CloudCoverUpdate(
+                opportunity_id=weather_entry.opportunity_id,
+                cloud_cover=1.0,
+                reason=DEFAULT_WEATHER_REASON,
+            ),
+        )
+
+    urgent_requests: tuple[UrgentRequestPackage, ...] = ()
+
+    if include_urgent_request:
+        urgent_source_entry = _select_urgent_source_entry(
+            future_entries=future_entries,
+            request_by_id=request_by_id,
+            outage_satellite_id=(
+                selected_outage_satellite_id or ""
+            ),
+        )
+        urgent_package = _build_urgent_request_package(
+            scenario=scenario,
+            source_entry=urgent_source_entry,
+            source_opportunity=opportunity_by_id[
+                urgent_source_entry.opportunity_id
+            ],
+            source_request=request_by_id[
+                urgent_source_entry.request_id
+            ],
+            frozen_until_utc=frozen_until,
+        )
+
+        if urgent_priority != urgent_package.request.priority:
+            request_data = urgent_package.request.model_dump()
+            request_data["priority"] = urgent_priority
+            urgent_request = ObservationRequest.model_validate(
+                request_data
+            )
+            urgent_package = UrgentRequestPackage(
+                request=urgent_request,
+                opportunities=urgent_package.opportunities,
+            )
+
+        urgent_requests = (urgent_package,)
+
+    timestamp = replan_at.strftime("%Y%m%dT%H%M%SZ")
+
+    return DisruptionPlan(
+        plan_id=f"DISRUPTION-UI-{scenario.scenario_id}-{timestamp}",
+        occurred_at_utc=replan_at,
+        satellite_outages=outages,
+        cloud_cover_updates=weather_updates,
+        urgent_requests=urgent_requests,
+        notes=(
+            "Plan zakłóceń skonfigurowany w aplikacji Streamlit."
+        ),
+    )
+
 def _select_outage_satellite(
     *,
     future_entries: list[ScheduleEntry],

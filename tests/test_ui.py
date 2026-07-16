@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from app.models.enums import (
@@ -17,6 +18,7 @@ from app.ui import (
     REQUEST_STATUS_COLUMNS,
     SATELLITE_USAGE_COLUMNS,
     SCHEDULE_ENTRY_COLUMNS,
+    build_percentage_display_dataframe,
     build_planning_metrics,
     build_request_status_dataframe,
     build_satellite_usage_dataframe,
@@ -257,3 +259,36 @@ def test_blocked_schedule_lists_all_requests_as_unfulfilled(
     ) == {
         "UNASSIGNED"
     }
+
+def test_percentage_display_dataframe_scales_ratios_without_mutation() -> None:
+    source = pd.DataFrame(
+        {
+            "name": ["A", "B", "C"],
+            "ratio": [1.0, 0.678125, None],
+        }
+    )
+
+    displayed = build_percentage_display_dataframe(
+        source,
+        ["ratio"],
+    )
+
+    assert source.loc[0, "ratio"] == 1.0
+    assert displayed.loc[0, "ratio"] == 100.0
+    assert displayed.loc[1, "ratio"] == pytest.approx(67.8125)
+    assert pd.isna(displayed.loc[2, "ratio"])
+    assert displayed["name"].tolist() == ["A", "B", "C"]
+
+
+def test_percentage_display_dataframe_rejects_missing_column() -> None:
+    source = pd.DataFrame({"ratio": [0.5]})
+
+    with pytest.raises(
+        KeyError,
+        match="missing_ratio",
+    ):
+        build_percentage_display_dataframe(
+            source,
+            ["missing_ratio"],
+        )
+
