@@ -1,10 +1,13 @@
-from app.planning.cp_sat import (
+from app.planning.config import (
     CpSatPlannerConfig,
+    GreedyPlannerConfig,
+)
+from app.planning.cp_sat import (
     CpSatScheduler,
     build_cp_sat_schedule,
 )
+from app.planning.fixed import FixedOpportunityAssignment
 from app.planning.greedy import (
-    GreedyPlannerConfig,
     GreedyScheduler,
     build_greedy_schedule,
 )
@@ -12,6 +15,7 @@ from app.planning.greedy import (
 __all__ = [
     "CpSatPlannerConfig",
     "CpSatScheduler",
+    "FixedOpportunityAssignment",
     "GreedyPlannerConfig",
     "GreedyScheduler",
     "build_cp_sat_schedule",

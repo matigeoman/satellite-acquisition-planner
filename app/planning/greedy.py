@@ -20,42 +20,12 @@ from app.models.satellite import Satellite
 from app.models.schedule import Schedule, ScheduleEntry
 from app.models.sensor import Sensor
 from app.planning.fixed import FixedOpportunityAssignment
-
-
-@dataclass(frozen=True)
-class GreedyPlannerConfig:
-    """Parametry funkcji celu i ograniczeń algorytmu Greedy."""
-
-    memory_reserve_ratio: float = 0.0
-
-    priority_weight: float = 10.0
-    quality_weight: float = 3.0
-    coverage_weight: float = 2.0
-    mandatory_bonus: float = 100.0
-
-    dual_optional_second_bonus: float = 5.0
-
-    def __post_init__(self) -> None:
-        if not 0.0 <= self.memory_reserve_ratio <= 1.0:
-            raise ValueError(
-                "memory_reserve_ratio musi należeć do zakresu [0, 1]"
-            )
-
-        nonnegative_parameters = {
-            "priority_weight": self.priority_weight,
-            "quality_weight": self.quality_weight,
-            "coverage_weight": self.coverage_weight,
-            "mandatory_bonus": self.mandatory_bonus,
-            "dual_optional_second_bonus": (
-                self.dual_optional_second_bonus
-            ),
-        }
-
-        for name, value in nonnegative_parameters.items():
-            if value < 0.0:
-                raise ValueError(
-                    f"{name} nie może być wartością ujemną"
-                )
+from app.planning.config import GreedyPlannerConfig
+from app.planning.scoring import (
+    acquisition_score,
+    calculate_objective_contributions,
+    request_reward,
+)
 
 
 @dataclass
@@ -664,151 +634,22 @@ class GreedyScheduler:
         self,
         request: ObservationRequest,
     ) -> float:
-        """Nagroda przyznawana raz za realizację zlecenia."""
-
-        reward = (
-            request.priority
-            * self.config.priority_weight
-        )
-
-        if request.is_mandatory:
-            reward += self.config.mandatory_bonus
-
-        return round(
-            reward,
-            6,
-        )
+        return request_reward(request, self.config)
 
     def _acquisition_score(
         self,
         opportunity: AcquisitionOpportunity,
     ) -> float:
-        """Ocena jakości pojedynczej akwizycji."""
-
-        score = (
-            opportunity.quality_score
-            * self.config.quality_weight
-            + opportunity.coverage_ratio
-            * self.config.coverage_weight
-        )
-
-        return round(
-            score,
-            6,
-        )
+        return acquisition_score(opportunity, self.config)
 
     def _calculate_objective_contributions(
         self,
     ) -> dict[str, float]:
-        """Rozdziela nagrodę zlecenia pomiędzy wybrane wpisy."""
-
-        selected_by_request: dict[
-            str,
-            list[AcquisitionOpportunity],
-        ] = defaultdict(list)
-
-        for opportunity in self._selected_opportunities:
-            selected_by_request[
-                opportunity.request_id
-            ].append(opportunity)
-
-        contributions: dict[str, float] = {}
-
-        for request_id, opportunities in (
-            selected_by_request.items()
-        ):
-            request = self.request_set.get_request(
-                request_id
-            )
-
-            request_reward = self._request_reward(
-                request
-            )
-
-            if request.request_mode == RequestMode.SINGLE:
-                opportunity = opportunities[0]
-
-                contributions[
-                    opportunity.opportunity_id
-                ] = round(
-                    request_reward
-                    + self._acquisition_score(opportunity),
-                    6,
-                )
-
-                continue
-
-            if (
-                request.request_mode
-                == RequestMode.DUAL_REQUIRED
-            ):
-                sensor_types = {
-                    opportunity.sensor_type
-                    for opportunity in opportunities
-                }
-
-                is_complete = (
-                    len(opportunities) == 2
-                    and sensor_types
-                    == {
-                        SensorType.SAR,
-                        SensorType.OPTICAL,
-                    }
-                )
-
-                if is_complete:
-                    reward_share = (
-                        request_reward
-                        / len(opportunities)
-                    )
-                else:
-                    reward_share = 0.0
-
-                for opportunity in opportunities:
-                    contributions[
-                        opportunity.opportunity_id
-                    ] = round(
-                        reward_share
-                        + self._acquisition_score(opportunity),
-                        6,
-                    )
-
-                continue
-
-            ordered_opportunities = sorted(
-                opportunities,
-                key=lambda opportunity: (
-                    -self._acquisition_score(opportunity),
-                    opportunity.opportunity_id,
-                ),
-            )
-
-            primary_opportunity = ordered_opportunities[0]
-
-            contributions[
-                primary_opportunity.opportunity_id
-            ] = round(
-                request_reward
-                + self._acquisition_score(
-                    primary_opportunity
-                ),
-                6,
-            )
-
-            for secondary_opportunity in (
-                ordered_opportunities[1:]
-            ):
-                contributions[
-                    secondary_opportunity.opportunity_id
-                ] = round(
-                    self._acquisition_score(
-                        secondary_opportunity
-                    )
-                    + self.config.dual_optional_second_bonus,
-                    6,
-                )
-
-        return contributions
+        return calculate_objective_contributions(
+            request_set=self.request_set,
+            selected_opportunities=self._selected_opportunities,
+            config=self.config,
+        )
 
     def _can_assign(
         self,

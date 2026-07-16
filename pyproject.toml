@@ -1,0 +1,26 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+exclude = [
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "data",
+]
+
+[tool.ruff.lint]
+# Pierwszy etap lintingu obejmuje błędy składniowe, niezdefiniowane nazwy
+# i pozostałe podstawowe problemy. Bardziej restrykcyjne reguły będą
+# włączane stopniowo po uporządkowaniu starszych modułów.
+select = ["E4", "E7", "E9", "F"]
+ignore = [
+    "E402",  # streamlit_app.py ustawia sys.path przed importem modułów app
+    "E501",  # długość wierszy będzie porządkowana osobnym etapem
+    "F401",  # część __init__.py celowo udostępnia publiczne importy
+]
