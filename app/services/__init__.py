@@ -1,12 +1,14 @@
-from app.services.comparison_service import (
+"""Publiczny interfejs usług aplikacyjnych."""
+
+from app.services.comparison_service import PlanningComparisonService
+from app.services.contracts import (
     PlanningComparisonResult,
-    PlanningComparisonService,
-)
-from app.services.planning_service import (
     PlanningOptions,
     PlanningResult,
-    PlanningService,
+    ReplanningResult,
 )
+from app.services.planning_service import PlanningService
+from app.services.replanning_service import ReplanningService
 from app.services.scenario_service import (
     LoadedScenario,
     ScenarioDefinition,
@@ -21,6 +23,8 @@ __all__ = [
     "PlanningOptions",
     "PlanningResult",
     "PlanningService",
+    "ReplanningResult",
+    "ReplanningService",
     "ScenarioDefinition",
     "ScenarioService",
     "build_default_scenario_definitions",

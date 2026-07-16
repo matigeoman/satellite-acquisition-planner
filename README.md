@@ -36,7 +36,8 @@ Dokumentacja techniczna:
 - [`docs/project_structure.md`](docs/project_structure.md),
 - [`docs/planning_architecture.md`](docs/planning_architecture.md),
 - [`docs/ui_architecture.md`](docs/ui_architecture.md),
-- [`docs/io_and_paths.md`](docs/io_and_paths.md).
+- [`docs/io_and_paths.md`](docs/io_and_paths.md),
+- [`docs/analysis_and_services.md`](docs/analysis_and_services.md).
 
 ## Instalacja
 
