@@ -1,23 +1,16 @@
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(
-        0,
-        str(PROJECT_ROOT),
-    )
+from _bootstrap import PROJECT_ROOT
 
 
 from app.analysis.schedule_report import (
     analyze_schedule,
     export_schedule_analysis,
 )
-from app.catalog_loader import load_system_catalog
-from app.opportunity_loader import load_opportunity_set
+from app.io import load_system_catalog
+from app.io import load_opportunity_set
 from app.planning.cp_sat import (
     CpSatPlannerConfig,
     CpSatScheduler,
@@ -26,8 +19,8 @@ from app.planning.greedy import (
     GreedyPlannerConfig,
     build_greedy_schedule,
 )
-from app.request_loader import load_request_set
-from app.schedule_loader import save_schedule
+from app.io import load_request_set
+from app.io import save_schedule
 
 
 CATALOG_PATH = (

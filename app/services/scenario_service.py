@@ -4,15 +4,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from app.catalog_loader import load_system_catalog
+from app.config.paths import DEFAULT_PROJECT_ROOT, ProjectPaths
+from app.io import (
+    load_opportunity_set,
+    load_request_set,
+    load_system_catalog,
+)
 from app.models.catalog import SystemCatalog
 from app.models.opportunity_set import AcquisitionOpportunitySet
 from app.models.request_set import ObservationRequestSet
-from app.opportunity_loader import load_opportunity_set
-from app.request_loader import load_request_set
-
-
-DEFAULT_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 @dataclass(frozen=True)
@@ -292,14 +292,9 @@ def build_default_scenario_definitions(
 ) -> tuple[ScenarioDefinition, ...]:
     """Buduje standardowy rejestr scenariuszy projektu."""
 
-    root = Path(
-        project_root
-    ).resolve()
-
-    data_directory = (
-        root
-        / "data"
-    )
+    paths = ProjectPaths(Path(project_root))
+    example = paths.scenario("EXAMPLE")
+    stress = paths.scenario("STRESS")
 
     return (
         ScenarioDefinition(
@@ -309,18 +304,9 @@ def build_default_scenario_definitions(
                 "Podstawowy scenariusz obejmujący "
                 "20 zleceń i 200 okazji akwizycyjnych."
             ),
-            catalog_path=(
-                data_directory
-                / "example_system.json"
-            ),
-            request_set_path=(
-                data_directory
-                / "example_requests.json"
-            ),
-            opportunity_set_path=(
-                data_directory
-                / "example_opportunities.json"
-            ),
+            catalog_path=example.catalog,
+            request_set_path=example.requests,
+            opportunity_set_path=example.opportunities,
         ),
         ScenarioDefinition(
             scenario_id="STRESS",
@@ -329,17 +315,8 @@ def build_default_scenario_definitions(
                 "Przeciążony scenariusz obejmujący "
                 "80 zleceń i 800 okazji akwizycyjnych."
             ),
-            catalog_path=(
-                data_directory
-                / "stress_system.json"
-            ),
-            request_set_path=(
-                data_directory
-                / "stress_requests.json"
-            ),
-            opportunity_set_path=(
-                data_directory
-                / "stress_opportunities.json"
-            ),
+            catalog_path=stress.catalog,
+            request_set_path=stress.requests,
+            opportunity_set_path=stress.opportunities,
         ),
     )

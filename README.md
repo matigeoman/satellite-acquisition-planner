@@ -1,27 +1,28 @@
 # Satellite Acquisition Planner
 
 Aplikacja do planowania akwizycji zobrazowań satelitarnych wykonywanych przez
-sensory SAR i optyczne. Projekt porównuje algorytm zachłanny z modelem CP-SAT,
-obsługuje dynamiczne przeplanowanie, zakłócenia operacyjne i eksperymenty
-porównawcze.
+sensory SAR i optyczne EO. Projekt porównuje algorytm zachłanny z modelem
+CP-SAT, obsługuje dynamiczne przeplanowanie, zakłócenia operacyjne i
+powtarzalną walidację eksperymentalną.
 
 ## Najważniejsze funkcje
 
-- scenariusze z konstelacją 4 satelitów SAR i 2 satelitów optycznych,
+- konstelacja 4 satelitów SAR i 2 satelitów optycznych,
 - zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`,
-- planowanie Greedy i CP-SAT,
-- wspólna funkcja celu dla obu algorytmów,
+- planowanie Greedy i CP-SAT ze wspólną funkcją celu,
 - ograniczenia czasu, pamięci, liczby akwizycji i konfliktów przejścia,
 - zamrożone okno najbliższych operacji,
 - przeplanowanie po awarii satelity, zmianie pogody i pilnym zleceniu,
 - raporty CSV, wykresy i interfejs Streamlit,
-- powtarzalna walidacja eksperymentalna.
+- wielokrotne eksperymenty porównujące jakość i czas działania algorytmów.
 
 ## Architektura
 
 ```text
 app/models      modele i walidacja danych
-app/planning    algorytmy, konfiguracje i wspólna funkcja celu
+app/config      centralne ścieżki projektu
+app/io          wczytywanie i zapis plików JSON
+app/planning    algorytmy, konfiguracje i funkcja celu
 app/services    przypadki użycia aplikacji
 app/scenarios   generatory scenariuszy
 app/analysis    KPI, raporty i eksperymenty
@@ -30,24 +31,27 @@ scripts         skrypty uruchomieniowe i diagnostyczne
 tests           testy jednostkowe i integracyjne
 ```
 
-Szczegóły warstwy planowania opisano w
-[`docs/planning_architecture.md`](docs/planning_architecture.md), a interfejsu
-w [`docs/ui_architecture.md`](docs/ui_architecture.md).
+Dokumentacja techniczna:
+
+- [`docs/project_structure.md`](docs/project_structure.md),
+- [`docs/planning_architecture.md`](docs/planning_architecture.md),
+- [`docs/ui_architecture.md`](docs/ui_architecture.md),
+- [`docs/io_and_paths.md`](docs/io_and_paths.md).
 
 ## Instalacja
 
-Projekt został przygotowany dla Pythona 3.11.
+Projekt jest przygotowany dla Pythona 3.11.
 
 ```powershell
 conda create -n satplan python=3.11
 conda activate satplan
-python -m pip install -r requirements-ui.txt
+python -m pip install -r .\requirements-ui.txt
 ```
 
 Zależności deweloperskie:
 
 ```powershell
-python -m pip install -r requirements-dev.txt
+python -m pip install -r .\requirements-dev.txt
 ```
 
 ## Testy i kontrola jakości
@@ -55,6 +59,7 @@ python -m pip install -r requirements-dev.txt
 ```powershell
 pytest -q
 ruff check app tests streamlit_app.py
+python .\scripts\check_project.py
 ```
 
 ## Uruchomienie aplikacji
@@ -63,22 +68,17 @@ ruff check app tests streamlit_app.py
 streamlit run .\streamlit_app.py
 ```
 
-Aplikacja zawiera moduły planowania, porównania algorytmów, dynamicznego
-przeplanowania, zakłóceń i walidacji eksperymentalnej.
+Aplikacja udostępnia planowanie, porównanie Greedy–CP-SAT, dynamiczne
+przeplanowanie, symulację zakłóceń oraz walidację eksperymentalną.
 
-## Skrypty
+## Najważniejsze skrypty
 
 ```powershell
-python .\scripts
-un_greedy.py
-python .\scripts
-un_cp_sat.py
-python .\scripts
-un_replanning.py
-python .\scripts
-un_disruption_replanning.py
-python .\scripts
-un_experimental_validation.py
+python .\scripts\run_greedy.py
+python .\scripts\run_cp_sat.py
+python .\scripts\run_replanning.py
+python .\scripts\run_disruption_replanning.py
+python .\scripts\run_experimental_validation.py
 ```
 
 ## Funkcja celu
@@ -88,9 +88,9 @@ zlecenie. Każda wybrana akwizycja wnosi dodatkowo ocenę jakości i pokrycia.
 Dla `DUAL_REQUIRED` nagroda zlecenia jest przyznawana dopiero po wybraniu
 zarówno obserwacji SAR, jak i optycznej.
 
-## Dane orbitalne
+## Dane orbitalne i STK
 
-Obecne scenariusze wykorzystują syntetyczne okna akwizycyjne. Planowany etap
+Obecne scenariusze wykorzystują syntetyczne okna akwizycyjne. Kolejny etap
 integracji STK dostarczy okna wynikające z propagacji orbit i geometrii
-obserwacji. STK będzie źródłem dostępności, a aplikacja pozostanie modułem
-optymalizacyjnym.
+obserwacji. STK będzie źródłem dostępności, natomiast aplikacja pozostanie
+modułem optymalizacyjnym.

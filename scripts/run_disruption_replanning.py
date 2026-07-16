@@ -1,19 +1,15 @@
 import argparse
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from _bootstrap import PROJECT_ROOT
 
 
 from app.analysis.disruption_report import export_disruption_report
 from app.analysis.schedule_report import export_schedule_analysis
 from app.models.enums import PlanningAlgorithm
-from app.schedule_loader import load_schedule, save_schedule
+from app.io import load_schedule, save_schedule
 from app.scenarios.disruption import build_example_disruption_plan
 from app.services.disruption_service import DisruptionReplanningService
 from app.services.planning_service import PlanningOptions

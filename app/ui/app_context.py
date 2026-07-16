@@ -3,7 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.analysis.experimental_validation import ExperimentalValidationService
-from app.schedule_loader import load_schedule
+from app.io import load_schedule
 from app.services.comparison_service import PlanningComparisonService
 from app.services.disruption_service import DisruptionReplanningService
 from app.services.planning_service import PlanningService

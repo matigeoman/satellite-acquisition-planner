@@ -1,9 +1,6 @@
-from __future__ import annotations
-
 from pathlib import Path
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from app.config.paths import DEFAULT_PATHS, PROJECT_ROOT
 
 
 def reference_schedule_path(
@@ -13,28 +10,13 @@ def reference_schedule_path(
 ) -> Path:
     """Wyznacza ścieżkę zapisanego harmonogramu referencyjnego."""
 
-    normalized_scenario = scenario_id.strip().upper()
-    normalized_algorithm = algorithm_value.strip().upper()
-
-    scenario_prefixes = {
-        "EXAMPLE": "example_schedule",
-        "STRESS": "stress_schedule",
-    }
-
-    try:
-        scenario_prefix = scenario_prefixes[normalized_scenario]
-    except KeyError as error:
-        raise ValueError(
-            f"Nieobsługiwany scenariusz: {scenario_id}"
-        ) from error
-
-    if normalized_algorithm not in {"GREEDY", "CP_SAT"}:
-        raise ValueError(
-            f"Nieobsługiwany algorytm: {algorithm_value}"
-        )
-
-    return (
-        PROJECT_ROOT
-        / "data"
-        / f"{scenario_prefix}_{normalized_algorithm.lower()}.json"
+    return DEFAULT_PATHS.reference_schedule(
+        scenario_id=scenario_id,
+        algorithm_value=algorithm_value,
     )
+
+
+__all__ = [
+    "PROJECT_ROOT",
+    "reference_schedule_path",
+]

@@ -10,3 +10,9 @@ htmlcov/
 venv/
 .env
 satplan-*.zip
+
+# Wyniki robocze. Pliki .gitkeep zachowują strukturę katalogów.
+data/generated/**
+!data/generated/**/.gitkeep
+data/imports/stk/**
+!data/imports/stk/.gitkeep

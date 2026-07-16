@@ -1,18 +1,14 @@
 import json
 import random
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from _bootstrap import PROJECT_ROOT
 
 
-from app.catalog_loader import load_system_catalog
+from app.io import load_system_catalog
 from app.models.catalog import SystemCatalog
 from app.models.enums import ObservationSide, SensorType
 from app.models.imaging import ImagingMode
@@ -20,7 +16,7 @@ from app.models.opportunity_set import AcquisitionOpportunitySet
 from app.models.request import ObservationRequest
 from app.models.request_set import ObservationRequestSet
 from app.models.sensor import Sensor
-from app.request_loader import load_request_set
+from app.io import load_request_set
 
 
 CATALOG_PATH = (
