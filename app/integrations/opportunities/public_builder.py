@@ -103,7 +103,7 @@ def _acquisition_interval(
     return start, end
 
 
-def _quality_score(
+def calculate_public_quality_score(
     *,
     mode: ImagingMode,
     coverage_ratio: float,
@@ -189,7 +189,7 @@ def build_public_opportunities(
             if assessment.warning and assessment.warning not in warnings:
                 warnings.append(assessment.warning)
 
-        quality = _quality_score(
+        quality = calculate_public_quality_score(
             mode=mode,
             coverage_ratio=window.coverage_ratio,
             off_nadir_angle_deg=peak.off_nadir_angle_deg,

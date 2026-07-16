@@ -3,14 +3,14 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta, timezone
 
+import plotly
 import streamlit as st
 
 from app.integrations.orbits import CelestrakClientError, OrbitPropagationError
 from app.services.contracts.planning import PlanningResult
 from app.ui.app_context import get_public_orbit_service
-from app.ui.components.cesium_globe import CESIUM_VERSION, render_cesium_globe
 from app.ui.orbit_state import get_public_orbit_snapshot, load_public_orbit_snapshot
-from app.visualization import build_cesium_scene
+from app.visualization import build_plotly_globe_scene
 
 
 _ACCESS_RESULT_STATE_KEY = "public_access_result"
@@ -34,15 +34,73 @@ def _default_scene_start() -> datetime:
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
-def render_globe_page() -> None:
-    """Renderuje animowany globus 3D z orbitami i planem akwizycji."""
+def _scene_export_payload(scene, tracks) -> dict:
+    return {
+        "renderer": f"Plotly {plotly.__version__}",
+        "start_utc": scene.start_utc.isoformat(),
+        "end_utc": scene.end_utc.isoformat(),
+        "focus_utc": scene.focus_utc.isoformat(),
+        "satellite_count": scene.satellite_count,
+        "request_count": scene.request_count,
+        "access_window_count": scene.access_window_count,
+        "scheduled_acquisition_count": scene.scheduled_acquisition_count,
+        "tracks": [track.to_dict() for track in tracks],
+    }
 
-    st.header("Globus operacyjny 3D")
+
+def _render_category_legend(
+    *,
+    show_ground_tracks: bool,
+    show_aoi: bool,
+    show_access: bool,
+    show_schedule: bool,
+) -> None:
+    items = []
+    if show_ground_tracks:
+        items.extend(
+            [
+                ("#ff636a", "ICEYE SAR"),
+                ("#50a9ff", "Pléiades Neo EO"),
+            ]
+        )
+    if show_aoi:
+        items.append(("#facc15", "AOI i zlecenia"))
+    if show_access:
+        items.append(("#f59e0b", "Okna dostępu"))
+    if show_schedule:
+        items.append(("#34d399", "Planowane akwizycje"))
+    if not items:
+        return
+    chips = "".join(
+        (
+            '<span style="display:inline-flex;align-items:center;gap:0.45rem;'
+            'padding:0.38rem 0.72rem;border:1px solid rgba(148,163,184,.30);'
+            'border-radius:999px;background:rgba(15,23,42,.78);'
+            'font-size:0.92rem;font-weight:650;white-space:nowrap;">'
+            f'<span style="width:0.72rem;height:0.72rem;border-radius:50%;'
+            f'background:{color};box-shadow:0 0 0 2px rgba(255,255,255,.12);">'
+            '</span>'
+            f'{label}</span>'
+        )
+        for color, label in items
+    )
+    st.markdown(
+        '<div style="display:flex;flex-wrap:wrap;gap:0.55rem;'
+        'margin:0.2rem 0 0.7rem 0;">' + chips + '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_globe_page() -> None:
+    """Renderuje niezależny od Cesium globus operacyjny i orbity 3D."""
+
+    st.header("Globus operacyjny i orbity 3D")
     st.info(
-        "Widok pokazuje pozycje satelitów, ground tracki na powierzchni "
-        "Ziemi, AOI, okna dostępu i ostatni harmonogram publiczny. "
-        "Domyślnie eksponowane są ground tracki, a pełne orbity 3D można "
-        "włączyć osobno."
+        "Widok wykorzystuje natywne wykresy Plotly. Nie wymaga Cesium Ion, "
+        "tokenów Mapbox, kafelków OpenStreetMap ani własnego komponentu "
+        "JavaScript. Główny globus pokazuje Ziemię, ground tracki, AOI, "
+        "okna dostępu i planowane akwizycje. Druga karta przedstawia "
+        "przestrzenną geometrię orbit."
     )
 
     snapshot = get_public_orbit_snapshot()
@@ -52,7 +110,7 @@ def render_globe_page() -> None:
             "„Orbity publiczne” albo użyj przycisku poniżej."
         )
         if st.button(
-            "Pobierz OMM do widoku 3D",
+            "Pobierz OMM do wizualizacji",
             type="primary",
             width="stretch",
         ):
@@ -77,7 +135,7 @@ def render_globe_page() -> None:
     default_start = _default_scene_start().astimezone(timezone.utc)
     with st.container(border=True):
         st.markdown("### Konfiguracja sceny")
-        row = st.columns([1.15, 1.0, 1.0])
+        row = st.columns([1.1, 1.0, 1.0])
         start_date = row[0].date_input(
             "Data początku UTC",
             value=default_start.date(),
@@ -88,7 +146,7 @@ def render_globe_page() -> None:
             step=timedelta(minutes=1),
         )
         horizon_hours = row[2].select_slider(
-            "Horyzont animacji",
+            "Horyzont śladów",
             options=[1, 2, 3, 6, 12, 24],
             value=3,
             format_func=lambda value: f"{value} h",
@@ -107,8 +165,8 @@ def render_globe_page() -> None:
             value=True,
         )
         show_orbits_3d = layer_columns[1].toggle(
-            "Orbity 3D",
-            value=False,
+            "Orbity przestrzenne",
+            value=True,
         )
         show_aoi = layer_columns[2].toggle(
             "AOI i zlecenia",
@@ -135,18 +193,17 @@ def render_globe_page() -> None:
                 format_func=lambda value: f"{value} s",
             )
             height_px = advanced[1].select_slider(
-                "Wysokość globusa",
-                options=[650, 760, 820, 920, 1040],
-                value=760,
+                "Wysokość wykresów",
+                options=[620, 700, 780, 860, 940],
+                value=780,
                 format_func=lambda value: f"{value} px",
             )
-            show_footprints = advanced[2].toggle(
-                "Nominalne footprinty",
+            show_graticule = advanced[2].toggle(
+                "Siatka geograficzna",
                 value=True,
-                disabled=access_result is None,
                 help=(
-                    "Przybliżona scena trybu obrazowania, a nie operacyjny "
-                    "footprint operatora."
+                    "Siatka jest rysowana lokalnie i pozostaje widoczna "
+                    "nawet bez warstwy granic i wybrzeży."
                 ),
             )
 
@@ -173,27 +230,50 @@ def render_globe_page() -> None:
     )
 
     try:
-        with st.spinner("Propagacja SGP4 i budowanie animowanej sceny CZML..."):
+        with st.spinner("Propagacja SGP4 i przygotowanie śladów..."):
             tracks = get_public_orbit_service().propagate_snapshot(
                 selected_snapshot,
                 start_utc=start_utc,
                 duration=timedelta(hours=horizon_hours),
                 step=timedelta(seconds=step_seconds),
             )
-            scene = build_cesium_scene(
-                tracks=tracks,
-                requests=requests,
-                access_result=access_result,
-                planning_result=planning_result,
-                show_aoi=show_aoi,
-                show_orbits_3d=show_orbits_3d,
-                show_ground_tracks=show_ground_tracks,
-                show_access_windows=show_access,
-                show_footprints=show_footprints,
-                show_schedule=show_schedule,
-            )
     except (OrbitPropagationError, ValueError) as error:
-        st.error(f"Nie udało się zbudować globusa 3D: {error}")
+        st.error(f"Nie udało się przygotować danych wizualizacji: {error}")
+        return
+
+    horizon_minutes = horizon_hours * 60
+    slider_step = max(1, step_seconds // 60)
+    focus_offset_minutes = st.slider(
+        "Moment wizualizacji",
+        min_value=0,
+        max_value=horizon_minutes,
+        value=0,
+        step=slider_step,
+        format="%d min",
+        help=(
+            "Określa moment pokazania bieżących pozycji satelitów. "
+            "Ground tracki pozostają śladem całego wybranego horyzontu."
+        ),
+    )
+    focus_utc = start_utc + timedelta(minutes=focus_offset_minutes)
+
+    try:
+        scene = build_plotly_globe_scene(
+            tracks=tracks,
+            requests=requests,
+            access_result=access_result,
+            planning_result=planning_result,
+            focus_utc=focus_utc,
+            show_ground_tracks=show_ground_tracks,
+            show_orbits_3d=show_orbits_3d,
+            show_aoi=show_aoi,
+            show_access_windows=show_access,
+            show_schedule=show_schedule,
+            show_graticule=show_graticule,
+            height_px=height_px,
+        )
+    except ValueError as error:
+        st.error(f"Nie udało się zbudować globusa Plotly: {error}")
         return
 
     metrics = st.columns(5)
@@ -201,51 +281,82 @@ def render_globe_page() -> None:
     metrics[1].metric("AOI", scene.request_count)
     metrics[2].metric("Okna dostępu", scene.access_window_count)
     metrics[3].metric("Akwizycje w planie", scene.scheduled_acquisition_count)
-    metrics[4].metric("CesiumJS", CESIUM_VERSION)
+    metrics[4].metric("Renderer", f"Plotly {plotly.__version__}")
 
     st.caption(
-        f"Scena: {scene.start_utc.isoformat()} – {scene.end_utc.isoformat()}. "
-        "Przycisk „Pokaż Ziemię” przywraca pełny globus, a „Cała scena” "
-        "dopasowuje kamerę do wszystkich obiektów."
+        f"Ślady: {scene.start_utc.isoformat()} – {scene.end_utc.isoformat()}; "
+        f"pozycje bieżące: {scene.focus_utc.isoformat()}. Obracanie globusa "
+        "odbywa się bezpośrednio myszą."
     )
-    render_cesium_globe(scene, height_px=height_px)
 
+    _render_category_legend(
+        show_ground_tracks=show_ground_tracks,
+        show_aoi=show_aoi,
+        show_access=show_access,
+        show_schedule=show_schedule,
+    )
+
+    operational_tab, spatial_tab = st.tabs(
+        ["Globus operacyjny", "Orbity przestrzenne 3D"]
+    )
+    chart_config = {
+        "displaylogo": False,
+        "scrollZoom": True,
+        "responsive": True,
+        "modeBarButtonsToRemove": ["select2d", "lasso2d"],
+    }
+    with operational_tab:
+        st.plotly_chart(
+            scene.operational_figure,
+            width="stretch",
+            config=chart_config,
+            key="satplan_operational_globe",
+            theme=None,
+        )
+        st.caption(
+            "Globus operacyjny pokazuje ground tracki jako rzut trajektorii "
+            "na powierzchnię Ziemi. Pomarańczowe odcinki oznaczają okna "
+            "dostępu, a zielone połączenia — akwizycje wybrane przez planner."
+        )
+
+    with spatial_tab:
+        st.plotly_chart(
+            scene.spatial_figure,
+            width="stretch",
+            config=chart_config,
+            key="satplan_spatial_orbits",
+            theme=None,
+        )
+        st.caption(
+            "Widok przestrzenny przedstawia satelity na modelowanej "
+            "wysokości nad kulą Ziemi. Nie jest zależny od zewnętrznych "
+            "tekstur ani usług mapowych."
+        )
+
+    export_payload = _scene_export_payload(scene, tracks)
     st.download_button(
-        "Pobierz scenę CZML",
-        data=scene.to_json(indent=2),
-        file_name=(f"public_globe_{scene.start_utc.strftime('%Y%m%dT%H%M%SZ')}.czml"),
+        "Pobierz dane wizualizacji JSON",
+        data=json.dumps(export_payload, ensure_ascii=False, indent=2),
+        file_name=(
+            f"public_orbits_{scene.start_utc.strftime('%Y%m%dT%H%M%SZ')}.json"
+        ),
         mime="application/json",
         width="stretch",
     )
 
     with st.expander("Warstwy i ograniczenia wizualizacji"):
         st.markdown(
-            "- **Ground track:** rzut propagowanej trajektorii na WGS84.\n"
-            "- **Orbita 3D:** pozycja satelity na rzeczywistej wysokości modelu.\n"
-            "- **AOI:** geometrie WGS84 z modułu zleceń.\n"
-            "- **Footprint:** nominalny rozmiar sceny trybu, bez pełnego "
-            "modelu orientacji wiązki.\n"
-            "- **Okna dostępu:** pomarańczowa wiązka dla najlepszego punktu "
-            "okna.\n"
-            "- **Plan:** zielona wiązka widoczna w czasie akwizycji.\n"
-            "- Gdy kafelki mapowe nie zadziałają, Cesium pozostawia widoczną "
-            "niebieską elipsoidę Ziemi."
-        )
-        st.code(
-            json.dumps(
-                {
-                    "start_utc": scene.start_utc.isoformat(),
-                    "end_utc": scene.end_utc.isoformat(),
-                    "satellites": scene.satellite_count,
-                    "requests": scene.request_count,
-                    "access_windows": scene.access_window_count,
-                    "scheduled_acquisitions": scene.scheduled_acquisition_count,
-                    "ground_tracks": show_ground_tracks,
-                    "orbits_3d": show_orbits_3d,
-                    "footprints": show_footprints,
-                },
-                ensure_ascii=False,
-                indent=2,
-            ),
-            language="json",
+            "- **Globus operacyjny:** projekcja ortograficzna Plotly z "
+            "wbudowanym oceanem, lądami i lokalną siatką geograficzną.\n"
+            "- **Ground track:** rzut propagowanej trajektorii OMM/SGP4 na "
+            "WGS84.\n"
+            "- **Orbity przestrzenne:** pozycje wyliczone z szerokości, "
+            "długości i wysokości satelity.\n"
+            "- **AOI:** geometrie użytkownika zapisane w WGS84.\n"
+            "- **Okna dostępu:** fragmenty śladu spełniające publiczny model "
+            "geometrii sensora.\n"
+            "- **Plan:** połączenie pozycji satelity z celem w czasie "
+            "zaplanowanej akwizycji.\n"
+            "- Plotly nie potwierdza operacyjnej dostępności operatora; "
+            "wizualizuje wyniki modelu publicznego."
         )

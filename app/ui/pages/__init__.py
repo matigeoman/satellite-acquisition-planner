@@ -6,6 +6,7 @@ from app.ui.pages.experiments import render_experiments_page
 from app.ui.pages.globe import render_globe_page
 from app.ui.pages.planning import render_planning_page
 from app.ui.pages.public_planning import render_public_planning_page
+from app.ui.pages.public_replanning import render_public_replanning_page
 from app.ui.pages.orbits import render_orbits_page
 from app.ui.pages.replanning import render_replanning_page
 from app.ui.pages.targets import render_targets_page
@@ -17,6 +18,7 @@ __all__ = [
     "render_globe_page",
     "render_planning_page",
     "render_public_planning_page",
+    "render_public_replanning_page",
     "render_orbits_page",
     "render_replanning_page",
     "render_targets_page",

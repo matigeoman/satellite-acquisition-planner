@@ -5,9 +5,11 @@ from app.services.contracts import (
     PlanningComparisonResult,
     PlanningOptions,
     PlanningResult,
+    PublicReplanningResult,
     ReplanningResult,
 )
 from app.services.planning_service import PlanningService
+from app.services.public_replanning_service import PublicReplanningService
 from app.services.replanning_service import ReplanningService
 from app.services.scenario_service import (
     LoadedScenario,
@@ -23,6 +25,8 @@ __all__ = [
     "PlanningOptions",
     "PlanningResult",
     "PlanningService",
+    "PublicReplanningResult",
+    "PublicReplanningService",
     "ReplanningResult",
     "ReplanningService",
     "ScenarioDefinition",

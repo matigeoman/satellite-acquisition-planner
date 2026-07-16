@@ -11,8 +11,10 @@ from app.services.orbit_service import PublicOrbitService
 from app.services.access_service import PublicAccessService
 from app.integrations.orbits import CelestrakClient
 from app.integrations.weather import CloudAssessmentService, OpenMeteoClient
+from app.integrations.opportunities import PublicOpportunityWeatherRefreshService
 from app.services.replanning_service import ReplanningService
 from app.services.public_scenario_service import PublicScenarioService
+from app.services.public_replanning_service import PublicReplanningService
 from app.services.scenario_service import LoadedScenario, ScenarioService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
@@ -102,6 +104,19 @@ def get_public_scenario_service() -> PublicScenarioService:
     """Zwraca budowniczego scenariusza z danych publicznych sesji."""
 
     return PublicScenarioService()
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_public_replanning_service() -> PublicReplanningService:
+    """Zwraca serwis odświeżania pogody i przeplanowania publicznego."""
+
+    return PublicReplanningService(
+        scenario_service=get_public_scenario_service(),
+        replanning_service=get_replanning_service(),
+        weather_refresh_service=PublicOpportunityWeatherRefreshService(
+            cloud_service=get_cloud_assessment_service()
+        ),
+    )
 
 
 @st.cache_resource(scope="session", show_spinner=False)
