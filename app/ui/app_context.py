@@ -7,6 +7,8 @@ from app.io import load_schedule
 from app.services.comparison_service import PlanningComparisonService
 from app.services.disruption_service import DisruptionReplanningService
 from app.services.planning_service import PlanningService
+from app.services.orbit_service import PublicOrbitService
+from app.integrations.orbits import CelestrakClient
 from app.services.replanning_service import ReplanningService
 from app.services.scenario_service import LoadedScenario, ScenarioService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
@@ -61,6 +63,17 @@ def get_experimental_validation_service() -> ExperimentalValidationService:
         comparison_service=get_comparison_service()
     )
 
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_public_orbit_service() -> PublicOrbitService:
+    """Zwraca klienta CelesTrak i propagator SGP4 z cache dyskowym."""
+
+    return PublicOrbitService(
+        client=CelestrakClient(
+            cache_directory=PROJECT_ROOT / "data" / "generated" / "orbits"
+        )
+    )
 
 
 @st.cache_resource(scope="session", show_spinner=False)

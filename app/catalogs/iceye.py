@@ -327,8 +327,8 @@ def build_iceye_public_profile() -> PublicMissionProfile:
         is_sun_synchronous=True,
         source_type=OrbitSourceType.MODEL,
         notes=(
-            "Wyłącznie szablon do interfejsu. W następnym etapie zostanie "
-            "zastąpiony aktualnym OMM/TLE i propagacją SGP4."
+            "Szablon opisowy. Moduł orbit zastępuje go w czasie działania "
+            "aktualnym OMM z CelesTrak i propagacją SGP4."
         ),
     )
 
@@ -339,7 +339,7 @@ def build_iceye_public_profile() -> PublicMissionProfile:
         description=(
             "Publiczny profil sensora SAR ICEYE. Parametry trybów są "
             "zaczerpnięte z Product Documentation 6.0.7, natomiast "
-            "orbita jest tylko szablonem oczekującym na aktualne TLE/OMM."
+            "orbity jednostek są pobierane jako OMM z CelesTrak."
         ),
         satellite_slots=4,
         satellite_labels=[
@@ -368,8 +368,9 @@ def build_iceye_public_profile() -> PublicMissionProfile:
             ),
             ParameterSource(
                 parameter_group="orbita każdej jednostki",
-                origin=ParameterOrigin.TLE_PENDING,
-                reference="CelesTrak GP/OMM — etap propagacji SGP4",
+                origin=ParameterOrigin.PUBLIC_ORBIT_DATA,
+                reference="CelesTrak GP/OMM + propagacja SGP4",
+                notes="Cache jest odświeżany nie częściej niż co 2 godziny.",
             ),
         ],
     )

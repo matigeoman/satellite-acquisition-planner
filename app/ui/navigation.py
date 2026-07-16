@@ -9,6 +9,7 @@ class ApplicationPage(StrEnum):
     """Dostępne moduły aplikacji operacyjnej."""
 
     TARGETS = "Cele i zlecenia"
+    ORBITS = "Orbity publiczne"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"

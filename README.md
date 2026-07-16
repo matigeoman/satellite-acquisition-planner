@@ -116,3 +116,10 @@ Zakładka **Cele i zlecenia** udostępnia profile ICEYE oraz Pléiades Neo,
 rysowanie Point/Polygon/Rectangle na mapie, import/eksport GeoJSON i tworzenie
 walidowanych zleceń. Parametry mają jawnie oznaczone pochodzenie. Orbity są
 na tym etapie szablonami oczekującymi na aktualne OMM/TLE i propagację SGP4.
+
+
+## Publiczne orbity i SGP4
+
+Zakładka **Orbity publiczne** pobiera OMM JSON z CelesTrak, wybiera 4 obiekty ICEYE oraz Pléiades Neo 3/4, zapisuje dwugodzinny cache i generuje ślady naziemne modelem SGP4. Szczegóły: `docs/public_orbits_sgp4.md`.
+
+Dane GP/OMM są publicznym przybliżeniem orbity. Nie są efemerydami operacyjnymi ani potwierdzeniem możliwości wykonania komercyjnej akwizycji.

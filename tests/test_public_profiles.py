@@ -55,9 +55,9 @@ def test_pleiades_panchromatic_parameters() -> None:
     assert mode.max_off_nadir_deg == pytest.approx(52)
 
 
-def test_profiles_mark_orbits_as_waiting_for_tle() -> None:
+def test_profiles_mark_runtime_public_orbit_data() -> None:
     for profile in (ICEYE_PUBLIC_PROFILE, PLEIADES_NEO_PUBLIC_PROFILE):
         assert any(
-            source.origin == ParameterOrigin.TLE_PENDING
+            source.origin == ParameterOrigin.PUBLIC_ORBIT_DATA
             for source in profile.parameter_sources
         )

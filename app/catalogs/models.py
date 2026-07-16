@@ -15,6 +15,7 @@ class ParameterOrigin(StrEnum):
     PUBLIC_DATA = "PUBLIC_DATA"
     MODEL_DERIVED = "MODEL_DERIVED"
     TLE_PENDING = "TLE_PENDING"
+    PUBLIC_ORBIT_DATA = "PUBLIC_ORBIT_DATA"
 
 
 class ParameterSource(BaseModel):

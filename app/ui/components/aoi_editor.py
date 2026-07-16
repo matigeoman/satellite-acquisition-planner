@@ -16,13 +16,14 @@ from app.geospatial.aoi import (
 def _map_dependencies():
     import folium
     from folium.plugins import Draw
+    from branca.element import Element
     from streamlit_folium import st_folium
 
-    return folium, Draw, st_folium
+    return folium, Draw, Element, st_folium
 
 
 def _map_for_geometry(geometry: TargetGeometry | None):
-    folium, Draw, _st_folium = _map_dependencies()
+    folium, Draw, Element, _st_folium = _map_dependencies()
 
     if geometry is None:
         center = [52.0, 19.0]
@@ -59,6 +60,42 @@ def _map_for_geometry(geometry: TargetGeometry | None):
                 fill=True,
             ),
         ).add_to(map_object)
+
+    map_object.get_root().header.add_child(
+        Element(
+            """
+            <style>
+            .leaflet-control-zoom a,
+            .leaflet-draw-toolbar a {
+                width: 46px !important;
+                height: 46px !important;
+                line-height: 46px !important;
+                font-size: 28px !important;
+                background-size: 360px 46px !important;
+            }
+            .leaflet-draw-actions a {
+                min-height: 42px !important;
+                line-height: 42px !important;
+                padding: 0 14px !important;
+                font-size: 17px !important;
+            }
+            .leaflet-control-layers-toggle {
+                width: 46px !important;
+                height: 46px !important;
+                background-size: 30px 30px !important;
+            }
+            .leaflet-control-layers-expanded,
+            .leaflet-control-scale-line {
+                font-size: 16px !important;
+            }
+            .leaflet-tooltip, .leaflet-popup-content {
+                font-size: 17px !important;
+                line-height: 1.45 !important;
+            }
+            </style>
+            """
+        )
+    )
 
     Draw(
         export=False,
@@ -103,10 +140,10 @@ def render_aoi_editor(*, key: str = "aoi") -> TargetGeometry | None:
     )
 
     map_object = _map_for_geometry(geometry)
-    _folium, _Draw, st_folium = _map_dependencies()
+    _folium, _Draw, _Element, st_folium = _map_dependencies()
     result = st_folium(
         map_object,
-        height=560,
+        height=700,
         use_container_width=True,
         returned_objects=[
             "last_active_drawing",

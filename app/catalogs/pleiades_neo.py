@@ -151,8 +151,8 @@ def build_pleiades_neo_public_profile() -> PublicMissionProfile:
         operator="Airbus Defence and Space",
         description=(
             "Publiczny profil bardzo wysokiej rozdzielczości dla dwóch "
-            "satelitów Pléiades Neo. Orbita zostanie później zastąpiona "
-            "aktualnymi elementami GP/TLE."
+            "satelitów Pléiades Neo. Orbity jednostek są pobierane jako "
+            "OMM z CelesTrak i propagowane modelem SGP4."
         ),
         satellite_slots=2,
         satellite_labels=["Pléiades Neo 3", "Pléiades Neo 4"],
@@ -175,8 +175,9 @@ def build_pleiades_neo_public_profile() -> PublicMissionProfile:
             ),
             ParameterSource(
                 parameter_group="orbita każdej jednostki",
-                origin=ParameterOrigin.TLE_PENDING,
-                reference="CelesTrak GP/OMM — etap propagacji SGP4",
+                origin=ParameterOrigin.PUBLIC_ORBIT_DATA,
+                reference="CelesTrak GP/OMM + propagacja SGP4",
+                notes="Cache jest odświeżany nie częściej niż co 2 godziny.",
             ),
         ],
     )
