@@ -109,3 +109,10 @@ python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
 ```
 
 Szczegóły opisano w `docs/data_layout_and_cli.md`.
+
+## Publiczne profile i definiowanie celów
+
+Zakładka **Cele i zlecenia** udostępnia profile ICEYE oraz Pléiades Neo,
+rysowanie Point/Polygon/Rectangle na mapie, import/eksport GeoJSON i tworzenie
+walidowanych zleceń. Parametry mają jawnie oznaczone pochodzenie. Orbity są
+na tym etapie szablonami oczekującymi na aktualne OMM/TLE i propagację SGP4.

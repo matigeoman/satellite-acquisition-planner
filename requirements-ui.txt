@@ -3,3 +3,5 @@
 pandas>=2.2,<3
 plotly>=5.24,<7
 streamlit>=1.59,<2
+folium>=0.20,<1
+streamlit-folium>=0.27.2,<1

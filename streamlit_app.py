@@ -32,11 +32,13 @@ from app.ui.pages import (
     render_experiments_page,
     render_planning_page,
     render_replanning_page,
+    render_targets_page,
 )
 from app.ui.styles import apply_application_styles
 
 
 _PAGE_RENDERERS = {
+    ApplicationPage.TARGETS: render_targets_page,
     ApplicationPage.PLANNING: render_planning_page,
     ApplicationPage.REPLANNING: render_replanning_page,
     ApplicationPage.DISRUPTIONS: render_disruption_page,

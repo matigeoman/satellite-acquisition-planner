@@ -8,6 +8,7 @@ import streamlit as st
 class ApplicationPage(StrEnum):
     """Dostępne moduły aplikacji operacyjnej."""
 
+    TARGETS = "Cele i zlecenia"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"
