@@ -37,7 +37,9 @@ Dokumentacja techniczna:
 - [`docs/planning_architecture.md`](docs/planning_architecture.md),
 - [`docs/ui_architecture.md`](docs/ui_architecture.md),
 - [`docs/io_and_paths.md`](docs/io_and_paths.md),
-- [`docs/analysis_and_services.md`](docs/analysis_and_services.md).
+- [`docs/analysis_and_services.md`](docs/analysis_and_services.md),
+- [`docs/public_orbits_sgp4.md`](docs/public_orbits_sgp4.md),
+- [`docs/public_access_windows.md`](docs/public_access_windows.md).
 
 ## Instalacja
 
@@ -89,12 +91,17 @@ zlecenie. Każda wybrana akwizycja wnosi dodatkowo ocenę jakości i pokrycia.
 Dla `DUAL_REQUIRED` nagroda zlecenia jest przyznawana dopiero po wybraniu
 zarówno obserwacji SAR, jak i optycznej.
 
-## Dane orbitalne i STK
+## Publiczne orbity, okna dostępu i STK
 
-Obecne scenariusze wykorzystują syntetyczne okna akwizycyjne. Kolejny etap
-integracji STK dostarczy okna wynikające z propagacji orbit i geometrii
-obserwacji. STK będzie źródłem dostępności, natomiast aplikacja pozostanie
-modułem optymalizacyjnym.
+Zakładka **Orbity publiczne** pobiera GP/OMM z CelesTrak, przechowuje je w
+lokalnym cache i propaguje 4 obiekty ICEYE oraz 2 obiekty Pléiades Neo modelem
+SGP4. Zakładka **Okna dostępu** łączy propagację z Point/Polygon, publicznymi
+zakresami kątowymi sensorów, rozdzielczością, pokryciem i elewacją Słońca.
+
+Wyniki są orientacyjnymi oknami geometrycznymi. STK pozostaje narzędziem do
+walidacji wybranych przypadków, a nie jedynym źródłem działania aplikacji.
+Szczegóły opisano w `docs/public_orbits_sgp4.md` oraz
+`docs/public_access_windows.md`.
 
 ## Uporządkowany układ danych
 
@@ -116,10 +123,3 @@ Zakładka **Cele i zlecenia** udostępnia profile ICEYE oraz Pléiades Neo,
 rysowanie Point/Polygon/Rectangle na mapie, import/eksport GeoJSON i tworzenie
 walidowanych zleceń. Parametry mają jawnie oznaczone pochodzenie. Orbity są
 na tym etapie szablonami oczekującymi na aktualne OMM/TLE i propagację SGP4.
-
-
-## Publiczne orbity i SGP4
-
-Zakładka **Orbity publiczne** pobiera OMM JSON z CelesTrak, wybiera 4 obiekty ICEYE oraz Pléiades Neo 3/4, zapisuje dwugodzinny cache i generuje ślady naziemne modelem SGP4. Szczegóły: `docs/public_orbits_sgp4.md`.
-
-Dane GP/OMM są publicznym przybliżeniem orbity. Nie są efemerydami operacyjnymi ani potwierdzeniem możliwości wykonania komercyjnej akwizycji.

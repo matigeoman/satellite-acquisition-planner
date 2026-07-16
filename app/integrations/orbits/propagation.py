@@ -41,8 +41,10 @@ class Sgp4OrbitPropagator:
             ) from error
         return satellite
 
-    def propagate_record(
-        self,
+    @staticmethod
+    def _propagate_satrec(
+        *,
+        satellite: Satrec,
         record: PublicOrbitRecord,
         timestamp_utc: datetime,
     ) -> PropagatedState:
@@ -56,7 +58,6 @@ class Sgp4OrbitPropagator:
             timestamp.minute,
             second,
         )
-        satellite = self.build_satrec(record)
         error_code, position, velocity = satellite.sgp4(jd, fraction)
         if error_code != 0:
             message = SGP4_ERRORS.get(error_code, "nieznany błąd SGP4")
@@ -77,6 +78,17 @@ class Sgp4OrbitPropagator:
             teme_velocity_km_s=teme_velocity,
         )
 
+    def propagate_record(
+        self,
+        record: PublicOrbitRecord,
+        timestamp_utc: datetime,
+    ) -> PropagatedState:
+        return self._propagate_satrec(
+            satellite=self.build_satrec(record),
+            record=record,
+            timestamp_utc=timestamp_utc,
+        )
+
     def ground_track(
         self,
         satellite: TrackedSatellite,
@@ -92,11 +104,16 @@ class Sgp4OrbitPropagator:
 
         start = _as_utc(start_utc)
         end = start + duration
+        satrec = self.build_satrec(satellite.record)
         states: list[PropagatedState] = []
         timestamp = start
         while timestamp <= end:
             states.append(
-                self.propagate_record(satellite.record, timestamp)
+                self._propagate_satrec(
+                    satellite=satrec,
+                    record=satellite.record,
+                    timestamp_utc=timestamp,
+                )
             )
             timestamp += step
 

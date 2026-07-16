@@ -12,17 +12,11 @@ from app.integrations.orbits import (
     SatelliteFamily,
 )
 from app.ui.app_context import get_public_orbit_service
+from app.ui.orbit_state import (
+    get_public_orbit_snapshot,
+    load_public_orbit_snapshot,
+)
 from app.ui.orbit_view import build_ground_track_figure
-
-
-_SNAPSHOT_STATE_KEY = "public_orbit_snapshot"
-
-
-def _load_snapshot(*, allow_network: bool = True):
-    service = get_public_orbit_service()
-    snapshot = service.load_default_constellation(allow_network=allow_network)
-    st.session_state[_SNAPSHOT_STATE_KEY] = snapshot
-    return snapshot
 
 
 def _snapshot_table(snapshot) -> pd.DataFrame:
@@ -30,15 +24,17 @@ def _snapshot_table(snapshot) -> pd.DataFrame:
     return pd.DataFrame(
         [
             {
-                "Slot planera": satellite.slot_id,
+                "Slot": satellite.slot_id,
                 "Rodzina": (
                     "ICEYE SAR"
                     if satellite.family == SatelliteFamily.ICEYE
                     else "Pléiades Neo EO"
                 ),
-                "Nazwa publiczna": satellite.record.object_name,
+                "Obiekt CelesTrak": satellite.record.object_name,
                 "NORAD": satellite.record.norad_cat_id,
-                "Epoka OMM UTC": satellite.record.epoch_utc.isoformat(),
+                "Epoka OMM UTC": satellite.record.epoch_utc.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
                 "Wiek elementów [h]": round(
                     max(
                         0.0,
@@ -47,7 +43,10 @@ def _snapshot_table(snapshot) -> pd.DataFrame:
                     ),
                     1,
                 ),
-                "Inklinacja [°]": satellite.record.inclination_deg,
+                "Inklinacja [°]": round(
+                    satellite.record.inclination_deg,
+                    4,
+                ),
                 "Mimośród": satellite.record.eccentricity,
                 "Okres [min]": round(
                     satellite.record.orbital_period_minutes,
@@ -60,78 +59,87 @@ def _snapshot_table(snapshot) -> pd.DataFrame:
 
 
 def _cache_status(snapshot) -> None:
-    st.subheader("Status źródeł orbitalnych")
+    st.subheader("Źródła i aktualność danych")
     columns = st.columns(len(snapshot.queries))
     for column, query in zip(columns, snapshot.queries):
         age_hours = query.age_seconds / 3600.0
-        source = "cache" if query.from_cache else "CelesTrak"
+        source = "cache lokalny" if query.from_cache else "CelesTrak online"
         state = "przeterminowany" if query.is_stale else "aktualny"
-        column.metric(
-            query.query_name,
-            f"{len(query.records)} rekordów",
-            f"{source}, {state}, {age_hours:.1f} h",
-        )
+        with column.container(border=True):
+            st.markdown(f"**{query.query_name}**")
+            metric_columns = st.columns(2)
+            metric_columns[0].metric("Rekordy", len(query.records))
+            metric_columns[1].metric("Wiek cache", f"{age_hours:.1f} h")
+            st.caption(f"Źródło: {source} · status: {state}")
 
     for warning in snapshot.warnings:
         st.warning(warning)
 
-    st.caption(
-        "Aplikacja pobiera jawne dane GP w formacie OMM JSON. Cache ma "
-        "ważność 2 godzin, dzięki czemu kolejne odświeżenia interfejsu nie "
-        "wysyłają powtarzających się zapytań do CelesTrak."
-    )
-
 
 def render_orbits_page() -> None:
-    """Renderuje pobieranie OMM i pierwszą propagację SGP4."""
+    """Renderuje publiczne OMM i propagację SGP4 w czytelnym układzie."""
 
     st.header("Publiczne orbity i propagacja SGP4")
     st.info(
         "Moduł pobiera publiczne elementy GP/OMM dla 4 satelitów ICEYE "
-        "i 2 satelitów Pléiades Neo. Są to orientacyjne dane orbitalne, "
-        "a nie efemerydy operacyjne operatorów."
+        "i 2 satelitów Pléiades Neo. Są to dane do modelowania i "
+        "orientacyjnego wyznaczania położenia, a nie efemerydy operacyjne."
     )
 
-    controls = st.columns([1.2, 1.2, 1.2, 2.4])
-    horizon_hours = controls[0].slider(
-        "Horyzont śladu [h]",
-        min_value=1,
-        max_value=12,
-        value=3,
-    )
-    step_seconds = controls[1].select_slider(
-        "Krok propagacji [s]",
-        options=[30, 60, 90, 120, 180, 300],
-        value=60,
-    )
-    offline = controls[2].toggle(
-        "Tylko lokalny cache",
-        value=False,
-        help="Nie łączy się z CelesTrak. Wymaga wcześniejszego cache.",
-    )
-    refresh_clicked = controls[3].button(
-        "Pobierz lub odśwież OMM",
-        type="primary",
-        width="stretch",
-    )
+    with st.container(border=True):
+        st.markdown("### Parametry propagacji")
+        controls = st.columns([1.2, 1.2, 1.3, 2.0])
+        horizon_hours = controls[0].slider(
+            "Horyzont śladu [h]",
+            min_value=1,
+            max_value=12,
+            value=3,
+        )
+        step_seconds = controls[1].select_slider(
+            "Krok propagacji [s]",
+            options=[30, 60, 90, 120, 180, 300],
+            value=60,
+        )
+        offline = controls[2].toggle(
+            "Tylko lokalny cache",
+            value=False,
+            help="Nie łączy się z CelesTrak. Wymaga wcześniejszego cache.",
+        )
+        refresh_clicked = controls[3].button(
+            "Pobierz lub odśwież OMM",
+            type="primary",
+            width="stretch",
+        )
 
-    snapshot = st.session_state.get(_SNAPSHOT_STATE_KEY)
+    snapshot = get_public_orbit_snapshot()
     if snapshot is None or refresh_clicked:
         try:
             with st.spinner("Pobieranie i walidacja danych CelesTrak..."):
-                snapshot = _load_snapshot(allow_network=not offline)
+                snapshot = load_public_orbit_snapshot(
+                    allow_network=not offline
+                )
         except CelestrakClientError as error:
             st.error(str(error))
             st.stop()
 
-    _cache_status(snapshot)
-    st.subheader("Satelity przypisane do planera")
-    st.dataframe(
-        _snapshot_table(snapshot),
-        use_container_width=True,
-        hide_index=True,
-        height=330,
+    sar_count = sum(
+        satellite.family == SatelliteFamily.ICEYE
+        for satellite in snapshot.satellites
     )
+    eo_count = sum(
+        satellite.family == SatelliteFamily.PLEIADES_NEO
+        for satellite in snapshot.satellites
+    )
+    summary = st.columns(4)
+    summary[0].metric("Satelity łącznie", len(snapshot.satellites))
+    summary[1].metric("ICEYE SAR", sar_count)
+    summary[2].metric("Pléiades Neo EO", eo_count)
+    summary[3].metric(
+        "Snapshot UTC",
+        snapshot.generated_at_utc.strftime("%H:%M:%S"),
+    )
+
+    _cache_status(snapshot)
 
     if len(snapshot.satellites) != 6:
         st.error(
@@ -152,14 +160,43 @@ def render_orbits_page() -> None:
         st.error(f"Nie udało się wykonać propagacji: {error}")
         st.stop()
 
-    st.subheader("Ślady naziemne")
+    st.subheader("Interaktywna mapa śladów naziemnych")
+    all_slot_ids = [track.satellite.slot_id for track in tracks]
+    visible_slot_ids = st.multiselect(
+        "Widoczne satelity",
+        options=all_slot_ids,
+        default=all_slot_ids,
+        help=(
+            "Linie ciągłe i okrągłe markery oznaczają ICEYE SAR. "
+            "Linie przerywane i romby oznaczają Pléiades Neo EO."
+        ),
+    )
     st.caption(
         f"Początek: {start_utc.isoformat()} · horyzont: {horizon_hours} h · "
-        f"krok: {step_seconds} s. Konwersja TEME→WGS84 wykorzystuje "
-        "uproszczony obrót GMST; dokładność zostanie później porównana ze STK."
+        f"krok: {step_seconds} s. Najedź na ślad, aby zobaczyć czas UTC, "
+        "współrzędne i wysokość."
     )
-    figure = build_ground_track_figure(tracks)
-    st.plotly_chart(figure, use_container_width=True)
+    figure = build_ground_track_figure(
+        tracks,
+        visible_slot_ids=set(visible_slot_ids),
+    )
+    st.plotly_chart(
+        figure,
+        use_container_width=True,
+        config={
+            "displaylogo": False,
+            "scrollZoom": True,
+            "responsive": True,
+        },
+    )
+
+    with st.expander("Szczegółowe parametry obiektów orbitalnych"):
+        st.dataframe(
+            _snapshot_table(snapshot),
+            use_container_width=True,
+            hide_index=True,
+            height=310,
+        )
 
     first_states = pd.DataFrame(
         [
@@ -175,11 +212,8 @@ def render_orbits_page() -> None:
             if track.states
         ]
     )
-    st.dataframe(
-        first_states,
-        use_container_width=True,
-        hide_index=True,
-    )
+    st.subheader("Pozycje na początku propagacji")
+    st.dataframe(first_states, use_container_width=True, hide_index=True)
 
     export_payload = {
         "snapshot": snapshot.to_dict(),

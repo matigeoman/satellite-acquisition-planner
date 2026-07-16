@@ -28,6 +28,7 @@ st.set_page_config(
 
 from app.ui.navigation import ApplicationPage, render_navigation
 from app.ui.pages import (
+    render_access_page,
     render_disruption_page,
     render_experiments_page,
     render_planning_page,
@@ -41,6 +42,7 @@ from app.ui.styles import apply_application_styles
 _PAGE_RENDERERS = {
     ApplicationPage.TARGETS: render_targets_page,
     ApplicationPage.ORBITS: render_orbits_page,
+    ApplicationPage.ACCESS: render_access_page,
     ApplicationPage.PLANNING: render_planning_page,
     ApplicationPage.REPLANNING: render_replanning_page,
     ApplicationPage.DISRUPTIONS: render_disruption_page,

@@ -65,31 +65,92 @@ def _map_for_geometry(geometry: TargetGeometry | None):
         Element(
             """
             <style>
-            .leaflet-control-zoom a,
+            .leaflet-bar {
+                border: 1px solid rgba(15, 23, 42, 0.35) !important;
+                border-radius: 8px !important;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(15, 23, 42, 0.25) !important;
+            }
+            .leaflet-control-zoom a {
+                width: 42px !important;
+                height: 42px !important;
+                line-height: 40px !important;
+                font-size: 25px !important;
+                font-weight: 700 !important;
+            }
             .leaflet-draw-toolbar a {
-                width: 46px !important;
-                height: 46px !important;
-                line-height: 46px !important;
-                font-size: 28px !important;
-                background-size: 360px 46px !important;
+                width: 44px !important;
+                height: 44px !important;
+                background-image: none !important;
+                background-position: initial !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                color: #172033 !important;
+                text-decoration: none !important;
+                font-family: Arial, sans-serif !important;
+                font-size: 25px !important;
+                font-weight: 700 !important;
+                line-height: 1 !important;
+            }
+            .leaflet-draw-toolbar a:hover {
+                background-color: #e8f1fb !important;
+                color: #075ea8 !important;
+            }
+            .leaflet-draw-draw-marker::before {
+                content: "●";
+                font-size: 21px;
+            }
+            .leaflet-draw-draw-polygon::before {
+                content: "⬡";
+                transform: translateY(-1px);
+            }
+            .leaflet-draw-draw-rectangle::before {
+                content: "▭";
+                font-size: 28px;
+            }
+            .leaflet-draw-edit-edit::before {
+                content: "✎";
+                font-size: 24px;
+            }
+            .leaflet-draw-edit-remove::before {
+                content: "×";
+                font-size: 31px;
+                font-weight: 500;
+            }
+            .leaflet-draw-actions {
+                margin-left: 8px !important;
             }
             .leaflet-draw-actions a {
                 min-height: 42px !important;
                 line-height: 42px !important;
                 padding: 0 14px !important;
-                font-size: 17px !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
             }
             .leaflet-control-layers-toggle {
-                width: 46px !important;
-                height: 46px !important;
-                background-size: 30px 30px !important;
+                width: 44px !important;
+                height: 44px !important;
+                background-size: 27px 27px !important;
             }
-            .leaflet-control-layers-expanded,
+            .leaflet-control-layers-expanded {
+                min-width: 190px;
+                padding: 12px 14px !important;
+                font-size: 15px !important;
+                line-height: 1.45 !important;
+            }
             .leaflet-control-scale-line {
-                font-size: 16px !important;
+                min-width: 92px;
+                padding: 3px 7px !important;
+                border-width: 0 0 2px 2px !important;
+                background: rgba(255,255,255,0.88) !important;
+                color: #172033 !important;
+                font-size: 14px !important;
+                font-weight: 600 !important;
             }
-            .leaflet-tooltip, .leaflet-popup-content {
-                font-size: 17px !important;
+            .leaflet-tooltip,
+            .leaflet-popup-content {
+                font-size: 16px !important;
                 line-height: 1.45 !important;
             }
             </style>

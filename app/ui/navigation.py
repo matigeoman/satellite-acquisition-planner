@@ -10,6 +10,7 @@ class ApplicationPage(StrEnum):
 
     TARGETS = "Cele i zlecenia"
     ORBITS = "Orbity publiczne"
+    ACCESS = "Okna dostępu"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"
