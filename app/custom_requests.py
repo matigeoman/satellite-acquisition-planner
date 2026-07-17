@@ -24,6 +24,7 @@ def build_custom_request(
     max_incidence_angle_deg: float | None,
     max_off_nadir_deg: float | None,
     is_mandatory: bool,
+    max_dual_separation_s: float | None = None,
     max_sar_resolution_m: float | None = None,
     max_optical_resolution_m: float | None = None,
     notes: str | None = None,
@@ -46,6 +47,7 @@ def build_custom_request(
         max_cloud_cover=max_cloud_cover,
         max_incidence_angle_deg=max_incidence_angle_deg,
         max_off_nadir_deg=max_off_nadir_deg,
+        max_dual_separation_s=max_dual_separation_s,
         is_mandatory=is_mandatory,
         notes=notes,
     )

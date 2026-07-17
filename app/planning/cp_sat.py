@@ -19,9 +19,14 @@ from app.models.request import ObservationRequest
 from app.models.request_set import ObservationRequestSet
 from app.models.satellite import Satellite
 from app.models.schedule import Schedule, ScheduleEntry
-from app.models.sensor import Sensor
 from app.planning.fixed import FixedOpportunityAssignment
 from app.planning.config import CpSatPlannerConfig
+from app.planning.operational import (
+    build_pass_index,
+    dual_pair_is_compatible,
+    request_is_fulfilled,
+    required_transition_time_s,
+)
 from app.planning.scoring import (
     acquisition_score,
     calculate_objective_contributions,
@@ -77,6 +82,11 @@ class CpSatScheduler:
         self._sensors_by_id = {
             sensor.sensor_id: sensor
             for sensor in catalog.sensors
+        }
+        self._modes_by_id = {
+            mode.mode_id: mode
+            for sensor in catalog.sensors
+            for mode in sensor.imaging_modes
         }
 
         self._active_requests_by_id = {
@@ -338,9 +348,18 @@ class CpSatScheduler:
             )
         ]
 
+        selected_by_request: dict[str, list[AcquisitionOpportunity]] = (
+            defaultdict(list)
+        )
+        for opportunity in selected_opportunities:
+            selected_by_request[opportunity.request_id].append(opportunity)
         selected_request_ids = {
-            entry.request_id
-            for entry in entries
+            request.request_id
+            for request in self.request_set.active_requests
+            if request_is_fulfilled(
+                request,
+                selected_by_request.get(request.request_id, []),
+            )
         }
 
         unassigned_request_ids = sorted(
@@ -550,6 +569,32 @@ class CpSatScheduler:
                     fulfilled == optical_total
                 )
 
+            if request.request_mode != RequestMode.SINGLE:
+                for sar_opportunity in candidates:
+                    if sar_opportunity.sensor_type != SensorType.SAR:
+                        continue
+                    for optical_opportunity in candidates:
+                        if (
+                            optical_opportunity.sensor_type
+                            != SensorType.OPTICAL
+                        ):
+                            continue
+                        if dual_pair_is_compatible(
+                            request,
+                            sar_opportunity,
+                            optical_opportunity,
+                        ):
+                            continue
+                        model.add(
+                            self._selection_variables[
+                                sar_opportunity.opportunity_id
+                            ]
+                            + self._selection_variables[
+                                optical_opportunity.opportunity_id
+                            ]
+                            <= 1
+                        )
+
             if (
                 request.is_mandatory
                 and self.config.force_mandatory_requests
@@ -684,6 +729,31 @@ class CpSatScheduler:
                     )
                 )
 
+            if self.config.use_dynamic_transition_model:
+                sar_opportunities = [
+                    opportunity
+                    for opportunity in opportunities
+                    if opportunity.sensor_type == SensorType.SAR
+                ]
+                pass_index = build_pass_index(
+                    sar_opportunities,
+                    pass_gap_s=self.config.sar_pass_gap_s,
+                )
+                variables_by_pass: dict[int, list[cp_model.IntVar]] = (
+                    defaultdict(list)
+                )
+                for opportunity in sar_opportunities:
+                    variables_by_pass[
+                        pass_index[opportunity.opportunity_id]
+                    ].append(
+                        self._selection_variables[opportunity.opportunity_id]
+                    )
+                for pass_variables in variables_by_pass.values():
+                    model.add(
+                        sum(pass_variables)
+                        <= self.config.sar_max_acquisitions_per_pass
+                    )
+
             self._add_transition_conflicts(
                 model=model,
                 satellite=satellite,
@@ -695,16 +765,8 @@ class CpSatScheduler:
         *,
         model: cp_model.CpModel,
         satellite: Satellite,
-        opportunities: list[
-            AcquisitionOpportunity
-        ],
+        opportunities: list[AcquisitionOpportunity],
     ) -> None:
-        transition_delta = timedelta(
-            seconds=self._transition_time_s(
-                satellite
-            )
-        )
-
         sorted_opportunities = sorted(
             opportunities,
             key=lambda opportunity: (
@@ -714,26 +776,26 @@ class CpSatScheduler:
             ),
         )
 
-        for first_index, first in enumerate(
-            sorted_opportunities
-        ):
-            for second in sorted_opportunities[
-                first_index + 1:
-            ]:
+        sensor = self._sensors_by_id[satellite.sensor_id]
+        for first_index, first in enumerate(sorted_opportunities):
+            for second in sorted_opportunities[first_index + 1 :]:
+                transition_s = required_transition_time_s(
+                    first=first,
+                    second=second,
+                    satellite=satellite,
+                    sensor=sensor,
+                    modes_by_id=self._modes_by_id,
+                    config=self.config,
+                )
                 if (
-                    first.end_utc
-                    + transition_delta
+                    first.end_utc + timedelta(seconds=transition_s)
                     <= second.start_utc
                 ):
-                    break
+                    continue
 
                 model.add(
-                    self._selection_variables[
-                        first.opportunity_id
-                    ]
-                    + self._selection_variables[
-                        second.opportunity_id
-                    ]
+                    self._selection_variables[first.opportunity_id]
+                    + self._selection_variables[second.opportunity_id]
                     <= 1
                 )
 
@@ -839,9 +901,18 @@ class CpSatScheduler:
             )
         ]
 
+        fixed_by_request: dict[str, list[AcquisitionOpportunity]] = (
+            defaultdict(list)
+        )
+        for opportunity in fixed_opportunities:
+            fixed_by_request[opportunity.request_id].append(opportunity)
         selected_request_ids = {
-            entry.request_id
-            for entry in entries
+            request.request_id
+            for request in self.request_set.active_requests
+            if request_is_fulfilled(
+                request,
+                fixed_by_request.get(request.request_id, []),
+            )
         }
 
         return Schedule(
@@ -904,24 +975,6 @@ class CpSatScheduler:
             request_set=self.request_set,
             selected_opportunities=selected_opportunities,
             config=self.config,
-        )
-
-    def _transition_time_s(
-        self,
-        satellite: Satellite,
-    ) -> float:
-        sensor: Sensor = self._sensors_by_id[
-            satellite.sensor_id
-        ]
-
-        sensor_transition_s = (
-            sensor.warmup_time_s
-            + sensor.cooldown_time_s
-        )
-
-        return max(
-            satellite.minimum_transition_time_s,
-            sensor_transition_s,
         )
 
     def _scale_objective(

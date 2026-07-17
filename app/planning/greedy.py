@@ -21,6 +21,12 @@ from app.models.schedule import Schedule, ScheduleEntry
 from app.models.sensor import Sensor
 from app.planning.fixed import FixedOpportunityAssignment
 from app.planning.config import GreedyPlannerConfig
+from app.planning.operational import (
+    build_pass_index,
+    dual_pair_is_compatible,
+    request_is_fulfilled,
+    required_transition_time_s,
+)
 from app.planning.scoring import (
     acquisition_score,
     calculate_objective_contributions,
@@ -88,6 +94,11 @@ class GreedyScheduler:
             sensor.sensor_id: sensor
             for sensor in catalog.sensors
         }
+        self._modes_by_id = {
+            mode.mode_id: mode
+            for sensor in catalog.sensors
+            for mode in sensor.imaging_modes
+        }
 
         self._opportunities_by_request: dict[
             str,
@@ -109,6 +120,21 @@ class GreedyScheduler:
             self._opportunities_by_request[
                 opportunity.request_id
             ].append(opportunity)
+
+        self._sar_pass_by_opportunity_id: dict[str, int] = {}
+        for satellite in catalog.satellites:
+            satellite_sar_opportunities = [
+                opportunity
+                for opportunity in opportunity_set.feasible_opportunities
+                if opportunity.satellite_id == satellite.satellite_id
+                and opportunity.sensor_type == SensorType.SAR
+            ]
+            self._sar_pass_by_opportunity_id.update(
+                build_pass_index(
+                    satellite_sar_opportunities,
+                    pass_gap_s=self.config.sar_pass_gap_s,
+                )
+            )
 
         self._states: dict[
             str,
@@ -276,10 +302,7 @@ class GreedyScheduler:
             )
         ]
 
-        selected_request_ids = {
-            entry.request_id
-            for entry in entries
-        }
+        selected_request_ids = self._fulfilled_request_ids()
 
         unassigned_request_ids = sorted(
             request.request_id
@@ -432,12 +455,14 @@ class GreedyScheduler:
 
         if request.request_mode == RequestMode.DUAL_OPTIONAL:
             self._plan_dual_optional(
+                request,
                 candidates,
                 selected_sensor_types=selected_sensor_types,
             )
             return
 
         self._plan_dual_required(
+            request,
             candidates,
             selected_sensor_types=selected_sensor_types,
         )
@@ -455,6 +480,7 @@ class GreedyScheduler:
 
     def _plan_dual_optional(
         self,
+        request: ObservationRequest,
         candidates: list[AcquisitionOpportunity],
         *,
         selected_sensor_types: set[SensorType],
@@ -471,14 +497,23 @@ class GreedyScheduler:
                 if SensorType.SAR in selected_sensor_types
                 else SensorType.SAR
             )
+            selected = next(
+                opportunity
+                for opportunity in self._selected_opportunities
+                if opportunity.request_id == request.request_id
+            )
 
             second_opportunity = self._first_assignable(
                 self._sorted_candidates(
                     [
                         opportunity
                         for opportunity in candidates
-                        if opportunity.sensor_type
-                        == missing_sensor_type
+                        if opportunity.sensor_type == missing_sensor_type
+                        and dual_pair_is_compatible(
+                            request,
+                            selected,
+                            opportunity,
+                        )
                     ]
                 )
             )
@@ -508,6 +543,11 @@ class GreedyScheduler:
                 opportunity
                 for opportunity in candidates
                 if opportunity.sensor_type == other_sensor_type
+                and dual_pair_is_compatible(
+                    request,
+                    first_opportunity,
+                    opportunity,
+                )
             ],
         )
 
@@ -520,6 +560,7 @@ class GreedyScheduler:
 
     def _plan_dual_required(
         self,
+        request: ObservationRequest,
         candidates: list[AcquisitionOpportunity],
         *,
         selected_sensor_types: set[SensorType],
@@ -536,14 +577,23 @@ class GreedyScheduler:
                 if SensorType.SAR in selected_sensor_types
                 else SensorType.SAR
             )
+            selected = next(
+                opportunity
+                for opportunity in self._selected_opportunities
+                if opportunity.request_id == request.request_id
+            )
 
             missing_opportunity = self._first_assignable(
                 self._sorted_candidates(
                     [
                         opportunity
                         for opportunity in candidates
-                        if opportunity.sensor_type
-                        == missing_sensor_type
+                        if opportunity.sensor_type == missing_sensor_type
+                        and dual_pair_is_compatible(
+                            request,
+                            selected,
+                            opportunity,
+                        )
                     ]
                 )
             )
@@ -574,6 +624,12 @@ class GreedyScheduler:
 
         for sar_opportunity in sar_candidates:
             for optical_opportunity in optical_candidates:
+                if not dual_pair_is_compatible(
+                    request,
+                    sar_opportunity,
+                    optical_opportunity,
+                ):
+                    continue
                 pairs.append(
                     (
                         sar_opportunity,
@@ -700,52 +756,85 @@ class GreedyScheduler:
         ):
             return False
 
-        transition_time_s = self._transition_time_s(
-            satellite
-        )
-
-        transition_delta = timedelta(
-            seconds=transition_time_s
-        )
+        if (
+            self.config.use_dynamic_transition_model
+            and opportunity.sensor_type == SensorType.SAR
+        ):
+            pass_id = self._sar_pass_by_opportunity_id.get(
+                opportunity.opportunity_id
+            )
+            selected_in_pass = sum(
+                self._sar_pass_by_opportunity_id.get(
+                    existing.opportunity_id
+                )
+                == pass_id
+                for existing in state.opportunities
+                if existing.sensor_type == SensorType.SAR
+            )
+            if (
+                selected_in_pass + 1
+                > self.config.sar_max_acquisitions_per_pass
+            ):
+                return False
 
         for existing in state.opportunities:
+            before_transition_s = self._transition_time_s(
+                opportunity,
+                existing,
+                satellite,
+            )
+            after_transition_s = self._transition_time_s(
+                existing,
+                opportunity,
+                satellite,
+            )
             separated_before = (
                 opportunity.end_utc
-                + transition_delta
+                + timedelta(seconds=before_transition_s)
                 <= existing.start_utc
             )
-
             separated_after = (
                 existing.end_utc
-                + transition_delta
+                + timedelta(seconds=after_transition_s)
                 <= opportunity.start_utc
             )
 
-            if not (
-                separated_before
-                or separated_after
-            ):
+            if not (separated_before or separated_after):
                 return False
 
         return True
 
     def _transition_time_s(
         self,
+        first: AcquisitionOpportunity,
+        second: AcquisitionOpportunity,
         satellite: Satellite,
     ) -> float:
-        sensor = self._sensors_by_id[
-            satellite.sensor_id
-        ]
-
-        sensor_transition_s = (
-            sensor.cooldown_time_s
-            + sensor.warmup_time_s
+        sensor = self._sensors_by_id[satellite.sensor_id]
+        return required_transition_time_s(
+            first=first,
+            second=second,
+            satellite=satellite,
+            sensor=sensor,
+            modes_by_id=self._modes_by_id,
+            config=self.config,
         )
 
-        return max(
-            satellite.minimum_transition_time_s,
-            sensor_transition_s,
+    def _fulfilled_request_ids(self) -> set[str]:
+        selected_by_request: dict[str, list[AcquisitionOpportunity]] = (
+            defaultdict(list)
         )
+        for opportunity in self._selected_opportunities:
+            selected_by_request[opportunity.request_id].append(opportunity)
+
+        return {
+            request.request_id
+            for request in self.request_set.active_requests
+            if request_is_fulfilled(
+                request,
+                selected_by_request.get(request.request_id, []),
+            )
+        }
 
     def _commit(
         self,

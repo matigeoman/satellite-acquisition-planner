@@ -195,6 +195,19 @@ def _request_form(geometry: TargetGeometry | None) -> ObservationRequest | None:
             value=45.0,
             step=1.0,
         )
+        max_dual_separation_hours: float | None = None
+        if request_mode != RequestMode.SINGLE:
+            max_dual_separation_hours = st.select_slider(
+                "Maksymalny odstęp SAR–EO",
+                options=[0.5, 1.0, 2.0, 6.0, 12.0, 24.0, 48.0],
+                value=6.0,
+                format_func=lambda value: f"{value:g} h",
+                help=(
+                    "Para jest liczona względem środków akwizycji. "
+                    "DUAL_REQUIRED wymaga zgodnej pary, a DUAL_OPTIONAL "
+                    "dopuszcza pojedynczy sensor."
+                ),
+            )
         notes = st.text_area("Uwagi", value="")
 
         submitted = st.form_submit_button(
@@ -241,6 +254,11 @@ def _request_form(geometry: TargetGeometry | None) -> ObservationRequest | None:
             max_cloud_cover=(max_cloud_percent / 100.0 if needs_optical else None),
             max_incidence_angle_deg=max_incidence if needs_sar else None,
             max_off_nadir_deg=max_off_nadir,
+            max_dual_separation_s=(
+                max_dual_separation_hours * 3600.0
+                if max_dual_separation_hours is not None
+                else None
+            ),
             is_mandatory=is_mandatory,
             notes=notes or None,
         )
@@ -283,6 +301,11 @@ def _requests_section() -> None:
                     else "—"
                 ),
                 "Priorytet": request.priority,
+                "Maks. odstęp SAR–EO": (
+                    f"{request.max_dual_separation_hours:g} h"
+                    if request.max_dual_separation_hours is not None
+                    else "—"
+                ),
                 "Początek UTC": request.earliest_start_utc.isoformat(),
                 "Koniec UTC": request.latest_end_utc.isoformat(),
             }

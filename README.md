@@ -10,7 +10,8 @@ powtarzalną walidację eksperymentalną.
 - konstelacja 4 satelitów SAR i 2 satelitów optycznych,
 - zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`,
 - planowanie Greedy i CP-SAT ze wspólną funkcją celu,
-- ograniczenia czasu, pamięci, liczby akwizycji i konfliktów przejścia,
+- dynamiczne przeorientowanie EO, przejścia ICEYE i limity akwizycji,
+- maksymalny odstęp czasowy dla par SAR + EO,
 - zamrożone okno najbliższych operacji,
 - przeplanowanie po awarii satelity, zmianie pogody i pilnym zleceniu,
 - raporty CSV, wykresy i interfejs Streamlit,
@@ -41,7 +42,8 @@ Dokumentacja techniczna:
 - [`docs/public_orbits_sgp4.md`](docs/public_orbits_sgp4.md),
 - [`docs/public_access_windows.md`](docs/public_access_windows.md),
 - [`docs/public_weather_and_opportunities.md`](docs/public_weather_and_opportunities.md),
-- [`docs/stk_validation.md`](docs/stk_validation.md).
+- [`docs/stk_validation.md`](docs/stk_validation.md),
+- [`docs/operational_constraints.md`](docs/operational_constraints.md).
 
 ## Instalacja
 
@@ -92,6 +94,16 @@ Nagroda za priorytet i obowiązkowość jest naliczana raz na zrealizowane
 zlecenie. Każda wybrana akwizycja wnosi dodatkowo ocenę jakości i pokrycia.
 Dla `DUAL_REQUIRED` nagroda zlecenia jest przyznawana dopiero po wybraniu
 zarówno obserwacji SAR, jak i optycznej.
+
+## Ograniczenia operacyjne
+
+Planowanie publiczne może używać kierunkowego czasu przejścia pomiędzy
+akwizycjami. Dla Pléiades Neo czas zwrotu jest interpolowany z publicznych
+punktów 10°/7 s, 30°/12 s i 60°/20 s. Model ICEYE uwzględnia podpisany kąt
+obserwacji, zmianę LEFT/RIGHT, zmianę kategorii trybu, stabilizację oraz limit
+akwizycji w modelowanym przelocie. Zlecenia podwójne mogą dodatkowo wymagać
+wykonania SAR i EO w zadanym odstępie czasu. Szczegóły i założenia opisano w
+[`docs/operational_constraints.md`](docs/operational_constraints.md).
 
 ## Publiczne orbity, okna dostępu i STK
 

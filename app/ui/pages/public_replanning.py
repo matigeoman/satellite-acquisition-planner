@@ -196,6 +196,28 @@ def render_public_replanning_page() -> None:
         options = PlanningOptions(
             algorithm=PlanningAlgorithm(algorithm_value),
             memory_reserve_ratio=memory_reserve_percent / 100.0,
+            use_dynamic_transition_model=(
+                previous_result.options.use_dynamic_transition_model
+            ),
+            eo_stabilization_time_s=(
+                previous_result.options.eo_stabilization_time_s
+            ),
+            sar_stabilization_time_s=(
+                previous_result.options.sar_stabilization_time_s
+            ),
+            sar_side_switch_penalty_s=(
+                previous_result.options.sar_side_switch_penalty_s
+            ),
+            sar_mode_switch_penalty_s=(
+                previous_result.options.sar_mode_switch_penalty_s
+            ),
+            sar_slew_rate_deg_s=(
+                previous_result.options.sar_slew_rate_deg_s
+            ),
+            sar_pass_gap_s=previous_result.options.sar_pass_gap_s,
+            sar_max_acquisitions_per_pass=(
+                previous_result.options.sar_max_acquisitions_per_pass
+            ),
             cp_sat_time_limit_s=float(cp_sat_time_limit),
             cp_sat_num_search_workers=int(cp_sat_workers),
             cp_sat_force_mandatory_requests=force_mandatory,

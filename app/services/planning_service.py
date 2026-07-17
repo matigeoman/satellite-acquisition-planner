@@ -171,6 +171,22 @@ class PlanningService:
             memory_reserve_ratio=(
                 options.memory_reserve_ratio
             ),
+            use_dynamic_transition_model=(
+                options.use_dynamic_transition_model
+            ),
+            eo_stabilization_time_s=options.eo_stabilization_time_s,
+            sar_stabilization_time_s=options.sar_stabilization_time_s,
+            sar_side_switch_penalty_s=(
+                options.sar_side_switch_penalty_s
+            ),
+            sar_mode_switch_penalty_s=(
+                options.sar_mode_switch_penalty_s
+            ),
+            sar_slew_rate_deg_s=options.sar_slew_rate_deg_s,
+            sar_pass_gap_s=options.sar_pass_gap_s,
+            sar_max_acquisitions_per_pass=(
+                options.sar_max_acquisitions_per_pass
+            ),
             priority_weight=(
                 options.priority_weight
             ),
@@ -218,6 +234,22 @@ class PlanningService:
         config = CpSatPlannerConfig(
             memory_reserve_ratio=(
                 options.memory_reserve_ratio
+            ),
+            use_dynamic_transition_model=(
+                options.use_dynamic_transition_model
+            ),
+            eo_stabilization_time_s=options.eo_stabilization_time_s,
+            sar_stabilization_time_s=options.sar_stabilization_time_s,
+            sar_side_switch_penalty_s=(
+                options.sar_side_switch_penalty_s
+            ),
+            sar_mode_switch_penalty_s=(
+                options.sar_mode_switch_penalty_s
+            ),
+            sar_slew_rate_deg_s=options.sar_slew_rate_deg_s,
+            sar_pass_gap_s=options.sar_pass_gap_s,
+            sar_max_acquisitions_per_pass=(
+                options.sar_max_acquisitions_per_pass
             ),
             priority_weight=(
                 options.priority_weight

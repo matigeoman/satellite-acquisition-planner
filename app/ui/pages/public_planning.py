@@ -140,6 +140,65 @@ def render_public_planning_page() -> None:
             "Wymuś zlecenia obowiązkowe w CP-SAT",
             value=True,
         )
+
+        with st.expander("Ograniczenia operacyjne", expanded=True):
+            use_dynamic_transition_model = st.checkbox(
+                "Dynamiczne przeorientowanie Pléiades Neo i ICEYE",
+                value=True,
+                help=(
+                    "Zastępuje stałą przerwę modelem zależnym od kierunku "
+                    "obserwacji, strony LEFT/RIGHT i zmiany trybu SAR."
+                ),
+            )
+            first_operational, second_operational = st.columns(2)
+            eo_stabilization_time_s = first_operational.number_input(
+                "Stabilizacja EO [s]",
+                min_value=0.0,
+                value=3.0,
+                step=1.0,
+            )
+            sar_stabilization_time_s = second_operational.number_input(
+                "Stabilizacja SAR [s]",
+                min_value=0.0,
+                value=10.0,
+                step=1.0,
+            )
+            sar_side_switch_penalty_s = first_operational.number_input(
+                "Zmiana LEFT/RIGHT [s]",
+                min_value=0.0,
+                value=60.0,
+                step=5.0,
+            )
+            sar_mode_switch_penalty_s = second_operational.number_input(
+                "Zmiana kategorii trybu SAR [s]",
+                min_value=0.0,
+                value=15.0,
+                step=5.0,
+            )
+            sar_slew_rate_deg_s = first_operational.number_input(
+                "Prędkość zwrotu SAR [°/s]",
+                min_value=0.1,
+                value=2.0,
+                step=0.1,
+            )
+            sar_pass_gap_minutes = second_operational.number_input(
+                "Przerwa rozdzielająca przeloty SAR [min]",
+                min_value=1.0,
+                value=15.0,
+                step=1.0,
+            )
+            sar_max_acquisitions_per_pass = st.slider(
+                "Maksymalna liczba akwizycji ICEYE w jednym przelocie",
+                min_value=1,
+                max_value=10,
+                value=3,
+                step=1,
+            )
+            st.caption(
+                "Pléiades Neo: interpolacja 10°/7 s, 30°/12 s i "
+                "60°/20 s. Parametry ICEYE są jawnymi założeniami modelu."
+            )
+
         run_clicked = st.button(
             "Uruchom planowanie publiczne",
             type="primary",
@@ -150,6 +209,16 @@ def render_public_planning_page() -> None:
         options = PlanningOptions(
             algorithm=PlanningAlgorithm(algorithm_value),
             memory_reserve_ratio=memory_reserve_percent / 100.0,
+            use_dynamic_transition_model=use_dynamic_transition_model,
+            eo_stabilization_time_s=float(eo_stabilization_time_s),
+            sar_stabilization_time_s=float(sar_stabilization_time_s),
+            sar_side_switch_penalty_s=float(sar_side_switch_penalty_s),
+            sar_mode_switch_penalty_s=float(sar_mode_switch_penalty_s),
+            sar_slew_rate_deg_s=float(sar_slew_rate_deg_s),
+            sar_pass_gap_s=float(sar_pass_gap_minutes) * 60.0,
+            sar_max_acquisitions_per_pass=int(
+                sar_max_acquisitions_per_pass
+            ),
             priority_weight=float(priority_weight),
             quality_weight=float(quality_weight),
             coverage_weight=float(coverage_weight),
