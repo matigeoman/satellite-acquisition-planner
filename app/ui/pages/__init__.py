@@ -1,6 +1,7 @@
 """Ekrany aplikacji Streamlit podzielone według przypadków użycia."""
 
 from app.ui.pages.access import render_access_page
+from app.ui.pages.benchmark import render_benchmark_page
 from app.ui.pages.disruption import render_disruption_page
 from app.ui.pages.experiments import render_experiments_page
 from app.ui.pages.globe import render_globe_page
@@ -14,6 +15,7 @@ from app.ui.pages.stk_validation import render_stk_validation_page
 
 __all__ = [
     "render_access_page",
+    "render_benchmark_page",
     "render_disruption_page",
     "render_experiments_page",
     "render_globe_page",

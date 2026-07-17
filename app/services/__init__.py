@@ -1,5 +1,6 @@
 """Publiczny interfejs usług aplikacyjnych."""
 
+from app.services.benchmark_service import AlgorithmBenchmarkService
 from app.services.comparison_service import PlanningComparisonService
 from app.services.contracts import (
     PlanningComparisonResult,
@@ -20,6 +21,7 @@ from app.services.scenario_service import (
 )
 
 __all__ = [
+    "AlgorithmBenchmarkService",
     "LoadedScenario",
     "PlanningComparisonResult",
     "PlanningComparisonService",

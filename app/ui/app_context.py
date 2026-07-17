@@ -3,6 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.analysis.experimental_validation import ExperimentalValidationService
+from app.services.benchmark_service import AlgorithmBenchmarkService
 from app.io import load_schedule
 from app.services.comparison_service import PlanningComparisonService
 from app.services.disruption_service import DisruptionReplanningService
@@ -69,6 +70,15 @@ def get_experimental_validation_service() -> ExperimentalValidationService:
         comparison_service=get_comparison_service()
     )
 
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_algorithm_benchmark_service() -> AlgorithmBenchmarkService:
+    """Zwraca serwis benchmarków skalowalności Greedy i CP-SAT."""
+
+    return AlgorithmBenchmarkService(
+        planning_service=get_planning_service()
+    )
 
 
 @st.cache_resource(scope="session", show_spinner=False)

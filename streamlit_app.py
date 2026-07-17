@@ -29,6 +29,7 @@ st.set_page_config(
 from app.ui.navigation import ApplicationPage, render_navigation
 from app.ui.pages import (
     render_access_page,
+    render_benchmark_page,
     render_disruption_page,
     render_experiments_page,
     render_globe_page,
@@ -51,6 +52,7 @@ _PAGE_RENDERERS = {
     ApplicationPage.PUBLIC_PLANNING: render_public_planning_page,
     ApplicationPage.PUBLIC_REPLANNING: render_public_replanning_page,
     ApplicationPage.STK_VALIDATION: render_stk_validation_page,
+    ApplicationPage.BENCHMARKS: render_benchmark_page,
     ApplicationPage.PLANNING: render_planning_page,
     ApplicationPage.REPLANNING: render_replanning_page,
     ApplicationPage.DISRUPTIONS: render_disruption_page,
