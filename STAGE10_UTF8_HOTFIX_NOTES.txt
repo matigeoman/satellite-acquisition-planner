@@ -1,0 +1,12 @@
+Stage 10 UTF-8 hotfix
+
+Fixes:
+- restores the exact Polish UI string: "Odśwież pogodę i przeplanuj"
+- restores the exact category label: "Pléiades Neo EO"
+- rewrites both UI page files as UTF-8
+
+After extracting, run:
+pytest -q tests/test_public_replanning_ui_architecture.py
+pytest -q
+ruff check app tests streamlit_app.py scripts
+python -m app.cli check

@@ -10,6 +10,7 @@ from app.ui.pages.public_replanning import render_public_replanning_page
 from app.ui.pages.orbits import render_orbits_page
 from app.ui.pages.replanning import render_replanning_page
 from app.ui.pages.targets import render_targets_page
+from app.ui.pages.stk_validation import render_stk_validation_page
 
 __all__ = [
     "render_access_page",
@@ -22,4 +23,5 @@ __all__ = [
     "render_orbits_page",
     "render_replanning_page",
     "render_targets_page",
+    "render_stk_validation_page",
 ]

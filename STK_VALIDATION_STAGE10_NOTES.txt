@@ -1,0 +1,13 @@
+ETAP 10 — WALIDACJA STK
+
+Dodano:
+- nowy moduł UI „Walidacja STK”;
+- eksport ZIP przypadku: OMM, GeoJSON, parametry trybu, modelowe okna i instrukcja;
+- parser raportu Access CSV/TXT z automatycznym rozpoznaniem separatora i UTCG;
+- dopasowanie okien jeden-do-jednego;
+- MAE, RMSE, bias, maksimum błędu oraz współczynnik nakładania;
+- opcjonalny parser i porównanie raportu AER;
+- wykresy, tabele i eksport wyników JSON/CSV;
+- testy parsera, porównania, AER, paczki ZIP i rejestracji UI.
+
+Nie dodano nowych zależności.

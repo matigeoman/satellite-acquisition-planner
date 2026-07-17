@@ -14,6 +14,7 @@ class ApplicationPage(StrEnum):
     GLOBE = "Globus i orbity"
     PUBLIC_PLANNING = "Planowanie publiczne"
     PUBLIC_REPLANNING = "Przeplanowanie publiczne"
+    STK_VALIDATION = "Walidacja STK"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"

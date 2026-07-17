@@ -40,7 +40,8 @@ Dokumentacja techniczna:
 - [`docs/analysis_and_services.md`](docs/analysis_and_services.md),
 - [`docs/public_orbits_sgp4.md`](docs/public_orbits_sgp4.md),
 - [`docs/public_access_windows.md`](docs/public_access_windows.md),
-- [`docs/public_weather_and_opportunities.md`](docs/public_weather_and_opportunities.md).
+- [`docs/public_weather_and_opportunities.md`](docs/public_weather_and_opportunities.md),
+- [`docs/stk_validation.md`](docs/stk_validation.md).
 
 ## Instalacja
 
@@ -104,11 +105,13 @@ zachmurzenia Open-Meteo dla punktu lub kilku punktów poligonu i utworzyć pełn
 `AcquisitionOpportunity`. Zakładka **Planowanie publiczne** przekazuje te
 okazje bezpośrednio do Greedy albo CP-SAT.
 
-Wyniki są orientacyjnymi oknami geometrycznymi. STK pozostaje narzędziem do
-walidacji wybranych przypadków, a nie jedynym źródłem działania aplikacji.
-Szczegóły opisano w `docs/public_orbits_sgp4.md`,
-`docs/public_access_windows.md` oraz
-`docs/public_weather_and_opportunities.md`.
+Wyniki są orientacyjnymi oknami geometrycznymi. Zakładka **Walidacja STK**
+eksportuje odtwarzalny przypadek z OMM, AOI i parametrami trybu, a następnie
+importuje raporty Access oraz AER. Program liczy błędy granic okien, długości,
+nakładania, azymutu, elewacji i zasięgu. STK pozostaje narzędziem walidacji,
+a nie jedynym źródłem działania aplikacji. Szczegóły opisano w
+`docs/public_orbits_sgp4.md`, `docs/public_access_windows.md`,
+`docs/public_weather_and_opportunities.md` oraz `docs/stk_validation.md`.
 
 ## Uporządkowany układ danych
 

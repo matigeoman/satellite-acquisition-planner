@@ -38,6 +38,7 @@ from app.ui.pages import (
     render_orbits_page,
     render_replanning_page,
     render_targets_page,
+    render_stk_validation_page,
 )
 from app.ui.styles import apply_application_styles
 
@@ -49,6 +50,7 @@ _PAGE_RENDERERS = {
     ApplicationPage.GLOBE: render_globe_page,
     ApplicationPage.PUBLIC_PLANNING: render_public_planning_page,
     ApplicationPage.PUBLIC_REPLANNING: render_public_replanning_page,
+    ApplicationPage.STK_VALIDATION: render_stk_validation_page,
     ApplicationPage.PLANNING: render_planning_page,
     ApplicationPage.REPLANNING: render_replanning_page,
     ApplicationPage.DISRUPTIONS: render_disruption_page,

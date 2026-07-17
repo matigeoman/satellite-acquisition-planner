@@ -16,6 +16,7 @@ from app.services.replanning_service import ReplanningService
 from app.services.public_scenario_service import PublicScenarioService
 from app.services.public_replanning_service import PublicReplanningService
 from app.services.scenario_service import LoadedScenario, ScenarioService
+from app.services.stk_validation_service import StkValidationService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
 
@@ -117,6 +118,13 @@ def get_public_replanning_service() -> PublicReplanningService:
             cloud_service=get_cloud_assessment_service()
         ),
     )
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_stk_validation_service() -> StkValidationService:
+    """Zwraca serwis eksportu i porównania raportów STK."""
+
+    return StkValidationService()
 
 
 @st.cache_resource(scope="session", show_spinner=False)
