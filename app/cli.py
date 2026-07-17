@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Sequence
 
@@ -8,6 +9,7 @@ from app.analysis import export_schedule_analysis
 from app.config.paths import DEFAULT_PATHS, ProjectPaths
 from app.io import save_schedule
 from app.models.enums import PlanningAlgorithm
+from app.quality import run_project_audit
 from app.services import PlanningOptions, PlanningService, ScenarioService
 
 
@@ -31,6 +33,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Wyświetla najważniejsze katalogi projektu.",
     )
     paths_parser.set_defaults(handler=_handle_paths)
+
+    audit_parser = subparsers.add_parser(
+        "audit",
+        help="Wykonuje audyt repozytorium, środowiska i danych.",
+    )
+    audit_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Traktuje ostrzeżenia jako błąd polecenia.",
+    )
+    audit_parser.add_argument(
+        "--json",
+        type=Path,
+        default=None,
+        dest="json_output",
+        help="Opcjonalny plik JSON z pełnym wynikiem audytu.",
+    )
+    audit_parser.set_defaults(handler=_handle_audit)
 
     plan_parser = subparsers.add_parser(
         "plan",
@@ -107,6 +127,45 @@ def _handle_paths(args: argparse.Namespace, paths: ProjectPaths) -> int:
     print(f"generated_reports: {paths.generated_reports}")
     print(f"generated_benchmarks: {paths.generated_benchmarks}")
     print(f"stk_imports: {paths.stk_imports}")
+    return 0
+
+
+def _handle_audit(args: argparse.Namespace, paths: ProjectPaths) -> int:
+    report = run_project_audit(paths)
+
+    print("AUDYT PROJEKTU")
+    print(f"Wersja aplikacji: {report.application_version}")
+    print(f"Python: {report.python_version}")
+    print(f"Katalog główny: {report.project_root}")
+    print()
+
+    for check in report.checks:
+        print(f"[{check.status.value}] {check.name}: {check.message}")
+        for detail in check.details:
+            print(f"  - {detail}")
+
+    print()
+    print(
+        "Podsumowanie: "
+        f"{len(report.failures)} błędów, "
+        f"{len(report.warnings)} ostrzeżeń."
+    )
+
+    if args.json_output is not None:
+        output_path = args.json_output
+        if not output_path.is_absolute():
+            output_path = paths.root / output_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            json.dumps(report.to_dict(), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"Raport JSON: {output_path.resolve()}")
+
+    if report.failures:
+        return 1
+    if args.strict and report.warnings:
+        return 1
     return 0
 
 

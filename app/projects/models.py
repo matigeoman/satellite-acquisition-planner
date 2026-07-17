@@ -6,9 +6,11 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.version import __version__
+
 
 PROJECT_ARCHIVE_SCHEMA_VERSION = "1.0.0"
-APPLICATION_VERSION = "0.13.0"
+APPLICATION_VERSION = __version__
 
 
 class ProjectMetadata(BaseModel):

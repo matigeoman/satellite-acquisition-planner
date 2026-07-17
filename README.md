@@ -1,147 +1,142 @@
 # Satellite Acquisition Planner
 
-Aplikacja do planowania akwizycji zobrazowań satelitarnych wykonywanych przez
-sensory SAR i optyczne EO. Projekt porównuje algorytm zachłanny z modelem
-CP-SAT, obsługuje dynamiczne przeplanowanie, zakłócenia operacyjne i
-powtarzalną walidację eksperymentalną.
+**Wersja:** `1.0.0-rc1`
+
+Aplikacja do wielokryterialnego planowania akwizycji zobrazowań satelitarnych
+SAR i optycznych EO. Łączy publiczne dane orbitalne, propagację SGP4,
+geometryczne okna dostępu, prognozę zachmurzenia, algorytm Greedy, model CP-SAT,
+dynamiczne przeplanowanie, walidację STK i eksport wyników naukowych.
 
 ## Najważniejsze funkcje
 
-- konstelacja 4 satelitów SAR i 2 satelitów optycznych,
+- publiczna konstelacja modelowa: 4 satelity ICEYE i 2 Pléiades Neo,
+- AOI jako Point, Polygon lub Rectangle oraz import/eksport GeoJSON,
+- GP/OMM z CelesTrak, cache i propagacja SGP4,
+- geometryczne okna dostępu oraz trajektorie na globusie Plotly,
+- zachmurzenie Open-Meteo dla okazji EO,
 - zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`,
 - planowanie Greedy i CP-SAT ze wspólną funkcją celu,
-- dynamiczne przeorientowanie EO, przejścia ICEYE i limity akwizycji,
-- maksymalny odstęp czasowy dla par SAR + EO,
-- zamrożone okno najbliższych operacji,
-- przeplanowanie po awarii satelity, zmianie pogody i pilnym zleceniu,
-- raporty CSV, wykresy i interfejs Streamlit,
-- wielokrotne eksperymenty porównujące jakość i czas działania algorytmów.
-
-## Architektura
-
-```text
-app/models      modele i walidacja danych
-app/config      centralne ścieżki projektu
-app/io          wczytywanie i zapis plików JSON
-app/planning    algorytmy, konfiguracje i funkcja celu
-app/services    przypadki użycia aplikacji
-app/scenarios   generatory scenariuszy
-app/analysis    KPI, raporty i eksperymenty
-app/ui          moduły interfejsu Streamlit
-scripts         skrypty uruchomieniowe i diagnostyczne
-tests           testy jednostkowe i integracyjne
-```
-
-Dokumentacja techniczna:
-
-- [`docs/project_structure.md`](docs/project_structure.md),
-- [`docs/planning_architecture.md`](docs/planning_architecture.md),
-- [`docs/ui_architecture.md`](docs/ui_architecture.md),
-- [`docs/io_and_paths.md`](docs/io_and_paths.md),
-- [`docs/analysis_and_services.md`](docs/analysis_and_services.md),
-- [`docs/public_orbits_sgp4.md`](docs/public_orbits_sgp4.md),
-- [`docs/public_access_windows.md`](docs/public_access_windows.md),
-- [`docs/public_weather_and_opportunities.md`](docs/public_weather_and_opportunities.md),
-- [`docs/stk_validation.md`](docs/stk_validation.md),
-- [`docs/operational_constraints.md`](docs/operational_constraints.md).
+- dynamiczne manewry EO, przejścia ICEYE LEFT/RIGHT i limit SAR–EO,
+- przeplanowanie z oknem zamrożonym i odświeżeniem pogody,
+- import Access/AER i porównanie wyników z STK,
+- benchmarki skalowalności Greedy kontra CP-SAT,
+- przenośne archiwa `.satplan.zip` z manifestem SHA-256,
+- raporty HTML, DOCX, XLSX, JSON, CSV i PNG,
+- audyt repozytorium oraz automatyczna kontrola GitHub Actions.
 
 ## Instalacja
 
-Projekt jest przygotowany dla Pythona 3.11.
+Projekt jest walidowany referencyjnie na Pythonie 3.11.
 
 ```powershell
 conda create -n satplan python=3.11
 conda activate satplan
-python -m pip install -r .\requirements-ui.txt
-```
-
-Zależności deweloperskie:
-
-```powershell
+python -m pip install --upgrade pip
 python -m pip install -r .\requirements-dev.txt
 ```
 
-## Testy i kontrola jakości
+Pełna instrukcja: [`docs/installation.md`](docs/installation.md).
 
-```powershell
-pytest -q
-ruff check app tests streamlit_app.py
-python .\scripts\check_project.py
-```
-
-## Uruchomienie aplikacji
+## Uruchomienie
 
 ```powershell
 streamlit run .\streamlit_app.py
 ```
 
-Aplikacja udostępnia planowanie, porównanie Greedy–CP-SAT, dynamiczne
-przeplanowanie, symulację zakłóceń oraz walidację eksperymentalną.
-
-## Najważniejsze skrypty
-
-```powershell
-python .\scripts\run_greedy.py
-python .\scripts\run_cp_sat.py
-python .\scripts\run_replanning.py
-python .\scripts\run_disruption_replanning.py
-python .\scripts\run_experimental_validation.py
-```
-
-## Funkcja celu
-
-Nagroda za priorytet i obowiązkowość jest naliczana raz na zrealizowane
-zlecenie. Każda wybrana akwizycja wnosi dodatkowo ocenę jakości i pokrycia.
-Dla `DUAL_REQUIRED` nagroda zlecenia jest przyznawana dopiero po wybraniu
-zarówno obserwacji SAR, jak i optycznej.
-
-## Ograniczenia operacyjne
-
-Planowanie publiczne może używać kierunkowego czasu przejścia pomiędzy
-akwizycjami. Dla Pléiades Neo czas zwrotu jest interpolowany z publicznych
-punktów 10°/7 s, 30°/12 s i 60°/20 s. Model ICEYE uwzględnia podpisany kąt
-obserwacji, zmianę LEFT/RIGHT, zmianę kategorii trybu, stabilizację oraz limit
-akwizycji w modelowanym przelocie. Zlecenia podwójne mogą dodatkowo wymagać
-wykonania SAR i EO w zadanym odstępie czasu. Szczegóły i założenia opisano w
-[`docs/operational_constraints.md`](docs/operational_constraints.md).
-
-## Publiczne orbity, okna dostępu i STK
-
-Zakładka **Orbity publiczne** pobiera GP/OMM z CelesTrak, przechowuje je w
-lokalnym cache i propaguje 4 obiekty ICEYE oraz 2 obiekty Pléiades Neo modelem
-SGP4. Zakładka **Okna dostępu** łączy propagację z Point/Polygon, publicznymi
-zakresami kątowymi sensorów, rozdzielczością, pokryciem i elewacją Słońca.
-
-Zakładka **Okna dostępu** może następnie pobrać godzinową prognozę
-zachmurzenia Open-Meteo dla punktu lub kilku punktów poligonu i utworzyć pełne
-`AcquisitionOpportunity`. Zakładka **Planowanie publiczne** przekazuje te
-okazje bezpośrednio do Greedy albo CP-SAT.
-
-Wyniki są orientacyjnymi oknami geometrycznymi. Zakładka **Walidacja STK**
-eksportuje odtwarzalny przypadek z OMM, AOI i parametrami trybu, a następnie
-importuje raporty Access oraz AER. Program liczy błędy granic okien, długości,
-nakładania, azymutu, elewacji i zasięgu. STK pozostaje narzędziem walidacji,
-a nie jedynym źródłem działania aplikacji. Szczegóły opisano w
-`docs/public_orbits_sgp4.md`, `docs/public_access_windows.md`,
-`docs/public_weather_and_opportunities.md` oraz `docs/stk_validation.md`.
-
-## Uporządkowany układ danych
-
-Dane wejściowe znajdują się w `data/scenarios`, harmonogramy kontrolne w `data/reference_schedules`, a wyniki robocze w ignorowanym przez Git katalogu `data/generated`. Wszystkie ścieżki udostępnia `app.config.paths.ProjectPaths`.
-
-Podstawowe polecenia terminalowe mają wspólny punkt wejścia:
+Tryb CLI:
 
 ```powershell
 python -m app.cli check
 python -m app.cli paths
 python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
+python -m app.cli audit
 ```
 
-Szczegóły opisano w `docs/data_layout_and_cli.md`.
+## Kontrola jakości
 
-## Publiczne profile i definiowanie celów
+```powershell
+pytest -q
+ruff check app tests streamlit_app.py scripts
+python -m app.cli check
+python -m app.cli audit
+```
 
-Zakładka **Cele i zlecenia** udostępnia profile ICEYE oraz Pléiades Neo,
-rysowanie Point/Polygon/Rectangle na mapie, import/eksport GeoJSON i tworzenie
-walidowanych zleceń. Parametry mają jawnie oznaczone pochodzenie. Orbity są
-na tym etapie szablonami oczekującymi na aktualne OMM/TLE i propagację SGP4.
+Raport audytu w JSON:
+
+```powershell
+python -m app.cli audit `
+    --json .\data\generated\reports\project_audit.json
+```
+
+Workflow `.github/workflows/quality.yml` wykonuje te kontrole po każdym pushu i
+pull requeście na Pythonie 3.11.
+
+## Typowy przepływ
+
+```text
+AOI i zlecenia
+    ↓
+publiczne OMM + SGP4
+    ↓
+okna dostępu
+    ↓
+pogoda EO i okazje
+    ↓
+Greedy / CP-SAT
+    ↓
+harmonogram i przeplanowanie
+    ↓
+STK, benchmarki, archiwum projektu i raport
+```
+
+## Struktura
+
+```text
+app/models          modele domenowe i walidacja
+app/config          centralne ścieżki
+app/io              zapis i odczyt danych
+app/integrations    orbity, access, pogoda i STK
+app/planning        Greedy, CP-SAT i ograniczenia
+app/services        przypadki użycia
+app/analysis        KPI, porównania i eksperymenty
+app/projects        archiwa projektów
+app/reporting       HTML, DOCX, XLSX i dane źródłowe
+app/quality         audyt repozytorium i środowiska
+app/ui              interfejs Streamlit
+app/visualization   wizualizacje Plotly
+scripts             skrypty uruchomieniowe
+tests               testy jednostkowe i integracyjne
+docs                dokumentacja
+```
+
+## Dokumentacja
+
+Pełny indeks: [`docs/index.md`](docs/index.md).
+
+Najważniejsze rozdziały:
+
+- [instrukcja użytkownika](docs/user_guide.md),
+- [architektura](docs/architecture.md),
+- [model danych](docs/data_model.md),
+- [model planowania](docs/planning_model.md),
+- [publiczne źródła danych](docs/public_data_sources.md),
+- [metodyka naukowa](docs/scientific_methodology.md),
+- [benchmarking](docs/benchmarking.md),
+- [walidacja STK](docs/stk_validation.md),
+- [ograniczenia modelu](docs/limitations.md),
+- [przewodnik deweloperski](docs/developer_guide.md),
+- [kontrola jakości i wydania](docs/quality_and_release.md),
+- [rozwiązywanie problemów](docs/troubleshooting.md).
+
+## Zakres interpretacji
+
+Okna dostępu i harmonogram są wynikiem modelu opartego na danych publicznych.
+Nie potwierdzają dostępności komercyjnej, rezerwacji taskingu ani wykonania
+akwizycji przez operatora. Zachmurzenie wpływa na EO, nie na SAR. Parametry
+operacyjne ICEYE dotyczące manewrów są jawnymi założeniami badawczymi. STK jest
+narzędziem walidacji i nie jest wymagany do podstawowego działania aplikacji.
+
+## Wersjonowanie
+
+Źródłem wersji jest plik [`VERSION`](VERSION). Historia zmian znajduje się w
+[`CHANGELOG.md`](CHANGELOG.md).
