@@ -48,3 +48,21 @@ python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
 3. Rozpakuj paczkę do katalogu głównego z opcją nadpisania.
 4. Ponownie zainstaluj zależności, jeśli zmieniły się pliki requirements.
 5. Uruchom pełny zestaw kontroli.
+
+
+## Instalacja bez lokalnego Pythona — Docker
+
+Po zainstalowaniu Docker Desktop uruchom:
+
+```powershell
+.\scripts\start_satplan.ps1
+```
+
+Alternatywnie:
+
+```powershell
+docker compose up --build --detach
+```
+
+Pełna instrukcja, trwałe wolumeny, logi i diagnostyka znajdują się w
+[`docker.md`](docker.md).

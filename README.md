@@ -1,6 +1,6 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.0.0-rc1`
+**Wersja:** `1.0.0-rc2`
 
 Aplikacja do wielokryterialnego planowania akwizycji zobrazowań satelitarnych
 SAR i optycznych EO. Łączy publiczne dane orbitalne, propagację SGP4,
@@ -22,7 +22,8 @@ dynamiczne przeplanowanie, walidację STK i eksport wyników naukowych.
 - benchmarki skalowalności Greedy kontra CP-SAT,
 - przenośne archiwa `.satplan.zip` z manifestem SHA-256,
 - raporty HTML, DOCX, XLSX, JSON, CSV i PNG,
-- audyt repozytorium oraz automatyczna kontrola GitHub Actions.
+- audyt repozytorium oraz automatyczna kontrola GitHub Actions,
+- obraz Docker, healthcheck i uruchamianie jednym poleceniem.
 
 ## Instalacja
 
@@ -37,6 +38,14 @@ python -m pip install -r .\requirements-dev.txt
 
 Pełna instrukcja: [`docs/installation.md`](docs/installation.md).
 
+Uruchomienie przez Docker:
+
+```powershell
+.\scripts\start_satplan.ps1
+```
+
+Dokumentacja kontenera: [`docs/docker.md`](docs/docker.md).
+
 ## Uruchomienie
 
 ```powershell
@@ -50,6 +59,7 @@ python -m app.cli check
 python -m app.cli paths
 python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
 python -m app.cli audit
+python -m app.cli health --skip-http
 ```
 
 ## Kontrola jakości
@@ -59,6 +69,7 @@ pytest -q
 ruff check app tests streamlit_app.py scripts
 python -m app.cli check
 python -m app.cli audit
+python -m app.cli health --skip-http
 ```
 
 Raport audytu w JSON:
@@ -69,7 +80,8 @@ python -m app.cli audit `
 ```
 
 Workflow `.github/workflows/quality.yml` wykonuje te kontrole po każdym pushu i
-pull requeście na Pythonie 3.11.
+pull requeście na Pythonie 3.11. Workflow `.github/workflows/docker.yml` buduje
+obraz i wykonuje test uruchomieniowy kontenera.
 
 ## Typowy przepływ
 
@@ -126,7 +138,8 @@ Najważniejsze rozdziały:
 - [ograniczenia modelu](docs/limitations.md),
 - [przewodnik deweloperski](docs/developer_guide.md),
 - [kontrola jakości i wydania](docs/quality_and_release.md),
-- [rozwiązywanie problemów](docs/troubleshooting.md).
+- [rozwiązywanie problemów](docs/troubleshooting.md),
+- [Docker i wdrożenie](docs/docker.md).
 
 ## Zakres interpretacji
 

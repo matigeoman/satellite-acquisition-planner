@@ -1,12 +1,13 @@
 # Dokumentacja Satellite Acquisition Planner
 
-Wersja dokumentacji: `1.0.0-rc1`.
+Wersja dokumentacji: `1.0.0-rc2`.
 
 ## Start
 
 - [Instalacja](installation.md)
 - [Instrukcja użytkownika](user_guide.md)
 - [Rozwiązywanie problemów](troubleshooting.md)
+- [Docker i uruchamianie jednym poleceniem](docker.md)
 
 ## Architektura i dane
 

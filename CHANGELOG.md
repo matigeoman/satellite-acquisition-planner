@@ -3,6 +3,25 @@
 Wszystkie istotne zmiany projektu są dokumentowane w tym pliku. Projekt stosuje
 wersjonowanie zgodne z Semantic Versioning.
 
+## [1.0.0-rc2] — 2026-07-17
+
+### Dodano
+
+- wieloetapowy `Dockerfile` oparty na Pythonie 3.11,
+- `docker-compose.yml` z trwałymi wolumenami, healthcheckiem i portem
+  konfigurowanym przez `SATPLAN_PORT`,
+- skrypty PowerShell i BAT do uruchamiania oraz zatrzymywania aplikacji,
+- polecenie `python -m app.cli health`, które sprawdza Streamlit, CP-SAT, dane
+  referencyjne i możliwość zapisu,
+- workflow GitHub Actions budujący i testujący obraz kontenera,
+- dokumentację wdrożenia, eksportu danych z wolumenów i diagnostyki.
+
+### Zmieniono
+
+- audyt repozytorium kontroluje teraz kompletność konfiguracji Docker,
+- obraz działa jako nieuprzywilejowany użytkownik `satplan`,
+- wersję kandydującą podniesiono do `1.0.0-rc2`.
+
 ## [1.0.0-rc1] — 2026-07-17
 
 ### Dodano

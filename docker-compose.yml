@@ -1,0 +1,40 @@
+name: satellite-acquisition-planner
+
+services:
+  satplan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: 1.0.0-rc2
+    image: satplan:1.0.0-rc2
+    container_name: satplan
+    init: true
+    restart: unless-stopped
+    ports:
+      - "${SATPLAN_PORT:-8501}:8501"
+    environment:
+      STREAMLIT_SERVER_HEADLESS: "true"
+      STREAMLIT_SERVER_ADDRESS: "0.0.0.0"
+      STREAMLIT_SERVER_PORT: "8501"
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
+      TZ: "UTC"
+    volumes:
+      - satplan_generated:/opt/satplan/data/generated
+      - satplan_imports:/opt/satplan/data/imports
+    tmpfs:
+      - /tmp:size=268435456,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.cli", "health", "--quiet"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+volumes:
+  satplan_generated:
+    name: satplan_generated
+  satplan_imports:
+    name: satplan_imports

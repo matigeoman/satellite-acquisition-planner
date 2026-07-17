@@ -31,3 +31,15 @@ python .\scripts\migrate_data_layout.py --apply --remove-legacy
 ```
 
 Skrypt najpierw kopiuje dane do nowej struktury, porównuje pliki źródłowe i docelowe, a dopiero następnie usuwa stare odpowiedniki.
+
+
+## Kontrola środowiska wdrożeniowego
+
+```powershell
+python -m app.cli health --skip-http
+python -m app.cli health --url http://127.0.0.1:8501/_stcore/health
+```
+
+Polecenie sprawdza Pythona, OR-Tools CP-SAT, scenariusz `EXAMPLE`, zapis do
+katalogów trwałych oraz opcjonalnie endpoint Streamlit. Kod wyjścia wynosi `0`
+tylko wtedy, gdy wszystkie wymagane kontrole przechodzą.

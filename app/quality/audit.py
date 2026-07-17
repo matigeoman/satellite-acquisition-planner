@@ -88,7 +88,16 @@ _REQUIRED_PATHS = (
     "data/scenarios",
     "data/reference_schedules",
     "docs/index.md",
+    "docs/docker.md",
+    "Dockerfile",
+    "docker-compose.yml",
+    ".dockerignore",
+    "scripts/start_satplan.ps1",
+    "scripts/start_satplan.bat",
+    "scripts/stop_satplan.ps1",
+    "scripts/stop_satplan.bat",
     ".github/workflows/quality.yml",
+    ".github/workflows/docker.yml",
 )
 
 _REQUIRED_MODULES = (
@@ -129,7 +138,11 @@ _TEXT_SUFFIXES = {
     ".html",
     ".css",
     ".js",
+    ".ps1",
+    ".bat",
 }
+
+_TEXT_FILENAMES = {"Dockerfile", ".dockerignore"}
 
 _EXCLUDED_PARTS = {
     ".git",
@@ -244,7 +257,12 @@ def _check_dependencies(_: ProjectPaths) -> AuditCheck:
 
 def _iter_text_files(root: Path) -> Iterable[Path]:
     for path in root.rglob("*"):
-        if not path.is_file() or path.suffix.lower() not in _TEXT_SUFFIXES:
+        if not path.is_file():
+            continue
+        if (
+            path.suffix.lower() not in _TEXT_SUFFIXES
+            and path.name not in _TEXT_FILENAMES
+        ):
             continue
         relative_parts = path.relative_to(root).parts
         if any(part in _EXCLUDED_PARTS for part in relative_parts):
@@ -281,6 +299,46 @@ def _check_utf8(paths: ProjectPaths) -> AuditCheck:
     return _pass(
         "utf8-and-mojibake",
         f"Pliki tekstowe są poprawnym UTF-8 bez typowych śladów mojibake ({count}).",
+    )
+
+
+def _check_windows_powershell_encoding(paths: ProjectPaths) -> AuditCheck:
+    scripts = (
+        paths.root / "scripts/start_satplan.ps1",
+        paths.root / "scripts/stop_satplan.ps1",
+    )
+    errors: list[str] = []
+
+    for script in scripts:
+        relative = str(script.relative_to(paths.root))
+        try:
+            raw = script.read_bytes()
+        except OSError as error:
+            errors.append(f"{relative}: {error}")
+            continue
+
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError as error:
+            errors.append(f"{relative}: niepoprawny UTF-8: {error}")
+            continue
+
+        contains_non_ascii = any(ord(character) > 127 for character in text)
+        if contains_non_ascii and not raw.startswith(b"\xef\xbb\xbf"):
+            errors.append(
+                f"{relative}: skrypt z polskimi znakami wymaga BOM UTF-8 "
+                "dla Windows PowerShell 5.1"
+            )
+
+    if errors:
+        return _fail(
+            "windows-powershell-encoding",
+            "Skrypty PowerShell nie są zgodne z Windows PowerShell 5.1.",
+            *errors,
+        )
+    return _pass(
+        "windows-powershell-encoding",
+        "Skrypty PowerShell mają kodowanie zgodne z Windows PowerShell 5.1.",
     )
 
 
@@ -345,6 +403,52 @@ def _check_output_layout(paths: ProjectPaths) -> AuditCheck:
     return _pass("output-layout", "Katalogi wynikowe i importowe są dostępne.")
 
 
+def _check_docker_assets(paths: ProjectPaths) -> AuditCheck:
+    dockerfile = paths.root / "Dockerfile"
+    compose = paths.root / "docker-compose.yml"
+    try:
+        docker_text = dockerfile.read_text(encoding="utf-8")
+        compose_text = compose.read_text(encoding="utf-8")
+    except OSError as error:
+        return _fail("docker-assets", "Nie można odczytać konfiguracji Docker.", str(error))
+
+    required_docker_tokens = (
+        "FROM python:3.11-slim",
+        "USER satplan",
+        "HEALTHCHECK",
+        "python -m app.cli health",
+        "streamlit_app.py",
+    )
+    required_compose_tokens = (
+        "services:",
+        "satplan:",
+        "satplan_generated",
+        "satplan_imports",
+        "healthcheck:",
+        "${SATPLAN_PORT:-8501}:8501",
+    )
+    missing = [
+        f"Dockerfile: {token}"
+        for token in required_docker_tokens
+        if token not in docker_text
+    ]
+    missing.extend(
+        f"docker-compose.yml: {token}"
+        for token in required_compose_tokens
+        if token not in compose_text
+    )
+    if missing:
+        return _fail(
+            "docker-assets",
+            "Konfiguracja kontenera nie zawiera wymaganych zabezpieczeń lub usług.",
+            *missing,
+        )
+    return _pass(
+        "docker-assets",
+        "Dockerfile, Compose, trwałe wolumeny i healthcheck są skonfigurowane.",
+    )
+
+
 def _check_legacy_cesium(paths: ProjectPaths) -> AuditCheck:
     legacy = (
         paths.root / "app/visualization/cesium_scene.py",
@@ -366,10 +470,12 @@ _CHECKS: tuple[Callable[[ProjectPaths], AuditCheck], ...] = (
     _check_required_paths,
     _check_dependencies,
     _check_utf8,
+    _check_windows_powershell_encoding,
     _check_json,
     _check_scenarios,
     _check_imports,
     _check_output_layout,
+    _check_docker_assets,
     _check_legacy_cesium,
 )
 

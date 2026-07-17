@@ -23,6 +23,11 @@ def test_release_files_and_documentation_index_exist() -> None:
         "docs/troubleshooting.md",
         "docs/developer_guide.md",
         "docs/quality_and_release.md",
+        "docs/docker.md",
+        "Dockerfile",
+        "docker-compose.yml",
+        ".dockerignore",
+        ".github/workflows/docker.yml",
     )
 
     assert all((PROJECT_ROOT / relative).is_file() for relative in required)

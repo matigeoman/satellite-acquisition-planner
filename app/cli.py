@@ -9,7 +9,7 @@ from app.analysis import export_schedule_analysis
 from app.config.paths import DEFAULT_PATHS, ProjectPaths
 from app.io import save_schedule
 from app.models.enums import PlanningAlgorithm
-from app.quality import run_project_audit
+from app.quality import run_project_audit, run_runtime_healthcheck
 from app.services import PlanningOptions, PlanningService, ScenarioService
 
 
@@ -51,6 +51,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Opcjonalny plik JSON z pełnym wynikiem audytu.",
     )
     audit_parser.set_defaults(handler=_handle_audit)
+
+    health_parser = subparsers.add_parser(
+        "health",
+        help=(
+            "Sprawdza środowisko uruchomieniowe, solver, dane, zapis "
+            "i opcjonalnie endpoint Streamlit."
+        ),
+    )
+    health_parser.add_argument(
+        "--url",
+        default="http://127.0.0.1:8501/_stcore/health",
+        help="Endpoint zdrowia Streamlit sprawdzany w trybie HTTP.",
+    )
+    health_parser.add_argument(
+        "--skip-http",
+        action="store_true",
+        help="Pomija kontrolę endpointu HTTP, np. podczas budowy obrazu.",
+    )
+    health_parser.add_argument(
+        "--timeout",
+        type=float,
+        default=3.0,
+        help="Limit czasu żądania HTTP w sekundach.",
+    )
+    health_parser.add_argument(
+        "--json",
+        type=Path,
+        default=None,
+        dest="json_output",
+        help="Opcjonalny plik JSON z wynikiem kontroli.",
+    )
+    health_parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Nie wypisuje raportu tekstowego; zachowuje kod wyjścia.",
+    )
+    health_parser.set_defaults(handler=_handle_health)
 
     plan_parser = subparsers.add_parser(
         "plan",
@@ -167,6 +204,39 @@ def _handle_audit(args: argparse.Namespace, paths: ProjectPaths) -> int:
     if args.strict and report.warnings:
         return 1
     return 0
+
+
+def _handle_health(args: argparse.Namespace, paths: ProjectPaths) -> int:
+    if args.timeout <= 0:
+        raise ValueError("--timeout musi być dodatni")
+
+    report = run_runtime_healthcheck(
+        paths,
+        streamlit_url=None if args.skip_http else args.url,
+        timeout_s=args.timeout,
+    )
+
+    if not args.quiet:
+        print("KONTROLA ŚRODOWISKA URUCHOMIENIOWEGO")
+        print(f"Wersja aplikacji: {report.application_version}")
+        print(f"Python: {report.python_version}")
+        print()
+        for check in report.checks:
+            marker = "PASS" if check.healthy else "FAIL"
+            print(f"[{marker}] {check.name}: {check.message}")
+        print()
+        print("Stan: HEALTHY" if report.healthy else "Stan: UNHEALTHY")
+
+    if args.json_output is not None:
+        output_path = args.json_output
+        if not output_path.is_absolute():
+            output_path = paths.root / output_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(report.to_json(), encoding="utf-8")
+        if not args.quiet:
+            print(f"Raport JSON: {output_path.resolve()}")
+
+    return 0 if report.healthy else 1
 
 
 def _handle_plan(args: argparse.Namespace, paths: ProjectPaths) -> int:
