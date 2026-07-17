@@ -16,6 +16,7 @@ class ApplicationPage(StrEnum):
     PUBLIC_REPLANNING = "Przeplanowanie publiczne"
     STK_VALIDATION = "Walidacja STK"
     BENCHMARKS = "Benchmarki algorytmów"
+    PROJECTS = "Projekty i scenariusze"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"

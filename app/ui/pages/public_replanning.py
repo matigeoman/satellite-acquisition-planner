@@ -7,6 +7,7 @@ import streamlit as st
 
 from app.integrations.weather import CloudAggregation, OpenMeteoClientError
 from app.models.enums import PlanningAlgorithm
+from app.projects import record_schedule_history
 from app.services.contracts.planning import PlanningOptions, PlanningResult
 from app.services.contracts.public_replanning import PublicReplanningResult
 from app.ui.app_context import get_public_replanning_service
@@ -253,6 +254,12 @@ def render_public_replanning_page() -> None:
             result.refreshed_builds_by_request_id
         )
         st.session_state[_PUBLIC_PLANNING_RESULT_KEY] = result.planning_result
+        record_schedule_history(
+            st.session_state,
+            result.planning_result,
+            event_type="WEATHER_REPLANNING",
+            previous_schedule=previous_result.schedule,
+        )
         st.success(
             "Prognoza została odświeżona, a nowy harmonogram zapisano "
             "w sesji. Globus automatycznie użyje nowego planu."

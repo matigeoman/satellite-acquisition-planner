@@ -5,6 +5,7 @@ import json
 import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
+from app.projects import record_schedule_history
 from app.services.contracts.planning import PlanningOptions, PlanningResult
 from app.services.planning_service import PlanningService
 from app.ui.app_context import (
@@ -249,6 +250,11 @@ def render_public_planning_page() -> None:
             st.exception(error)
             return
         st.session_state[_PUBLIC_PLANNING_RESULT_KEY] = result
+        record_schedule_history(
+            st.session_state,
+            result,
+            event_type="INITIAL_PLANNING",
+        )
         st.success("Planowanie publiczne zakończone.")
 
     result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)

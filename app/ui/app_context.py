@@ -18,6 +18,7 @@ from app.services.public_scenario_service import PublicScenarioService
 from app.services.public_replanning_service import PublicReplanningService
 from app.services.scenario_service import LoadedScenario, ScenarioService
 from app.services.stk_validation_service import StkValidationService
+from app.projects import ProjectArchiveService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
 
@@ -135,6 +136,13 @@ def get_stk_validation_service() -> StkValidationService:
     """Zwraca serwis eksportu i porównania raportów STK."""
 
     return StkValidationService()
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_project_archive_service() -> ProjectArchiveService:
+    """Zwraca serwis przenośnych archiwów projektu."""
+
+    return ProjectArchiveService()
 
 
 @st.cache_resource(scope="session", show_spinner=False)
