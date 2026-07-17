@@ -19,6 +19,7 @@ from app.services.public_replanning_service import PublicReplanningService
 from app.services.scenario_service import LoadedScenario, ScenarioService
 from app.services.stk_validation_service import StkValidationService
 from app.projects import ProjectArchiveService
+from app.reporting import ScientificReportService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
 
@@ -136,6 +137,13 @@ def get_stk_validation_service() -> StkValidationService:
     """Zwraca serwis eksportu i porównania raportów STK."""
 
     return StkValidationService()
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_scientific_report_service() -> ScientificReportService:
+    """Zwraca generator raportów HTML, DOCX, XLSX i CSV."""
+
+    return ScientificReportService()
 
 
 @st.cache_resource(scope="session", show_spinner=False)

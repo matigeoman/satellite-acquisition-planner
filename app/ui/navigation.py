@@ -17,6 +17,7 @@ class ApplicationPage(StrEnum):
     STK_VALIDATION = "Walidacja STK"
     BENCHMARKS = "Benchmarki algorytmów"
     PROJECTS = "Projekty i scenariusze"
+    REPORTS = "Raporty i wyniki"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"
