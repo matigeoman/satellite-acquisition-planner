@@ -16,14 +16,14 @@ htmlcov
 *.zip
 *.log
 
-# Dane wynikowe nie powinny powiększać obrazu. Struktura katalogów zostaje
-# odtworzona przez pliki .gitkeep i kontrolę środowiska aplikacji.
+# Dane wynikowe nie powinny powiÄ™kszaÄ‡ obrazu. Struktura katalogĂłw zostaje
+# odtworzona przez pliki .gitkeep i kontrolÄ™ Ĺ›rodowiska aplikacji.
 data/generated/**
 !data/generated/**/.gitkeep
 data/imports/stk/**
 !data/imports/stk/**/.gitkeep
 
-# Duże lokalne materiały badawcze i eksporty nie są potrzebne w obrazie.
+# DuĹĽe lokalne materiaĹ‚y badawcze i eksporty nie sÄ… potrzebne w obrazie.
 *.pdf
 *.doc
 *.docx
@@ -58,7 +58,7 @@ data/imports/stk/**
 *.bz2
 *.xz
 
-# Lokalne środowiska i katalogi robocze.
+# Lokalne Ĺ›rodowiska i katalogi robocze.
 .conda
 .conda/**
 env
@@ -81,3 +81,6 @@ research
 research/**
 downloads
 downloads/**
+
+# Required by in-image release audit
+!.gitignore
