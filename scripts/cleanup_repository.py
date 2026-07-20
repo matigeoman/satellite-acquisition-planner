@@ -18,6 +18,15 @@ LEGACY_PATHS = (
     "tests/test_cesium_scene.py",
 )
 
+TRANSIENT_EXACT = (
+    "HOTFIX_README.txt",
+    "RECOVERY_README.txt",
+    "README_STAGE17_WINDOWS.txt",
+    "run_stage17_checks.ps1",
+    "report.docx",
+)
+
+
 TRANSIENT_PATTERNS = (
     "*_NOTES.txt",
     "satplan-*.zip",
@@ -30,6 +39,10 @@ def discover_cleanup_targets(root: Path) -> tuple[Path, ...]:
     for relative in LEGACY_PATHS:
         path = root / relative
         if path.exists():
+            targets.add(path)
+    for relative in TRANSIENT_EXACT:
+        path = root / relative
+        if path.is_file():
             targets.add(path)
     for pattern in TRANSIENT_PATTERNS:
         for path in root.rglob(pattern):
@@ -54,7 +67,7 @@ def remove_targets(paths: Iterable[Path]) -> tuple[Path, ...]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Usuwa historyczny renderer Cesium i tymczasowe artefakty etapów."
+            "Usuwa historyczny renderer Cesium, hotfixy i tymczasowe artefakty etapów."
         )
     )
     parser.add_argument(

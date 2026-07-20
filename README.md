@@ -1,6 +1,8 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.0.0-rc4`
+**Wersja:** `1.0.0` — wydanie stabilne
+
+Informacje o zakresie wydania, walidacji i znanych ograniczeniach: [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
 
 Aplikacja do wielokryterialnego planowania akwizycji zobrazowań satelitarnych
 SAR i optycznych EO. Łączy publiczne dane orbitalne, propagację SGP4,
@@ -68,12 +70,27 @@ python -m app.cli release-check --algorithm GREEDY
 
 ## Kontrola jakości
 
+Pełna kontrola wydania na Windows/PowerShell:
+
+```powershell
+.\scripts\verify_release.ps1
+```
+
+Kontrola wraz z czystym buildem Dockera:
+
+```powershell
+.\scripts\verify_release.ps1 -Docker -NoCache
+```
+
+Polecenia składowe:
+
 ```powershell
 pytest -q
 ruff check app tests streamlit_app.py scripts
 python -m app.cli check
-python -m app.cli audit
+python -m app.cli audit --strict
 python -m app.cli health --skip-http
+python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
 ```
 
 Raport audytu w JSON:
@@ -143,6 +160,7 @@ Najważniejsze rozdziały:
 - [walidacja STK](docs/stk_validation.md),
 - [ograniczenia modelu](docs/limitations.md),
 - [przewodnik deweloperski](docs/developer_guide.md),
+- [informacje o wydaniu 1.0.0](RELEASE_NOTES.md),
 - [kontrola jakości i wydania](docs/quality_and_release.md),
 - [rozwiązywanie problemów](docs/troubleshooting.md),
 - [Docker i wdrożenie](docs/docker.md),

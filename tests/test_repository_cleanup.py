@@ -4,6 +4,7 @@ from pathlib import Path
 
 from scripts.cleanup_repository import (
     LEGACY_PATHS,
+    TRANSIENT_EXACT,
     discover_cleanup_targets,
     remove_targets,
 )
@@ -26,9 +27,14 @@ def test_cleanup_discovers_legacy_and_nested_transient_files(tmp_path: Path) -> 
     backup = tmp_path / "app" / "ui" / "page.py.bak-stage10"
     backup.parent.mkdir(parents=True, exist_ok=True)
     backup.write_text("backup", encoding="utf-8")
+    hotfix = tmp_path / TRANSIENT_EXACT[0]
+    hotfix.write_text("temporary hotfix", encoding="utf-8")
+    report = tmp_path / "report.docx"
+    report.write_bytes(b"temporary report")
 
     targets = discover_cleanup_targets(tmp_path)
 
-    assert set(targets) == {legacy, note, backup}
-    assert set(remove_targets(targets)) == {legacy, note, backup}
+    expected = {legacy, note, backup, hotfix, report}
+    assert set(targets) == expected
+    assert set(remove_targets(targets)) == expected
     assert not any(path.exists() for path in targets)

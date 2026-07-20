@@ -10,6 +10,7 @@ def test_release_files_and_documentation_index_exist() -> None:
     required = (
         "VERSION",
         "CHANGELOG.md",
+        "RELEASE_NOTES.md",
         "docs/index.md",
         "docs/installation.md",
         "docs/user_guide.md",
@@ -30,6 +31,7 @@ def test_release_files_and_documentation_index_exist() -> None:
         "app/quality/release_check.py",
         "scripts/generate_poland_demo.py",
         "scripts/verify_poland_demo.ps1",
+        "scripts/verify_release.ps1",
         "data/scenarios/poland_demo/system.json",
         "data/scenarios/poland_demo/requests.json",
         "data/scenarios/poland_demo/opportunities.json",
@@ -60,7 +62,7 @@ def test_quality_workflow_runs_all_project_checks() -> None:
     assert "ruff check app tests streamlit_app.py scripts" in workflow
     assert "python -m app.cli check" in workflow
     assert "python -m app.cli audit --strict" in workflow
-    assert "python -m app.cli release-check --algorithm GREEDY" in workflow
+    assert "python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2" in workflow
 
 
 def test_documentation_contains_mermaid_architecture_diagrams() -> None:

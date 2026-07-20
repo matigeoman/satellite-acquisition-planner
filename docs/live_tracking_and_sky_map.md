@@ -124,7 +124,7 @@ sprawdza dodatkowo:
 
 ## Utwardzenie Stage 17.3
 
-Wersja `1.0.0-rc4` dodaje wymuszone odświeżanie OMM, jawne metadane źródła
+Wersja `1.0.0` obejmuje wymuszone odświeżanie OMM, jawne metadane źródła
 i cache, ranking przelotów oraz filtry operacyjne. Wynik jakości `0–100` łączy
 maksymalną elewację, czas powyżej 10°, długość przelotu, minimalną odległość
 i szacowaną widoczność optyczną. Jest to metryka porównawcza planera, a nie

@@ -3,6 +3,24 @@
 Wszystkie istotne zmiany projektu są dokumentowane w tym pliku. Projekt stosuje
 wersjonowanie zgodne z Semantic Versioning.
 
+## [1.0.0] — 2026-07-20
+
+### Wydanie stabilne
+
+- zakończono walidację pełnego pipeline'u AOI → OMM/SGP4 → access → pogoda EO → okazje → Greedy/CP-SAT → przeplanowanie → archiwum projektu → raport;
+- potwierdzono działanie scenariusza `POLAND_DEMO`, mapy nieba, śledzenia satelitów, trybu offline i kontenera Docker;
+- ujednolicono wersję aplikacji, obrazu Docker, Compose, workflow CI i dokumentacji do `1.0.0`;
+- dodano `RELEASE_NOTES.md` oraz skrypt `scripts/verify_release.ps1` do powtarzalnej walidacji wydania;
+- rozszerzono kontrolę GitHub Actions o oba algorytmy planowania i kontrolę wydania wewnątrz kontenera;
+- usunięto tymczasową instrukcję hotfixa i przypadkowo śledzony raport DOCX z katalogu głównego;
+- zaostrzono audyt i skrypt sprzątający, aby ponownie nie dopuścić takich artefaktów do wydania.
+
+### Zgodność i ograniczenia
+
+- referencyjne środowisko: Python 3.11;
+- dane OMM/SGP4, geometria sensorów, pogoda i parametry manewrowe pozostają modelami badawczymi opisanymi w `docs/limitations.md`;
+- wynik planera nie stanowi potwierdzenia komercyjnego taskingu ani wykonania akwizycji.
+
 ## [1.0.0-rc4] — 2026-07-20
 
 ### Dodano

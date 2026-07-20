@@ -53,7 +53,7 @@ def test_release_version_is_consistent_in_container_assets() -> None:
     compose = _read("docker-compose.yml")
     workflow = _read(".github/workflows/docker.yml")
 
-    assert version == "1.0.0-rc4"
+    assert version == "1.0.0"
     assert f"ARG APP_VERSION={version}" in dockerfile
     assert f"image: satplan:{version}" in compose
     assert f"APP_VERSION={version}" in workflow

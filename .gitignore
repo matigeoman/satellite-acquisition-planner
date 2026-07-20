@@ -23,3 +23,10 @@ data/imports/stk/**
 *.exe
 *.msi
 *.bak-stage*
+
+# Temporary recovery and generated root artifacts
+HOTFIX_README.txt
+RECOVERY_README.txt
+README_STAGE17_WINDOWS.txt
+run_stage17_checks.ps1
+/report.docx

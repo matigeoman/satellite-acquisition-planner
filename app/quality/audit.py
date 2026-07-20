@@ -80,6 +80,7 @@ _REQUIRED_PATHS = (
     "README.md",
     "VERSION",
     "CHANGELOG.md",
+    "RELEASE_NOTES.md",
     "pyproject.toml",
     "requirements.txt",
     "requirements-ui.txt",
@@ -104,6 +105,7 @@ _REQUIRED_PATHS = (
     "app/quality/release_check.py",
     "docs/demo_and_release_check.md",
     "scripts/cleanup_repository.py",
+    "scripts/verify_release.ps1",
 )
 
 _REQUIRED_MODULES = (
@@ -493,6 +495,11 @@ def _check_repository_cleanliness(paths: ProjectPaths) -> AuditCheck:
         "app/ui/assets/earth_fallback.jpg",
         "docs/cesium_3d_globe.md",
         "tests/test_cesium_scene.py",
+        "HOTFIX_README.txt",
+        "RECOVERY_README.txt",
+        "README_STAGE17_WINDOWS.txt",
+        "run_stage17_checks.ps1",
+        "report.docx",
     }
     forbidden_suffixes = (".bak-stage", ".exe", ".msi")
     problems: list[str] = []
@@ -520,7 +527,7 @@ def _check_repository_cleanliness(paths: ProjectPaths) -> AuditCheck:
         )
     return _pass(
         "repository-cleanliness",
-        "Brak śledzonych notatek etapów, paczek roboczych i modułów Cesium.",
+        "Brak śledzonych hotfixów, raportów roboczych, paczek etapów i modułów Cesium.",
     )
 
 

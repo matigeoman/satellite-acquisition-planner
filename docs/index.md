@@ -1,6 +1,8 @@
 # Dokumentacja Satellite Acquisition Planner
 
-Wersja dokumentacji: `1.0.0-rc4`.
+Wersja dokumentacji: `1.0.0`.
+
+Informacje o wydaniu stabilnym: [`RELEASE_NOTES.md`](../RELEASE_NOTES.md).
 
 ## Start
 
