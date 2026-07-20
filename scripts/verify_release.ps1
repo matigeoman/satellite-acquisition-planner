@@ -54,8 +54,8 @@ function Wait-ContainerHealthy {
 }
 
 $Version = (Get-Content .\VERSION -Raw).Trim()
-if ($Version -ne "1.0.0") {
-    throw "Expected VERSION=1.0.0, found '$Version'."
+if ($Version -ne "1.0.1") {
+    throw "Expected VERSION=1.0.1, found '$Version'."
 }
 
 Write-Host "Project: $ProjectRoot"
@@ -129,4 +129,4 @@ if ($Docker) {
 }
 
 Write-Host ""
-Write-Host "FINAL RELEASE 1.0.0: READY"
+Write-Host "FINAL RELEASE 1.0.1: READY"

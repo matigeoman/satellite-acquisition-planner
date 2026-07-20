@@ -6,7 +6,7 @@ def test_orbit_page_is_registered() -> None:
     application = Path("streamlit_app.py").read_text(encoding="utf-8")
     pages = Path("app/ui/pages/__init__.py").read_text(encoding="utf-8")
 
-    assert 'ORBITS = "Orbity publiczne"' in navigation
+    assert 'ORBITS = "Orbity i dane OMM"' in navigation
     assert "ApplicationPage.ORBITS" in application
     assert "render_orbits_page" in pages
 
@@ -18,15 +18,11 @@ def test_sgp4_dependency_is_declared() -> None:
 
 
 def test_large_interface_scale_and_map_controls_are_present() -> None:
-    stylesheet = Path("app/ui/assets/application.css").read_text(
-        encoding="utf-8"
-    )
-    aoi_editor = Path("app/ui/components/aoi_editor.py").read_text(
-        encoding="utf-8"
-    )
+    stylesheet = Path("app/ui/assets/application.css").read_text(encoding="utf-8")
+    aoi_editor = Path("app/ui/components/aoi_editor.py").read_text(encoding="utf-8")
 
     assert "font-size: 20px" in stylesheet
     assert "min-width: 410px" in stylesheet
-    assert "[data-testid=\"stIconMaterial\"]" in stylesheet
+    assert '[data-testid="stIconMaterial"]' in stylesheet
     assert "height=700" in aoi_editor
     assert ".leaflet-draw-toolbar a" in aoi_editor

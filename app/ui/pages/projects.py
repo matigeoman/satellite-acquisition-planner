@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 
 import pandas as pd
 import streamlit as st
@@ -56,7 +55,7 @@ def _render_current_state() -> None:
     columns[2].metric("Okna dostępu", windows)
     columns[3].metric("Akwizycje w planie", entries)
     columns[4].metric("Wersje planu", versions)
-    columns[5].metric("Snapshot orbit", "Tak" if orbit_snapshot else "Nie")
+    columns[5].metric("Dane orbitalne", "Tak" if orbit_snapshot else "Nie")
 
     component_rows = [
         {
@@ -64,19 +63,15 @@ def _render_current_state() -> None:
             "Stan": "zapisany" if AOI_STATE_KEY in st.session_state else "brak",
         },
         {
-            "Komponent": "Orbity publiczne",
+            "Komponent": "Orbity i dane OMM",
             "Stan": (
-                "zapisane"
-                if ORBIT_SNAPSHOT_STATE_KEY in st.session_state
-                else "brak"
+                "zapisane" if ORBIT_SNAPSHOT_STATE_KEY in st.session_state else "brak"
             ),
         },
         {
-            "Komponent": "Planowanie publiczne",
+            "Komponent": "Planowanie na danych publicznych",
             "Stan": (
-                "zapisane"
-                if PLANNING_RESULT_STATE_KEY in st.session_state
-                else "brak"
+                "zapisane" if PLANNING_RESULT_STATE_KEY in st.session_state else "brak"
             ),
         },
         {
@@ -90,9 +85,7 @@ def _render_current_state() -> None:
         {
             "Komponent": "Benchmark",
             "Stan": (
-                "zapisany"
-                if BENCHMARK_RESULT_STATE_KEY in st.session_state
-                else "brak"
+                "zapisany" if BENCHMARK_RESULT_STATE_KEY in st.session_state else "brak"
             ),
         },
     ]
@@ -280,9 +273,7 @@ def _render_history() -> None:
             "Algorytm": item.get("algorithm", ""),
             "Status solvera": item.get("solver_status", ""),
             "Cel": item.get("objective_value", 0.0),
-            "Zrealizowane zlecenia": item.get(
-                "fully_satisfied_requests", 0
-            ),
+            "Zrealizowane zlecenia": item.get("fully_satisfied_requests", 0),
             "Akwizycje": item.get("total_acquisitions", 0),
             "Dodane": len(item.get("added_opportunity_ids", ())),
             "Usunięte": len(item.get("removed_opportunity_ids", ())),
@@ -302,7 +293,7 @@ def _render_clear_project() -> None:
     service = get_project_archive_service()
     with st.expander("Wyczyść bieżący projekt", expanded=False):
         st.warning(
-            "Usunięte zostaną AOI, zlecenia, snapshot orbit, okna, okazje, "
+            "Usunięte zostaną AOI, zlecenia, dane orbitalne, okna, okazje, "
             "harmonogram, przeplanowanie, benchmark i historia wersji."
         )
         confirmation = st.text_input(
@@ -323,9 +314,9 @@ def _render_clear_project() -> None:
 def render_projects_page() -> None:
     """Zarządza pełnym eksportem i odtworzeniem projektu SatPlan."""
 
-    st.header("Projekty i scenariusze")
+    st.header("Projekty")
     st.info(
-        "Zapisuje bieżący pipeline od AOI i zleceń przez snapshot OMM, "
+        "Zapisuje bieżący przepływ od AOI i zleceń przez dane OMM, "
         "okna dostępu, pogodę i okazje aż do harmonogramu, historii "
         "przeplanowania oraz benchmarku."
     )
@@ -342,7 +333,7 @@ def render_projects_page() -> None:
     st.divider()
     _render_clear_project()
     st.caption(
-        "Snapshot projektu jest deterministycznym zapisem danych wejściowych "
+        "Archiwum projektu jest deterministycznym zapisem danych wejściowych "
         "użytych w obliczeniach; bieżące źródła publiczne mogą później ulec zmianie."
     )
 

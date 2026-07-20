@@ -38,8 +38,7 @@ def _snapshot_table(snapshot) -> pd.DataFrame:
                 "Wiek elementów [h]": round(
                     max(
                         0.0,
-                        (now - satellite.record.epoch_utc).total_seconds()
-                        / 3600.0,
+                        (now - satellite.record.epoch_utc).total_seconds() / 3600.0,
                     ),
                     1,
                 ),
@@ -63,13 +62,13 @@ def _cache_status(snapshot) -> None:
     columns = st.columns(len(snapshot.queries))
     for column, query in zip(columns, snapshot.queries):
         age_hours = query.age_seconds / 3600.0
-        source = "cache lokalny" if query.from_cache else "CelesTrak online"
+        source = "pamięć lokalna" if query.from_cache else "CelesTrak online"
         state = "przeterminowany" if query.is_stale else "aktualny"
         with column.container(border=True):
             st.markdown(f"**{query.query_name}**")
             metric_columns = st.columns(2)
             metric_columns[0].metric("Rekordy", len(query.records))
-            metric_columns[1].metric("Wiek cache", f"{age_hours:.1f} h")
+            metric_columns[1].metric("Wiek danych", f"{age_hours:.1f} h")
             st.caption(f"Źródło: {source} · status: {state}")
 
     for warning in snapshot.warnings:
@@ -79,7 +78,7 @@ def _cache_status(snapshot) -> None:
 def render_orbits_page() -> None:
     """Renderuje publiczne OMM i propagację SGP4 w czytelnym układzie."""
 
-    st.header("Publiczne orbity i propagacja SGP4")
+    st.header("Orbity i dane OMM")
     st.info(
         "Moduł pobiera publiczne elementy GP/OMM dla 4 satelitów ICEYE "
         "i 2 satelitów Pléiades Neo. Są to dane do modelowania i "
@@ -101,9 +100,9 @@ def render_orbits_page() -> None:
             value=60,
         )
         offline = controls[2].toggle(
-            "Tylko lokalny cache",
+            "Tylko dane lokalne",
             value=False,
-            help="Nie łączy się z CelesTrak. Wymaga wcześniejszego cache.",
+            help="Nie łączy się z CelesTrak. Wymaga wcześniej zapisanych danych.",
         )
         refresh_clicked = controls[3].button(
             "Pobierz lub odśwież OMM",
@@ -115,16 +114,13 @@ def render_orbits_page() -> None:
     if snapshot is None or refresh_clicked:
         try:
             with st.spinner("Pobieranie i walidacja danych CelesTrak..."):
-                snapshot = load_public_orbit_snapshot(
-                    allow_network=not offline
-                )
+                snapshot = load_public_orbit_snapshot(allow_network=not offline)
         except CelestrakClientError as error:
             st.error(str(error))
             st.stop()
 
     sar_count = sum(
-        satellite.family == SatelliteFamily.ICEYE
-        for satellite in snapshot.satellites
+        satellite.family == SatelliteFamily.ICEYE for satellite in snapshot.satellites
     )
     eo_count = sum(
         satellite.family == SatelliteFamily.PLEIADES_NEO
@@ -135,7 +131,7 @@ def render_orbits_page() -> None:
     summary[1].metric("ICEYE SAR", sar_count)
     summary[2].metric("Pléiades Neo EO", eo_count)
     summary[3].metric(
-        "Snapshot UTC",
+        "Czas zestawu UTC",
         snapshot.generated_at_utc.strftime("%H:%M:%S"),
     )
 

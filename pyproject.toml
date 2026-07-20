@@ -15,12 +15,11 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# Pierwszy etap lintingu obejmuje błędy składniowe, niezdefiniowane nazwy
-# i pozostałe podstawowe problemy. Bardziej restrykcyjne reguły będą
-# włączane stopniowo po uporządkowaniu starszych modułów.
+# Reguły skoncentrowane na błędach wykonania, niezdefiniowanych nazwach
+# i zbędnych importach. Długość wierszy pozostaje obsługiwana przez formatter.
 select = ["E4", "E7", "E9", "F"]
-ignore = [
-    "E402",  # streamlit_app.py ustawia sys.path przed importem modułów app
-    "E501",  # długość wierszy będzie porządkowana osobnym etapem
-    "F401",  # część __init__.py celowo udostępnia publiczne importy
-]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"streamlit_app.py" = ["E402"]
+"app/**/__init__.py" = ["F401"]

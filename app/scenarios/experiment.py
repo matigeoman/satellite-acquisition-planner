@@ -9,7 +9,6 @@ from app.models.catalog import SystemCatalog
 from app.models.enums import RequestMode, SensorType
 from app.models.opportunity import AcquisitionOpportunity
 from app.models.opportunity_set import AcquisitionOpportunitySet
-from app.models.request import ObservationRequest
 from app.models.request_set import ObservationRequestSet
 from app.services.scenario_service import (
     LoadedScenario,
@@ -31,34 +30,23 @@ class ExperimentProfile:
         normalized_name = self.name.strip()
 
         if not normalized_id:
-            raise ValueError(
-                "profile_id nie może być pusty"
-            )
+            raise ValueError("profile_id nie może być pusty")
 
         if not all(
-            character.isalnum() or character == "-"
-            for character in normalized_id
+            character.isalnum() or character == "-" for character in normalized_id
         ):
             raise ValueError(
-                "profile_id może zawierać wyłącznie "
-                "litery, cyfry i myślniki"
+                "profile_id może zawierać wyłącznie litery, cyfry i myślniki"
             )
 
         if not normalized_name:
-            raise ValueError(
-                "name nie może być puste"
-            )
+            raise ValueError("name nie może być puste")
 
         if not 0.0 < self.resource_ratio <= 1.0:
-            raise ValueError(
-                "resource_ratio musi należeć do zakresu (0, 1]"
-            )
+            raise ValueError("resource_ratio musi należeć do zakresu (0, 1]")
 
         if not 0.0 <= self.opportunity_dropout_ratio < 1.0:
-            raise ValueError(
-                "opportunity_dropout_ratio musi należeć "
-                "do zakresu [0, 1)"
-            )
+            raise ValueError("opportunity_dropout_ratio musi należeć do zakresu [0, 1)")
 
         object.__setattr__(
             self,
@@ -108,40 +96,26 @@ class ExperimentScenarioVariant:
 
     def __post_init__(self) -> None:
         if self.random_seed < 0:
-            raise ValueError(
-                "random_seed nie może być ujemny"
-            )
+            raise ValueError("random_seed nie może być ujemny")
 
         count_values = {
             "source_feasible_opportunity_count": (
                 self.source_feasible_opportunity_count
             ),
-            "feasible_opportunity_count": (
-                self.feasible_opportunity_count
-            ),
-            "dropped_opportunity_count": (
-                self.dropped_opportunity_count
-            ),
-            "protected_opportunity_count": (
-                self.protected_opportunity_count
-            ),
+            "feasible_opportunity_count": (self.feasible_opportunity_count),
+            "dropped_opportunity_count": (self.dropped_opportunity_count),
+            "protected_opportunity_count": (self.protected_opportunity_count),
         }
 
         for name, value in count_values.items():
             if value < 0:
-                raise ValueError(
-                    f"{name} nie może być ujemne"
-                )
+                raise ValueError(f"{name} nie może być ujemne")
 
         if (
-            self.feasible_opportunity_count
-            + self.dropped_opportunity_count
+            self.feasible_opportunity_count + self.dropped_opportunity_count
             != self.source_feasible_opportunity_count
         ):
-            raise ValueError(
-                "Liczba okazji po degradacji jest niespójna"
-            )
-
+            raise ValueError("Liczba okazji po degradacji jest niespójna")
 
 
 def build_experiment_variant(
@@ -160,9 +134,7 @@ def build_experiment_variant(
     """
 
     if random_seed < 0:
-        raise ValueError(
-            "random_seed nie może być ujemny"
-        )
+        raise ValueError("random_seed nie może być ujemny")
 
     catalog = _build_experiment_catalog(
         base_catalog=base_scenario.catalog,
@@ -191,12 +163,8 @@ def build_experiment_variant(
     )
 
     definition = ScenarioDefinition(
-        scenario_id=(
-            f"EXPERIMENT-{profile.profile_id}-{random_seed}"
-        ),
-        name=(
-            f"Eksperyment {profile.profile_id}, seed {random_seed}"
-        ),
+        scenario_id=(f"EXPERIMENT-{profile.profile_id}-{random_seed}"),
+        name=(f"Eksperyment {profile.profile_id}, seed {random_seed}"),
         description=(
             f"Wariant scenariusza {base_scenario.scenario_id}; "
             f"zasoby={profile.resource_ratio:.2f}, "
@@ -205,9 +173,7 @@ def build_experiment_variant(
         ),
         catalog_path=Path("in_memory") / "catalog.json",
         request_set_path=Path("in_memory") / "requests.json",
-        opportunity_set_path=(
-            Path("in_memory") / "opportunities.json"
-        ),
+        opportunity_set_path=(Path("in_memory") / "opportunities.json"),
     )
 
     scenario = LoadedScenario(
@@ -217,27 +183,18 @@ def build_experiment_variant(
         opportunity_set=opportunity_set,
     )
 
-    source_feasible_count = len(
-        base_scenario.opportunity_set.feasible_opportunities
-    )
-    feasible_count = len(
-        opportunity_set.feasible_opportunities
-    )
+    source_feasible_count = len(base_scenario.opportunity_set.feasible_opportunities)
+    feasible_count = len(opportunity_set.feasible_opportunities)
 
     return ExperimentScenarioVariant(
         scenario=scenario,
         profile=profile,
         random_seed=random_seed,
-        source_feasible_opportunity_count=(
-            source_feasible_count
-        ),
+        source_feasible_opportunity_count=(source_feasible_count),
         feasible_opportunity_count=feasible_count,
-        dropped_opportunity_count=(
-            source_feasible_count - feasible_count
-        ),
+        dropped_opportunity_count=(source_feasible_count - feasible_count),
         protected_opportunity_count=len(protected_ids),
     )
-
 
 
 def _build_experiment_catalog(
@@ -250,9 +207,7 @@ def _build_experiment_catalog(
 
     suffix = f"{profile.profile_id}-{random_seed}"
     data["catalog_id"] = f"CATALOG-EXP-{suffix}"
-    data["name"] = (
-        f"{base_catalog.name} — eksperyment {profile.profile_id}"
-    )
+    data["name"] = f"{base_catalog.name} — eksperyment {profile.profile_id}"
     data["version"] = "1.0.0"
     data["notes"] = (
         "EXPERIMENT|"
@@ -262,36 +217,26 @@ def _build_experiment_catalog(
     )
 
     for satellite in data["satellites"]:
-        initial_usage = float(
-            satellite["initial_memory_usage_mb"]
-        )
-        capacity = float(
-            satellite["memory_capacity_mb"]
-        )
+        initial_usage = float(satellite["initial_memory_usage_mb"])
+        capacity = float(satellite["memory_capacity_mb"])
         available_memory = capacity - initial_usage
 
         satellite["memory_capacity_mb"] = round(
-            initial_usage
-            + available_memory * profile.resource_ratio,
+            initial_usage + available_memory * profile.resource_ratio,
             6,
         )
         satellite["max_acquisitions_per_day"] = max(
             1,
             math.floor(
-                int(satellite["max_acquisitions_per_day"])
-                * profile.resource_ratio
+                int(satellite["max_acquisitions_per_day"]) * profile.resource_ratio
             ),
         )
         satellite["max_imaging_time_per_day_s"] = round(
-            float(
-                satellite["max_imaging_time_per_day_s"]
-            )
-            * profile.resource_ratio,
+            float(satellite["max_imaging_time_per_day_s"]) * profile.resource_ratio,
             6,
         )
 
     return SystemCatalog.model_validate(data)
-
 
 
 def _build_experiment_request_set(
@@ -304,19 +249,11 @@ def _build_experiment_request_set(
 
     suffix = f"{profile.profile_id}-{random_seed}"
     data["request_set_id"] = f"REQSET-EXP-{suffix}"
-    data["name"] = (
-        f"{base_request_set.name} — eksperyment "
-        f"{profile.profile_id}"
-    )
+    data["name"] = f"{base_request_set.name} — eksperyment {profile.profile_id}"
     data["version"] = "1.0.0"
-    data["notes"] = (
-        "EXPERIMENT|"
-        f"PROFILE={profile.profile_id}|"
-        f"SEED={random_seed}"
-    )
+    data["notes"] = f"EXPERIMENT|PROFILE={profile.profile_id}|SEED={random_seed}"
 
     return ObservationRequestSet.model_validate(data)
-
 
 
 def _build_experiment_opportunity_set(
@@ -335,10 +272,7 @@ def _build_experiment_opportunity_set(
     data["opportunity_set_id"] = f"OPPSET-EXP-{suffix}"
     data["catalog_id"] = catalog.catalog_id
     data["request_set_id"] = request_set.request_set_id
-    data["name"] = (
-        f"{base_opportunity_set.name} — eksperyment "
-        f"{profile.profile_id}"
-    )
+    data["name"] = f"{base_opportunity_set.name} — eksperyment {profile.profile_id}"
     data["version"] = "1.0.0"
     data["random_seed"] = random_seed
     data["notes"] = (
@@ -362,23 +296,17 @@ def _build_experiment_opportunity_set(
             continue
 
         opportunity_data["is_feasible"] = False
-        reasons = list(
-            opportunity_data.get("infeasibility_reasons")
-            or []
-        )
+        reasons = list(opportunity_data.get("infeasibility_reasons") or [])
         reasons.append("EXPERIMENTAL_UNAVAILABILITY")
         opportunity_data["infeasibility_reasons"] = reasons
 
-    opportunity_set = AcquisitionOpportunitySet.model_validate(
-        data
-    )
+    opportunity_set = AcquisitionOpportunitySet.model_validate(data)
     opportunity_set.validate_against(
         catalog,
         request_set,
     )
 
     return opportunity_set
-
 
 
 def _select_protected_opportunities(
@@ -415,9 +343,7 @@ def _select_protected_opportunities(
                     sensor_type=sensor_type,
                 )
                 if selected is not None:
-                    protected_ids.add(
-                        selected.opportunity_id
-                    )
+                    protected_ids.add(selected.opportunity_id)
             continue
 
         selected = _best_opportunity(
@@ -430,12 +356,9 @@ def _select_protected_opportunities(
         )
 
         if selected is not None:
-            protected_ids.add(
-                selected.opportunity_id
-            )
+            protected_ids.add(selected.opportunity_id)
 
     return protected_ids
-
 
 
 def _best_opportunity(
@@ -446,10 +369,7 @@ def _best_opportunity(
     candidates = [
         opportunity
         for opportunity in opportunities
-        if (
-            sensor_type is None
-            or opportunity.sensor_type == sensor_type
-        )
+        if (sensor_type is None or opportunity.sensor_type == sensor_type)
     ]
 
     if not candidates:

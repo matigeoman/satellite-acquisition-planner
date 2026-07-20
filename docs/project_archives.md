@@ -1,6 +1,6 @@
 # Przenośne projekty SatPlan
 
-Moduł **Projekty i scenariusze** zapisuje stan operacyjny aplikacji do jednego
+Moduł **Projekty** zapisuje stan operacyjny aplikacji do jednego
 archiwum ZIP. Import jest transakcyjny: bieżąca sesja jest zmieniana dopiero po
 sprawdzeniu struktury ZIP, wersji schematu, sum SHA-256 oraz relacji domenowych.
 

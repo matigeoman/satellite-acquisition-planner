@@ -1,49 +1,47 @@
 # Dokumentacja Satellite Acquisition Planner
 
-Wersja dokumentacji: `1.0.0`.
+Wersja dokumentacji: `1.0.1`.
 
-Informacje o wydaniu stabilnym: [`RELEASE_NOTES.md`](../RELEASE_NOTES.md).
-
-## Start
+## Pierwsze kroki
 
 - [Instalacja](installation.md)
 - [Instrukcja użytkownika](user_guide.md)
+- [Scenariusz demonstracyjny POLAND_DEMO](demo_and_release_check.md)
+- [Docker](docker.md)
 - [Rozwiązywanie problemów](troubleshooting.md)
-- [Docker i uruchamianie jednym poleceniem](docker.md)
 
-## Architektura i dane
+## Architektura
 
 - [Architektura systemu](architecture.md)
+- [Struktura projektu](project_structure.md)
+- [Architektura analizy i usług](analysis_and_services.md)
+- [Architektura interfejsu Streamlit](ui_architecture.md)
 - [Model danych](data_model.md)
 - [Model planowania](planning_model.md)
-- [Struktura projektu](project_structure.md)
-- [Wejście/wyjście i ścieżki](io_and_paths.md)
+- [Warstwa I/O i ścieżki](io_and_paths.md)
 - [Układ danych i CLI](data_layout_and_cli.md)
 
-## Integracje publiczne
+## Dane i integracje
 
 - [Źródła danych publicznych](public_data_sources.md)
 - [Profile sensorów i AOI](public_profiles_and_aoi.md)
-- [Orbity publiczne i SGP4](public_orbits_sgp4.md)
+- [Orbity OMM i SGP4](public_orbits_sgp4.md)
 - [Śledzenie satelitów i mapa nieba](live_tracking_and_sky_map.md)
 - [Okna dostępu](public_access_windows.md)
 - [Pogoda i okazje akwizycyjne](public_weather_and_opportunities.md)
-- [Walidacja STK](stk_validation.md)
+- [Walidacja względem STK](stk_validation.md)
 
-## Eksperymenty i wyniki
+## Planowanie i badania
 
-- [Metodyka naukowa](scientific_methodology.md)
-- [Benchmarking](benchmarking.md)
 - [Ograniczenia operacyjne](operational_constraints.md)
-- [Archiwa projektów](project_archives.md)
+- [Benchmarking Greedy i CP-SAT](benchmarking.md)
+- [Metodyka naukowa](scientific_methodology.md)
 - [Raporty naukowe](scientific_reports.md)
+- [Archiwa projektów](project_archives.md)
 - [Ograniczenia i zakres interpretacji](limitations.md)
 
-## Rozwój i jakość
+## Rozwój i utrzymanie
 
 - [Przewodnik deweloperski](developer_guide.md)
 - [Kontrola jakości i wydania](quality_and_release.md)
-- [Architektura UI](ui_architecture.md)
-- [Usługi i analiza](analysis_and_services.md)
-
-- [Demo i kontrola wydania](demo_and_release_check.md)
+- [Informacje o bieżącym wydaniu](../RELEASE_NOTES.md)

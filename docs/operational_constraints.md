@@ -4,7 +4,7 @@ Moduł planowania obsługuje dwa poziomy modelu przejścia pomiędzy kolejnymi
 akwizycjami tego samego satelity:
 
 - model statyczny, zachowujący kompatybilność z wcześniejszymi scenariuszami,
-- model dynamiczny używany domyślnie w zakładce **Planowanie publiczne**.
+- model dynamiczny używany domyślnie w zakładce **Planowanie na danych publicznych**.
 
 ## Pléiades Neo
 

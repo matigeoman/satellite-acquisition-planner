@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
-from pathlib import Path
 
 
-from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS
 
 
 from app.analysis.schedule_report import (
@@ -28,21 +27,21 @@ REQUEST_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
 OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").opportunities
 
-GREEDY_SCHEDULE_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="GREEDY")
+GREEDY_SCHEDULE_PATH = PROJECT_PATHS.reference_schedule(
+    scenario_id="EXAMPLE", algorithm_value="GREEDY"
+)
 
-OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="CP_SAT")
+OUTPUT_PATH = PROJECT_PATHS.reference_schedule(
+    scenario_id="EXAMPLE", algorithm_value="CP_SAT"
+)
 
 REPORT_DIRECTORY = PROJECT_PATHS.reports
 
 
 def main() -> None:
-    catalog = load_system_catalog(
-        CATALOG_PATH
-    )
+    catalog = load_system_catalog(CATALOG_PATH)
 
-    request_set = load_request_set(
-        REQUEST_SET_PATH
-    )
+    request_set = load_request_set(REQUEST_SET_PATH)
 
     opportunity_set = load_opportunity_set(
         OPPORTUNITY_SET_PATH,
@@ -105,90 +104,40 @@ def main() -> None:
     print("CP-SAT SCHEDULER")
     print()
 
-    print(
-        f"Status solvera: "
-        f"{scheduler.last_solver_status}"
-    )
-    print(
-        f"Status harmonogramu: "
-        f"{schedule.status.value}"
-    )
-    print(
-        f"Zaplanowane akwizycje: "
-        f"{schedule.total_acquisitions}"
-    )
-    print(
-        f"Zaplanowane zlecenia: "
-        f"{len(schedule.scheduled_request_ids)}"
-    )
-    print(
-        f"Nieprzypisane zlecenia: "
-        f"{len(schedule.unassigned_request_ids)}"
-    )
-    print(
-        f"Łączny czas obrazowania: "
-        f"{schedule.total_duration_s:.3f} s"
-    )
-    print(
-        f"Łączny rozmiar danych: "
-        f"{schedule.total_data_volume_mb:.3f} MB"
-    )
-    print(
-        f"Wartość funkcji celu: "
-        f"{schedule.objective_value:.6f}"
-    )
-    print(
-        f"Czas działania solvera: "
-        f"{schedule.solver_runtime_s:.6f} s"
-    )
+    print(f"Status solvera: {scheduler.last_solver_status}")
+    print(f"Status harmonogramu: {schedule.status.value}")
+    print(f"Zaplanowane akwizycje: {schedule.total_acquisitions}")
+    print(f"Zaplanowane zlecenia: {len(schedule.scheduled_request_ids)}")
+    print(f"Nieprzypisane zlecenia: {len(schedule.unassigned_request_ids)}")
+    print(f"Łączny czas obrazowania: {schedule.total_duration_s:.3f} s")
+    print(f"Łączny rozmiar danych: {schedule.total_data_volume_mb:.3f} MB")
+    print(f"Wartość funkcji celu: {schedule.objective_value:.6f}")
+    print(f"Czas działania solvera: {schedule.solver_runtime_s:.6f} s")
 
     if GREEDY_SCHEDULE_PATH.exists():
-        greedy_schedule = load_schedule(
-            GREEDY_SCHEDULE_PATH
-        )
+        greedy_schedule = load_schedule(GREEDY_SCHEDULE_PATH)
 
-        greedy_objective = (
-            greedy_schedule.objective_value
-            or 0.0
-        )
+        greedy_objective = greedy_schedule.objective_value or 0.0
 
-        cp_sat_objective = (
-            schedule.objective_value
-            or 0.0
-        )
+        cp_sat_objective = schedule.objective_value or 0.0
 
-        difference = (
-            cp_sat_objective
-            - greedy_objective
-        )
+        difference = cp_sat_objective - greedy_objective
 
         print()
         print("PORÓWNANIE Z GREEDY")
-        print(
-            f"Greedy: "
-            f"{greedy_objective:.6f}"
-        )
-        print(
-            f"CP-SAT: "
-            f"{cp_sat_objective:.6f}"
-        )
-        print(
-            f"Różnica CP-SAT - Greedy: "
-            f"{difference:.6f}"
-        )
+        print(f"Greedy: {greedy_objective:.6f}")
+        print(f"CP-SAT: {cp_sat_objective:.6f}")
+        print(f"Różnica CP-SAT - Greedy: {difference:.6f}")
 
     print()
     print("UŻYTE SATELITY")
 
     for satellite_id in schedule.satellites_used:
         count = sum(
-            entry.satellite_id == satellite_id
-            for entry in schedule.active_entries
+            entry.satellite_id == satellite_id for entry in schedule.active_entries
         )
 
-        print(
-            f"  {satellite_id}: {count}"
-        )
+        print(f"  {satellite_id}: {count}")
 
     print()
     print("ZAPISANO HARMONOGRAM")
@@ -198,9 +147,7 @@ def main() -> None:
     print("RAPORTY CSV")
 
     for report_name, path in report_paths.items():
-        print(
-            f"  {report_name}: {path}"
-        )
+        print(f"  {report_name}: {path}")
 
 
 if __name__ == "__main__":

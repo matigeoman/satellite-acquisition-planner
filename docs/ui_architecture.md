@@ -1,22 +1,49 @@
 # Architektura interfejsu Streamlit
 
-Warstwa interfejsu jest oddzielona od modeli, planerów i serwisów aplikacyjnych.
-`streamlit_app.py` pełni wyłącznie rolę punktu wejścia: konfiguruje stronę,
-renderuje nawigację i przekazuje sterowanie do wybranego ekranu.
+`streamlit_app.py` konfiguruje stronę, ładuje wspólne style i deleguje
+renderowanie do wybranego modułu. Logika domenowa pozostaje w serwisach i
+pakietach planowania.
 
-## Moduły
+## Nawigacja
 
-- `app/ui/app_context.py` — buforowane serwisy i wczytywanie scenariuszy.
-- `app/ui/common.py` — niewielkie funkcje formatowania i obsługi czasu UTC.
-- `app/ui/navigation.py` — lista modułów i panel nawigacji.
-- `app/ui/styles.py` — wczytanie wspólnego arkusza CSS.
-- `app/ui/assets/application.css` — typografia, szerokości i wygląd kontrolek.
-- `app/ui/pages/planning.py` — planowanie oraz porównanie Greedy–CP-SAT.
-- `app/ui/pages/replanning.py` — dynamiczne przeplanowanie.
-- `app/ui/pages/disruption.py` — reakcja na zakłócenia.
-- `app/ui/pages/experiments.py` — walidacja eksperymentalna.
+Panel boczny dzieli moduły na trzy grupy:
 
-Ekrany korzystają z warstwy `app/services`. Nie implementują algorytmów
-optymalizacyjnych ani nie modyfikują bezpośrednio modeli domenowych.
-Wskaźniki udziałowe są przechowywane jako wartości `0–1`; konwersja na procenty
-odbywa się wyłącznie podczas przygotowania danych do prezentacji.
+### Przepływ operacyjny
+
+- Start i demo
+- Cele i zlecenia
+- Orbity i dane OMM
+- Okna dostępu i pogoda
+- Globus operacyjny
+- Śledzenie i przeloty
+- Planowanie na danych publicznych
+- Przeplanowanie na danych publicznych
+
+### Analiza i walidacja
+
+- Walidacja względem STK
+- Benchmarki
+- Planowanie scenariuszy referencyjnych
+- Przeplanowanie scenariuszy referencyjnych
+- Analiza zakłóceń
+- Eksperymenty porównawcze
+
+### Projekt i wyniki
+
+- Projekty
+- Raporty
+
+## Moduły wspólne
+
+- `app/ui/app_context.py` — buforowane serwisy i stan scenariusza;
+- `app/ui/common.py` — formatowanie i obsługa czasu UTC;
+- `app/ui/navigation.py` — grupy i etykiety nawigacji;
+- `app/ui/styles.py` — ładowanie wspólnego CSS;
+- `app/ui/assets/application.css` — typografia i układ kontrolek;
+- `app/ui/components/` — komponenty wielokrotnego użytku;
+- `app/ui/pages/` — ekrany przypadków użycia.
+
+Ekrany nie implementują algorytmów optymalizacyjnych. Przygotowują dane
+wejściowe, wywołują serwisy i prezentują wyniki. Wskaźniki udziałowe są
+przechowywane jako wartości `0–1`; przeliczenie na procenty odbywa się dopiero
+w warstwie prezentacji.

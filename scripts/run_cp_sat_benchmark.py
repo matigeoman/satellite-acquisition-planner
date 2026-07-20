@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
-from pathlib import Path
 
 
-from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS
 
 
 from app.analysis.cp_sat_benchmark import (
@@ -50,13 +49,9 @@ RANDOM_SEED = 20260716
 
 
 def main() -> None:
-    catalog = load_system_catalog(
-        CATALOG_PATH
-    )
+    catalog = load_system_catalog(CATALOG_PATH)
 
-    request_set = load_request_set(
-        REQUEST_SET_PATH
-    )
+    request_set = load_request_set(REQUEST_SET_PATH)
 
     opportunity_set = load_opportunity_set(
         OPPORTUNITY_SET_PATH,
@@ -87,9 +82,7 @@ def main() -> None:
         request_set=request_set,
         opportunity_set=opportunity_set,
         config=GreedyPlannerConfig(
-            memory_reserve_ratio=(
-                MEMORY_RESERVE_RATIO
-            ),
+            memory_reserve_ratio=(MEMORY_RESERVE_RATIO),
             priority_weight=10.0,
             quality_weight=3.0,
             coverage_weight=2.0,
@@ -101,10 +94,7 @@ def main() -> None:
         created_at_utc=created_at,
     )
 
-    greedy_path = (
-        BENCHMARK_DIRECTORY
-        / "stress_benchmark_greedy.json"
-    )
+    greedy_path = BENCHMARK_DIRECTORY / "stress_benchmark_greedy.json"
 
     save_schedule(
         greedy_schedule,
@@ -127,39 +117,24 @@ def main() -> None:
     )
 
     print("GREEDY")
-    print(
-        f"  Funkcja celu: "
-        f"{greedy_result.objective_value:.6f}"
-    )
-    print(
-        f"  Zrealizowane zlecenia: "
-        f"{greedy_result.fully_satisfied_requests}"
-    )
-    print(
-        f"  Czas: "
-        f"{greedy_result.runtime_s:.6f} s"
-    )
+    print(f"  Funkcja celu: {greedy_result.objective_value:.6f}")
+    print(f"  Zrealizowane zlecenia: {greedy_result.fully_satisfied_requests}")
+    print(f"  Czas: {greedy_result.runtime_s:.6f} s")
     print()
 
     cp_sat_results = []
 
     for time_limit_s in TIME_LIMITS_S:
-        label = format_time_limit_label(
-            time_limit_s
-        )
+        label = format_time_limit_label(time_limit_s)
 
-        schedule_id = (
-            f"SCHEDULE-BENCHMARK-CP-SAT-{label}"
-        )
+        schedule_id = f"SCHEDULE-BENCHMARK-CP-SAT-{label}"
 
         scheduler = CpSatScheduler(
             catalog=catalog,
             request_set=request_set,
             opportunity_set=opportunity_set,
             config=CpSatPlannerConfig(
-                memory_reserve_ratio=(
-                    MEMORY_RESERVE_RATIO
-                ),
+                memory_reserve_ratio=(MEMORY_RESERVE_RATIO),
                 priority_weight=10.0,
                 quality_weight=3.0,
                 coverage_weight=2.0,
@@ -173,25 +148,16 @@ def main() -> None:
             ),
         )
 
-        print(
-            f"CP-SAT — limit {time_limit_s:g} s"
-        )
+        print(f"CP-SAT — limit {time_limit_s:g} s")
 
         schedule = scheduler.build_schedule(
             schedule_id=schedule_id,
-            name=(
-                "Benchmark stresowy CP-SAT — "
-                f"limit {time_limit_s:g} s"
-            ),
+            name=(f"Benchmark stresowy CP-SAT — limit {time_limit_s:g} s"),
             created_at_utc=created_at,
         )
 
-        schedule_path = (
-            BENCHMARK_DIRECTORY
-            / (
-                "stress_benchmark_cp_sat_"
-                f"{label.lower()}.json"
-            )
+        schedule_path = BENCHMARK_DIRECTORY / (
+            f"stress_benchmark_cp_sat_{label.lower()}.json"
         )
 
         save_schedule(
@@ -209,38 +175,18 @@ def main() -> None:
         result = build_benchmark_result(
             schedule=schedule,
             analysis=analysis,
-            solver_status=(
-                scheduler.last_solver_status
-                or "UNKNOWN"
-            ),
+            solver_status=(scheduler.last_solver_status or "UNKNOWN"),
             time_limit_s=time_limit_s,
             schedule_path=schedule_path,
         )
 
-        cp_sat_results.append(
-            result
-        )
+        cp_sat_results.append(result)
 
-        print(
-            f"  Status: "
-            f"{result.solver_status}"
-        )
-        print(
-            f"  Funkcja celu: "
-            f"{result.objective_value:.6f}"
-        )
-        print(
-            f"  Zrealizowane zlecenia: "
-            f"{result.fully_satisfied_requests}"
-        )
-        print(
-            f"  Nieprzypisane: "
-            f"{result.unassigned_requests}"
-        )
-        print(
-            f"  Czas: "
-            f"{result.runtime_s:.6f} s"
-        )
+        print(f"  Status: {result.solver_status}")
+        print(f"  Funkcja celu: {result.objective_value:.6f}")
+        print(f"  Zrealizowane zlecenia: {result.fully_satisfied_requests}")
+        print(f"  Nieprzypisane: {result.unassigned_requests}")
+        print(f"  Czas: {result.runtime_s:.6f} s")
         print()
 
     report = build_benchmark_report(
@@ -258,34 +204,17 @@ def main() -> None:
     best = report.best_cp_sat_run
 
     print("NAJLEPSZY WYNIK")
-    print(
-        f"  Limit czasu: "
-        f"{best.time_limit_s:g} s"
-    )
-    print(
-        f"  Status: "
-        f"{best.solver_status}"
-    )
-    print(
-        f"  Funkcja celu: "
-        f"{best.objective_value:.6f}"
-    )
-    print(
-        f"  Zrealizowane zlecenia: "
-        f"{best.fully_satisfied_requests}"
-    )
-    print(
-        f"  Poprawa względem Greedy: "
-        f"{report.best_objective_improvement_pct:.2f}%"
-    )
+    print(f"  Limit czasu: {best.time_limit_s:g} s")
+    print(f"  Status: {best.solver_status}")
+    print(f"  Funkcja celu: {best.objective_value:.6f}")
+    print(f"  Zrealizowane zlecenia: {best.fully_satisfied_requests}")
+    print(f"  Poprawa względem Greedy: {report.best_objective_improvement_pct:.2f}%")
     print()
 
     print("ZAPISANE RAPORTY")
 
     for report_name, path in report_paths.items():
-        print(
-            f"  {report_name}: {path}"
-        )
+        print(f"  {report_name}: {path}")
 
 
 if __name__ == "__main__":

@@ -51,4 +51,4 @@ sequenceDiagram
 
 Aktywny renderer używa Plotly. Pliki związane z wcześniejszym prototypem Cesium
 pozostają wyłącznie jako kod historyczny i nie są importowane przez bieżącą
-stronę `Globus i orbity`.
+stronę `Globus operacyjny`.

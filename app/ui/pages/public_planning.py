@@ -44,9 +44,9 @@ def _build_scenario():
 def render_public_planning_page() -> None:
     """Uruchamia Greedy lub CP-SAT na okazjach publicznych z sesji."""
 
-    st.header("Planowanie publicznych okazji")
+    st.header("Planowanie na danych publicznych")
     st.info(
-        "Ten moduł używa pełnych AcquisitionOpportunity zbudowanych z "
+        "Moduł używa okazji akwizycyjnych zbudowanych z "
         "CelesTrak GP/OMM, propagacji SGP4, publicznych profili sensorów i "
         "prognozy Open-Meteo dla EO. Ograniczenia pamięci i limitów dobowych "
         "pozostają jawnymi parametrami modelowymi."
@@ -217,9 +217,7 @@ def render_public_planning_page() -> None:
             sar_mode_switch_penalty_s=float(sar_mode_switch_penalty_s),
             sar_slew_rate_deg_s=float(sar_slew_rate_deg_s),
             sar_pass_gap_s=float(sar_pass_gap_minutes) * 60.0,
-            sar_max_acquisitions_per_pass=int(
-                sar_max_acquisitions_per_pass
-            ),
+            sar_max_acquisitions_per_pass=int(sar_max_acquisitions_per_pass),
             priority_weight=float(priority_weight),
             quality_weight=float(quality_weight),
             coverage_weight=float(coverage_weight),
@@ -246,7 +244,7 @@ def render_public_planning_page() -> None:
                 )
         except Exception as error:
             st.session_state.pop(_PUBLIC_PLANNING_RESULT_KEY, None)
-            st.error("Planowanie publiczne zakończyło się błędem.")
+            st.error("Planowanie zakończyło się błędem.")
             st.exception(error)
             return
         st.session_state[_PUBLIC_PLANNING_RESULT_KEY] = result
@@ -255,7 +253,7 @@ def render_public_planning_page() -> None:
             result,
             event_type="INITIAL_PLANNING",
         )
-        st.success("Planowanie publiczne zakończone.")
+        st.success("Planowanie zakończone.")
 
     result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)
     if result is not None:
@@ -272,7 +270,7 @@ def render_public_planning_page() -> None:
         if current_request_ids == result_request_ids:
             render_planning_result(result)
 
-    with st.expander("Eksport danych wejściowych scenariusza publicznego"):
+    with st.expander("Eksport danych wejściowych"):
         exports = st.columns(3)
         exports[0].download_button(
             "Katalog systemu",

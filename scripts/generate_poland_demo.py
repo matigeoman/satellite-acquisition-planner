@@ -113,15 +113,31 @@ def _window(index: int) -> tuple[datetime, datetime, str]:
     offset_h = ((index * 5.75) % max_offset_h) if max_offset_h else 0.0
     offset_h = round(offset_h * 2.0) / 2.0
     start = START_UTC + timedelta(hours=offset_h)
-    return start, start + timedelta(hours=duration_h), WINDOW_LABELS[index % len(WINDOW_LABELS)]
+    return (
+        start,
+        start + timedelta(hours=duration_h),
+        WINDOW_LABELS[index % len(WINDOW_LABELS)],
+    )
 
 
 def _request_specs() -> list[tuple[str, SensorType | None, RequestMode]]:
     specs: list[tuple[str, SensorType | None, RequestMode]] = []
-    specs.extend((f"REQ-DEMO-SAR-{index:03d}", SensorType.SAR, RequestMode.SINGLE) for index in range(1, 21))
-    specs.extend((f"REQ-DEMO-EO-{index:03d}", SensorType.OPTICAL, RequestMode.SINGLE) for index in range(1, 21))
-    specs.extend((f"REQ-DEMO-DUAL-OPT-{index:03d}", None, RequestMode.DUAL_OPTIONAL) for index in range(1, 6))
-    specs.extend((f"REQ-DEMO-DUAL-REQ-{index:03d}", None, RequestMode.DUAL_REQUIRED) for index in range(1, 6))
+    specs.extend(
+        (f"REQ-DEMO-SAR-{index:03d}", SensorType.SAR, RequestMode.SINGLE)
+        for index in range(1, 21)
+    )
+    specs.extend(
+        (f"REQ-DEMO-EO-{index:03d}", SensorType.OPTICAL, RequestMode.SINGLE)
+        for index in range(1, 21)
+    )
+    specs.extend(
+        (f"REQ-DEMO-DUAL-OPT-{index:03d}", None, RequestMode.DUAL_OPTIONAL)
+        for index in range(1, 6)
+    )
+    specs.extend(
+        (f"REQ-DEMO-DUAL-REQ-{index:03d}", None, RequestMode.DUAL_REQUIRED)
+        for index in range(1, 6)
+    )
     return specs
 
 
@@ -147,8 +163,12 @@ def build_request_set() -> ObservationRequestSet:
                 request_mode=request_mode,
                 requested_sensor_types=sensor_types,
                 max_resolution_m=resolution,
-                minimum_coverage_ratio=(0.2 if index == 0 else 0.75 + (index % 3) * 0.1),
-                max_incidence_angle_deg=(70.0 if index == 0 else 45.0 + (index % 2) * 5.0),
+                minimum_coverage_ratio=(
+                    0.2 if index == 0 else 0.75 + (index % 3) * 0.1
+                ),
+                max_incidence_angle_deg=(
+                    70.0 if index == 0 else 45.0 + (index % 2) * 5.0
+                ),
                 max_off_nadir_deg=(70.0 if index == 0 else 45.0 + (index % 3) * 5.0),
                 is_mandatory=mandatory,
                 external_reference=f"POL-DEMO-{index + 1:03d}",
@@ -215,17 +235,25 @@ def build_request_set() -> ObservationRequestSet:
     )
 
 
-def _select_mode(catalog: SystemCatalog, request: ObservationRequest, sensor_type: SensorType):
-    sensor = next(sensor for sensor in catalog.sensors if sensor.sensor_type == sensor_type)
+def _select_mode(
+    catalog: SystemCatalog, request: ObservationRequest, sensor_type: SensorType
+):
+    sensor = next(
+        sensor for sensor in catalog.sensors if sensor.sensor_type == sensor_type
+    )
     candidates = [
         mode
         for mode in sensor.imaging_modes
         if mode.nominal_resolution_m <= request.resolution_limit_for(sensor_type)
     ]
-    return sensor, sorted(candidates, key=lambda mode: (-mode.nominal_resolution_m, mode.mode_id))[0]
+    return sensor, sorted(
+        candidates, key=lambda mode: (-mode.nominal_resolution_m, mode.mode_id)
+    )[0]
 
 
-def _interval(request: ObservationRequest, local_index: int, duration_s: float) -> tuple[datetime, datetime]:
+def _interval(
+    request: ObservationRequest, local_index: int, duration_s: float
+) -> tuple[datetime, datetime]:
     window_s = (request.latest_end_utc - request.earliest_start_utc).total_seconds()
     if request.request_mode == RequestMode.SINGLE:
         fraction = (local_index + 1) / 11.0
@@ -241,7 +269,9 @@ def _interval(request: ObservationRequest, local_index: int, duration_s: float) 
     return start, start + timedelta(seconds=duration_s)
 
 
-def build_opportunity_set(catalog: SystemCatalog, request_set: ObservationRequestSet) -> AcquisitionOpportunitySet:
+def build_opportunity_set(
+    catalog: SystemCatalog, request_set: ObservationRequestSet
+) -> AcquisitionOpportunitySet:
     rng = random.Random(RANDOM_SEED)
     opportunities: list[AcquisitionOpportunity] = []
     global_index = 0
@@ -251,7 +281,9 @@ def build_opportunity_set(catalog: SystemCatalog, request_set: ObservationReques
             if request.request_mode == RequestMode.SINGLE:
                 sensor_type = request.requested_sensor_types[0]
             else:
-                sensor_type = SensorType.SAR if local_index % 2 == 0 else SensorType.OPTICAL
+                sensor_type = (
+                    SensorType.SAR if local_index % 2 == 0 else SensorType.OPTICAL
+                )
 
             sensor, mode = _select_mode(catalog, request, sensor_type)
             satellite_count = 4 if sensor_type == SensorType.SAR else 2
@@ -260,9 +292,9 @@ def build_opportunity_set(catalog: SystemCatalog, request_set: ObservationReques
                 if sensor_type == SensorType.SAR
                 else f"EO-{(request_index + local_index) % satellite_count + 1:02d}"
             )
-            duration_s = mode.min_acquisition_duration_s + (
-                (local_index % 4) / 4.0
-            ) * (mode.max_acquisition_duration_s - mode.min_acquisition_duration_s)
+            duration_s = mode.min_acquisition_duration_s + ((local_index % 4) / 4.0) * (
+                mode.max_acquisition_duration_s - mode.min_acquisition_duration_s
+            )
             duration_s = round(duration_s, 3)
             start, end = _interval(request, local_index, duration_s)
 
@@ -270,7 +302,11 @@ def build_opportunity_set(catalog: SystemCatalog, request_set: ObservationReques
             coverage = max(request.minimum_coverage_ratio, 0.92)
             reasons: list[str] = []
             if sensor_type == SensorType.SAR:
-                side = ObservationSide.LEFT if local_index % 2 == 0 else ObservationSide.RIGHT
+                side = (
+                    ObservationSide.LEFT
+                    if local_index % 2 == 0
+                    else ObservationSide.RIGHT
+                )
                 off_nadir = 24.0 + (local_index % 4) * 3.0
                 incidence = 30.0 + (local_index % 4) * 2.0
                 cloud = None
@@ -281,11 +317,21 @@ def build_opportunity_set(catalog: SystemCatalog, request_set: ObservationReques
                     coverage = max(0.2, request.minimum_coverage_ratio - 0.15)
                     reasons = ["Przekroczony limit geometrii demonstracyjnej"]
             else:
-                side = ObservationSide.NADIR if local_index % 3 == 0 else ObservationSide.RIGHT
-                off_nadir = 0.0 if side == ObservationSide.NADIR else 12.0 + (local_index % 4) * 4.0
+                side = (
+                    ObservationSide.NADIR
+                    if local_index % 3 == 0
+                    else ObservationSide.RIGHT
+                )
+                off_nadir = (
+                    0.0
+                    if side == ObservationSide.NADIR
+                    else 12.0 + (local_index % 4) * 4.0
+                )
                 incidence = None
                 cloud_limit = request.max_cloud_cover or 0.35
-                cloud = round(max(0.05, cloud_limit - 0.08 - (local_index % 2) * 0.03), 3)
+                cloud = round(
+                    max(0.05, cloud_limit - 0.08 - (local_index % 2) * 0.03), 3
+                )
                 sun = 32.0 + (local_index % 4) * 5.0
                 if deliberately_infeasible:
                     off_nadir = 55.0
@@ -428,10 +474,14 @@ def build_snapshot() -> PublicConstellationSnapshot:
     )
 
 
-def build_access_result(snapshot: PublicConstellationSnapshot, request_set: ObservationRequestSet) -> AccessCalculationResult:
+def build_access_result(
+    snapshot: PublicConstellationSnapshot, request_set: ObservationRequestSet
+) -> AccessCalculationResult:
     featured_request = request_set.requests[0]
     orbit_service = PublicOrbitService(
-        client=CelestrakClient(cache_directory=PROJECT_ROOT / "data" / "generated" / "orbits")
+        client=CelestrakClient(
+            cache_directory=PROJECT_ROOT / "data" / "generated" / "orbits"
+        )
     )
     access_service = PublicAccessService(orbit_service=orbit_service)
     result = access_service.calculate_for_request(
@@ -474,7 +524,11 @@ def _aoi_geojson(request_set: ObservationRequestSet) -> dict[str, Any]:
     return {"type": "FeatureCollection", "features": features}
 
 
-def _scenario(catalog: SystemCatalog, requests: ObservationRequestSet, opportunities: AcquisitionOpportunitySet) -> LoadedScenario:
+def _scenario(
+    catalog: SystemCatalog,
+    requests: ObservationRequestSet,
+    opportunities: AcquisitionOpportunitySet,
+) -> LoadedScenario:
     return LoadedScenario(
         definition=ScenarioDefinition(
             scenario_id="POLAND_DEMO",
@@ -491,7 +545,11 @@ def _scenario(catalog: SystemCatalog, requests: ObservationRequestSet, opportuni
 
 
 def generate() -> None:
-    source_catalog = json.loads((PROJECT_ROOT / "data" / "scenarios" / "example" / "system.json").read_text(encoding="utf-8"))
+    source_catalog = json.loads(
+        (PROJECT_ROOT / "data" / "scenarios" / "example" / "system.json").read_text(
+            encoding="utf-8"
+        )
+    )
     source_catalog["catalog_id"] = "CATALOG-POLAND-DEMO"
     source_catalog["name"] = "Polska — katalog demonstracyjny SAR i EO"
     source_catalog["version"] = "1.0.0"
@@ -506,8 +564,13 @@ def generate() -> None:
     access_result = build_access_result(snapshot, request_set)
 
     _write_json(SCENARIO_DIRECTORY / "system.json", catalog.model_dump(mode="json"))
-    _write_json(SCENARIO_DIRECTORY / "requests.json", request_set.model_dump(mode="json"))
-    _write_json(SCENARIO_DIRECTORY / "opportunities.json", opportunity_set.model_dump(mode="json"))
+    _write_json(
+        SCENARIO_DIRECTORY / "requests.json", request_set.model_dump(mode="json")
+    )
+    _write_json(
+        SCENARIO_DIRECTORY / "opportunities.json",
+        opportunity_set.model_dump(mode="json"),
+    )
 
     scenario = _scenario(catalog, request_set, opportunity_set)
     planning_service = PlanningService()
@@ -534,13 +597,26 @@ def generate() -> None:
     )
 
     _write_json(EXAMPLE_DIRECTORY / "system.json", catalog.model_dump(mode="json"))
-    _write_json(EXAMPLE_DIRECTORY / "requests.json", request_set.model_dump(mode="json"))
-    _write_json(EXAMPLE_DIRECTORY / "opportunities.json", opportunity_set.model_dump(mode="json"))
+    _write_json(
+        EXAMPLE_DIRECTORY / "requests.json", request_set.model_dump(mode="json")
+    )
+    _write_json(
+        EXAMPLE_DIRECTORY / "opportunities.json",
+        opportunity_set.model_dump(mode="json"),
+    )
     _write_json(EXAMPLE_DIRECTORY / "aoi.geojson", _aoi_geojson(request_set))
     _write_json(EXAMPLE_DIRECTORY / "orbits_omm.json", encode_orbit_snapshot(snapshot))
-    _write_json(EXAMPLE_DIRECTORY / "access_windows.json", encode_access_result(access_result))
-    _write_json(EXAMPLE_DIRECTORY / "schedule_greedy.json", greedy.schedule.model_dump(mode="json"))
-    _write_json(EXAMPLE_DIRECTORY / "schedule_cp_sat.json", cp_sat.schedule.model_dump(mode="json"))
+    _write_json(
+        EXAMPLE_DIRECTORY / "access_windows.json", encode_access_result(access_result)
+    )
+    _write_json(
+        EXAMPLE_DIRECTORY / "schedule_greedy.json",
+        greedy.schedule.model_dump(mode="json"),
+    )
+    _write_json(
+        EXAMPLE_DIRECTORY / "schedule_cp_sat.json",
+        cp_sat.schedule.model_dump(mode="json"),
+    )
     _write_json(
         EXAMPLE_DIRECTORY / "benchmark_result.json",
         {
@@ -592,7 +668,9 @@ def generate() -> None:
 <li>Greedy: {greedy.fully_satisfied_requests} zrealizowanych zleceń</li>
 <li>CP-SAT: {cp_sat.fully_satisfied_requests} zrealizowanych zleceń</li></ul>
 <p>Raport demonstracyjny. Dane operatorów i pogoda nie są pobierane online.</p></body></html>\n"""
-    (EXAMPLE_DIRECTORY / "demo_report.html").write_text(report_html, encoding="utf-8", newline="\n")
+    (EXAMPLE_DIRECTORY / "demo_report.html").write_text(
+        report_html, encoding="utf-8", newline="\n"
+    )
     readme = """# Poland demo
 
 Kompletny, deterministyczny scenariusz offline do prezentacji SatPlan.

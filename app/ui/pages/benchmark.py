@@ -26,7 +26,7 @@ _TIME_LIMIT_OPTIONS = [0.5, 1.0, 2.0, 5.0, 10.0, 30.0]
 
 
 def render_benchmark_page() -> None:
-    st.header("Benchmarki algorytmów")
+    st.header("Benchmarki")
     st.write(
         "Porównanie skalowalności Greedy i CP-SAT dla zagnieżdżonych "
         "scenariuszy od 20 do 500 zleceń. Każde zlecenie posiada "
@@ -84,16 +84,8 @@ def render_benchmark_page() -> None:
             key="benchmark_dynamic_constraints",
         )
 
-        estimated_budget = (
-            len(request_counts)
-            * repetitions
-            * sum(cp_sat_limits)
-        )
-        total_runs = (
-            len(request_counts)
-            * repetitions
-            * (1 + len(cp_sat_limits))
-        )
+        estimated_budget = len(request_counts) * repetitions * sum(cp_sat_limits)
+        total_runs = len(request_counts) * repetitions * (1 + len(cp_sat_limits))
         st.caption(
             f"Planowane przebiegi: {total_runs}. Minimalny budżet "
             f"solvera CP-SAT: około {estimated_budget:.1f} s."
@@ -141,9 +133,7 @@ def render_benchmark_page() -> None:
                     memory_reserve_ratio=(memory_reserve_percent / 100.0),
                     use_dynamic_transition_model=dynamic_constraints,
                 )
-                with st.spinner(
-                    "Budowanie scenariuszy i uruchamianie benchmarku..."
-                ):
+                with st.spinner("Budowanie scenariuszy i uruchamianie benchmarku..."):
                     result = get_algorithm_benchmark_service().run(
                         base_scenario=scenario,
                         config=config,

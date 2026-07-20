@@ -8,15 +8,13 @@ def test_benchmark_page_is_registered() -> None:
     navigation = (PROJECT_ROOT / "app" / "ui" / "navigation.py").read_text(
         encoding="utf-8"
     )
-    streamlit_app = (PROJECT_ROOT / "streamlit_app.py").read_text(
-        encoding="utf-8"
-    )
+    streamlit_app = (PROJECT_ROOT / "streamlit_app.py").read_text(encoding="utf-8")
     page = (PROJECT_ROOT / "app" / "ui" / "pages" / "benchmark.py").read_text(
         encoding="utf-8"
     )
 
     assert "BENCHMARKS" in navigation
-    assert "Benchmarki algorytmów" in navigation
+    assert "Benchmarki" in navigation
     assert "render_benchmark_page" in streamlit_app
     assert "Uruchom benchmark Greedy vs CP-SAT" in page
     assert "5000 okazji" in page

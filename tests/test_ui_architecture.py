@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date, time, timezone
-from pathlib import Path
 
 import pytest
 
@@ -18,9 +17,7 @@ def test_streamlit_entrypoint_is_small_and_compilable() -> None:
 
 
 def test_application_stylesheet_is_external_and_nonempty() -> None:
-    stylesheet_path = (
-        PROJECT_ROOT / "app" / "ui" / "assets" / "application.css"
-    )
+    stylesheet_path = PROJECT_ROOT / "app" / "ui" / "assets" / "application.css"
     stylesheet = stylesheet_path.read_text(encoding="utf-8")
 
     assert "stAppViewContainer" in stylesheet
@@ -45,16 +42,17 @@ def test_all_page_modules_exist_and_compile() -> None:
         compile(path.read_text(encoding="utf-8"), str(path), "exec")
 
 
-def test_navigation_contains_all_operational_pages() -> None:
-    navigation_source = (
-        PROJECT_ROOT / "app" / "ui" / "navigation.py"
-    ).read_text(encoding="utf-8")
+def test_navigation_is_grouped_and_contains_reference_modules() -> None:
+    navigation_source = (PROJECT_ROOT / "app" / "ui" / "navigation.py").read_text(
+        encoding="utf-8"
+    )
 
     for label in [
-        "Planowanie",
-        "Dynamiczne przeplanowanie",
-        "Zakłócenia",
-        "Eksperymenty",
+        "Przepływ operacyjny",
+        "Analiza i walidacja",
+        "Projekt i wyniki",
+        "Planowanie scenariuszy referencyjnych",
+        "Eksperymenty porównawcze",
     ]:
         assert label in navigation_source
 
@@ -84,7 +82,10 @@ def test_reference_schedule_path_is_stable() -> None:
         algorithm_value="CP_SAT",
     )
 
-    assert path == PROJECT_ROOT / "data" / "reference_schedules" / "example" / "cp_sat.json"
+    assert (
+        path
+        == PROJECT_ROOT / "data" / "reference_schedules" / "example" / "cp_sat.json"
+    )
 
 
 def test_reference_schedule_path_rejects_unknown_scenario() -> None:

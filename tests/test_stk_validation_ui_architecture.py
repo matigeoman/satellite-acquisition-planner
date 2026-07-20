@@ -7,7 +7,7 @@ def test_stk_validation_page_is_registered() -> None:
     entrypoint = Path("streamlit_app.py").read_text(encoding="utf-8")
     page = Path("app/ui/pages/stk_validation.py").read_text(encoding="utf-8")
 
-    assert 'STK_VALIDATION = "Walidacja STK"' in navigation
+    assert 'STK_VALIDATION = "Walidacja względem STK"' in navigation
     assert "render_stk_validation_page" in pages
     assert "ApplicationPage.STK_VALIDATION" in entrypoint
     assert "Pobierz paczkę walidacyjną STK" in page

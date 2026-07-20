@@ -22,12 +22,12 @@ _REPORT_STATE_KEY = "scientific_report_package"
 def _component_rows() -> list[dict[str, str]]:
     checks = (
         ("Zlecenia", CUSTOM_REQUESTS_STATE_KEY),
-        ("Snapshot orbit", ORBIT_SNAPSHOT_STATE_KEY),
+        ("Dane orbitalne", ORBIT_SNAPSHOT_STATE_KEY),
         ("Okna dostępu", ACCESS_RESULT_STATE_KEY),
         ("Okazje", OPPORTUNITY_BUILDS_STATE_KEY),
         ("Harmonogram", PLANNING_RESULT_STATE_KEY),
         ("Benchmark", BENCHMARK_RESULT_STATE_KEY),
-        ("Walidacja Access STK", "stk_access_validation_result"),
+        ("Walidacja dostępu STK", "stk_access_validation_result"),
         ("Walidacja AER STK", "stk_aer_validation_result"),
     )
     return [
@@ -168,7 +168,7 @@ def _render_downloads() -> None:
         width="stretch",
     )
     columns[3].download_button(
-        "Snapshot JSON",
+        "Dane źródłowe JSON",
         data=result.json_bytes,
         file_name="report.json",
         mime="application/json",
@@ -181,10 +181,10 @@ def _render_downloads() -> None:
 def render_reports_page() -> None:
     """Generuje raport naukowy i komplet tabel z bieżącej sesji."""
 
-    st.header("Raporty i wyniki")
+    st.header("Raporty")
     st.info(
         "Moduł buduje spójny pakiet do pracy dyplomowej: samodzielny HTML, "
-        "edytowalny DOCX, skoroszyt XLSX, tabele CSV, wykresy PNG oraz snapshot JSON."
+        "edytowalny DOCX, skoroszyt XLSX, tabele CSV, wykresy PNG oraz dane źródłowe JSON."
     )
     _render_input_state()
     _render_build_form()

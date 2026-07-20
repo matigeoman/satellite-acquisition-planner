@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
-from pathlib import Path
 
 
-from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS
 
 
 from app.analysis.schedule_report import (
@@ -29,21 +28,21 @@ REQUEST_SET_PATH = PROJECT_PATHS.scenario("STRESS").requests
 
 OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("STRESS").opportunities
 
-GREEDY_OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="STRESS", algorithm_value="GREEDY")
+GREEDY_OUTPUT_PATH = PROJECT_PATHS.reference_schedule(
+    scenario_id="STRESS", algorithm_value="GREEDY"
+)
 
-CP_SAT_OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="STRESS", algorithm_value="CP_SAT")
+CP_SAT_OUTPUT_PATH = PROJECT_PATHS.reference_schedule(
+    scenario_id="STRESS", algorithm_value="CP_SAT"
+)
 
 REPORT_DIRECTORY = PROJECT_PATHS.reports
 
 
 def main() -> None:
-    catalog = load_system_catalog(
-        CATALOG_PATH
-    )
+    catalog = load_system_catalog(CATALOG_PATH)
 
-    request_set = load_request_set(
-        REQUEST_SET_PATH
-    )
+    request_set = load_request_set(REQUEST_SET_PATH)
 
     opportunity_set = load_opportunity_set(
         OPPORTUNITY_SET_PATH,
@@ -138,26 +137,14 @@ def main() -> None:
         prefix="stress_cp_sat",
     )
 
-    greedy_objective = (
-        greedy_schedule.objective_value
-        or 0.0
-    )
+    greedy_objective = greedy_schedule.objective_value or 0.0
 
-    cp_sat_objective = (
-        cp_sat_schedule.objective_value
-        or 0.0
-    )
+    cp_sat_objective = cp_sat_schedule.objective_value or 0.0
 
-    objective_difference = (
-        cp_sat_objective
-        - greedy_objective
-    )
+    objective_difference = cp_sat_objective - greedy_objective
 
     if greedy_objective > 0.0:
-        improvement_ratio = (
-            objective_difference
-            / greedy_objective
-        )
+        improvement_ratio = objective_difference / greedy_objective
     else:
         improvement_ratio = 0.0
 
@@ -170,93 +157,35 @@ def main() -> None:
     print()
 
     print("GREEDY")
-    print(
-        f"  Status: "
-        f"{greedy_schedule.status.value}"
-    )
-    print(
-        f"  Zrealizowane zlecenia: "
-        f"{greedy_analysis.fully_satisfied_requests}"
-    )
-    print(
-        f"  Częściowo zrealizowane: "
-        f"{greedy_analysis.partially_satisfied_requests}"
-    )
-    print(
-        f"  Nieprzypisane: "
-        f"{greedy_analysis.unassigned_requests}"
-    )
-    print(
-        f"  Akwizycje: "
-        f"{greedy_schedule.total_acquisitions}"
-    )
-    print(
-        f"  Funkcja celu: "
-        f"{greedy_objective:.6f}"
-    )
-    print(
-        f"  Czas: "
-        f"{greedy_schedule.solver_runtime_s:.6f} s"
-    )
+    print(f"  Status: {greedy_schedule.status.value}")
+    print(f"  Zrealizowane zlecenia: {greedy_analysis.fully_satisfied_requests}")
+    print(f"  Częściowo zrealizowane: {greedy_analysis.partially_satisfied_requests}")
+    print(f"  Nieprzypisane: {greedy_analysis.unassigned_requests}")
+    print(f"  Akwizycje: {greedy_schedule.total_acquisitions}")
+    print(f"  Funkcja celu: {greedy_objective:.6f}")
+    print(f"  Czas: {greedy_schedule.solver_runtime_s:.6f} s")
     print()
 
     print("CP-SAT")
-    print(
-        f"  Status solvera: "
-        f"{cp_sat_scheduler.last_solver_status}"
-    )
-    print(
-        f"  Status harmonogramu: "
-        f"{cp_sat_schedule.status.value}"
-    )
-    print(
-        f"  Zrealizowane zlecenia: "
-        f"{cp_sat_analysis.fully_satisfied_requests}"
-    )
-    print(
-        f"  Częściowo zrealizowane: "
-        f"{cp_sat_analysis.partially_satisfied_requests}"
-    )
-    print(
-        f"  Nieprzypisane: "
-        f"{cp_sat_analysis.unassigned_requests}"
-    )
-    print(
-        f"  Akwizycje: "
-        f"{cp_sat_schedule.total_acquisitions}"
-    )
-    print(
-        f"  Funkcja celu: "
-        f"{cp_sat_objective:.6f}"
-    )
-    print(
-        f"  Czas: "
-        f"{cp_sat_schedule.solver_runtime_s:.6f} s"
-    )
+    print(f"  Status solvera: {cp_sat_scheduler.last_solver_status}")
+    print(f"  Status harmonogramu: {cp_sat_schedule.status.value}")
+    print(f"  Zrealizowane zlecenia: {cp_sat_analysis.fully_satisfied_requests}")
+    print(f"  Częściowo zrealizowane: {cp_sat_analysis.partially_satisfied_requests}")
+    print(f"  Nieprzypisane: {cp_sat_analysis.unassigned_requests}")
+    print(f"  Akwizycje: {cp_sat_schedule.total_acquisitions}")
+    print(f"  Funkcja celu: {cp_sat_objective:.6f}")
+    print(f"  Czas: {cp_sat_schedule.solver_runtime_s:.6f} s")
     print()
 
     print("RÓŻNICA")
-    print(
-        f"  CP-SAT - Greedy: "
-        f"{objective_difference:.6f}"
-    )
-    print(
-        f"  Poprawa względna: "
-        f"{improvement_ratio:.2%}"
-    )
-    print(
-        f"  Dodatkowo zrealizowane zlecenia: "
-        f"{additional_fully_satisfied_requests}"
-    )
+    print(f"  CP-SAT - Greedy: {objective_difference:.6f}")
+    print(f"  Poprawa względna: {improvement_ratio:.2%}")
+    print(f"  Dodatkowo zrealizowane zlecenia: {additional_fully_satisfied_requests}")
     print()
 
     print("ZAPISANE HARMONOGRAMY")
-    print(
-        f"  Greedy: {GREEDY_OUTPUT_PATH}"
-    )
-    print(
-        f"  CP-SAT: {CP_SAT_OUTPUT_PATH}"
-    )
+    print(f"  Greedy: {GREEDY_OUTPUT_PATH}")
+    print(f"  CP-SAT: {CP_SAT_OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

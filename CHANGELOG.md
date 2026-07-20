@@ -3,6 +3,22 @@
 Wszystkie istotne zmiany projektu są dokumentowane w tym pliku. Projekt stosuje
 wersjonowanie zgodne z Semantic Versioning.
 
+## [1.0.1] — 2026-07-20
+
+### Uporządkowano
+
+- pogrupowano nawigację aplikacji według przepływu operacyjnego, analizy i zarządzania projektem;
+- ujednolicono nazwy modułów, komunikaty i terminologię w interfejsie;
+- zaktualizowano dokumentację struktury projektu i usunięto dwa powielone rozdziały;
+- usunięto nieużywany plik `main.py` oraz nieużywane importy;
+- dodano `.editorconfig` i `.gitattributes` dla spójnego UTF-8 oraz zakończeń linii;
+- rozszerzono linting i audyt repozytorium o kontrolę zbędnych importów i plików historycznych.
+
+### Zgodność
+
+- formaty scenariuszy, harmonogramów i archiwów projektu pozostają zgodne z `1.0.0`;
+- algorytmy planowania i dane referencyjne nie zostały zmienione.
+
 ## [1.0.0] — 2026-07-20
 
 ### Wydanie stabilne

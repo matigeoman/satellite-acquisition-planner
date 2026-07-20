@@ -6,9 +6,7 @@ from pydantic import ValidationError
 
 from app.models.enums import (
     PlanningAlgorithm,
-    ScheduleEntryStatus,
     ScheduleStatus,
-    SensorType,
 )
 from app.models.schedule import Schedule, ScheduleEntry
 

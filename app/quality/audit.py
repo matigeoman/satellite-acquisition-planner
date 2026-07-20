@@ -78,6 +78,8 @@ class AuditReport:
 
 _REQUIRED_PATHS = (
     "README.md",
+    ".editorconfig",
+    ".gitattributes",
     "VERSION",
     "CHANGELOG.md",
     "RELEASE_NOTES.md",
@@ -152,7 +154,7 @@ _TEXT_SUFFIXES = {
     ".bat",
 }
 
-_TEXT_FILENAMES = {"Dockerfile", ".dockerignore"}
+_TEXT_FILENAMES = {"Dockerfile", ".dockerignore", ".editorconfig", ".gitattributes"}
 
 _EXCLUDED_PARTS = {
     ".git",
@@ -238,7 +240,9 @@ def _check_version(paths: ProjectPaths) -> AuditCheck:
 
 
 def _check_required_paths(paths: ProjectPaths) -> AuditCheck:
-    missing = [relative for relative in _REQUIRED_PATHS if not (paths.root / relative).exists()]
+    missing = [
+        relative for relative in _REQUIRED_PATHS if not (paths.root / relative).exists()
+    ]
     if missing:
         return _fail(
             "required-paths",
@@ -252,7 +256,11 @@ def _check_required_paths(paths: ProjectPaths) -> AuditCheck:
 
 
 def _check_dependencies(_: ProjectPaths) -> AuditCheck:
-    missing = [label for label, module in _REQUIRED_MODULES if importlib.util.find_spec(module) is None]
+    missing = [
+        label
+        for label, module in _REQUIRED_MODULES
+        if importlib.util.find_spec(module) is None
+    ]
     if missing:
         return _fail(
             "dependencies",
@@ -378,8 +386,12 @@ def _check_scenarios(paths: ProjectPaths) -> AuditCheck:
                 f"{scenario.opportunity_count} okazji"
             )
     except Exception as error:  # noqa: BLE001 - audit must report full failures
-        return _fail("scenario-integrity", "Nie udało się zwalidować scenariuszy.", repr(error))
-    return _pass("scenario-integrity", "Scenariusze i referencje modeli są spójne.", *details)
+        return _fail(
+            "scenario-integrity", "Nie udało się zwalidować scenariuszy.", repr(error)
+        )
+    return _pass(
+        "scenario-integrity", "Scenariusze i referencje modeli są spójne.", *details
+    )
 
 
 def _check_imports(_: ProjectPaths) -> AuditCheck:
@@ -390,15 +402,24 @@ def _check_imports(_: ProjectPaths) -> AuditCheck:
         except Exception as error:  # noqa: BLE001 - smoke audit records import errors
             errors.append(f"{module_name}: {type(error).__name__}: {error}")
     if errors:
-        return _fail("module-imports", "Niektóre główne moduły nie importują się poprawnie.", *errors)
-    return _pass("module-imports", f"Import głównych modułów zakończony powodzeniem ({len(_SMOKE_IMPORTS)}).")
+        return _fail(
+            "module-imports",
+            "Niektóre główne moduły nie importują się poprawnie.",
+            *errors,
+        )
+    return _pass(
+        "module-imports",
+        f"Import głównych modułów zakończony powodzeniem ({len(_SMOKE_IMPORTS)}).",
+    )
 
 
 def _check_output_layout(paths: ProjectPaths) -> AuditCheck:
     try:
         paths.ensure_output_directories()
     except OSError as error:
-        return _fail("output-layout", "Nie można przygotować katalogów wynikowych.", str(error))
+        return _fail(
+            "output-layout", "Nie można przygotować katalogów wynikowych.", str(error)
+        )
 
     expected = (
         paths.generated_schedules,
@@ -407,7 +428,9 @@ def _check_output_layout(paths: ProjectPaths) -> AuditCheck:
         paths.generated_orbits,
         paths.stk_imports,
     )
-    missing = [str(path.relative_to(paths.root)) for path in expected if not path.is_dir()]
+    missing = [
+        str(path.relative_to(paths.root)) for path in expected if not path.is_dir()
+    ]
     if missing:
         return _fail("output-layout", "Brakuje katalogów wynikowych.", *missing)
     return _pass("output-layout", "Katalogi wynikowe i importowe są dostępne.")
@@ -420,7 +443,9 @@ def _check_docker_assets(paths: ProjectPaths) -> AuditCheck:
         docker_text = dockerfile.read_text(encoding="utf-8")
         compose_text = compose.read_text(encoding="utf-8")
     except OSError as error:
-        return _fail("docker-assets", "Nie można odczytać konfiguracji Docker.", str(error))
+        return _fail(
+            "docker-assets", "Nie można odczytać konfiguracji Docker.", str(error)
+        )
 
     required_docker_tokens = (
         "FROM python:3.11-slim",
@@ -483,7 +508,9 @@ def _repository_files(paths: ProjectPaths) -> tuple[Path, ...]:
         path
         for path in paths.root.rglob("*")
         if path.is_file()
-        and not any(part in _EXCLUDED_PARTS for part in path.relative_to(paths.root).parts)
+        and not any(
+            part in _EXCLUDED_PARTS for part in path.relative_to(paths.root).parts
+        )
         and path.relative_to(paths.root).parts[:2] != ("data", "generated")
     )
 
@@ -500,6 +527,9 @@ def _check_repository_cleanliness(paths: ProjectPaths) -> AuditCheck:
         "README_STAGE17_WINDOWS.txt",
         "run_stage17_checks.ps1",
         "report.docx",
+        "main.py",
+        "docs/algorithm_benchmarks.md",
+        "docs/planning_architecture.md",
     }
     forbidden_suffixes = (".bak-stage", ".exe", ".msi")
     problems: list[str] = []
@@ -527,7 +557,7 @@ def _check_repository_cleanliness(paths: ProjectPaths) -> AuditCheck:
         )
     return _pass(
         "repository-cleanliness",
-        "Brak śledzonych hotfixów, raportów roboczych, paczek etapów i modułów Cesium.",
+        "Brak plików tymczasowych, artefaktów roboczych i wycofanych modułów.",
     )
 
 

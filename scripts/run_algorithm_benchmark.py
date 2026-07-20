@@ -51,7 +51,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output",
         type=Path,
-        default=PROJECT_ROOT / "data" / "generated" / "benchmark" / "algorithm_benchmark_results.zip",
+        default=PROJECT_ROOT
+        / "data"
+        / "generated"
+        / "benchmark"
+        / "algorithm_benchmark_results.zip",
     )
     return parser
 
@@ -65,9 +69,7 @@ def main() -> None:
         cp_sat_num_search_workers=args.workers,
         base_seed=args.base_seed,
         memory_reserve_ratio=args.memory_reserve,
-        use_dynamic_transition_model=(
-            not args.disable_dynamic_constraints
-        ),
+        use_dynamic_transition_model=(not args.disable_dynamic_constraints),
     )
     scenario = ScenarioService(project_root=PROJECT_ROOT).load("STRESS")
 
@@ -76,10 +78,7 @@ def main() -> None:
     print(f"Powtórzenia: {config.repetitions}")
     print(f"Limity CP-SAT: {config.cp_sat_time_limits_s}")
     print(f"Planowane przebiegi: {config.expected_run_count}")
-    print(
-        "Minimalny budżet solvera: "
-        f"{config.estimated_cp_sat_budget_s:.1f} s"
-    )
+    print(f"Minimalny budżet solvera: {config.estimated_cp_sat_budget_s:.1f} s")
 
     result = AlgorithmBenchmarkService().run(
         base_scenario=scenario,
@@ -91,10 +90,7 @@ def main() -> None:
     print()
     print(f"Poprawne przebiegi: {result.successful_run_count}")
     print(f"Nieudane przebiegi: {result.failed_run_count}")
-    print(
-        "Średnia poprawa celu CP-SAT: "
-        f"{result.mean_objective_improvement_pct:+.2f}%"
-    )
+    print(f"Średnia poprawa celu CP-SAT: {result.mean_objective_improvement_pct:+.2f}%")
     print(f"Czas całkowity: {result.wall_clock_runtime_s:.3f} s")
     print(f"Pakiet wyników: {args.output.resolve()}")
 

@@ -1,7 +1,4 @@
-from pathlib import Path
-
-
-from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS
 
 
 from app.io import load_system_catalog
@@ -17,17 +14,13 @@ OUTPUT_DIRECTORY = PROJECT_PATHS.scenario_directory("STRESS")
 
 
 def main() -> None:
-    base_catalog = load_system_catalog(
-        BASE_CATALOG_PATH
-    )
+    base_catalog = load_system_catalog(BASE_CATALOG_PATH)
 
     (
         stress_catalog,
         stress_request_set,
         stress_opportunity_set,
-    ) = build_stress_scenario(
-        base_catalog
-    )
+    ) = build_stress_scenario(base_catalog)
 
     paths = save_stress_scenario(
         catalog=stress_catalog,
@@ -38,30 +31,12 @@ def main() -> None:
 
     print("SCENARIUSZ STRESOWY")
     print()
-    print(
-        f"Zlecenia: "
-        f"{len(stress_request_set.requests)}"
-    )
-    print(
-        f"Obowiązkowe: "
-        f"{len(stress_request_set.mandatory_requests)}"
-    )
-    print(
-        f"Tryby: "
-        f"{stress_request_set.request_mode_counts}"
-    )
-    print(
-        f"Okazje: "
-        f"{len(stress_opportunity_set.opportunities)}"
-    )
-    print(
-        f"Wykonalne: "
-        f"{len(stress_opportunity_set.feasible_opportunities)}"
-    )
-    print(
-        f"Typy sensorów: "
-        f"{stress_opportunity_set.sensor_type_counts}"
-    )
+    print(f"Zlecenia: {len(stress_request_set.requests)}")
+    print(f"Obowiązkowe: {len(stress_request_set.mandatory_requests)}")
+    print(f"Tryby: {stress_request_set.request_mode_counts}")
+    print(f"Okazje: {len(stress_opportunity_set.opportunities)}")
+    print(f"Wykonalne: {len(stress_opportunity_set.feasible_opportunities)}")
+    print(f"Typy sensorów: {stress_opportunity_set.sensor_type_counts}")
     print()
 
     print("OGRANICZENIA SATELITÓW")
@@ -78,9 +53,7 @@ def main() -> None:
     print("ZAPISANE PLIKI")
 
     for name, path in paths.items():
-        print(
-            f"  {name}: {path}"
-        )
+        print(f"  {name}: {path}")
 
 
 if __name__ == "__main__":

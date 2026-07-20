@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
-from pathlib import Path
 
 
-from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS
 
 
 from app.io import load_system_catalog
@@ -21,17 +20,15 @@ REQUEST_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").requests
 
 OPPORTUNITY_SET_PATH = PROJECT_PATHS.scenario("EXAMPLE").opportunities
 
-OUTPUT_PATH = PROJECT_PATHS.reference_schedule(scenario_id="EXAMPLE", algorithm_value="GREEDY")
+OUTPUT_PATH = PROJECT_PATHS.reference_schedule(
+    scenario_id="EXAMPLE", algorithm_value="GREEDY"
+)
 
 
 def main() -> None:
-    catalog = load_system_catalog(
-        CATALOG_PATH
-    )
+    catalog = load_system_catalog(CATALOG_PATH)
 
-    request_set = load_request_set(
-        REQUEST_SET_PATH
-    )
+    request_set = load_request_set(REQUEST_SET_PATH)
 
     opportunity_set = load_opportunity_set(
         OPPORTUNITY_SET_PATH,
@@ -73,56 +70,28 @@ def main() -> None:
     mandatory_unassigned = sorted(
         request.request_id
         for request in request_set.mandatory_requests
-        if request.request_id
-        in schedule.unassigned_request_ids
+        if request.request_id in schedule.unassigned_request_ids
     )
 
     print("GREEDY SCHEDULER")
     print()
     print(f"Status: {schedule.status.value}")
-    print(
-        f"Zaplanowane akwizycje: "
-        f"{schedule.total_acquisitions}"
-    )
-    print(
-        f"Zaplanowane zlecenia: "
-        f"{len(schedule.scheduled_request_ids)}"
-    )
-    print(
-        f"Nieprzypisane zlecenia: "
-        f"{len(schedule.unassigned_request_ids)}"
-    )
-    print(
-        f"Obowiązkowe nieprzypisane: "
-        f"{len(mandatory_unassigned)}"
-    )
-    print(
-        f"Łączny czas obrazowania: "
-        f"{schedule.total_duration_s:.3f} s"
-    )
-    print(
-        f"Łączny rozmiar danych: "
-        f"{schedule.total_data_volume_mb:.3f} MB"
-    )
-    print(
-        f"Wartość funkcji celu: "
-        f"{schedule.objective_value:.6f}"
-    )
-    print(
-        f"Czas działania algorytmu: "
-        f"{schedule.solver_runtime_s:.6f} s"
-    )
+    print(f"Zaplanowane akwizycje: {schedule.total_acquisitions}")
+    print(f"Zaplanowane zlecenia: {len(schedule.scheduled_request_ids)}")
+    print(f"Nieprzypisane zlecenia: {len(schedule.unassigned_request_ids)}")
+    print(f"Obowiązkowe nieprzypisane: {len(mandatory_unassigned)}")
+    print(f"Łączny czas obrazowania: {schedule.total_duration_s:.3f} s")
+    print(f"Łączny rozmiar danych: {schedule.total_data_volume_mb:.3f} MB")
+    print(f"Wartość funkcji celu: {schedule.objective_value:.6f}")
+    print(f"Czas działania algorytmu: {schedule.solver_runtime_s:.6f} s")
     print()
     print("Użyte satelity:")
     for satellite_id in schedule.satellites_used:
         count = sum(
-            entry.satellite_id == satellite_id
-            for entry in schedule.active_entries
+            entry.satellite_id == satellite_id for entry in schedule.active_entries
         )
 
-        print(
-            f"  {satellite_id}: {count}"
-        )
+        print(f"  {satellite_id}: {count}")
 
     print()
     print("Zapisano harmonogram do:")

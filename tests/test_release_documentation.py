@@ -9,6 +9,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 def test_release_files_and_documentation_index_exist() -> None:
     required = (
         "VERSION",
+        ".editorconfig",
+        ".gitattributes",
         "CHANGELOG.md",
         "RELEASE_NOTES.md",
         "docs/index.md",
@@ -62,19 +64,16 @@ def test_quality_workflow_runs_all_project_checks() -> None:
     assert "ruff check app tests streamlit_app.py scripts" in workflow
     assert "python -m app.cli check" in workflow
     assert "python -m app.cli audit --strict" in workflow
-    assert "python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2" in workflow
+    assert (
+        "python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2"
+        in workflow
+    )
 
 
 def test_documentation_contains_mermaid_architecture_diagrams() -> None:
-    architecture = (PROJECT_ROOT / "docs/architecture.md").read_text(
-        encoding="utf-8"
-    )
-    data_model = (PROJECT_ROOT / "docs/data_model.md").read_text(
-        encoding="utf-8"
-    )
-    planning = (PROJECT_ROOT / "docs/planning_model.md").read_text(
-        encoding="utf-8"
-    )
+    architecture = (PROJECT_ROOT / "docs/architecture.md").read_text(encoding="utf-8")
+    data_model = (PROJECT_ROOT / "docs/data_model.md").read_text(encoding="utf-8")
+    planning = (PROJECT_ROOT / "docs/planning_model.md").read_text(encoding="utf-8")
 
     assert "```mermaid" in architecture
     assert "```mermaid" in data_model

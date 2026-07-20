@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from app.demo import DEMO_STATE_KEY, DemoProjectResult
+from app.demo import DEMO_STATE_KEY
 from app.models.enums import PlanningAlgorithm
 from app.projects.service import PLANNING_RESULT_STATE_KEY
 from app.services.contracts import PlanningResult
@@ -49,7 +49,7 @@ def _render_demo_loader() -> None:
         return
 
     try:
-        with st.spinner("Budowanie deterministycznego harmonogramu demo..."):
+        with st.spinner("Przygotowywanie harmonogramu demonstracyjnego..."):
             result = get_demo_project_service().build(
                 algorithm=PlanningAlgorithm(algorithm_value),
                 cp_sat_time_limit_s=float(cp_sat_limit),
@@ -62,7 +62,7 @@ def _render_demo_loader() -> None:
     else:
         st.session_state[_DEMO_RESULT_STATE_KEY] = result
         st.success(
-            "Demo zostało wczytane. Zlecenia, orbity OMM, okna dostępu, "
+            "Scenariusz został wczytany. Zlecenia, orbity OMM, okna dostępu, "
             "harmonogram, metadane projektu i historia planu są dostępne "
             "w pozostałych modułach."
         )
@@ -74,7 +74,7 @@ def _render_loaded_demo() -> None:
     demo_state = st.session_state.get(DEMO_STATE_KEY)
     if not isinstance(planning, PlanningResult) or not demo_state:
         st.info(
-            "Wczytaj demo, aby od razu pokazać planowanie, eksport projektu "
+            "Wczytaj scenariusz, aby uruchomić planowanie, eksport projektu "
             "i generator raportu bez pobierania danych z Internetu."
         )
         return
@@ -119,27 +119,27 @@ def _render_loaded_demo() -> None:
         render_planning_result(planning)
 
     st.info(
-        "Następne kroki prezentacji: „Globus operacyjny” → 48-godzinne "
-        "ślady i okna dostępu, „Projekty i scenariusze” → eksport ZIP, "
-        "„Raporty i wyniki” → DOCX/XLSX/HTML, a „Planowanie” → porównanie "
-        "Greedy i CP-SAT na tych samych 50 zleceniach."
+        "Dalsza praca: „Globus operacyjny” pokazuje ślady i okna "
+        "dostępu, „Projekty” umożliwiają eksport ZIP, „Raporty” generują "
+        "DOCX/XLSX/HTML, a „Planowanie scenariuszy referencyjnych” "
+        "porównuje Greedy i CP-SAT na tych samych 50 zleceniach."
     )
 
 
 def render_demo_page() -> None:
     """Udostępnia gotowy, offline'owy scenariusz prezentacyjny Polski."""
 
-    st.header("Demo i kontrola wydania")
+    st.header("Start i scenariusz demonstracyjny")
     st.info(
-        "Gotowy scenariusz pozwala zaprezentować najważniejsze funkcje bez "
-        "ręcznego tworzenia AOI i bez zależności od bieżącej dostępności "
-        "CelesTrak oraz Open-Meteo."
+        "Scenariusz referencyjny pozwala rozpocząć pracę bez ręcznego "
+        "tworzenia AOI i bez zależności od bieżącej dostępności CelesTrak "
+        "oraz Open-Meteo."
     )
     _render_demo_loader()
     _render_loaded_demo()
     st.caption(
-        "Demo jest zestawem referencyjnym do prezentacji i testów regresyjnych; "
-        "nie reprezentuje potwierdzonego taskingu operatorów satelitarnych."
+        "Dane demonstracyjne służą do prezentacji i testów regresyjnych. "
+        "Nie reprezentują potwierdzonego taskingu operatorów."
     )
 
 

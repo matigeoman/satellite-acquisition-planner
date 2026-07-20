@@ -49,7 +49,8 @@ def _available_modes(request: ObservationRequest):
     return [
         mode
         for mode in modes
-        if mode.is_active and mode.nominal_resolution_m <= request.resolution_limit_for(mode.sensor_type)
+        if mode.is_active
+        and mode.nominal_resolution_m <= request.resolution_limit_for(mode.sensor_type)
     ]
 
 
@@ -162,7 +163,7 @@ def _render_opportunity_builder(
         window.sensor_type == SensorType.OPTICAL for window in result.windows
     )
     st.divider()
-    st.header("Prognoza zachmurzenia i okazje dla solvera")
+    st.header("Pogoda i okazje akwizycyjne")
     st.info(
         "Okna geometryczne są teraz przekształcane do pełnych obiektów "
         "AcquisitionOpportunity. Dla Pléiades Neo program pobiera godzinową "
@@ -186,11 +187,11 @@ def _render_opportunity_builder(
             disabled=optical_window_count == 0,
         )
         weather_offline = right.toggle(
-            "Tylko cache pogody",
+            "Tylko dane pogodowe z pamięci",
             value=False,
             disabled=optical_window_count == 0,
             help=(
-                "Nie łączy się z Open-Meteo. Wymaga wcześniejszego cache "
+                "Nie łączy się z Open-Meteo. Wymaga wcześniej zapisanej prognozy "
                 "dla dokładnie tego AOI i zakresu czasu."
             ),
         )
@@ -220,14 +221,12 @@ def _render_opportunity_builder(
                 with st.spinner(
                     "Pobieranie Open-Meteo i próbkowanie zachmurzenia nad AOI..."
                 ):
-                    assessments = (
-                        get_cloud_assessment_service().assess_windows(
-                            request=request,
-                            windows=result.windows,
-                            aggregation=aggregation,
-                            maximum_sampling_points=sampling_points,
-                            allow_network=not weather_offline,
-                        )
+                    assessments = get_cloud_assessment_service().assess_windows(
+                        request=request,
+                        windows=result.windows,
+                        aggregation=aggregation,
+                        maximum_sampling_points=sampling_points,
+                        allow_network=not weather_offline,
                     )
             build_result = build_public_opportunities(
                 request=request,
@@ -242,7 +241,7 @@ def _render_opportunity_builder(
         builds[request.request_id] = build_result
         st.success(
             "Okazje zapisano w sesji. Są dostępne w module "
-            "„Planowanie publiczne”."
+            "„Planowanie na danych publicznych”."
         )
 
     build_result = st.session_state.get(_PUBLIC_BUILDS_STATE_KEY, {}).get(
@@ -286,9 +285,7 @@ def _render_opportunity_builder(
 
     if build_result.weather_assessments:
         st.subheader("Ocena zachmurzenia okien EO")
-        weather_table = cloud_assessments_dataframe(
-            build_result.weather_assessments
-        )
+        weather_table = cloud_assessments_dataframe(build_result.weather_assessments)
         st.dataframe(
             weather_table,
             width="stretch",
@@ -311,7 +308,7 @@ def _render_opportunity_builder(
             },
         )
 
-    st.subheader("AcquisitionOpportunity")
+    st.subheader("Okazje akwizycyjne")
     opportunity_table = public_opportunities_dataframe(build_result)
     st.dataframe(
         opportunity_table,
@@ -360,7 +357,7 @@ def _render_opportunity_builder(
 def render_access_page() -> None:
     """Wyznacza okna, prognozę zachmurzenia i okazje planistyczne."""
 
-    st.header("Okna dostępu z publicznych orbit")
+    st.header("Okna dostępu")
     st.info(
         "Moduł łączy zlecenie Point/Polygon, publiczne OMM, propagację "
         "SGP4 oraz profile ICEYE i Pléiades Neo. Wyniki są orientacyjnymi "
@@ -413,9 +410,9 @@ def render_access_page() -> None:
             format_func=lambda value: _mode_label(modes_by_id[value]),
         )
         offline = third.toggle(
-            "Tylko lokalny cache orbit",
+            "Tylko lokalne dane orbitalne",
             value=False,
-            help="Nie pobiera OMM z sieci. Wymaga wcześniejszego cache.",
+            help="Nie pobiera OMM z sieci. Wymaga wcześniej zapisanych danych.",
         )
 
         horizon_hours = (
@@ -443,9 +440,7 @@ def render_access_page() -> None:
         if snapshot is None:
             try:
                 with st.spinner("Pobieranie publicznych OMM..."):
-                    snapshot = load_public_orbit_snapshot(
-                        allow_network=not offline
-                    )
+                    snapshot = load_public_orbit_snapshot(allow_network=not offline)
             except CelestrakClientError as error:
                 st.error(str(error))
                 return

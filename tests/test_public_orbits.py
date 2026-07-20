@@ -9,7 +9,6 @@ import pytest
 from app.integrations.orbits import (
     CelestrakClient,
     CelestrakClientError,
-    CelestrakQueryResult,
     PublicOrbitRecord,
     SatelliteFamily,
     Sgp4OrbitPropagator,

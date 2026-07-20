@@ -10,7 +10,7 @@ def test_live_tracking_page_is_registered() -> None:
     pages = (PROJECT_ROOT / "app/ui/pages/__init__.py").read_text(encoding="utf-8")
 
     assert "LIVE_TRACKING" in navigation
-    assert "Śledzenie satelitów na żywo" in navigation
+    assert "Śledzenie i przeloty" in navigation
     assert "render_live_tracking_page" in streamlit_app
     assert "render_live_tracking_page" in pages
 
@@ -29,14 +29,17 @@ def test_live_tracking_page_contains_live_fragment_and_planner_context() -> None
     assert "build_sky_map_figure" in source
     assert "build_live_ground_map_figure" in source
 
+
 def test_live_tracking_time_input_uses_supported_step() -> None:
     source = (PROJECT_ROOT / "app/ui/pages/live_tracking.py").read_text(
         encoding="utf-8"
     )
 
-    assert 'step=timedelta(minutes=1)' in source
-    assert 'step=timedelta(seconds=30),\n                key="live_tracking_time"' not in source
-
+    assert "step=timedelta(minutes=1)" in source
+    assert (
+        'step=timedelta(seconds=30),\n                key="live_tracking_time"'
+        not in source
+    )
 
 
 def test_live_tracking_hardening_controls_are_present() -> None:
@@ -47,7 +50,7 @@ def test_live_tracking_hardening_controls_are_present() -> None:
     assert "force_refresh=True" in source
     assert "Źródło i jakość danych orbitalnych" in source
     assert "Tylko widoczne optycznie" in source
-    assert "Tylko powiązane z plannerem" in source
-    assert "Ground track" in source
+    assert "Tylko powiązane z harmonogramem" in source
+    assert "Ślad naziemny" in source
     assert "Wynik [0–100]" in source
-    assert '"Okna access"' in source
+    assert '"Okna dostępu"' in source

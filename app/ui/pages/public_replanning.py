@@ -64,7 +64,7 @@ def _weather_changes_dataframe(result: PublicReplanningResult) -> pd.DataFrame:
 def render_public_replanning_page() -> None:
     """Odświeża pogodę i przeplanowuje publiczny harmonogram."""
 
-    st.header("Dynamiczne przeplanowanie publiczne")
+    st.header("Przeplanowanie na danych publicznych")
     st.info(
         "Moduł odświeża prognozę Open-Meteo dla przyszłych okazji EO, "
         "zachowuje akwizycje wykonane i znajdujące się w oknie zamrożonym, "
@@ -74,7 +74,7 @@ def render_public_replanning_page() -> None:
     previous_result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)
     if not isinstance(previous_result, PlanningResult):
         st.warning(
-            "Najpierw uruchom solver w module „Planowanie publiczne”."
+            "Najpierw uruchom solver w module „Planowanie na danych publicznych”."
         )
         return
 
@@ -116,11 +116,7 @@ def render_public_replanning_page() -> None:
                 PlanningAlgorithm.GREEDY.value,
                 PlanningAlgorithm.CP_SAT.value,
             ],
-            index=(
-                1
-                if previous_result.algorithm == PlanningAlgorithm.CP_SAT
-                else 0
-            ),
+            index=(1 if previous_result.algorithm == PlanningAlgorithm.CP_SAT else 0),
             format_func=algorithm_display_name,
             horizontal=True,
         )
@@ -139,7 +135,7 @@ def render_public_replanning_page() -> None:
             value=9,
         )
         weather_offline = weather_columns[2].toggle(
-            "Tylko cache pogody",
+            "Tylko dane pogodowe z pamięci",
             value=False,
             help=(
                 "Bez połączenia z Open-Meteo. Używa ostatniego zgodnego "
@@ -200,21 +196,15 @@ def render_public_replanning_page() -> None:
             use_dynamic_transition_model=(
                 previous_result.options.use_dynamic_transition_model
             ),
-            eo_stabilization_time_s=(
-                previous_result.options.eo_stabilization_time_s
-            ),
-            sar_stabilization_time_s=(
-                previous_result.options.sar_stabilization_time_s
-            ),
+            eo_stabilization_time_s=(previous_result.options.eo_stabilization_time_s),
+            sar_stabilization_time_s=(previous_result.options.sar_stabilization_time_s),
             sar_side_switch_penalty_s=(
                 previous_result.options.sar_side_switch_penalty_s
             ),
             sar_mode_switch_penalty_s=(
                 previous_result.options.sar_mode_switch_penalty_s
             ),
-            sar_slew_rate_deg_s=(
-                previous_result.options.sar_slew_rate_deg_s
-            ),
+            sar_slew_rate_deg_s=(previous_result.options.sar_slew_rate_deg_s),
             sar_pass_gap_s=previous_result.options.sar_pass_gap_s,
             sar_max_acquisitions_per_pass=(
                 previous_result.options.sar_max_acquisitions_per_pass

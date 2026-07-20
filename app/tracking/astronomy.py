@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from math import cos, pi, radians, sin, sqrt
+from math import cos, radians, sin, sqrt
 
 from app.integrations.access import solar_elevation_deg
 from app.integrations.orbits import PropagatedState
@@ -20,11 +20,15 @@ def _julian_date(timestamp_utc: datetime) -> float:
     timestamp = timestamp_utc.astimezone(timezone.utc)
     year = timestamp.year
     month = timestamp.month
-    day = timestamp.day + (
-        timestamp.hour
-        + timestamp.minute / 60.0
-        + (timestamp.second + timestamp.microsecond / 1_000_000.0) / 3600.0
-    ) / 24.0
+    day = (
+        timestamp.day
+        + (
+            timestamp.hour
+            + timestamp.minute / 60.0
+            + (timestamp.second + timestamp.microsecond / 1_000_000.0) / 3600.0
+        )
+        / 24.0
+    )
     if month <= 2:
         year -= 1
         month += 12

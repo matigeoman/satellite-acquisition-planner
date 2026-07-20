@@ -1,3 +1,5 @@
+"""Narzędzia analityczne i raportowe planera."""
+
 from app.analysis.algorithm_benchmark import (
     AlgorithmBenchmarkConfig,
     AlgorithmBenchmarkResult,
@@ -5,7 +7,6 @@ from app.analysis.algorithm_benchmark import (
     BenchmarkRunRecord,
     BenchmarkSummaryRecord,
 )
-"""Narzędzia analityczne i raportowe planera."""
 
 from app.analysis.schedule import (
     EntryKPI,

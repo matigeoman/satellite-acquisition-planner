@@ -1,36 +1,42 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.0.0` — wydanie stabilne
+**Wersja:** `1.0.1`
 
-Informacje o zakresie wydania, walidacji i znanych ograniczeniach: [`RELEASE_NOTES.md`](RELEASE_NOTES.md).
+Satellite Acquisition Planner jest aplikacją badawczo-inżynierską do planowania
+akwizycji zobrazowań satelitarnych SAR i EO. Łączy dane orbitalne OMM,
+propagację SGP4, geometryczne okna dostępu, prognozę zachmurzenia, algorytmy
+Greedy i CP-SAT, przeplanowanie oraz walidację względem STK.
 
-Aplikacja do wielokryterialnego planowania akwizycji zobrazowań satelitarnych
-SAR i optycznych EO. Łączy publiczne dane orbitalne, propagację SGP4,
-geometryczne okna dostępu, prognozę zachmurzenia, algorytm Greedy, model CP-SAT,
-dynamiczne przeplanowanie, walidację STK i eksport wyników naukowych.
+Projekt działa lokalnie albo w kontenerze Docker. Scenariusz `POLAND_DEMO`
+zawiera kompletny zestaw danych offline do prezentacji i testów regresyjnych.
 
-## Najważniejsze funkcje
+## Zakres funkcjonalny
 
-- publiczna konstelacja modelowa: 4 satelity ICEYE i 2 Pléiades Neo,
-- AOI jako Point, Polygon lub Rectangle oraz import/eksport GeoJSON,
-- GP/OMM z CelesTrak, cache i propagacja SGP4,
-- geometryczne okna dostępu oraz trajektorie na globusie Plotly,
-- mapa nieba azymut–elewacja, bieżące pozycje SGP4 i predykcja przelotów AOS/MAX/LOS,
-- zachmurzenie Open-Meteo dla okazji EO,
-- zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`,
-- planowanie Greedy i CP-SAT ze wspólną funkcją celu,
-- dynamiczne manewry EO, przejścia ICEYE LEFT/RIGHT i limit SAR–EO,
-- przeplanowanie z oknem zamrożonym i odświeżeniem pogody,
-- import Access/AER i porównanie wyników z STK,
-- benchmarki skalowalności Greedy kontra CP-SAT,
-- przenośne archiwa `.satplan.zip` z manifestem SHA-256,
-- raporty HTML, DOCX, XLSX, JSON, CSV i PNG,
-- audyt repozytorium oraz automatyczna kontrola GitHub Actions,
-- obraz Docker, healthcheck i uruchamianie jednym poleceniem,
-- rozbudowany scenariusz `POLAND_DEMO`: 48 h, 50 zleceń i 500 okazji,
-- końcowa kontrola E2E obejmująca OMM, SGP4, access, planowanie i raporty.
+### Dane i geometria
 
-## Instalacja
+- profile 4 satelitów ICEYE i 2 satelitów Pléiades Neo;
+- AOI typu Point, Polygon i Rectangle oraz import/eksport GeoJSON;
+- pobieranie OMM z CelesTrak, lokalna pamięć podręczna i propagacja SGP4;
+- okna dostępu, ślady naziemne, mapa nieba i predykcja AOS/MAX/LOS;
+- zachmurzenie Open-Meteo uwzględniane dla okazji EO.
+
+### Planowanie
+
+- zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`;
+- wspólna funkcja celu dla Greedy i OR-Tools CP-SAT;
+- ograniczenia zasobów, manewrów, trybów obrazowania i par SAR–EO;
+- przeplanowanie z oknem zamrożonym i odświeżeniem danych pogodowych;
+- benchmarki oraz porównanie jakości i czasu działania algorytmów.
+
+### Wyniki i walidacja
+
+- globus operacyjny i wizualizacje Plotly;
+- import raportów Access/AER z STK;
+- przenośne archiwa `.satplan.zip` z manifestem SHA-256;
+- raporty HTML, DOCX, XLSX, JSON, CSV i PNG;
+- audyt repozytorium, test E2E, GitHub Actions i healthcheck Dockera.
+
+## Szybki start
 
 Projekt jest walidowany referencyjnie na Pythonie 3.11.
 
@@ -39,9 +45,8 @@ conda create -n satplan python=3.11
 conda activate satplan
 python -m pip install --upgrade pip
 python -m pip install -r .\requirements-dev.txt
+python -m streamlit run .\streamlit_app.py
 ```
-
-Pełna instrukcja: [`docs/installation.md`](docs/installation.md).
 
 Uruchomienie przez Docker:
 
@@ -49,133 +54,98 @@ Uruchomienie przez Docker:
 .\scripts\start_satplan.ps1
 ```
 
-Dokumentacja kontenera: [`docs/docker.md`](docs/docker.md).
+Domyślny adres aplikacji: `http://localhost:8501`.
 
-## Uruchomienie
-
-```powershell
-streamlit run .\streamlit_app.py
-```
-
-Tryb CLI:
+## CLI
 
 ```powershell
 python -m app.cli check
 python -m app.cli paths
 python -m app.cli plan --scenario POLAND_DEMO --algorithm CP_SAT
-python -m app.cli audit
-python -m app.cli health --skip-http
-python -m app.cli release-check --algorithm GREEDY
-```
-
-## Kontrola jakości
-
-Pełna kontrola wydania na Windows/PowerShell:
-
-```powershell
-.\scripts\verify_release.ps1
-```
-
-Kontrola wraz z czystym buildem Dockera:
-
-```powershell
-.\scripts\verify_release.ps1 -Docker -NoCache
-```
-
-Polecenia składowe:
-
-```powershell
-pytest -q
-ruff check app tests streamlit_app.py scripts
-python -m app.cli check
 python -m app.cli audit --strict
 python -m app.cli health --skip-http
 python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
 ```
 
-Raport audytu w JSON:
+## Kontrola jakości
+
+Pełna kontrola lokalna:
 
 ```powershell
-python -m app.cli audit `
-    --json .\data\generated\reports\project_audit.json
+.\scripts\verify_release.ps1
 ```
 
-Workflow `.github/workflows/quality.yml` wykonuje te kontrole po każdym pushu i
-pull requeście na Pythonie 3.11. Workflow `.github/workflows/docker.yml` buduje
-obraz i wykonuje test uruchomieniowy kontenera.
+Kontrola z czystym buildem obrazu:
 
-## Typowy przepływ
+```powershell
+.\scripts\verify_release.ps1 -Docker -NoCache
+```
+
+Skrypt wykonuje testy, linting, audyt, healthcheck, pełny scenariusz E2E oraz
+kontrole wewnątrz kontenera.
+
+## Przepływ danych
 
 ```text
 AOI i zlecenia
     ↓
-publiczne OMM + SGP4
+OMM + SGP4
     ↓
-okna dostępu
+okna dostępu i pogoda EO
     ↓
-pogoda EO i okazje
+okazje akwizycyjne
     ↓
 Greedy / CP-SAT
     ↓
 harmonogram i przeplanowanie
     ↓
-STK, benchmarki, archiwum projektu i raport
+walidacja STK, archiwum projektu i raporty
 ```
 
 ## Struktura
 
 ```text
 app/models          modele domenowe i walidacja
-app/config          centralne ścieżki
-app/io              zapis i odczyt danych
-app/integrations    orbity, access, pogoda i STK
+app/integrations    orbity, dostęp, pogoda i STK
 app/planning        Greedy, CP-SAT i ograniczenia
 app/services        przypadki użycia
-app/analysis        KPI, porównania i eksperymenty
+app/analysis        KPI, benchmarki i eksperymenty
 app/projects        archiwa projektów
-app/reporting       HTML, DOCX, XLSX i dane źródłowe
-app/quality         audyt repozytorium, środowiska i kontrola E2E
-app/demo            deterministyczny scenariusz prezentacyjny
-app/tracking        mapa nieba, topocentryka i predykcja przelotów
+app/reporting       generowanie raportów
+app/quality         audyt, healthcheck i kontrola E2E
+app/tracking        topocentryka i predykcja przelotów
 app/ui              interfejs Streamlit
 app/visualization   wizualizacje Plotly
-scripts             skrypty uruchomieniowe
-tests               testy jednostkowe i integracyjne
-docs                dokumentacja
+scripts             narzędzia uruchomieniowe i diagnostyczne
+tests               testy jednostkowe, integracyjne i regresyjne
+docs                dokumentacja techniczna i użytkowa
 ```
+
+Pełny opis znajduje się w [`docs/project_structure.md`](docs/project_structure.md).
 
 ## Dokumentacja
 
-Pełny indeks: [`docs/index.md`](docs/index.md).
-
-Najważniejsze rozdziały:
-
+- [indeks dokumentacji](docs/index.md),
+- [instalacja](docs/installation.md),
 - [instrukcja użytkownika](docs/user_guide.md),
 - [architektura](docs/architecture.md),
-- [model danych](docs/data_model.md),
 - [model planowania](docs/planning_model.md),
-- [publiczne źródła danych](docs/public_data_sources.md),
-- [metodyka naukowa](docs/scientific_methodology.md),
-- [benchmarking](docs/benchmarking.md),
+- [źródła danych](docs/public_data_sources.md),
+- [śledzenie satelitów](docs/live_tracking_and_sky_map.md),
 - [walidacja STK](docs/stk_validation.md),
+- [kontrola jakości](docs/quality_and_release.md),
 - [ograniczenia modelu](docs/limitations.md),
-- [przewodnik deweloperski](docs/developer_guide.md),
-- [informacje o wydaniu 1.0.0](RELEASE_NOTES.md),
-- [kontrola jakości i wydania](docs/quality_and_release.md),
-- [rozwiązywanie problemów](docs/troubleshooting.md),
-- [Docker i wdrożenie](docs/docker.md),
-- [demo i kontrola wydania](docs/demo_and_release_check.md),
-- [śledzenie satelitów i mapa nieba](docs/live_tracking_and_sky_map.md).
+- [informacje o wydaniu](RELEASE_NOTES.md).
 
 ## Zakres interpretacji
 
-Okna dostępu i harmonogram są wynikiem modelu opartego na danych publicznych.
-Nie potwierdzają dostępności komercyjnej, rezerwacji taskingu ani wykonania
-akwizycji przez operatora. Zachmurzenie wpływa na EO, nie na SAR. Parametry
-operacyjne ICEYE dotyczące manewrów są jawnymi założeniami badawczymi. STK jest
-narzędziem walidacji i nie jest wymagany do podstawowego działania aplikacji.
+Wyniki są rezultatami modelu opartego na danych publicznych. Nie potwierdzają
+komercyjnej dostępności satelity, rezerwacji taskingu ani wykonania akwizycji.
+Parametry manewrowe i budżety zasobów są jawnymi założeniami badawczymi.
+Zachmurzenie wpływa na EO, lecz nie na SAR. STK służy do walidacji i nie jest
+wymagany do podstawowego działania aplikacji.
 
 ## Wersjonowanie
 
-Źródłem wersji jest plik [`VERSION`](VERSION). Historia zmian znajduje się w
-[`CHANGELOG.md`](CHANGELOG.md).
+Bieżąca wersja znajduje się w pliku [`VERSION`](VERSION). Historia zmian jest
+prowadzona w [`CHANGELOG.md`](CHANGELOG.md).

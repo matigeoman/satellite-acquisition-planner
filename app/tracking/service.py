@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from math import sqrt
 from typing import Protocol
 
@@ -58,7 +58,6 @@ def orbit_data_quality(age_hours: float) -> OrbitDataQuality:
     return OrbitDataQuality.VERY_STALE
 
 
-
 def _linear_value(
     first_time: datetime,
     first_value: float,
@@ -88,12 +87,18 @@ def _duration_above_elevation(
         if segment_end <= segment_start:
             continue
         first_elevation = _linear_value(
-            first.timestamp_utc, first.elevation_deg,
-            second.timestamp_utc, second.elevation_deg, segment_start,
+            first.timestamp_utc,
+            first.elevation_deg,
+            second.timestamp_utc,
+            second.elevation_deg,
+            segment_start,
         )
         second_elevation = _linear_value(
-            first.timestamp_utc, first.elevation_deg,
-            second.timestamp_utc, second.elevation_deg, segment_end,
+            first.timestamp_utc,
+            first.elevation_deg,
+            second.timestamp_utc,
+            second.elevation_deg,
+            segment_end,
         )
         duration = (segment_end - segment_start).total_seconds()
         first_above = first_elevation >= threshold_deg
@@ -154,7 +159,11 @@ def pass_quality_score(
     range_points = max(0.0, min(10.0, (2500.0 - minimum_range_km) / 2000.0 * 10.0))
     optical_points = min(5.0, max(0.0, optically_visible_duration_minutes) / 3.0 * 5.0)
     return round(
-        elevation_points + useful_time_points + duration_points + range_points + optical_points,
+        elevation_points
+        + useful_time_points
+        + duration_points
+        + range_points
+        + optical_points,
         1,
     )
 
@@ -219,9 +228,9 @@ class LiveTrackingService:
                 state=propagated,
                 next_state=next_state,
             )
-            age_hours = abs(
-                (timestamp - satellite.record.epoch_utc).total_seconds()
-            ) / 3600.0
+            age_hours = (
+                abs((timestamp - satellite.record.epoch_utc).total_seconds()) / 3600.0
+            )
             result.append(
                 LiveSatelliteState(
                     slot_id=satellite.slot_id,
@@ -283,9 +292,7 @@ class LiveTrackingService:
         result: list[TopocentricState] = []
         for index, state in enumerate(track.states):
             next_state = (
-                track.states[index + 1]
-                if index + 1 < len(track.states)
-                else None
+                track.states[index + 1] if index + 1 < len(track.states) else None
             )
             result.append(
                 topocentric_from_state(
@@ -356,8 +363,7 @@ class LiveTrackingService:
             above = sample.elevation_deg >= minimum_elevation_deg
             previous = samples[index - 1] if index > 0 else None
             previous_above = (
-                previous is not None
-                and previous.elevation_deg >= minimum_elevation_deg
+                previous is not None and previous.elevation_deg >= minimum_elevation_deg
             )
 
             if above and not previous_above:
@@ -439,15 +445,11 @@ class LiveTrackingService:
                     maximum_elevation_deg=maximum_sample.elevation_deg,
                     los_azimuth_deg=los.azimuth_deg,
                     minimum_range_km=maximum_sample.range_km,
-                    satellite_illuminated_at_maximum=(
-                        visibility.satellite_illuminated
-                    ),
+                    satellite_illuminated_at_maximum=(visibility.satellite_illuminated),
                     observer_sun_elevation_at_maximum_deg=(
                         visibility.observer_sun_elevation_deg
                     ),
-                    optical_visibility_at_maximum=(
-                        visibility.optical_visibility
-                    ),
+                    optical_visibility_at_maximum=(visibility.optical_visibility),
                     time_above_10_deg_s=time_above_10,
                     optically_visible_duration_s=visible_duration,
                     quality_score=quality_score,

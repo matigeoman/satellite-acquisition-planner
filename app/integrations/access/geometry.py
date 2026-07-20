@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from math import acos, asin, atan2, cos, degrees, pi, radians, sin, sqrt
+from math import acos, asin, cos, degrees, pi, radians, sin, sqrt
 
 from app.geospatial.aoi import geometry_bounds, geometry_centroid
 from app.models.geometry import PointGeometry, TargetGeometry
@@ -57,14 +57,10 @@ def geodetic_to_ecef(
     latitude = radians(latitude_deg)
     longitude = radians(longitude_deg)
     sin_latitude = sin(latitude)
-    prime_vertical = WGS84_A_KM / sqrt(
-        1.0 - WGS84_E2 * sin_latitude * sin_latitude
-    )
+    prime_vertical = WGS84_A_KM / sqrt(1.0 - WGS84_E2 * sin_latitude * sin_latitude)
     x = (prime_vertical + altitude_km) * cos(latitude) * cos(longitude)
     y = (prime_vertical + altitude_km) * cos(latitude) * sin(longitude)
-    z = (
-        prime_vertical * (1.0 - WGS84_E2) + altitude_km
-    ) * sin_latitude
+    z = (prime_vertical * (1.0 - WGS84_E2) + altitude_km) * sin_latitude
     return x, y, z
 
 
@@ -182,9 +178,7 @@ def haversine_distance_km(
     delta_longitude = radians(second_longitude_deg - first_longitude_deg)
     haversine = (
         sin(delta_latitude / 2.0) ** 2
-        + cos(first_latitude)
-        * cos(second_latitude)
-        * sin(delta_longitude / 2.0) ** 2
+        + cos(first_latitude) * cos(second_latitude) * sin(delta_longitude / 2.0) ** 2
     )
     central_angle = 2.0 * asin(sqrt(_clamp(haversine, 0.0, 1.0)))
     return MEAN_EARTH_RADIUS_KM * central_angle
@@ -259,9 +253,7 @@ def solar_elevation_deg(
         + timestamp.second / 3600.0
         + timestamp.microsecond / 3_600_000_000.0
     )
-    gamma = 2.0 * pi / 365.0 * (
-        day_of_year - 1 + (fractional_hour - 12.0) / 24.0
-    )
+    gamma = 2.0 * pi / 365.0 * (day_of_year - 1 + (fractional_hour - 12.0) / 24.0)
     equation_of_time = 229.18 * (
         0.000075
         + 0.001868 * cos(gamma)
@@ -284,9 +276,8 @@ def solar_elevation_deg(
     hour_angle_deg = true_solar_minutes / 4.0 - 180.0
     latitude = radians(latitude_deg)
     hour_angle = radians(hour_angle_deg)
-    cosine_zenith = (
-        sin(latitude) * sin(declination)
-        + cos(latitude) * cos(declination) * cos(hour_angle)
-    )
+    cosine_zenith = sin(latitude) * sin(declination) + cos(latitude) * cos(
+        declination
+    ) * cos(hour_angle)
     zenith = acos(_clamp(cosine_zenith, -1.0, 1.0))
     return 90.0 - degrees(zenith)

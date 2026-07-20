@@ -1,20 +1,20 @@
 # Kontrola jakości i wydania
 
-## Jedno polecenie dla wydania 1.0.0
-
-Na Windows/PowerShell w aktywnym repozytorium:
+## Pełna walidacja
 
 ```powershell
 .\scripts\verify_release.ps1
 ```
 
-Pełna kontrola wraz z czystym buildem obrazu Docker:
+Wariant z czystym buildem obrazu Docker:
 
 ```powershell
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Skrypt wymaga `VERSION=1.0.0`, zatrzymuje się po pierwszym błędzie i uruchamia wszystkie kontrole opisane poniżej. Domyślnie po teście zatrzymuje kontener. Parametr `-KeepContainer` pozostawia go uruchomionego.
+Skrypt wymaga wersji `1.0.1`, zatrzymuje się po pierwszym błędzie i domyślnie
+wyłącza kontener po zakończeniu. Parametr `-KeepContainer` pozostawia go
+uruchomionego.
 
 ## Polecenia składowe
 
@@ -29,79 +29,58 @@ python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
 python .\scripts\cleanup_repository.py --project-root . --dry-run
 ```
 
-## Audyt CLI
+## Audyt repozytorium
 
-`audit` sprawdza:
+`python -m app.cli audit` sprawdza:
 
-- wersję Pythona i aplikacji,
-- wymagane pliki i katalogi,
-- dostępność zależności,
-- poprawność UTF-8 i typowe ślady mojibake,
-- składnię JSON scenariuszy i harmonogramów referencyjnych,
-- integralność scenariuszy,
-- import głównych modułów,
-- katalogi wynikowe,
-- kompletność Dockerfile, Compose, wolumenów i healthchecku,
-- brak nieaktywnych modułów Cesium, notatek etapów, paczek roboczych, hotfixów, instalatorów i raportów wygenerowanych w katalogu głównym.
+- wersję Pythona i aplikacji;
+- obecność wymaganych plików;
+- dostępność zależności;
+- UTF-8, zakończenia linii i typowe ślady mojibake;
+- składnię JSON i integralność scenariuszy;
+- import głównych modułów;
+- katalogi wynikowe;
+- Dockerfile, Compose, wolumeny i healthcheck;
+- brak plików tymczasowych, paczek roboczych i wycofanych modułów.
 
-Raport maszynowy:
+Raport JSON:
 
 ```powershell
-python -m app.cli audit --json .\data\generated\reports\project_audit.json
+python -m app.cli audit `
+    --strict `
+    --json .\data\generated\reports\project_audit.json
 ```
-
-`--strict` zwraca kod błędu również przy ostrzeżeniach.
 
 ## GitHub Actions
 
-Workflow `.github/workflows/quality.yml` uruchamia się przy push i pull request. Wykonuje instalację na Pythonie 3.11, testy, Ruff, `check`, ścisły audyt oraz pełną kontrolę E2E dla Greedy i CP-SAT.
+Workflow `quality` uruchamia testy, Ruff, kontrolę danych, audyt i E2E na
+Pythonie 3.11. Workflow `docker` sprawdza konfigurację Compose, buduje obraz,
+oczekuje na healthcheck i wykonuje kontrole wewnątrz kontenera.
 
-Workflow `.github/workflows/docker.yml` sprawdza Compose, buduje obraz `satplan:1.0.0`, uruchamia kontener testowy, oczekuje na pozytywny healthcheck, a następnie wykonuje `check`, ścisły audyt, healthcheck i kontrolę E2E wewnątrz kontenera.
-
-## Wersjonowanie
-
-Źródłem wersji jest plik `VERSION`. Moduł `app.version` udostępnia `__version__`. Archiwa projektów, raporty, obraz Docker, Compose i workflow CI używają tej samej wersji.
-
-## Healthcheck wdrożeniowy
+## Healthcheck
 
 ```powershell
 python -m app.cli health
 ```
 
-Kontrola obejmuje CP-SAT, scenariusz referencyjny, zapis danych oraz endpoint Streamlit. W czasie budowy obrazu używany jest wariant `--skip-http`.
+Kontrola obejmuje środowisko Pythona, CP-SAT, dane referencyjne, możliwość
+zapisu oraz endpoint Streamlit. Podczas budowy obrazu używany jest wariant
+`--skip-http`.
 
-## Końcowa kontrola E2E
-
-```powershell
-python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
-```
-
-Polecenie sprawdza scenariusz `POLAND_DEMO`, snapshot OMM, próbną propagację SGP4, referencyjne okna dostępu, mapę nieba i predykcje AOS/MAX/LOS, dane pogody EO, okazje, planowanie Greedy/CP-SAT, przeplanowanie, archiwum projektu i generator raportu. Test korzysta z lokalnych danych demonstracyjnych i nie wymaga połączenia z CelesTrak ani Open-Meteo.
-
-## Kryteria wydania 1.0.0
+## Kryteria wydania
 
 - `git status` jest czysty;
-- `VERSION`, dokumentacja, Docker i CI wskazują `1.0.0`;
-- wszystkie testy i Ruff przechodzą;
-- audyt na Pythonie 3.11 nie ma ostrzeżeń ani błędów;
-- pełny E2E kończy się statusem `RELEASE READY`;
-- scenariusz `POLAND_DEMO` działa bez sieci;
-- obraz Docker przechodzi build bez cache, healthcheck oraz audyt wewnątrz kontenera;
-- raporty HTML/DOCX/XLSX/JSON są generowane;
-- nie ma tymczasowych paczek, instrukcji hotfix, kopii roboczych ani wygenerowanych raportów w katalogu głównym.
+- wersja w `VERSION`, Dockerze, Compose, CI i dokumentacji jest spójna;
+- testy i Ruff przechodzą;
+- audyt na Pythonie 3.11 nie zgłasza błędów ani ostrzeżeń;
+- kontrola E2E kończy się statusem `RELEASE READY`;
+- `POLAND_DEMO` działa bez sieci;
+- obraz Docker przechodzi build bez cache i healthcheck;
+- raporty HTML, DOCX, XLSX i JSON są generowane;
+- katalog główny nie zawiera paczek aktualizacyjnych ani wyników roboczych.
 
-## Tag wydania
+## Wersjonowanie
 
-Tag należy utworzyć dopiero po pozytywnej kontroli finalnej paczki:
-
-```powershell
-git tag -a v1.0.0 -m "Satellite Acquisition Planner 1.0.0"
-git push origin v1.0.0
-```
-
-Przed tagiem należy ponownie sprawdzić:
-
-```powershell
-git status
-git tag --list v1.0.0
-```
+Źródłem wersji aplikacji jest plik `VERSION`. Wersje formatów danych i archiwum
+projektu są utrzymywane niezależnie, dlatego aktualizacja aplikacji nie wymaga
+automatycznego podnoszenia wersji schematów.

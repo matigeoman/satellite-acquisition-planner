@@ -34,7 +34,6 @@ def _default_scene_start() -> datetime:
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
-
 def _default_horizon_hours() -> int:
     """Dopasowuje horyzont widoku do aktywnego demo lub danych sesji."""
 
@@ -52,8 +51,7 @@ def _default_horizon_hours() -> int:
     access_result = st.session_state.get(_ACCESS_RESULT_STATE_KEY)
     if access_result is not None:
         duration = (
-            access_result.calculation_end_utc
-            - access_result.calculation_start_utc
+            access_result.calculation_end_utc - access_result.calculation_start_utc
         )
         hours = duration.total_seconds() / 3600.0
         for option in (48, 36, 24, 12, 6, 3):
@@ -61,6 +59,7 @@ def _default_horizon_hours() -> int:
                 return option
 
     return 3
+
 
 def _scene_export_payload(scene, tracks) -> dict:
     return {
@@ -102,19 +101,19 @@ def _render_category_legend(
     chips = "".join(
         (
             '<span style="display:inline-flex;align-items:center;gap:0.45rem;'
-            'padding:0.38rem 0.72rem;border:1px solid rgba(148,163,184,.30);'
-            'border-radius:999px;background:rgba(15,23,42,.78);'
+            "padding:0.38rem 0.72rem;border:1px solid rgba(148,163,184,.30);"
+            "border-radius:999px;background:rgba(15,23,42,.78);"
             'font-size:0.92rem;font-weight:650;white-space:nowrap;">'
             f'<span style="width:0.72rem;height:0.72rem;border-radius:50%;'
             f'background:{color};box-shadow:0 0 0 2px rgba(255,255,255,.12);">'
-            '</span>'
-            f'{label}</span>'
+            "</span>"
+            f"{label}</span>"
         )
         for color, label in items
     )
     st.markdown(
         '<div style="display:flex;flex-wrap:wrap;gap:0.55rem;'
-        'margin:0.2rem 0 0.7rem 0;">' + chips + '</div>',
+        'margin:0.2rem 0 0.7rem 0;">' + chips + "</div>",
         unsafe_allow_html=True,
     )
 
@@ -122,11 +121,11 @@ def _render_category_legend(
 def render_globe_page() -> None:
     """Renderuje niezależny od Cesium globus operacyjny i orbity 3D."""
 
-    st.header("Globus operacyjny i orbity 3D")
+    st.header("Globus operacyjny")
     st.info(
         "Widok wykorzystuje natywne wykresy Plotly. Nie wymaga Cesium Ion, "
         "tokenów Mapbox, kafelków OpenStreetMap ani własnego komponentu "
-        "JavaScript. Główny globus pokazuje Ziemię, ground tracki, AOI, "
+        "JavaScript. Główny globus pokazuje Ziemię, ślady naziemne, AOI, "
         "okna dostępu i planowane akwizycje. Druga karta przedstawia "
         "przestrzenną geometrię orbit."
     )
@@ -135,7 +134,7 @@ def render_globe_page() -> None:
     if snapshot is None:
         st.warning(
             "Brak danych orbitalnych w sesji. Najpierw pobierz OMM w module "
-            "„Orbity publiczne” albo użyj przycisku poniżej."
+            "„Orbity i dane OMM” albo użyj przycisku poniżej."
         )
         if st.button(
             "Pobierz OMM do wizualizacji",
@@ -189,7 +188,7 @@ def render_globe_page() -> None:
 
         layer_columns = st.columns(5)
         show_ground_tracks = layer_columns[0].toggle(
-            "Ground tracki",
+            "Ślady naziemne",
             value=True,
         )
         show_orbits_3d = layer_columns[1].toggle(
@@ -236,7 +235,7 @@ def render_globe_page() -> None:
             )
 
     if not visible_slots:
-        st.warning("Wybierz co najmniej jeden satelita do wizualizacji.")
+        st.warning("Wybierz co najmniej jednego satelitę do wizualizacji.")
         return
 
     start_utc = datetime.combine(
@@ -280,7 +279,7 @@ def render_globe_page() -> None:
         format="%d min",
         help=(
             "Określa moment pokazania bieżących pozycji satelitów. "
-            "Ground tracki pozostają śladem całego wybranego horyzontu. "
+            "Ślady naziemne obejmują cały wybrany horyzont. "
             "Dla projektu demonstracyjnego domyślnie używane jest 48 h."
         ),
     )
@@ -343,7 +342,7 @@ def render_globe_page() -> None:
             theme=None,
         )
         st.caption(
-            "Globus operacyjny pokazuje ground tracki jako rzut trajektorii "
+            "Globus operacyjny pokazuje ślady naziemne jako rzut trajektorii "
             "na powierzchnię Ziemi. Pomarańczowe odcinki oznaczają okna "
             "dostępu, a zielone połączenia — akwizycje wybrane przez planner."
         )
@@ -366,9 +365,7 @@ def render_globe_page() -> None:
     st.download_button(
         "Pobierz dane wizualizacji JSON",
         data=json.dumps(export_payload, ensure_ascii=False, indent=2),
-        file_name=(
-            f"public_orbits_{scene.start_utc.strftime('%Y%m%dT%H%M%SZ')}.json"
-        ),
+        file_name=(f"public_orbits_{scene.start_utc.strftime('%Y%m%dT%H%M%SZ')}.json"),
         mime="application/json",
         width="stretch",
     )
@@ -377,7 +374,7 @@ def render_globe_page() -> None:
         st.markdown(
             "- **Globus operacyjny:** projekcja ortograficzna Plotly z "
             "wbudowanym oceanem, lądami i lokalną siatką geograficzną.\n"
-            "- **Ground track:** rzut propagowanej trajektorii OMM/SGP4 na "
+            "- **Ślad naziemny:** rzut propagowanej trajektorii OMM/SGP4 na "
             "WGS84.\n"
             "- **Orbity przestrzenne:** pozycje wyliczone z szerokości, "
             "długości i wysokości satelity.\n"

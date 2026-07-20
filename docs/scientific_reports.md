@@ -1,6 +1,6 @@
 # Raporty naukowe i eksport wyników
 
-Moduł `Raporty i wyniki` buduje jeden deterministyczny snapshot bieżącej sesji i renderuje go do kilku formatów:
+Moduł `Raporty` buduje jeden deterministyczny snapshot bieżącej sesji i renderuje go do kilku formatów:
 
 - `report.html` — samodzielny dokument z osadzonymi wykresami;
 - `report.docx` — edytowalny raport do dalszego opracowania w pracy dyplomowej;

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-import pandas as pd
 import streamlit as st
 
 from app.catalogs import ICEYE_PUBLIC_PROFILE, PLEIADES_NEO_PUBLIC_PROFILE
@@ -53,8 +52,7 @@ def _selection_label(value: tuple[str, str], windows) -> str:
         for window in windows
     )
     return (
-        f"{satellite_id} · {first.satellite_name} · {first.mode_name} "
-        f"({count} okien)"
+        f"{satellite_id} · {first.satellite_name} · {first.mode_name} ({count} okien)"
     )
 
 
@@ -113,7 +111,9 @@ def _render_access_validation(
         type=["csv", "txt"],
         key="stk_access_report_upload",
     )
-    default_tolerance = max(120, int(st.session_state[_ACCESS_RESULT_STATE_KEY].propagation_step_s * 3))
+    default_tolerance = max(
+        120, int(st.session_state[_ACCESS_RESULT_STATE_KEY].propagation_step_s * 3)
+    )
     tolerance_s = st.slider(
         "Maksymalna różnica używana do dopasowania okien [s]",
         min_value=0,
@@ -144,7 +144,9 @@ def _render_access_validation(
         st.warning(warning)
     st.caption(
         "Rozpoznane kolumny: "
-        + ", ".join(f"{key} = {value}" for key, value in report.detected_columns.items())
+        + ", ".join(
+            f"{key} = {value}" for key, value in report.detected_columns.items()
+        )
     )
 
     metrics = st.columns(6)
@@ -228,7 +230,9 @@ def _render_aer_validation(
         "Tolerancja dopasowania próbek AER [s]",
         min_value=0,
         max_value=300,
-        value=max(30, int(st.session_state[_ACCESS_RESULT_STATE_KEY].propagation_step_s)),
+        value=max(
+            30, int(st.session_state[_ACCESS_RESULT_STATE_KEY].propagation_step_s)
+        ),
         step=5,
     )
     if aer_file is None:
@@ -313,7 +317,7 @@ def render_stk_validation_page() -> None:
         return
     snapshot = get_public_orbit_snapshot()
     if snapshot is None:
-        st.warning("Najpierw wczytaj publiczne OMM w module „Orbity publiczne”.")
+        st.warning("Najpierw wczytaj OMM w module „Orbity i dane OMM”.")
         return
 
     selections = sorted(

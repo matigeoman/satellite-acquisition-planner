@@ -26,14 +26,11 @@ def parse_utc_datetime(value: str) -> datetime:
         parsed = datetime.fromisoformat(normalized)
     except ValueError as error:
         raise argparse.ArgumentTypeError(
-            "Czas musi mieć format ISO 8601, np. "
-            "2026-07-15T06:00:00Z"
+            "Czas musi mieć format ISO 8601, np. 2026-07-15T06:00:00Z"
         ) from error
 
     if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise argparse.ArgumentTypeError(
-            "Czas musi zawierać strefę czasową"
-        )
+        raise argparse.ArgumentTypeError("Czas musi zawierać strefę czasową")
 
     return parsed.astimezone(timezone.utc)
 
@@ -128,11 +125,9 @@ def main() -> None:
     output_path = args.output
 
     if output_path is None:
-        output_path = (
-            PROJECT_PATHS.generated_schedule(
-                scenario_id="EXAMPLE",
-                name=f"disrupted_{algorithm_slug}",
-            )
+        output_path = PROJECT_PATHS.generated_schedule(
+            scenario_id="EXAMPLE",
+            name=f"disrupted_{algorithm_slug}",
         )
     elif not output_path.is_absolute():
         output_path = PROJECT_ROOT / output_path
@@ -163,26 +158,17 @@ def main() -> None:
     print(f"Status harmonogramu: {result.schedule.status.value}")
     print()
     print("ZDARZENIA")
-    print(
-        f"  awaria: {outage.satellite_id} od "
-        f"{outage.effective_from_utc.isoformat()}"
-    )
+    print(f"  awaria: {outage.satellite_id} od {outage.effective_from_utc.isoformat()}")
     print(
         "  unieważnione przez awarię: "
         f"{len(application.outage_invalidated_opportunity_ids)}"
     )
-    print(
-        f"  pogoda: {weather.opportunity_id}, "
-        f"zachmurzenie {weather.cloud_cover:.0%}"
-    )
+    print(f"  pogoda: {weather.opportunity_id}, zachmurzenie {weather.cloud_cover:.0%}")
     print(
         "  unieważnione przez pogodę: "
         f"{len(application.weather_invalidated_opportunity_ids)}"
     )
-    print(
-        "  pilne zlecenie: "
-        f"{urgent.request.request_id}"
-    )
+    print(f"  pilne zlecenie: {urgent.request.request_id}")
     print()
     print("ZMIANY HARMONOGRAMU PO OKNIE ZAMROŻONYM")
     print(f"  bez zmian: {len(result.unchanged_opportunity_ids)}")

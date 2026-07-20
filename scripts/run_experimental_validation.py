@@ -61,9 +61,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
 
-    scenario = ScenarioService(
-        project_root=PROJECT_ROOT
-    ).load("STRESS")
+    scenario = ScenarioService(project_root=PROJECT_ROOT).load("STRESS")
 
     config = ExperimentalValidationConfig(
         repetitions=args.repetitions,
@@ -81,10 +79,7 @@ def main() -> None:
         "Łączna liczba uruchomień planerów: "
         f"{len(config.profiles) * config.repetitions * 2}"
     )
-    print(
-        "Limit CP-SAT na przebieg: "
-        f"{config.cp_sat_time_limit_s:.3f} s"
-    )
+    print(f"Limit CP-SAT na przebieg: {config.cp_sat_time_limit_s:.3f} s")
     print()
 
     result = ExperimentalValidationService().run(
@@ -105,36 +100,22 @@ def main() -> None:
     print("WYNIKI ŚREDNIE")
 
     for profile in config.profiles:
-        greedy = summary_by_key[
-            (profile.profile_id, "GREEDY")
-        ]
-        cp_sat = summary_by_key[
-            (profile.profile_id, "CP_SAT")
-        ]
+        greedy = summary_by_key[(profile.profile_id, "GREEDY")]
+        cp_sat = summary_by_key[(profile.profile_id, "CP_SAT")]
         pair_values = [
             record
             for record in result.pair_records
             if record.profile_id == profile.profile_id
         ]
         improvement = sum(
-            record.objective_improvement_pct
-            for record in pair_values
+            record.objective_improvement_pct for record in pair_values
         ) / len(pair_values)
 
         print()
         print(profile.profile_id)
-        print(
-            "  funkcja celu Greedy: "
-            f"{greedy.objective_mean:.3f}"
-        )
-        print(
-            "  funkcja celu CP-SAT: "
-            f"{cp_sat.objective_mean:.3f}"
-        )
-        print(
-            "  średnia poprawa CP-SAT: "
-            f"{improvement:+.2f}%"
-        )
+        print(f"  funkcja celu Greedy: {greedy.objective_mean:.3f}")
+        print(f"  funkcja celu CP-SAT: {cp_sat.objective_mean:.3f}")
+        print(f"  średnia poprawa CP-SAT: {improvement:+.2f}%")
         print(
             "  zrealizowane zlecenia Greedy: "
             f"{greedy.fully_satisfied_requests_mean:.2f}"
@@ -143,14 +124,8 @@ def main() -> None:
             "  zrealizowane zlecenia CP-SAT: "
             f"{cp_sat.fully_satisfied_requests_mean:.2f}"
         )
-        print(
-            "  czas Greedy: "
-            f"{greedy.runtime_mean_s:.6f} s"
-        )
-        print(
-            "  czas CP-SAT: "
-            f"{cp_sat.runtime_mean_s:.6f} s"
-        )
+        print(f"  czas Greedy: {greedy.runtime_mean_s:.6f} s")
+        print(f"  czas CP-SAT: {cp_sat.runtime_mean_s:.6f} s")
 
     print()
     print("PODSUMOWANIE")
@@ -165,13 +140,9 @@ def main() -> None:
         f"{len(result.pair_records)}"
     )
     print(
-        "  średnia poprawa funkcji celu: "
-        f"{result.mean_objective_improvement_pct:+.2f}%"
+        f"  średnia poprawa funkcji celu: {result.mean_objective_improvement_pct:+.2f}%"
     )
-    print(
-        "  całkowity czas eksperymentu: "
-        f"{result.wall_clock_runtime_s:.3f} s"
-    )
+    print(f"  całkowity czas eksperymentu: {result.wall_clock_runtime_s:.3f} s")
 
     print()
     print("ZAPISANE RAPORTY")

@@ -57,8 +57,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _copy_file(source: Path, destination: Path, *, apply: bool) -> None:
-    print(f"FILE  {source.relative_to(PROJECT_PATHS.root)} -> "
-          f"{destination.relative_to(PROJECT_PATHS.root)}")
+    print(
+        f"FILE  {source.relative_to(PROJECT_PATHS.root)} -> "
+        f"{destination.relative_to(PROJECT_PATHS.root)}"
+    )
     if not apply or not source.is_file():
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -66,8 +68,10 @@ def _copy_file(source: Path, destination: Path, *, apply: bool) -> None:
 
 
 def _copy_directory(source: Path, destination: Path, *, apply: bool) -> None:
-    print(f"DIR   {source.relative_to(PROJECT_PATHS.root)} -> "
-          f"{destination.relative_to(PROJECT_PATHS.root)}")
+    print(
+        f"DIR   {source.relative_to(PROJECT_PATHS.root)} -> "
+        f"{destination.relative_to(PROJECT_PATHS.root)}"
+    )
     if not apply or not source.is_dir():
         return
     destination.mkdir(parents=True, exist_ok=True)
@@ -116,9 +120,7 @@ def main() -> int:
             if not source.exists():
                 continue
             if not _verified_copy(source, destination):
-                raise RuntimeError(
-                    f"Nie można potwierdzić kopii pliku {source}"
-                )
+                raise RuntimeError(f"Nie można potwierdzić kopii pliku {source}")
             source.unlink()
             print(f"REMOVE {source.relative_to(PROJECT_PATHS.root)}")
 

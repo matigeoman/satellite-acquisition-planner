@@ -16,7 +16,7 @@ def test_version_is_loaded_from_repository_file() -> None:
     expected = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
     assert __version__ == expected
-    assert __version__ == "1.0.0"
+    assert __version__ == "1.0.1"
 
 
 def test_audit_parser_is_registered() -> None:

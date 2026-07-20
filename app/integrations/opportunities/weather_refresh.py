@@ -13,7 +13,6 @@ from app.integrations.opportunities.public_builder import (
 from app.integrations.weather import (
     CloudAggregation,
     CloudAssessmentService,
-    CloudPointValue,
     WindowCloudAssessment,
     build_weather_sampling_locations,
     interpolate_forecast,
@@ -23,9 +22,7 @@ from app.models.opportunity import AcquisitionOpportunity
 from app.models.request import ObservationRequest
 
 
-CLOUD_INFEASIBILITY_REASON = (
-    "Prognozowane zachmurzenie przekracza limit zlecenia"
-)
+CLOUD_INFEASIBILITY_REASON = "Prognozowane zachmurzenie przekracza limit zlecenia"
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,9 +80,7 @@ def _normalize_utc(value: datetime, *, field_name: str) -> datetime:
 
 
 def _opportunity_midpoint(opportunity: AcquisitionOpportunity) -> datetime:
-    return opportunity.start_utc + (
-        opportunity.end_utc - opportunity.start_utc
-    ) / 2
+    return opportunity.start_utc + (opportunity.end_utc - opportunity.start_utc) / 2
 
 
 def _window_id_from_opportunity_id(opportunity_id: str) -> str:
@@ -131,8 +126,7 @@ def _assessment_for_opportunity(
 ) -> WindowCloudAssessment:
     timestamp = _opportunity_midpoint(opportunity)
     point_values = tuple(
-        interpolate_forecast(forecast, timestamp)
-        for forecast in forecasts
+        interpolate_forecast(forecast, timestamp) for forecast in forecasts
     )
     total = _aggregate(
         [value.cloud_cover_percent for value in point_values],
@@ -256,8 +250,7 @@ class PublicOpportunityWeatherRefreshService:
             maximum_points=maximum_sampling_points,
         )
         timestamps = [
-            _opportunity_midpoint(opportunity)
-            for opportunity in optical_to_refresh
+            _opportunity_midpoint(opportunity) for opportunity in optical_to_refresh
         ]
         forecast = self.cloud_service.client.fetch_cloud_forecast(
             locations,
@@ -266,9 +259,7 @@ class PublicOpportunityWeatherRefreshService:
             allow_network=allow_network,
         )
         refreshed_at = datetime.now(timezone.utc)
-        refresh_ids = {
-            opportunity.opportunity_id for opportunity in optical_to_refresh
-        }
+        refresh_ids = {opportunity.opportunity_id for opportunity in optical_to_refresh}
         old_assessments = {
             assessment.window_id: assessment
             for assessment in build_result.weather_assessments
@@ -278,9 +269,7 @@ class PublicOpportunityWeatherRefreshService:
         changes: list[OpportunityWeatherChange] = []
 
         for opportunity in build_result.opportunities:
-            window_id = _window_id_from_opportunity_id(
-                opportunity.opportunity_id
-            )
+            window_id = _window_id_from_opportunity_id(opportunity.opportunity_id)
             if opportunity.opportunity_id not in refresh_ids:
                 updated_opportunities.append(opportunity)
                 old_assessment = old_assessments.get(window_id)

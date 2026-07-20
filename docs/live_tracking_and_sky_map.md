@@ -1,6 +1,6 @@
-# Śledzenie satelitów na żywo i mapa nieba
+# Śledzenie i przeloty i mapa nieba
 
-Moduł **Śledzenie satelitów na żywo** prezentuje pozycje obiektów orbitalnych
+Moduł **Śledzenie i przeloty** prezentuje pozycje obiektów orbitalnych
 propagowane z publicznych elementów GP/OMM przez SGP4. Nie jest to telemetria
 pokładowa ani potwierdzenie stanu operatora satelity.
 
@@ -122,14 +122,14 @@ sprawdza dodatkowo:
 - dodatnią odległość topocentryczną,
 - występowanie przelotów AOS/MAX/LOS w ciągu 24 godzin.
 
-## Utwardzenie Stage 17.3
+## Jakość danych i ranking przelotów
 
-Wersja `1.0.0` obejmuje wymuszone odświeżanie OMM, jawne metadane źródła
-i cache, ranking przelotów oraz filtry operacyjne. Wynik jakości `0–100` łączy
+Moduł obejmuje wymuszone odświeżanie OMM, jawne metadane źródła
+i pamięci podręcznej, ranking przelotów oraz filtry operacyjne. Wynik jakości `0–100` łączy
 maksymalną elewację, czas powyżej 10°, długość przelotu, minimalną odległość
 i szacowaną widoczność optyczną. Jest to metryka porównawcza planera, a nie
 certyfikowany model obserwacyjny.
 
-Tabela przelotów pokazuje również liczbę nakładających się okien access i
+Tabela przelotów pokazuje również liczbę nakładających się okien dostępu i
 zaplanowanych akwizycji. Filtr „Tylko powiązane z plannerem” ogranicza wyniki
 do przelotów istotnych dla bieżącego stanu sesji.

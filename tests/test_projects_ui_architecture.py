@@ -8,15 +8,13 @@ def test_projects_page_is_registered() -> None:
     navigation = (PROJECT_ROOT / "app" / "ui" / "navigation.py").read_text(
         encoding="utf-8"
     )
-    streamlit_app = (PROJECT_ROOT / "streamlit_app.py").read_text(
+    streamlit_app = (PROJECT_ROOT / "streamlit_app.py").read_text(encoding="utf-8")
+    page = (PROJECT_ROOT / "app" / "ui" / "pages" / "projects.py").read_text(
         encoding="utf-8"
     )
-    page = (
-        PROJECT_ROOT / "app" / "ui" / "pages" / "projects.py"
-    ).read_text(encoding="utf-8")
 
     assert "PROJECTS" in navigation
-    assert "Projekty i scenariusze" in navigation
+    assert "Projekty" in navigation
     assert "render_projects_page" in streamlit_app
     assert "Zbuduj archiwum projektu" in page
     assert "Wczytaj projekt i przywróć sesję" in page

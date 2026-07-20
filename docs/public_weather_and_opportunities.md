@@ -55,9 +55,9 @@ Dla każdego okna program:
 Okazje EO przekraczające limit chmur są zachowywane w zbiorze z powodem
 niewykonalności. Solvery automatycznie używają wyłącznie okazji wykonalnych.
 
-## Planowanie publiczne
+## Planowanie na danych publicznych
 
-Zakładka **Planowanie publiczne** scala okazje utworzone dla kilku zleceń w
+Zakładka **Planowanie na danych publicznych** scala okazje utworzone dla kilku zleceń w
 jeden scenariusz sesyjny i uruchamia istniejące implementacje Greedy albo
 CP-SAT. Używany katalog zawiera 4 sloty ICEYE i 2 sloty Pléiades Neo.
 

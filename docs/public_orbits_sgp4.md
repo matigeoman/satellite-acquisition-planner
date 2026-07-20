@@ -37,7 +37,7 @@ Transformacja służy obecnie do wizualizacji śladów naziemnych. Dokładniejsz
 
 ## Interfejs
 
-Zakładka **Orbity publiczne** pozwala:
+Zakładka **Orbity i dane OMM** pozwala:
 
 - pobrać lub odświeżyć OMM,
 - pracować wyłącznie z lokalnym cache,

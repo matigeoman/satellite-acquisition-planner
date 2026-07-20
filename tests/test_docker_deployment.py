@@ -24,7 +24,7 @@ def test_dockerfile_uses_python_311_non_root_and_healthcheck() -> None:
 def test_compose_has_persistent_volumes_configurable_port_and_security() -> None:
     compose = _read("docker-compose.yml")
 
-    assert '${SATPLAN_PORT:-8501}:8501' in compose
+    assert "${SATPLAN_PORT:-8501}:8501" in compose
     assert "satplan_generated:/opt/satplan/data/generated" in compose
     assert "satplan_imports:/opt/satplan/data/imports" in compose
     assert "no-new-privileges:true" in compose
@@ -53,7 +53,7 @@ def test_release_version_is_consistent_in_container_assets() -> None:
     compose = _read("docker-compose.yml")
     workflow = _read(".github/workflows/docker.yml")
 
-    assert version == "1.0.0"
+    assert version == "1.0.1"
     assert f"ARG APP_VERSION={version}" in dockerfile
     assert f"image: satplan:{version}" in compose
     assert f"APP_VERSION={version}" in workflow

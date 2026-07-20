@@ -16,6 +16,9 @@ LEGACY_PATHS = (
     "app/ui/assets/earth_fallback.jpg",
     "docs/cesium_3d_globe.md",
     "tests/test_cesium_scene.py",
+    "main.py",
+    "docs/algorithm_benchmarks.md",
+    "docs/planning_architecture.md",
 )
 
 TRANSIENT_EXACT = (
@@ -66,9 +69,7 @@ def remove_targets(paths: Iterable[Path]) -> tuple[Path, ...]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description=(
-            "Usuwa historyczny renderer Cesium, hotfixy i tymczasowe artefakty etapów."
-        )
+        description=("Usuwa wycofane moduły i tymczasowe artefakty repozytorium.")
     )
     parser.add_argument(
         "--project-root",

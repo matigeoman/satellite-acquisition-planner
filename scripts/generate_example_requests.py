@@ -1,9 +1,8 @@
 import json
-from pathlib import Path
 from typing import Any
 
 
-from _bootstrap import PROJECT_PATHS, PROJECT_ROOT
+from _bootstrap import PROJECT_PATHS
 
 
 from app.models.request_set import ObservationRequestSet
@@ -407,9 +406,7 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    print(
-        f"Zapisano {len(request_set.requests)} zleceń do:"
-    )
+    print(f"Zapisano {len(request_set.requests)} zleceń do:")
     print(OUTPUT_PATH)
 
 
