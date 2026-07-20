@@ -11,3 +11,8 @@ Kompletny, deterministyczny scenariusz offline do prezentacji SatPlan.
 - przykładowy benchmark, walidacja STK i raport HTML.
 
 Pliki mają charakter demonstracyjny i nie potwierdzają komercyjnej dostępności taskingu.
+
+## Śledzenie satelitów
+
+`live_tracking_reference.json` zawiera referencyjny stan sześciu obiektów i
+predykcję przelotów nad WAT dla pierwszych 24 godzin scenariusza.

@@ -7,6 +7,13 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Dodano
 
+- moduł śledzenia satelitów na żywo z lokalną mapą nieba azymut–elewacja,
+- predykcję przelotów AOS/MAX/LOS nad wybranym obserwatorem,
+- globalną mapę pozycji z ground trackiem, terminatorem i referencyjnym footprintem,
+- tryb czasu rzeczywistego oraz symulację `1×`, `10×` i `60×`,
+- ocenę wieku OMM i uproszczoną widoczność optyczną,
+- integrację śledzenia z oknami access i harmonogramem planera,
+- referencyjny plik `live_tracking_reference.json` dla Poland Demo,
 - gotowy scenariusz demonstracyjny Polski działający bez sieci,
 - polecenie `python -m app.cli release-check` wykonujące test E2E,
 - skrypt porządkujący repozytorium i usuwający artefakty etapów.

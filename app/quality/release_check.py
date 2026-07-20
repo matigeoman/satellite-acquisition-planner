@@ -34,6 +34,7 @@ from app.services import (
 )
 from app.services.contracts import PlanningResult, ReplanningResult
 from app.services.orbit_service import PublicConstellationSnapshot
+from app.tracking import LiveTrackingService, ObserverSite
 from app.version import __version__
 
 
@@ -255,6 +256,54 @@ def run_release_check(
                 f"Okna dostępu: {len(access_result.windows)}",
             )
         )
+
+    if orbit_snapshot is not None:
+        try:
+            observer = ObserverSite(
+                name="WAT Warszawa",
+                latitude_deg=52.2532,
+                longitude_deg=20.8997,
+                altitude_m=110.0,
+            )
+            tracking_service = LiveTrackingService()
+            tracking_states = tracking_service.current_states(
+                orbit_snapshot,
+                observer=observer,
+                timestamp_utc=scenario.request_set.horizon_start_utc,
+            )
+            tracking_passes = tracking_service.predict_passes(
+                orbit_snapshot,
+                observer=observer,
+                start_utc=scenario.request_set.horizon_start_utc,
+                duration=timedelta(hours=24),
+                step=timedelta(seconds=60),
+                minimum_elevation_deg=0.0,
+            )
+            tracking_ok = (
+                len(tracking_states) == len(orbit_snapshot.satellites)
+                and len(tracking_passes) > 0
+                and all(state.topocentric.range_km > 0.0 for state in tracking_states)
+            )
+        except Exception as error:  # noqa: BLE001
+            steps.append(
+                _step(
+                    "live-tracking-sky-map",
+                    False,
+                    "Mapa nieba i predykcja przelotów zakończyły się błędem.",
+                    repr(error),
+                )
+            )
+        else:
+            steps.append(
+                _step(
+                    "live-tracking-sky-map",
+                    tracking_ok,
+                    "Śledzenie SGP4 i predykcja AOS/MAX/LOS są spójne.",
+                    f"Stany bieżące: {len(tracking_states)}",
+                    f"Przeloty 24 h: {len(tracking_passes)}",
+                    f"Obserwator: {observer.name}",
+                )
+            )
 
     optical_opportunities = tuple(
         opportunity

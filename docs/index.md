@@ -23,6 +23,7 @@ Wersja dokumentacji: `1.0.0-rc3`.
 - [Źródła danych publicznych](public_data_sources.md)
 - [Profile sensorów i AOI](public_profiles_and_aoi.md)
 - [Orbity publiczne i SGP4](public_orbits_sgp4.md)
+- [Śledzenie satelitów i mapa nieba](live_tracking_and_sky_map.md)
 - [Okna dostępu](public_access_windows.md)
 - [Pogoda i okazje akwizycyjne](public_weather_and_opportunities.md)
 - [Walidacja STK](stk_validation.md)

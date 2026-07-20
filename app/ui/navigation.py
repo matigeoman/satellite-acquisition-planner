@@ -13,6 +13,7 @@ class ApplicationPage(StrEnum):
     ORBITS = "Orbity publiczne"
     ACCESS = "Okna dostępu"
     GLOBE = "Globus i orbity"
+    LIVE_TRACKING = "Śledzenie satelitów na żywo"
     PUBLIC_PLANNING = "Planowanie publiczne"
     PUBLIC_REPLANNING = "Przeplanowanie publiczne"
     STK_VALIDATION = "Walidacja STK"

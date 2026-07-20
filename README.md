@@ -13,6 +13,7 @@ dynamiczne przeplanowanie, walidację STK i eksport wyników naukowych.
 - AOI jako Point, Polygon lub Rectangle oraz import/eksport GeoJSON,
 - GP/OMM z CelesTrak, cache i propagacja SGP4,
 - geometryczne okna dostępu oraz trajektorie na globusie Plotly,
+- mapa nieba azymut–elewacja, bieżące pozycje SGP4 i predykcja przelotów AOS/MAX/LOS,
 - zachmurzenie Open-Meteo dla okazji EO,
 - zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`,
 - planowanie Greedy i CP-SAT ze wspólną funkcją celu,
@@ -118,6 +119,7 @@ app/projects        archiwa projektów
 app/reporting       HTML, DOCX, XLSX i dane źródłowe
 app/quality         audyt repozytorium, środowiska i kontrola E2E
 app/demo            deterministyczny scenariusz prezentacyjny
+app/tracking        mapa nieba, topocentryka i predykcja przelotów
 app/ui              interfejs Streamlit
 app/visualization   wizualizacje Plotly
 scripts             skrypty uruchomieniowe
@@ -144,7 +146,8 @@ Najważniejsze rozdziały:
 - [kontrola jakości i wydania](docs/quality_and_release.md),
 - [rozwiązywanie problemów](docs/troubleshooting.md),
 - [Docker i wdrożenie](docs/docker.md),
-- [demo i kontrola wydania](docs/demo_and_release_check.md).
+- [demo i kontrola wydania](docs/demo_and_release_check.md),
+- [śledzenie satelitów i mapa nieba](docs/live_tracking_and_sky_map.md).
 
 ## Zakres interpretacji
 

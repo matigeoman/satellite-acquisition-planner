@@ -31,6 +31,7 @@ def test_release_check_validates_full_artifact_pipeline(tmp_path: Path) -> None:
     assert steps["repository-audit"].passed
     assert steps["scenario-load"].passed
     assert steps["demo-orbit-access"].passed
+    assert steps["live-tracking-sky-map"].passed
     assert "Zlecenia: 50" in steps["scenario-load"].details
     assert "Okazje: 500" in steps["scenario-load"].details
     assert "Obiekty OMM: 6" in steps["demo-orbit-access"].details

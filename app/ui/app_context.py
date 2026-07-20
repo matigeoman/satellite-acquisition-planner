@@ -21,6 +21,7 @@ from app.services.stk_validation_service import StkValidationService
 from app.projects import ProjectArchiveService
 from app.reporting import ScientificReportService
 from app.demo import DemoProjectService
+from app.tracking import LiveTrackingService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
 
@@ -93,6 +94,13 @@ def get_public_orbit_service() -> PublicOrbitService:
             cache_directory=PROJECT_ROOT / "data" / "generated" / "orbits"
         )
     )
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_live_tracking_service() -> LiveTrackingService:
+    """Zwraca serwis mapy nieba i predykcji lokalnych przelotów."""
+
+    return LiveTrackingService()
 
 
 @st.cache_resource(scope="session", show_spinner=False)
