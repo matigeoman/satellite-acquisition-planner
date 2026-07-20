@@ -163,13 +163,13 @@ def _render_access_validation(
 
     st.plotly_chart(
         build_access_comparison_figure(selected_windows, report.intervals),
-        use_container_width=True,
+        width="stretch",
         config={"displaylogo": False, "responsive": True},
     )
     table = access_matches_dataframe(validation)
     st.dataframe(
         table,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=420,
         column_config={
@@ -268,11 +268,11 @@ def _render_aer_validation(
 
     st.plotly_chart(
         build_aer_error_figure(validation),
-        use_container_width=True,
+        width="stretch",
         config={"displaylogo": False, "responsive": True},
     )
     table = aer_matches_dataframe(validation)
-    st.dataframe(table, use_container_width=True, hide_index=True, height=430)
+    st.dataframe(table, width="stretch", hide_index=True, height=430)
     downloads = st.columns(2)
     downloads[0].download_button(
         "Pobierz AER JSON",

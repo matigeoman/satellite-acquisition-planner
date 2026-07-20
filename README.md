@@ -24,7 +24,8 @@ dynamiczne przeplanowanie, walidację STK i eksport wyników naukowych.
 - raporty HTML, DOCX, XLSX, JSON, CSV i PNG,
 - audyt repozytorium oraz automatyczna kontrola GitHub Actions,
 - obraz Docker, healthcheck i uruchamianie jednym poleceniem,
-- gotowy scenariusz demonstracyjny Polski i końcowa kontrola E2E wydania.
+- rozbudowany scenariusz `POLAND_DEMO`: 48 h, 50 zleceń i 500 okazji,
+- końcowa kontrola E2E obejmująca OMM, SGP4, access, planowanie i raporty.
 
 ## Instalacja
 
@@ -58,7 +59,7 @@ Tryb CLI:
 ```powershell
 python -m app.cli check
 python -m app.cli paths
-python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
+python -m app.cli plan --scenario POLAND_DEMO --algorithm CP_SAT
 python -m app.cli audit
 python -m app.cli health --skip-http
 python -m app.cli release-check --algorithm GREEDY

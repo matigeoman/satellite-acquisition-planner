@@ -295,6 +295,7 @@ def build_default_scenario_definitions(
     paths = ProjectPaths(Path(project_root))
     example = paths.scenario("EXAMPLE")
     stress = paths.scenario("STRESS")
+    poland_demo = paths.scenario("POLAND_DEMO")
 
     return (
         ScenarioDefinition(
@@ -318,5 +319,16 @@ def build_default_scenario_definitions(
             catalog_path=stress.catalog,
             request_set_path=stress.requests,
             opportunity_set_path=stress.opportunities,
+        ),
+        ScenarioDefinition(
+            scenario_id="POLAND_DEMO",
+            name="Polska — rozbudowany scenariusz demonstracyjny",
+            description=(
+                "48-godzinny scenariusz obejmujący 50 zleceń SAR, EO "
+                "i SAR+EO oraz 500 zróżnicowanych okazji."
+            ),
+            catalog_path=poland_demo.catalog,
+            request_set_path=poland_demo.requests,
+            opportunity_set_path=poland_demo.opportunities,
         ),
     )

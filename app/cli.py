@@ -131,7 +131,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_parser.add_argument(
         "--scenario",
-        choices=("EXAMPLE", "STRESS"),
+        choices=("EXAMPLE", "STRESS", "POLAND_DEMO"),
         default="EXAMPLE",
     )
     plan_parser.add_argument(

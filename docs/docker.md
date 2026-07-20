@@ -153,6 +153,12 @@ Podczas budowy obrazu kontrola HTTP jest pomijana:
 python -m app.cli health --skip-http
 ```
 
+Pełna kontrola wydania korzysta z 48-godzinnego scenariusza `POLAND_DEMO` i dodatkowo sprawdza OMM, SGP4, access, planowanie oraz generowanie artefaktów:
+
+```powershell
+python -m app.cli release-check --algorithm GREEDY
+```
+
 ## Budowa obrazu bez Compose
 
 ```powershell

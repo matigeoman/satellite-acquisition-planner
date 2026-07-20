@@ -2,28 +2,43 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 from app.config.paths import ProjectPaths
-from app.models.enums import PlanningAlgorithm
+from app.integrations.access import AccessCalculationResult
+from app.integrations.orbits import Sgp4OrbitPropagator
+from app.models.enums import PlanningAlgorithm, SensorType
 from app.projects import ProjectArchiveService, ProjectMetadata
+from app.projects.codec import decode_access_result, decode_orbit_snapshot
 from app.projects.history import (
     PROJECT_METADATA_STATE_KEY,
     SCHEDULE_HISTORY_STATE_KEY,
     build_schedule_history_entry,
 )
 from app.projects.service import (
+    ACCESS_RESULT_STATE_KEY,
     AOI_STATE_KEY,
     CUSTOM_REQUESTS_STATE_KEY,
+    ORBIT_SNAPSHOT_STATE_KEY,
     PLANNING_RESULT_STATE_KEY,
 )
 from app.quality.audit import AuditReport, run_project_audit
 from app.reporting import ScientificReportConfig, ScientificReportService
-from app.services import PlanningOptions, PlanningService, ScenarioService
-from app.services.contracts import PlanningResult
+from app.services import (
+    PlanningOptions,
+    PlanningService,
+    ReplanningService,
+    ScenarioService,
+)
+from app.services.contracts import PlanningResult, ReplanningResult
+from app.services.orbit_service import PublicConstellationSnapshot
 from app.version import __version__
+
+
+RELEASE_SCENARIO_ID = "POLAND_DEMO"
+DEMO_ARTIFACT_DIRECTORY = Path("examples") / "poland_demo"
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,7 +101,12 @@ def _audit_step(audit: AuditReport) -> ReleaseCheckStep:
     )
 
 
-def _build_state(result: PlanningResult) -> dict[str, Any]:
+def _build_state(
+    result: PlanningResult,
+    *,
+    orbit_snapshot: PublicConstellationSnapshot | None = None,
+    access_result: AccessCalculationResult | None = None,
+) -> dict[str, Any]:
     requests = list(result.scenario.request_set.requests)
     now = datetime.now(timezone.utc)
     state: dict[str, Any] = {
@@ -99,8 +119,9 @@ def _build_state(result: PlanningResult) -> dict[str, Any]:
             project_id="PROJECT-RELEASE-CHECK",
             name="SatPlan release check",
             description=(
-                "Deterministyczny test E2E: scenariusz, planowanie, archiwum "
-                "projektu oraz raport naukowy."
+                "Deterministyczny test E2E: scenariusz, OMM, SGP4, access, "
+                "pogoda EO, planowanie, przeplanowanie, archiwum projektu "
+                "oraz raport naukowy."
             ),
             created_at_utc=now,
             exported_at_utc=now,
@@ -108,6 +129,10 @@ def _build_state(result: PlanningResult) -> dict[str, Any]:
     }
     if requests:
         state[AOI_STATE_KEY] = requests[0].geometry
+    if orbit_snapshot is not None:
+        state[ORBIT_SNAPSHOT_STATE_KEY] = orbit_snapshot
+    if access_result is not None:
+        state[ACCESS_RESULT_STATE_KEY] = access_result
     return state
 
 
@@ -118,7 +143,7 @@ def _run_planner(
     algorithm: PlanningAlgorithm,
     cp_sat_time_limit_s: float,
 ) -> PlanningResult:
-    scenario = scenario_service.load("EXAMPLE")
+    scenario = scenario_service.load(RELEASE_SCENARIO_ID)
     return planning_service.run(
         scenario=scenario,
         options=PlanningOptions(
@@ -156,13 +181,13 @@ def run_release_check(
     results: dict[PlanningAlgorithm, PlanningResult] = {}
 
     try:
-        scenario = scenario_service.load("EXAMPLE")
+        scenario = scenario_service.load(RELEASE_SCENARIO_ID)
     except Exception as error:  # noqa: BLE001 - report must preserve failure
         steps.append(
             _step(
                 "scenario-load",
                 False,
-                "Nie udało się wczytać scenariusza EXAMPLE.",
+                f"Nie udało się wczytać scenariusza {RELEASE_SCENARIO_ID}.",
                 repr(error),
             )
         )
@@ -178,10 +203,80 @@ def run_release_check(
         _step(
             "scenario-load",
             True,
-            "Scenariusz EXAMPLE jest spójny.",
+            f"Scenariusz {RELEASE_SCENARIO_ID} jest spójny.",
             f"Satelity: {scenario.satellite_count}",
             f"Zlecenia: {scenario.active_request_count}",
             f"Okazje: {scenario.opportunity_count}",
+        )
+    )
+
+    orbit_snapshot: PublicConstellationSnapshot | None = None
+    access_result: AccessCalculationResult | None = None
+    try:
+        artifact_directory = paths.root / DEMO_ARTIFACT_DIRECTORY
+        orbit_payload = json.loads(
+            (artifact_directory / "orbits_omm.json").read_text(encoding="utf-8")
+        )
+        access_payload = json.loads(
+            (artifact_directory / "access_windows.json").read_text(encoding="utf-8")
+        )
+        orbit_snapshot = decode_orbit_snapshot(orbit_payload)
+        access_result = decode_access_result(access_payload)
+        first_track = Sgp4OrbitPropagator().ground_track(
+            orbit_snapshot.satellites[0],
+            start_utc=scenario.request_set.horizon_start_utc,
+            duration=timedelta(minutes=5),
+            step=timedelta(minutes=1),
+        )
+        reference_ok = (
+            len(orbit_snapshot.satellites) == 6
+            and len(first_track.states) == 6
+            and len(access_result.windows) >= 3
+            and access_result.request_id
+            in {request.request_id for request in scenario.request_set.requests}
+        )
+    except Exception as error:  # noqa: BLE001
+        steps.append(
+            _step(
+                "demo-orbit-access",
+                False,
+                "Walidacja OMM, SGP4 i okien dostępu demo nie powiodła się.",
+                repr(error),
+            )
+        )
+    else:
+        steps.append(
+            _step(
+                "demo-orbit-access",
+                reference_ok,
+                "Dane OMM, propagacja SGP4 i okna dostępu demo są spójne.",
+                f"Obiekty OMM: {len(orbit_snapshot.satellites)}",
+                f"Stany próbnej propagacji: {len(first_track.states)}",
+                f"Okna dostępu: {len(access_result.windows)}",
+            )
+        )
+
+    optical_opportunities = tuple(
+        opportunity
+        for opportunity in scenario.opportunity_set.opportunities
+        if opportunity.sensor_type == SensorType.OPTICAL
+    )
+    optical_weather_complete = bool(optical_opportunities) and all(
+        opportunity.cloud_cover is not None
+        and opportunity.sun_elevation_deg is not None
+        for opportunity in optical_opportunities
+    )
+    cloud_rejected = sum(
+        opportunity.cloud_cover is not None and not opportunity.is_feasible
+        for opportunity in optical_opportunities
+    )
+    steps.append(
+        _step(
+            "eo-weather-opportunities",
+            optical_weather_complete and cloud_rejected > 0,
+            "Dane zachmurzenia EO przechodzą do okazji demonstracyjnych.",
+            f"Okazje EO: {len(optical_opportunities)}",
+            f"EO odrzucone przez warunki: {cloud_rejected}",
         )
     )
 
@@ -236,7 +331,54 @@ def run_release_check(
             artifact_paths=(),
         )
 
-    state = _build_state(preferred)
+    replanning_result: ReplanningResult | None = None
+    try:
+        replanning_result = ReplanningService().run(
+            scenario=preferred.scenario,
+            previous_schedule=preferred.schedule,
+            options=preferred.options,
+            replan_at_utc=(
+                preferred.scenario.request_set.horizon_start_utc
+                + timedelta(hours=18)
+            ),
+            freeze_duration=timedelta(hours=2),
+            schedule_id="SCHEDULE-RELEASE-REPLANNED",
+            schedule_name="Release check — przeplanowanie",
+        )
+        replanning_ok = (
+            replanning_result.schedule.total_acquisitions > 0
+            and replanning_result.fixed_count > 0
+            and replanning_result.schedule.horizon_start_utc
+            == preferred.schedule.horizon_start_utc
+            and replanning_result.schedule.horizon_end_utc
+            == preferred.schedule.horizon_end_utc
+        )
+    except Exception as error:  # noqa: BLE001
+        steps.append(
+            _step(
+                "replanning",
+                False,
+                "Dynamiczne przeplanowanie zakończyło się błędem.",
+                repr(error),
+            )
+        )
+    else:
+        steps.append(
+            _step(
+                "replanning",
+                replanning_ok,
+                "Harmonogram przeszedł przeplanowanie z oknem zamrożonym.",
+                f"Stałe akwizycje: {replanning_result.fixed_count}",
+                f"Wynikowe akwizycje: {replanning_result.schedule.total_acquisitions}",
+                f"Status solvera: {replanning_result.solver_status}",
+            )
+        )
+
+    state = _build_state(
+        preferred,
+        orbit_snapshot=orbit_snapshot,
+        access_result=access_result,
+    )
     archive_service = ProjectArchiveService()
     try:
         exported = archive_service.export_project(

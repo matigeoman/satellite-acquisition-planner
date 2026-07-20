@@ -100,7 +100,7 @@ def _render_access_result(
     access_map = build_access_map_figure(result, request.geometry)
     st.plotly_chart(
         access_map,
-        use_container_width=True,
+        width="stretch",
         config={
             "displaylogo": False,
             "scrollZoom": True,
@@ -112,7 +112,7 @@ def _render_access_result(
     timeline = build_access_timeline_figure(result)
     st.plotly_chart(
         timeline,
-        use_container_width=True,
+        width="stretch",
         config={"displaylogo": False, "responsive": True},
     )
 
@@ -120,7 +120,7 @@ def _render_access_result(
     st.subheader("Tabela okien")
     st.dataframe(
         table,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=420,
         column_config={
@@ -291,7 +291,7 @@ def _render_opportunity_builder(
         )
         st.dataframe(
             weather_table,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             height=380,
             column_config={
@@ -315,7 +315,7 @@ def _render_opportunity_builder(
     opportunity_table = public_opportunities_dataframe(build_result)
     st.dataframe(
         opportunity_table,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=500,
         column_config={

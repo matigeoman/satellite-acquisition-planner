@@ -18,6 +18,12 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Zmieniono
 
+- scenariusz demonstracyjny rozszerzono do 48 godzin, 50 zleceń i 500 okazji,
+- demo ładuje zapisany snapshot OMM i referencyjne okna dostępu offline,
+- globus operacyjny otrzymał neutralną kolorystykę, a AOI polygonowe są
+  rysowane jako obrysy, bez wypełnienia zasłaniającego całą kulę Ziemi,
+- kontrola wydania waliduje OMM, próbną propagację SGP4 i access przed
+  planowaniem Greedy/CP-SAT,
 - audyt wymaga czystego repozytorium bez śledzonych paczek, instalatorów i kopii roboczych,
 - wersję kandydującą podniesiono do `1.0.0-rc3`.
 

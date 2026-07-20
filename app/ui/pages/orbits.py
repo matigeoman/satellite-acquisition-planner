@@ -182,7 +182,7 @@ def render_orbits_page() -> None:
     )
     st.plotly_chart(
         figure,
-        use_container_width=True,
+        width="stretch",
         config={
             "displaylogo": False,
             "scrollZoom": True,
@@ -193,7 +193,7 @@ def render_orbits_page() -> None:
     with st.expander("Szczegółowe parametry obiektów orbitalnych"):
         st.dataframe(
             _snapshot_table(snapshot),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             height=310,
         )
@@ -213,7 +213,7 @@ def render_orbits_page() -> None:
         ]
     )
     st.subheader("Pozycje na początku propagacji")
-    st.dataframe(first_states, use_container_width=True, hide_index=True)
+    st.dataframe(first_states, width="stretch", hide_index=True)
 
     export_payload = {
         "snapshot": snapshot.to_dict(),

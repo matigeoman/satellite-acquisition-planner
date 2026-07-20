@@ -17,7 +17,7 @@ from app.integrations.orbits.models import (
     TrackedSatellite,
 )
 from app.models.enums import ObservationSide, RequestMode, SensorType
-from app.models.geometry import PointGeometry
+from app.models.geometry import PointGeometry, PolygonGeometry
 from app.models.request import ObservationRequest
 from app.visualization import build_plotly_globe_scene
 
@@ -83,6 +83,33 @@ def _request() -> ObservationRequest:
     )
 
 
+
+def _polygon_request() -> ObservationRequest:
+    return ObservationRequest(
+        request_id="REQ-PLOTLY-POLYGON-01",
+        name="Mazury",
+        geometry=PolygonGeometry(
+            coordinates=(
+                (
+                    (20.8, 53.5),
+                    (22.2, 53.5),
+                    (22.2, 54.3),
+                    (20.8, 54.3),
+                    (20.8, 53.5),
+                ),
+            )
+        ),
+        priority=7,
+        earliest_start_utc=START,
+        latest_end_utc=START + timedelta(hours=6),
+        request_mode=RequestMode.SINGLE,
+        requested_sensor_types=[SensorType.SAR],
+        max_resolution_m=3.0,
+        minimum_coverage_ratio=0.8,
+        max_incidence_angle_deg=50.0,
+        max_off_nadir_deg=50.0,
+    )
+
 def _access_result() -> AccessCalculationResult:
     points = tuple(
         AccessPathPoint(
@@ -143,7 +170,7 @@ def test_operational_globe_has_visible_earth_configuration() -> None:
     assert geo.showland is True
     assert geo.showocean is True
     assert geo.showframe is True
-    assert geo.oceancolor == "#071a2c"
+    assert geo.oceancolor == "#071827"
 
 
 def test_operational_globe_contains_ground_track_satellite_and_aoi() -> None:
@@ -206,6 +233,23 @@ def test_plotly_legend_is_disabled_and_globe_uses_full_domain() -> None:
 
     assert scene.operational_figure.layout.showlegend is False
     assert scene.spatial_figure.layout.showlegend is False
-    assert tuple(scene.operational_figure.layout.geo.domain.x) == (0.0, 1.0)
+    assert tuple(scene.operational_figure.layout.geo.domain.x) == (0.18, 0.82)
     assert tuple(scene.operational_figure.layout.geo.domain.y) == (0.0, 1.0)
-    assert scene.operational_figure.layout.geo.projection.scale == 1.1
+    assert scene.operational_figure.layout.geo.projection.scale == 1.22
+
+
+def test_polygon_aoi_is_outline_only_and_cannot_tint_whole_globe() -> None:
+    request = _polygon_request()
+    scene = build_plotly_globe_scene(
+        tracks=[_track()],
+        requests=[request],
+    )
+
+    trace = next(
+        trace
+        for trace in scene.operational_figure.data
+        if trace.name == f"AOI · {request.request_id}"
+    )
+    assert trace.mode == "lines"
+    assert trace.fill is None
+    assert trace.opacity == 0.9

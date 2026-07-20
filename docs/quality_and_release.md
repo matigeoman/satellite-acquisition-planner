@@ -72,4 +72,4 @@ Streamlit. W czasie budowy obrazu używany jest wariant `--skip-http`.
 python -m app.cli release-check
 ```
 
-Polecenie sprawdza planowanie, archiwum projektu i generator raportu.
+Polecenie sprawdza scenariusz `POLAND_DEMO`, snapshot OMM, próbną propagację SGP4, referencyjne okna dostępu, dane pogody EO, planowanie Greedy/CP-SAT, przeplanowanie, archiwum projektu i generator raportu.

@@ -49,7 +49,7 @@ def example_scenario(
     )
 
 
-def test_default_definitions_contain_two_scenarios() -> None:
+def test_default_definitions_contain_registered_scenarios() -> None:
     definitions = (
         build_default_scenario_definitions(
             PROJECT_DIRECTORY
@@ -61,6 +61,7 @@ def test_default_definitions_contain_two_scenarios() -> None:
         for definition in definitions
     } == {
         "EXAMPLE",
+        "POLAND_DEMO",
         "STRESS",
     }
 
@@ -70,6 +71,7 @@ def test_scenario_service_lists_known_ids(
 ) -> None:
     assert scenario_service.scenario_ids == (
         "EXAMPLE",
+        "POLAND_DEMO",
         "STRESS",
     )
 

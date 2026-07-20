@@ -22,12 +22,12 @@ from app.services.contracts.planning import PlanningResult
 EARTH_RADIUS_KM = 6371.0
 SAR_COLOR = "#ff636a"
 EO_COLOR = "#50a9ff"
-AOI_COLOR = "#facc15"
+AOI_COLOR = "#fbbf24"
 ACCESS_COLOR = "#f59e0b"
 SCHEDULE_COLOR = "#34d399"
 GRID_COLOR = "rgba(148, 163, 184, 0.28)"
-OCEAN_COLOR = "#071a2c"
-LAND_COLOR = "#27445d"
+OCEAN_COLOR = "#071827"
+LAND_COLOR = "#2b4050"
 
 
 @dataclass(frozen=True, slots=True)
@@ -383,6 +383,8 @@ def _add_requests_geo(
     figure: go.Figure,
     requests: Iterable[ObservationRequest],
 ) -> int:
+    """Rysuje AOI bez wypełnień mogących zasłonić glob ortograficzny."""
+
     count = 0
     for request in requests:
         count += 1
@@ -392,21 +394,27 @@ def _add_requests_geo(
                 go.Scattergeo(
                     lon=[longitude],
                     lat=[latitude],
-                    mode="markers+text",
+                    mode="markers",
                     marker={
-                        "size": 14,
+                        "size": 9,
                         "color": AOI_COLOR,
                         "symbol": "diamond",
-                        "line": {"color": "#111827", "width": 2},
+                        "opacity": 0.92,
+                        "line": {"color": "#111827", "width": 1.3},
                     },
-                    text=[request.request_id],
-                    textposition="bottom center",
-                    textfont={"color": "white", "size": 12},
-                    customdata=[[request.name, request.priority]],
+                    customdata=[
+                        [
+                            request.request_id,
+                            request.name,
+                            request.priority,
+                            request.request_mode.value,
+                        ]
+                    ],
                     hovertemplate=(
-                        "<b>%{text}</b><br>"
-                        "%{customdata[0]}<br>"
-                        "Priorytet: %{customdata[1]}<br>"
+                        "<b>%{customdata[0]}</b><br>"
+                        "%{customdata[1]}<br>"
+                        "Priorytet: %{customdata[2]}<br>"
+                        "Tryb: %{customdata[3]}<br>"
                         "Lat/Lon: %{lat:.4f}°, %{lon:.4f}°"
                         "<extra></extra>"
                     ),
@@ -423,15 +431,18 @@ def _add_requests_geo(
                 lon=[position[0] for position in ring],
                 lat=[position[1] for position in ring],
                 mode="lines",
-                line={"color": AOI_COLOR, "width": 3},
-                fill="toself",
-                fillcolor="rgba(250, 204, 21, 0.20)",
+                line={"color": AOI_COLOR, "width": 2.2},
+                opacity=0.9,
                 text=[request.request_id] * len(ring),
-                customdata=[[request.name, request.priority]] * len(ring),
+                customdata=[
+                    [request.name, request.priority, request.request_mode.value]
+                ]
+                * len(ring),
                 hovertemplate=(
                     "<b>%{text}</b><br>"
                     "%{customdata[0]}<br>"
-                    "Priorytet: %{customdata[1]}"
+                    "Priorytet: %{customdata[1]}<br>"
+                    "Tryb: %{customdata[2]}"
                     "<extra></extra>"
                 ),
                 name=f"AOI · {request.request_id}",
@@ -440,7 +451,6 @@ def _add_requests_geo(
             )
         )
     return count
-
 
 def _add_requests_3d(
     figure: go.Figure,
@@ -649,12 +659,12 @@ def _configure_operational_figure(figure: go.Figure, height_px: int) -> None:
     figure.update_geos(
         projection={
             "type": "orthographic",
-            "rotation": {"lon": 20, "lat": 45},
-            "scale": 1.10,
+            "rotation": {"lon": 19, "lat": 52},
+            "scale": 1.22,
         },
         showframe=True,
-        framecolor="#64748b",
-        framewidth=1.4,
+        framecolor="#475569",
+        framewidth=1.1,
         showland=True,
         landcolor=LAND_COLOR,
         showocean=True,
@@ -662,14 +672,14 @@ def _configure_operational_figure(figure: go.Figure, height_px: int) -> None:
         showlakes=True,
         lakecolor=OCEAN_COLOR,
         showcoastlines=True,
-        coastlinecolor="#94a3b8",
-        coastlinewidth=0.8,
+        coastlinecolor="#a8b5c3",
+        coastlinewidth=0.75,
         showcountries=True,
-        countrycolor="#64748b",
-        countrywidth=0.45,
+        countrycolor="#708196",
+        countrywidth=0.4,
         bgcolor="#050911",
         resolution=110,
-        domain={"x": [0.0, 1.0], "y": [0.0, 1.0]},
+        domain={"x": [0.18, 0.82], "y": [0.0, 1.0]},
     )
     figure.update_layout(
         height=height_px,
@@ -683,7 +693,7 @@ def _configure_operational_figure(figure: go.Figure, height_px: int) -> None:
             "bordercolor": "#64748b",
             "font": {"color": "white", "size": 13},
         },
-        uirevision="satplan-operational-globe-v2",
+        uirevision="satplan-operational-globe-v3",
     )
 
 

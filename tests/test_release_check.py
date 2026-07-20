@@ -30,7 +30,13 @@ def test_release_check_validates_full_artifact_pipeline(tmp_path: Path) -> None:
     assert report.passed
     assert steps["repository-audit"].passed
     assert steps["scenario-load"].passed
+    assert steps["demo-orbit-access"].passed
+    assert "Zlecenia: 50" in steps["scenario-load"].details
+    assert "Okazje: 500" in steps["scenario-load"].details
+    assert "Obiekty OMM: 6" in steps["demo-orbit-access"].details
+    assert steps["eo-weather-opportunities"].passed
     assert steps["planning-greedy"].passed
+    assert steps["replanning"].passed
     assert steps["project-archive-roundtrip"].passed
     assert steps["scientific-report"].passed
     assert {path.name for path in report.artifact_paths} == {

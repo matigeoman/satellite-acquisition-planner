@@ -96,6 +96,7 @@ class ProjectPaths:
         slugs = {
             "EXAMPLE": "example",
             "STRESS": "stress",
+            "POLAND_DEMO": "poland_demo",
         }
 
         try:
@@ -177,7 +178,7 @@ class ProjectPaths:
         for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
 
-        for scenario_id in ("EXAMPLE", "STRESS"):
+        for scenario_id in ("EXAMPLE", "STRESS", "POLAND_DEMO"):
             self.generated_schedule(
                 scenario_id=scenario_id,
                 name="placeholder",

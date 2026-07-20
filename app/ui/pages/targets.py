@@ -65,7 +65,7 @@ def _profiles_section() -> None:
 
             st.dataframe(
                 pd.DataFrame(profile.mode_rows()),
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
 
@@ -82,7 +82,7 @@ def _profiles_section() -> None:
                             for source in profile.parameter_sources
                         ]
                     ),
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True,
                 )
 
@@ -293,12 +293,12 @@ def _requests_section() -> None:
                 "SAR [m]": (
                     request.resolution_limit_for(SensorType.SAR)
                     if request.requires_sar
-                    else "—"
+                    else None
                 ),
                 "EO [m]": (
                     request.resolution_limit_for(SensorType.OPTICAL)
                     if request.requires_optical
-                    else "—"
+                    else None
                 ),
                 "Priorytet": request.priority,
                 "Maks. odstęp SAR–EO": (
@@ -312,7 +312,7 @@ def _requests_section() -> None:
             for request in requests
         ]
     )
-    st.dataframe(dataframe, use_container_width=True, hide_index=True)
+    st.dataframe(dataframe, width="stretch", hide_index=True)
 
     action_columns = st.columns([1, 1, 3])
     action_columns[0].download_button(

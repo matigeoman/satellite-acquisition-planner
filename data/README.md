@@ -9,6 +9,10 @@ data/
 │   │   ├── system.json
 │   │   ├── requests.json
 │   │   └── opportunities.json
+│   ├── poland_demo/
+│   │   ├── system.json
+│   │   ├── requests.json
+│   │   └── opportunities.json
 │   └── stress/
 │       ├── system.json
 │       ├── requests.json
@@ -30,7 +34,7 @@ data/
 
 ## Zasady
 
-- `scenarios` zawiera wersjonowane dane wejściowe.
+- `scenarios` zawiera wersjonowane dane wejściowe, w tym 48-godzinny `POLAND_DEMO` z 50 zleceniami i 500 okazjami.
 - `reference_schedules` zawiera stabilne wyniki używane w testach i przykładach.
 - `imports/stk` jest przeznaczony na raporty wyeksportowane z STK.
 - `generated` zawiera wyniki robocze i jest ignorowany przez Git poza plikami `.gitkeep`.

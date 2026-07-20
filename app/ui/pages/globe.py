@@ -34,6 +34,34 @@ def _default_scene_start() -> datetime:
     return datetime.now(timezone.utc).replace(microsecond=0)
 
 
+
+def _default_horizon_hours() -> int:
+    """Dopasowuje horyzont widoku do aktywnego demo lub danych sesji."""
+
+    planning_result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)
+    if isinstance(planning_result, PlanningResult):
+        duration = (
+            planning_result.schedule.horizon_end_utc
+            - planning_result.schedule.horizon_start_utc
+        )
+        hours = duration.total_seconds() / 3600.0
+        for option in (48, 36, 24, 12, 6, 3):
+            if hours >= option:
+                return option
+
+    access_result = st.session_state.get(_ACCESS_RESULT_STATE_KEY)
+    if access_result is not None:
+        duration = (
+            access_result.calculation_end_utc
+            - access_result.calculation_start_utc
+        )
+        hours = duration.total_seconds() / 3600.0
+        for option in (48, 36, 24, 12, 6, 3):
+            if hours >= option:
+                return option
+
+    return 3
+
 def _scene_export_payload(scene, tracks) -> dict:
     return {
         "renderer": f"Plotly {plotly.__version__}",
@@ -64,7 +92,7 @@ def _render_category_legend(
             ]
         )
     if show_aoi:
-        items.append(("#facc15", "AOI i zlecenia"))
+        items.append(("#fbbf24", "AOI i zlecenia"))
     if show_access:
         items.append(("#f59e0b", "Okna dostępu"))
     if show_schedule:
@@ -147,8 +175,8 @@ def render_globe_page() -> None:
         )
         horizon_hours = row[2].select_slider(
             "Horyzont śladów",
-            options=[1, 2, 3, 6, 12, 24],
-            value=3,
+            options=[3, 6, 12, 24, 36, 48],
+            value=_default_horizon_hours(),
             format_func=lambda value: f"{value} h",
         )
 
@@ -252,7 +280,8 @@ def render_globe_page() -> None:
         format="%d min",
         help=(
             "Określa moment pokazania bieżących pozycji satelitów. "
-            "Ground tracki pozostają śladem całego wybranego horyzontu."
+            "Ground tracki pozostają śladem całego wybranego horyzontu. "
+            "Dla projektu demonstracyjnego domyślnie używane jest 48 h."
         ),
     )
     focus_utc = start_utc + timedelta(minutes=focus_offset_minutes)

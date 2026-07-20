@@ -1,0 +1,192 @@
+{
+  "request_id": "REQ-DEMO-SAR-001",
+  "request_name": "SAR — Warszawa — pełne 48 h",
+  "generated_at_utc": "2026-07-20T09:12:40.929567+00:00",
+  "calculation_start_utc": "2026-07-15T00:00:00+00:00",
+  "calculation_end_utc": "2026-07-17T00:00:00+00:00",
+  "propagation_step_s": 60.0,
+  "evaluated_satellites": 4,
+  "evaluated_modes": 1,
+  "windows": [
+    {
+      "window_id": "ACCESS-DEMO-SAR-001-SAR-01-SAR-ICEYE-STRIP-001",
+      "request_id": "REQ-DEMO-SAR-001",
+      "satellite_id": "SAR-01",
+      "satellite_name": "ICEYE-DEMO-1",
+      "norad_cat_id": 65001,
+      "family": "ICEYE",
+      "sensor_type": "SAR",
+      "mode_id": "MODE-SAR-ICEYE-STRIP",
+      "mode_name": "ICEYE Strip",
+      "start_utc": "2026-07-15T04:49:30+00:00",
+      "end_utc": "2026-07-15T04:51:30+00:00",
+      "peak_utc": "2026-07-15T04:50:00+00:00",
+      "observation_side": "RIGHT",
+      "duration_s": 120.0,
+      "coverage_ratio": 1.0,
+      "minimum_off_nadir_deg": 18.557470320399418,
+      "maximum_off_nadir_deg": 30.640425870975157,
+      "minimum_incidence_angle_deg": 20.28318742773976,
+      "maximum_incidence_angle_deg": 33.25410709545647,
+      "peak_sun_elevation_deg": null,
+      "orbit_epoch_utc": "2026-07-15T00:00:00+00:00",
+      "sample_count": 2,
+      "path": [
+        {
+          "timestamp_utc": "2026-07-15T04:50:00+00:00",
+          "satellite_latitude_deg": 50.787815200112874,
+          "satellite_longitude_deg": 20.036399657462447,
+          "satellite_altitude_km": 511.4688364247886,
+          "off_nadir_angle_deg": 18.557470320399418,
+          "incidence_angle_deg": 20.28318742773976,
+          "sun_elevation_deg": null
+        },
+        {
+          "timestamp_utc": "2026-07-15T04:51:00+00:00",
+          "satellite_latitude_deg": 54.49242687436167,
+          "satellite_longitude_deg": 18.390366448392392,
+          "satellite_altitude_km": 512.4679758919137,
+          "off_nadir_angle_deg": 30.640425870975157,
+          "incidence_angle_deg": 33.25410709545647,
+          "sun_elevation_deg": null
+        }
+      ],
+      "notes": [
+        "Okno wyznaczono z publicznych GP/OMM i dyskretnej propagacji SGP4."
+      ]
+    },
+    {
+      "window_id": "ACCESS-DEMO-SAR-001-SAR-02-SAR-ICEYE-STRIP-001",
+      "request_id": "REQ-DEMO-SAR-001",
+      "satellite_id": "SAR-02",
+      "satellite_name": "ICEYE-DEMO-2",
+      "norad_cat_id": 65002,
+      "family": "ICEYE",
+      "sensor_type": "SAR",
+      "mode_id": "MODE-SAR-ICEYE-STRIP",
+      "mode_name": "ICEYE Strip",
+      "start_utc": "2026-07-15T07:40:30+00:00",
+      "end_utc": "2026-07-15T07:42:30+00:00",
+      "peak_utc": "2026-07-15T07:41:00+00:00",
+      "observation_side": "LEFT",
+      "duration_s": 120.0,
+      "coverage_ratio": 1.0,
+      "minimum_off_nadir_deg": 20.008576336055466,
+      "maximum_off_nadir_deg": 25.62509449140927,
+      "minimum_incidence_angle_deg": 21.50897022230089,
+      "maximum_incidence_angle_deg": 28.026268156956398,
+      "peak_sun_elevation_deg": null,
+      "orbit_epoch_utc": "2026-07-15T00:00:00+00:00",
+      "sample_count": 2,
+      "path": [
+        {
+          "timestamp_utc": "2026-07-15T07:41:00+00:00",
+          "satellite_latitude_deg": 50.190333223873886,
+          "satellite_longitude_deg": 22.495979697072627,
+          "satellite_altitude_km": 511.324045198191,
+          "off_nadir_angle_deg": 25.62509449140927,
+          "incidence_angle_deg": 28.026268156956398,
+          "sun_elevation_deg": null
+        },
+        {
+          "timestamp_utc": "2026-07-15T07:42:00+00:00",
+          "satellite_latitude_deg": 53.89796125877225,
+          "satellite_longitude_deg": 20.887022125637987,
+          "satellite_altitude_km": 512.3253946362465,
+          "off_nadir_angle_deg": 20.008576336055466,
+          "incidence_angle_deg": 21.50897022230089,
+          "sun_elevation_deg": null
+        }
+      ],
+      "notes": [
+        "Okno wyznaczono z publicznych GP/OMM i dyskretnej propagacji SGP4."
+      ]
+    },
+    {
+      "window_id": "ACCESS-DEMO-SAR-001-SAR-03-SAR-ICEYE-STRIP-001",
+      "request_id": "REQ-DEMO-SAR-001",
+      "satellite_id": "SAR-03",
+      "satellite_name": "ICEYE-DEMO-3",
+      "norad_cat_id": 65003,
+      "family": "ICEYE",
+      "sensor_type": "SAR",
+      "mode_id": "MODE-SAR-ICEYE-STRIP",
+      "mode_name": "ICEYE Strip",
+      "start_utc": "2026-07-15T10:32:30+00:00",
+      "end_utc": "2026-07-15T10:33:30+00:00",
+      "peak_utc": "2026-07-15T10:33:00+00:00",
+      "observation_side": "LEFT",
+      "duration_s": 60.0,
+      "coverage_ratio": 1.0,
+      "minimum_off_nadir_deg": 21.24609240005882,
+      "maximum_off_nadir_deg": 21.24609240005882,
+      "minimum_incidence_angle_deg": 22.93405737160448,
+      "maximum_incidence_angle_deg": 22.93405737160448,
+      "peak_sun_elevation_deg": null,
+      "orbit_epoch_utc": "2026-07-15T00:00:00+00:00",
+      "sample_count": 1,
+      "path": [
+        {
+          "timestamp_utc": "2026-07-15T10:33:00+00:00",
+          "satellite_latitude_deg": 53.30297927859171,
+          "satellite_longitude_deg": 23.376932911371565,
+          "satellite_altitude_km": 512.1822115549385,
+          "off_nadir_angle_deg": 21.24609240005882,
+          "incidence_angle_deg": 22.93405737160448,
+          "sun_elevation_deg": null
+        }
+      ],
+      "notes": [
+        "Okno wyznaczono z publicznych GP/OMM i dyskretnej propagacji SGP4."
+      ]
+    },
+    {
+      "window_id": "ACCESS-DEMO-SAR-001-SAR-01-SAR-ICEYE-STRIP-002",
+      "request_id": "REQ-DEMO-SAR-001",
+      "satellite_id": "SAR-01",
+      "satellite_name": "ICEYE-DEMO-1",
+      "norad_cat_id": 65001,
+      "family": "ICEYE",
+      "sensor_type": "SAR",
+      "mode_id": "MODE-SAR-ICEYE-STRIP",
+      "mode_name": "ICEYE Strip",
+      "start_utc": "2026-07-16T04:31:30+00:00",
+      "end_utc": "2026-07-16T04:33:30+00:00",
+      "peak_utc": "2026-07-16T04:32:00+00:00",
+      "observation_side": "LEFT",
+      "duration_s": 120.0,
+      "coverage_ratio": 1.0,
+      "minimum_off_nadir_deg": 28.35873363870621,
+      "maximum_off_nadir_deg": 30.004381895931306,
+      "minimum_incidence_angle_deg": 30.96668485521431,
+      "maximum_incidence_angle_deg": 32.53147726514649,
+      "peak_sun_elevation_deg": null,
+      "orbit_epoch_utc": "2026-07-15T00:00:00+00:00",
+      "sample_count": 2,
+      "path": [
+        {
+          "timestamp_utc": "2026-07-16T04:32:00+00:00",
+          "satellite_latitude_deg": 50.96868845611394,
+          "satellite_longitude_deg": 24.520902448491828,
+          "satellite_altitude_km": 511.65864136316486,
+          "off_nadir_angle_deg": 28.35873363870621,
+          "incidence_angle_deg": 30.96668485521431,
+          "sun_elevation_deg": null
+        },
+        {
+          "timestamp_utc": "2026-07-16T04:33:00+00:00",
+          "satellite_latitude_deg": 54.67219945353632,
+          "satellite_longitude_deg": 22.8633520615445,
+          "satellite_altitude_km": 512.6668220578631,
+          "off_nadir_angle_deg": 30.004381895931306,
+          "incidence_angle_deg": 32.53147726514649,
+          "sun_elevation_deg": null
+        }
+      ],
+      "notes": [
+        "Okno wyznaczono z publicznych GP/OMM i dyskretnej propagacji SGP4."
+      ]
+    }
+  ],
+  "warnings": []
+}

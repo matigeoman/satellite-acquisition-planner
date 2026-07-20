@@ -1,0 +1,12 @@
+{
+  "status": "DEMO_REFERENCE",
+  "scenario_id": "POLAND_DEMO",
+  "reference_request_id": "REQ-DEMO-SAR-001",
+  "public_access_window_count": 4,
+  "time_tolerance_s": 180,
+  "position_tolerance_km": 25,
+  "notes": [
+    "Plik jest gotowym przykładem struktury walidacji STK.",
+    "Nie stanowi niezależnego potwierdzenia operatora satelitarnego."
+  ]
+}

@@ -15,4 +15,8 @@ def test_demo_page_is_registered_in_navigation_and_streamlit() -> None:
     assert "render_demo_page" in streamlit_app
     assert "Wczytaj scenariusz demonstracyjny Polski" in page
     assert "CelesTrak" in page
+    assert "50 zleceń" in page
+    assert "500 okazji" in page
+    assert "48-godzinny" in page
+    assert "okna dostępu" in page
     assert "Open-Meteo" in page

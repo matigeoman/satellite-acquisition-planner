@@ -1,0 +1,21 @@
+{
+  "scenario_id": "POLAND_DEMO",
+  "request_count": 50,
+  "opportunity_count": 500,
+  "greedy": {
+    "solver_status": "NOT_APPLICABLE",
+    "objective_value": 4117.4134,
+    "fully_satisfied_requests": 50,
+    "total_acquisitions": 60,
+    "runtime_s": null
+  },
+  "cp_sat": {
+    "solver_status": "OPTIMAL",
+    "objective_value": 4117.4134,
+    "fully_satisfied_requests": 50,
+    "total_acquisitions": 60,
+    "runtime_s": null,
+    "time_limit_s": 2.0
+  },
+  "runtime_note": "Czas wykonania zależy od środowiska i nie jest utrwalany w deterministycznym artefakcie referencyjnym."
+}

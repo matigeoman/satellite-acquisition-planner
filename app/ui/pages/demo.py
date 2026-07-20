@@ -19,8 +19,8 @@ def _render_demo_loader() -> None:
         st.markdown("### Wczytaj gotowy projekt demonstracyjny")
         st.write(
             "Scenariusz działa całkowicie offline. Zawiera 6 satelitów, "
-            "20 zleceń SAR/EO i 200 gotowych okazji akwizycyjnych dla "
-            "obszarów na terenie Polski."
+            "50 zleceń SAR/EO/SAR+EO, 500 okazji, 48-godzinny horyzont "
+            "oraz gotowe dane OMM i referencyjne okna dostępu nad Polską."
         )
         first, second = st.columns([1.2, 1.0])
         algorithm_value = first.radio(
@@ -62,8 +62,9 @@ def _render_demo_loader() -> None:
     else:
         st.session_state[_DEMO_RESULT_STATE_KEY] = result
         st.success(
-            "Demo zostało wczytane. Harmonogram, zlecenia, metadane projektu "
-            "i historia planu są dostępne w pozostałych modułach."
+            "Demo zostało wczytane. Zlecenia, orbity OMM, okna dostępu, "
+            "harmonogram, metadane projektu i historia planu są dostępne "
+            "w pozostałych modułach."
         )
         st.rerun()
 
@@ -79,12 +80,16 @@ def _render_loaded_demo() -> None:
         return
 
     st.markdown("### Aktywny projekt demonstracyjny")
-    metrics = st.columns(5)
+    metrics = st.columns(6)
     metrics[0].metric("Satelity", planning.scenario.satellite_count)
     metrics[1].metric("Zlecenia", planning.scenario.active_request_count)
     metrics[2].metric("Okazje", planning.scenario.opportunity_count)
-    metrics[3].metric("Akwizycje", planning.total_acquisitions)
-    metrics[4].metric(
+    metrics[3].metric(
+        "Okna dostępu",
+        int(demo_state.get("access_window_count", 0)),
+    )
+    metrics[4].metric("Akwizycje", planning.total_acquisitions)
+    metrics[5].metric(
         "Zrealizowane",
         (
             f"{planning.fully_satisfied_requests}/"
@@ -114,9 +119,10 @@ def _render_loaded_demo() -> None:
         render_planning_result(planning)
 
     st.info(
-        "Następne kroki prezentacji: „Projekty i scenariusze” → eksport ZIP, "
+        "Następne kroki prezentacji: „Globus operacyjny” → 48-godzinne "
+        "ślady i okna dostępu, „Projekty i scenariusze” → eksport ZIP, "
         "„Raporty i wyniki” → DOCX/XLSX/HTML, a „Planowanie” → porównanie "
-        "Greedy i CP-SAT na tych samych danych."
+        "Greedy i CP-SAT na tych samych 50 zleceniach."
     )
 
 
