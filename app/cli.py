@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Sequence
 
@@ -8,6 +9,11 @@ from app.analysis import export_schedule_analysis
 from app.config.paths import DEFAULT_PATHS, ProjectPaths
 from app.io import save_schedule
 from app.models.enums import PlanningAlgorithm
+from app.quality import (
+    run_project_audit,
+    run_release_check,
+    run_runtime_healthcheck,
+)
 from app.services import PlanningOptions, PlanningService, ScenarioService
 
 
@@ -32,13 +38,100 @@ def build_parser() -> argparse.ArgumentParser:
     )
     paths_parser.set_defaults(handler=_handle_paths)
 
+    audit_parser = subparsers.add_parser(
+        "audit",
+        help="Wykonuje audyt repozytorium, środowiska i danych.",
+    )
+    audit_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Traktuje ostrzeżenia jako błąd polecenia.",
+    )
+    audit_parser.add_argument(
+        "--json",
+        type=Path,
+        default=None,
+        dest="json_output",
+        help="Opcjonalny plik JSON z pełnym wynikiem audytu.",
+    )
+    audit_parser.set_defaults(handler=_handle_audit)
+
+    health_parser = subparsers.add_parser(
+        "health",
+        help=(
+            "Sprawdza środowisko uruchomieniowe, solver, dane, zapis "
+            "i opcjonalnie endpoint Streamlit."
+        ),
+    )
+    health_parser.add_argument(
+        "--url",
+        default="http://127.0.0.1:8501/_stcore/health",
+        help="Endpoint zdrowia Streamlit sprawdzany w trybie HTTP.",
+    )
+    health_parser.add_argument(
+        "--skip-http",
+        action="store_true",
+        help="Pomija kontrolę endpointu HTTP, np. podczas budowy obrazu.",
+    )
+    health_parser.add_argument(
+        "--timeout",
+        type=float,
+        default=3.0,
+        help="Limit czasu żądania HTTP w sekundach.",
+    )
+    health_parser.add_argument(
+        "--json",
+        type=Path,
+        default=None,
+        dest="json_output",
+        help="Opcjonalny plik JSON z wynikiem kontroli.",
+    )
+    health_parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Nie wypisuje raportu tekstowego; zachowuje kod wyjścia.",
+    )
+    health_parser.set_defaults(handler=_handle_health)
+
+    release_parser = subparsers.add_parser(
+        "release-check",
+        help=(
+            "Uruchamia końcowy test E2E: audyt, planowanie, archiwum "
+            "projektu i generator raportu."
+        ),
+    )
+    release_parser.add_argument(
+        "--algorithm",
+        choices=("GREEDY", "CP_SAT", "BOTH"),
+        default="BOTH",
+    )
+    release_parser.add_argument(
+        "--cp-sat-time-limit",
+        type=float,
+        default=2.0,
+    )
+    release_parser.add_argument(
+        "--output-directory",
+        type=Path,
+        default=None,
+        help="Opcjonalny katalog na archiwum projektu i pakiet raportowy.",
+    )
+    release_parser.add_argument(
+        "--json",
+        type=Path,
+        default=None,
+        dest="json_output",
+        help="Opcjonalny plik JSON z wynikiem testu wydania.",
+    )
+    release_parser.set_defaults(handler=_handle_release_check)
+
     plan_parser = subparsers.add_parser(
         "plan",
         help="Uruchamia Greedy albo CP-SAT dla wybranego scenariusza.",
     )
     plan_parser.add_argument(
         "--scenario",
-        choices=("EXAMPLE", "STRESS"),
+        choices=("EXAMPLE", "STRESS", "POLAND_DEMO"),
         default="EXAMPLE",
     )
     plan_parser.add_argument(
@@ -108,6 +201,119 @@ def _handle_paths(args: argparse.Namespace, paths: ProjectPaths) -> int:
     print(f"generated_benchmarks: {paths.generated_benchmarks}")
     print(f"stk_imports: {paths.stk_imports}")
     return 0
+
+
+def _handle_audit(args: argparse.Namespace, paths: ProjectPaths) -> int:
+    report = run_project_audit(paths)
+
+    print("AUDYT PROJEKTU")
+    print(f"Wersja aplikacji: {report.application_version}")
+    print(f"Python: {report.python_version}")
+    print(f"Katalog główny: {report.project_root}")
+    print()
+
+    for check in report.checks:
+        print(f"[{check.status.value}] {check.name}: {check.message}")
+        for detail in check.details:
+            print(f"  - {detail}")
+
+    print()
+    print(
+        "Podsumowanie: "
+        f"{len(report.failures)} błędów, "
+        f"{len(report.warnings)} ostrzeżeń."
+    )
+
+    if args.json_output is not None:
+        output_path = args.json_output
+        if not output_path.is_absolute():
+            output_path = paths.root / output_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            json.dumps(report.to_dict(), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"Raport JSON: {output_path.resolve()}")
+
+    if report.failures:
+        return 1
+    if args.strict and report.warnings:
+        return 1
+    return 0
+
+
+def _handle_health(args: argparse.Namespace, paths: ProjectPaths) -> int:
+    if args.timeout <= 0:
+        raise ValueError("--timeout musi być dodatni")
+
+    report = run_runtime_healthcheck(
+        paths,
+        streamlit_url=None if args.skip_http else args.url,
+        timeout_s=args.timeout,
+    )
+
+    if not args.quiet:
+        print("KONTROLA ŚRODOWISKA URUCHOMIENIOWEGO")
+        print(f"Wersja aplikacji: {report.application_version}")
+        print(f"Python: {report.python_version}")
+        print()
+        for check in report.checks:
+            marker = "PASS" if check.healthy else "FAIL"
+            print(f"[{marker}] {check.name}: {check.message}")
+        print()
+        print("Stan: HEALTHY" if report.healthy else "Stan: UNHEALTHY")
+
+    if args.json_output is not None:
+        output_path = args.json_output
+        if not output_path.is_absolute():
+            output_path = paths.root / output_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(report.to_json(), encoding="utf-8")
+        if not args.quiet:
+            print(f"Raport JSON: {output_path.resolve()}")
+
+    return 0 if report.healthy else 1
+
+
+def _handle_release_check(args: argparse.Namespace, paths: ProjectPaths) -> int:
+    if args.cp_sat_time_limit <= 0:
+        raise ValueError("--cp-sat-time-limit musi być dodatni")
+
+    algorithms = {
+        "GREEDY": (PlanningAlgorithm.GREEDY,),
+        "CP_SAT": (PlanningAlgorithm.CP_SAT,),
+        "BOTH": (PlanningAlgorithm.GREEDY, PlanningAlgorithm.CP_SAT),
+    }[args.algorithm]
+    report = run_release_check(
+        paths,
+        algorithms=algorithms,
+        cp_sat_time_limit_s=args.cp_sat_time_limit,
+        output_directory=args.output_directory,
+    )
+
+    print("KONTROLA WYDANIA")
+    print(f"Wersja aplikacji: {report.application_version}")
+    print(f"Katalog główny: {report.project_root}")
+    print()
+    for step in report.steps:
+        marker = "PASS" if step.passed else "FAIL"
+        print(f"[{marker}] {step.name}: {step.message}")
+        for detail in step.details:
+            print(f"  - {detail}")
+    for artifact in report.artifact_paths:
+        print(f"Artefakt: {artifact.resolve()}")
+    print()
+    print("Stan: RELEASE READY" if report.passed else "Stan: RELEASE BLOCKED")
+
+    if args.json_output is not None:
+        output_path = args.json_output
+        if not output_path.is_absolute():
+            output_path = paths.root / output_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(report.to_json(), encoding="utf-8")
+        print(f"Raport JSON: {output_path.resolve()}")
+
+    return 0 if report.passed else 1
 
 
 def _handle_plan(args: argparse.Namespace, paths: ProjectPaths) -> int:

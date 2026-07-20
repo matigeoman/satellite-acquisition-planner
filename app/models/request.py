@@ -53,9 +53,17 @@ class ObservationRequest(BaseModel):
 
     max_resolution_m: float = Field(
         gt=0.0,
-        description=(
-            "Maksymalny akceptowalny rozmiar piksela lub GSD w metrach."
-        ),
+        description=("Wspólny lub zapasowy maksymalny rozmiar piksela/GSD w metrach."),
+    )
+    max_sar_resolution_m: float | None = Field(
+        default=None,
+        gt=0.0,
+        description=("Opcjonalny limit rozdzielczości przeznaczony wyłącznie dla SAR."),
+    )
+    max_optical_resolution_m: float | None = Field(
+        default=None,
+        gt=0.0,
+        description=("Opcjonalny limit rozdzielczości przeznaczony wyłącznie dla EO."),
     )
     minimum_coverage_ratio: float = Field(
         gt=0.0,
@@ -76,6 +84,14 @@ class ObservationRequest(BaseModel):
         default=None,
         ge=0.0,
         lt=90.0,
+    )
+    max_dual_separation_s: float | None = Field(
+        default=None,
+        gt=0.0,
+        le=604800.0,
+        description=(
+            "Maksymalny odstęp pomiędzy środkami akwizycji SAR i EO."
+        ),
     )
 
     status: RequestStatus = RequestStatus.ACTIVE
@@ -100,9 +116,7 @@ class ObservationRequest(BaseModel):
         value: datetime,
     ) -> datetime:
         if value.tzinfo is None or value.utcoffset() is None:
-            raise ValueError(
-                "Czas musi zawierać strefę czasową"
-            )
+            raise ValueError("Czas musi zawierać strefę czasową")
 
         return value.astimezone(timezone.utc)
 
@@ -114,14 +128,15 @@ class ObservationRequest(BaseModel):
         self._validate_sensor_types()
         self._validate_cloud_constraint()
         self._validate_incidence_constraint()
+        self._validate_sensor_specific_resolution_constraints()
+        self._validate_dual_separation_constraint()
 
         return self
 
     def _validate_time_window(self) -> None:
         if self.earliest_start_utc >= self.latest_end_utc:
             raise ValueError(
-                "earliest_start_utc musi być wcześniejsze "
-                "niż latest_end_utc"
+                "earliest_start_utc musi być wcześniejsze niż latest_end_utc"
             )
 
     def _validate_sensor_types(self) -> None:
@@ -129,15 +144,11 @@ class ObservationRequest(BaseModel):
         sensor_set = set(sensor_types)
 
         if len(sensor_types) != len(sensor_set):
-            raise ValueError(
-                "requested_sensor_types nie może zawierać duplikatów"
-            )
+            raise ValueError("requested_sensor_types nie może zawierać duplikatów")
 
         if self.request_mode == RequestMode.SINGLE:
             if len(sensor_set) != 1:
-                raise ValueError(
-                    "Tryb SINGLE wymaga dokładnie jednego typu sensora"
-                )
+                raise ValueError("Tryb SINGLE wymaga dokładnie jednego typu sensora")
 
             return
 
@@ -147,23 +158,16 @@ class ObservationRequest(BaseModel):
         }
 
         if sensor_set != required_dual_types:
-            raise ValueError(
-                "Tryb DUAL wymaga typów SAR i OPTICAL"
-            )
+            raise ValueError("Tryb DUAL wymaga typów SAR i OPTICAL")
 
     def _validate_cloud_constraint(self) -> None:
         sensor_set = set(self.requested_sensor_types)
 
         if SensorType.OPTICAL in sensor_set:
             if self.max_cloud_cover is None:
-                raise ValueError(
-                    "Zlecenie optyczne wymaga max_cloud_cover"
-                )
+                raise ValueError("Zlecenie optyczne wymaga max_cloud_cover")
         elif self.max_cloud_cover is not None:
-            raise ValueError(
-                "Zlecenie wyłącznie SAR nie może posiadać "
-                "max_cloud_cover"
-            )
+            raise ValueError("Zlecenie wyłącznie SAR nie może posiadać max_cloud_cover")
 
     def _validate_incidence_constraint(self) -> None:
         sensor_set = set(self.requested_sensor_types)
@@ -173,9 +177,53 @@ class ObservationRequest(BaseModel):
             and self.max_incidence_angle_deg is not None
         ):
             raise ValueError(
-                "Zlecenie bez SAR nie może posiadać "
-                "max_incidence_angle_deg"
+                "Zlecenie bez SAR nie może posiadać max_incidence_angle_deg"
             )
+
+    def _validate_sensor_specific_resolution_constraints(self) -> None:
+        sensor_set = set(self.requested_sensor_types)
+
+        if SensorType.SAR not in sensor_set and self.max_sar_resolution_m is not None:
+            raise ValueError("Zlecenie bez SAR nie może posiadać max_sar_resolution_m")
+
+        if (
+            SensorType.OPTICAL not in sensor_set
+            and self.max_optical_resolution_m is not None
+        ):
+            raise ValueError(
+                "Zlecenie bez EO nie może posiadać max_optical_resolution_m"
+            )
+
+    def _validate_dual_separation_constraint(self) -> None:
+        if (
+            self.request_mode == RequestMode.SINGLE
+            and self.max_dual_separation_s is not None
+        ):
+            raise ValueError(
+                "Zlecenie SINGLE nie może posiadać max_dual_separation_s"
+            )
+
+    @property
+    def max_dual_separation_hours(self) -> float | None:
+        """Zwraca limit odstępu pary SAR + EO w godzinach."""
+
+        if self.max_dual_separation_s is None:
+            return None
+        return self.max_dual_separation_s / 3600.0
+
+    def resolution_limit_for(self, sensor_type: SensorType) -> float:
+        """Zwraca limit rozdzielczości właściwy dla danego typu sensora."""
+
+        if sensor_type == SensorType.SAR and self.max_sar_resolution_m is not None:
+            return self.max_sar_resolution_m
+
+        if (
+            sensor_type == SensorType.OPTICAL
+            and self.max_optical_resolution_m is not None
+        ):
+            return self.max_optical_resolution_m
+
+        return self.max_resolution_m
 
     @property
     def requires_sar(self) -> bool:

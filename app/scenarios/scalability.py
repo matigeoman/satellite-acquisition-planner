@@ -25,17 +25,18 @@ def build_scalability_source(
     catalog: SystemCatalog,
     request_set: ObservationRequestSet,
     opportunity_set: AcquisitionOpportunitySet,
+    target_request_count: int = EXPANDED_REQUEST_COUNT,
 ) -> tuple[
     ObservationRequestSet,
     AcquisitionOpportunitySet,
 ]:
     """
-    Rozszerza scenariusz stresowy z 80 do 100 zleceń.
+    Rozszerza scenariusz stresowy do wskazanej liczby zleceń.
 
-    Dodatkowe 20 zleceń powstaje przez deterministyczne
-    sklonowanie 10 zleceń SAR i 10 zleceń optycznych.
-    Okna czasowe pozostają bez zmian, co zwiększa
-    konkurencję o zasoby.
+    Dodatkowe zlecenia powstają przez deterministyczne, cykliczne
+    klonowanie zbalansowanej listy zleceń źródłowych. Każdy klon
+    zachowuje dziesięć okazji źródłowych, dzięki czemu można budować
+    zagnieżdżone scenariusze od 80 do co najmniej 500 zleceń.
     """
 
     opportunity_set.validate_against(
@@ -47,6 +48,12 @@ def build_scalability_source(
         raise ValueError(
             "Źródłowy scenariusz skalowalności musi "
             f"zawierać {SOURCE_REQUEST_COUNT} aktywnych zleceń"
+        )
+
+    if target_request_count < SOURCE_REQUEST_COUNT:
+        raise ValueError(
+            "target_request_count nie może być mniejsze od "
+            f"{SOURCE_REQUEST_COUNT}"
         )
 
     request_counts = Counter(
@@ -66,160 +73,94 @@ def build_scalability_source(
             f"{OPPORTUNITIES_PER_REQUEST} okazji"
         )
 
-    source_sar_requests = _select_clone_sources(
-        request_set=request_set,
-        sensor_type=SensorType.SAR,
-        count=10,
-    )
-
-    source_optical_requests = _select_clone_sources(
-        request_set=request_set,
-        sensor_type=SensorType.OPTICAL,
-        count=10,
-    )
-
-    clone_plan = [
-        *[
-            (request, SensorType.SAR)
-            for request in source_sar_requests
-        ],
-        *[
-            (request, SensorType.OPTICAL)
-            for request in source_optical_requests
-        ],
-    ]
-
-    request_data = request_set.model_dump(
-        mode="json"
-    )
-
+    request_data = request_set.model_dump(mode="json")
     request_data["request_set_id"] = (
-        "REQSET-PL-SCALABILITY-100"
+        f"REQSET-PL-SCALABILITY-{target_request_count:03d}"
     )
     request_data["name"] = (
-        "Scenariusz skalowalności — 100 zleceń"
+        "Scenariusz skalowalności — "
+        f"{target_request_count} zleceń"
     )
-    request_data["version"] = "1.0.0"
+    request_data["version"] = "2.0.0"
     request_data["notes"] = (
         "Rozszerzony scenariusz stresowy przeznaczony "
-        "do benchmarku skalowalności."
+        "do benchmarku skalowalności Greedy i CP-SAT."
     )
 
-    expanded_requests = list(
-        request_data["requests"]
-    )
-
+    expanded_requests = list(request_data["requests"])
     clone_mapping: dict[str, str] = {}
 
-    for clone_index, (
-        source_request,
-        sensor_type,
-    ) in enumerate(
-        clone_plan,
-        start=SOURCE_REQUEST_COUNT + 1,
-    ):
-        sensor_label = (
-            "SAR"
-            if sensor_type == SensorType.SAR
-            else "EO"
-        )
+    clone_sources = [
+        request
+        for request in balanced_request_order(request_set)
+        if not request.is_mandatory
+    ]
+    if not clone_sources:
+        clone_sources = list(request_set.active_requests)
 
+    clone_count = target_request_count - SOURCE_REQUEST_COUNT
+    for clone_offset in range(clone_count):
+        clone_index = SOURCE_REQUEST_COUNT + clone_offset + 1
+        source_request = clone_sources[clone_offset % len(clone_sources)]
+        request_label = _request_clone_label(source_request)
         new_request_id = (
-            f"REQ-SCALE-{sensor_label}-{clone_index:03d}"
+            f"REQ-SCALE-{request_label}-{clone_index:04d}"
         )
 
-        clone_mapping[
-            new_request_id
-        ] = source_request.request_id
+        clone_mapping[new_request_id] = source_request.request_id
 
-        clone_data = source_request.model_dump(
-            mode="json"
-        )
-
+        clone_data = source_request.model_dump(mode="json")
         clone_data["request_id"] = new_request_id
         clone_data["name"] = (
-            f"Zlecenie skalowalności {sensor_label} "
-            f"{clone_index:03d}"
+            "Zlecenie skalowalności "
+            f"{request_label} {clone_index:04d}"
         )
         clone_data["is_mandatory"] = False
         clone_data["external_reference"] = (
-            f"SCALE-{clone_index:03d}"
+            f"SCALE-{clone_index:04d}"
         )
         clone_data["notes"] = (
             "SCALABILITY-CLONE|"
             f"SOURCE={source_request.request_id}"
         )
-
-        expanded_requests.append(
-            clone_data
-        )
+        expanded_requests.append(clone_data)
 
     request_data["requests"] = expanded_requests
+    expanded_request_set = ObservationRequestSet.model_validate(request_data)
 
-    expanded_request_set = (
-        ObservationRequestSet.model_validate(
-            request_data
-        )
-    )
-
-    opportunity_data = opportunity_set.model_dump(
-        mode="json"
-    )
-
+    opportunity_data = opportunity_set.model_dump(mode="json")
     opportunity_data["opportunity_set_id"] = (
-        "OPPSET-PL-SCALABILITY-100"
+        f"OPPSET-PL-SCALABILITY-{target_request_count:03d}"
     )
     opportunity_data["request_set_id"] = (
         expanded_request_set.request_set_id
     )
     opportunity_data["name"] = (
-        "Okazje benchmarku skalowalności — 100 zleceń"
+        "Okazje benchmarku skalowalności — "
+        f"{target_request_count} zleceń"
     )
-    opportunity_data["version"] = "1.0.0"
+    opportunity_data["version"] = "2.0.0"
     opportunity_data["notes"] = (
-        "1000 okazji dla 100 zleceń; "
-        "10 okazji na każde zlecenie."
+        f"{target_request_count * OPPORTUNITIES_PER_REQUEST} okazji; "
+        f"{OPPORTUNITIES_PER_REQUEST} okazji na każde zlecenie."
     )
 
-    expanded_opportunities = list(
-        opportunity_data["opportunities"]
-    )
+    expanded_opportunities = list(opportunity_data["opportunities"])
+    next_opportunity_number = _next_opportunity_number(opportunity_set)
 
-    next_opportunity_number = (
-        _next_opportunity_number(
-            opportunity_set
-        )
-    )
-
-    opportunities_by_request: dict[
-        str,
-        list[Any],
-    ] = {}
-
+    opportunities_by_request: dict[str, list[Any]] = {}
     for opportunity in opportunity_set.opportunities:
         opportunities_by_request.setdefault(
-            opportunity.request_id,
-            [],
-        ).append(
-            opportunity
-        )
+            opportunity.request_id, []
+        ).append(opportunity)
 
-    for new_request_id, source_request_id in (
-        clone_mapping.items()
-    ):
+    for new_request_id, source_request_id in clone_mapping.items():
         source_opportunities = sorted(
-            opportunities_by_request[
-                source_request_id
-            ],
-            key=lambda opportunity: (
-                opportunity.opportunity_id
-            ),
+            opportunities_by_request[source_request_id],
+            key=lambda opportunity: opportunity.opportunity_id,
         )
 
-        if (
-            len(source_opportunities)
-            != OPPORTUNITIES_PER_REQUEST
-        ):
+        if len(source_opportunities) != OPPORTUNITIES_PER_REQUEST:
             raise ValueError(
                 f"Zlecenie {source_request_id} nie posiada "
                 f"{OPPORTUNITIES_PER_REQUEST} okazji"
@@ -228,64 +169,38 @@ def build_scalability_source(
         for source_opportunity in source_opportunities:
             sensor_label = (
                 "SAR"
-                if source_opportunity.sensor_type
-                == SensorType.SAR
+                if source_opportunity.sensor_type == SensorType.SAR
                 else "EO"
             )
-
-            clone_opportunity = (
-                source_opportunity.model_dump(
-                    mode="json"
-                )
-            )
-
+            clone_opportunity = source_opportunity.model_dump(mode="json")
             clone_opportunity["opportunity_id"] = (
-                f"OPP-{sensor_label}-"
-                f"{next_opportunity_number:04d}"
+                f"OPP-{sensor_label}-{next_opportunity_number:05d}"
             )
-            clone_opportunity["request_id"] = (
-                new_request_id
-            )
+            clone_opportunity["request_id"] = new_request_id
             clone_opportunity["notes"] = (
                 "SCALABILITY-CLONE|"
                 f"SOURCE={source_opportunity.opportunity_id}"
             )
-
-            expanded_opportunities.append(
-                clone_opportunity
-            )
-
+            expanded_opportunities.append(clone_opportunity)
             next_opportunity_number += 1
 
-    opportunity_data["opportunities"] = (
-        expanded_opportunities
-    )
-
+    opportunity_data["opportunities"] = expanded_opportunities
     expanded_opportunity_set = (
-        AcquisitionOpportunitySet.model_validate(
-            opportunity_data
-        )
+        AcquisitionOpportunitySet.model_validate(opportunity_data)
     )
-
     expanded_opportunity_set.validate_against(
-        catalog,
-        expanded_request_set,
+        catalog, expanded_request_set
     )
 
-    if (
-        len(expanded_request_set.active_requests)
-        != EXPANDED_REQUEST_COUNT
-    ):
+    if len(expanded_request_set.active_requests) != target_request_count:
         raise ValueError(
             "Rozszerzony scenariusz nie zawiera "
-            f"{EXPANDED_REQUEST_COUNT} zleceń"
+            f"{target_request_count} zleceń"
         )
 
     expected_opportunity_count = (
-        EXPANDED_REQUEST_COUNT
-        * OPPORTUNITIES_PER_REQUEST
+        target_request_count * OPPORTUNITIES_PER_REQUEST
     )
-
     if (
         len(expanded_opportunity_set.opportunities)
         != expected_opportunity_count
@@ -295,11 +210,19 @@ def build_scalability_source(
             f"{expected_opportunity_count} okazji"
         )
 
-    return (
-        expanded_request_set,
-        expanded_opportunity_set,
-    )
+    return expanded_request_set, expanded_opportunity_set
 
+
+def _request_clone_label(request: ObservationRequest) -> str:
+    if request.request_mode == RequestMode.DUAL_REQUIRED:
+        return "DUALR"
+    if request.request_mode == RequestMode.DUAL_OPTIONAL:
+        return "DUALO"
+    if request.requires_sar and not request.requires_optical:
+        return "SAR"
+    if request.requires_optical and not request.requires_sar:
+        return "EO"
+    return "MIXED"
 
 def build_scalability_subset(
     *,

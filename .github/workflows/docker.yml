@@ -1,0 +1,74 @@
+name: docker
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+
+      - name: Build release image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: satplan:ci
+          build-args: |
+            APP_VERSION=1.0.0
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start smoke-test container
+        run: |
+          docker run --detach \
+            --name satplan-smoke \
+            --publish 8501:8501 \
+            satplan:ci
+
+      - name: Wait for container health
+        shell: bash
+        run: |
+          for attempt in $(seq 1 60); do
+            state="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' satplan-smoke)"
+            if [ "$state" = "healthy" ]; then
+              exit 0
+            fi
+            if [ "$state" = "unhealthy" ] || [ "$state" = "exited" ] || [ "$state" = "dead" ]; then
+              docker logs satplan-smoke
+              exit 1
+            fi
+            sleep 2
+          done
+          docker logs satplan-smoke
+          exit 1
+
+      - name: Verify application inside container
+        run: |
+          docker exec satplan-smoke python -m app.cli check
+          docker exec satplan-smoke python -m app.cli audit --strict
+          docker exec satplan-smoke python -m app.cli health --quiet
+          docker exec satplan-smoke python -m app.cli release-check --algorithm GREEDY --cp-sat-time-limit 2
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker logs satplan-smoke || true
+
+      - name: Stop smoke-test container
+        if: always()
+        run: docker rm --force satplan-smoke || true

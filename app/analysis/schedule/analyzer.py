@@ -363,6 +363,24 @@ def _validate_analysis_inputs(
                 "do nieistniejącego satelity"
             )
 
+def _entry_separation_s(
+    first: ScheduleEntry,
+    second: ScheduleEntry,
+) -> float:
+    first_midpoint = first.start_utc + (first.end_utc - first.start_utc) / 2
+    second_midpoint = second.start_utc + (second.end_utc - second.start_utc) / 2
+    return abs((second_midpoint - first_midpoint).total_seconds())
+
+
+def _opportunity_separation_s(
+    first: AcquisitionOpportunity,
+    second: AcquisitionOpportunity,
+) -> float:
+    first_midpoint = first.start_utc + (first.end_utc - first.start_utc) / 2
+    second_midpoint = second.start_utc + (second.end_utc - second.start_utc) / 2
+    return abs((second_midpoint - first_midpoint).total_seconds())
+
+
 def _determine_fulfillment_status(
     request: ObservationRequest,
     entries: list[ScheduleEntry],
@@ -384,7 +402,23 @@ def _determine_fulfillment_status(
                 SensorType.OPTICAL,
             }
         ):
-            return RequestFulfillmentStatus.FULLY_SATISFIED
+            sar_entries = [
+                entry
+                for entry in entries
+                if entry.sensor_type == SensorType.SAR
+            ]
+            optical_entries = [
+                entry
+                for entry in entries
+                if entry.sensor_type == SensorType.OPTICAL
+            ]
+            if request.max_dual_separation_s is None or any(
+                _entry_separation_s(sar_entry, optical_entry)
+                <= request.max_dual_separation_s + 1e-9
+                for sar_entry in sar_entries
+                for optical_entry in optical_entries
+            ):
+                return RequestFulfillmentStatus.FULLY_SATISFIED
 
         return RequestFulfillmentStatus.PARTIALLY_SATISFIED
 
@@ -444,6 +478,17 @@ def _diagnose_request(
         if missing_reasons:
             return missing_reasons
 
+        if (
+            request.max_dual_separation_s is not None
+            and not any(
+                _opportunity_separation_s(sar_candidate, optical_candidate)
+                <= request.max_dual_separation_s + 1e-9
+                for sar_candidate in sar_candidates
+                for optical_candidate in optical_candidates
+            )
+        ):
+            return [UnassignedReasonCode.DUAL_SEPARATION_LIMIT]
+
         combined_reasons: set[UnassignedReasonCode] = set()
 
         for sar_candidate in sar_candidates:
@@ -490,6 +535,7 @@ def _diagnose_request(
         combined_reasons.update(reasons)
 
     return _sorted_reasons(combined_reasons)
+
 
 def _candidate_block_reasons(
     *,

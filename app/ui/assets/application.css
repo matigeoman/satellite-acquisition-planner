@@ -1,179 +1,267 @@
 /*
-         * Globalna skala typografii.
-         * Streamlit bazuje głównie na jednostkach rem, dlatego zmiana rozmiaru
-         * elementu html zwiększa równomiernie tekst, kontrolki i odstępy.
-         */
-        html {
-            font-size: 18px;
-        }
+ * Czytelna, powiększona skala aplikacji.
+ * Większość komponentów Streamlit używa rem, więc 20 px zwiększa zarówno
+ * typografię, jak i kontrolki bez ręcznego skalowania każdej strony.
+ */
+html {
+    font-size: 20px;
+}
 
-        /*
-         * Ograniczenie szerokości treści zapobiega rozciąganiu metryk i tabel
-         * na całą szerokość monitora 4K.
-         */
-        [data-testid="stAppViewContainer"] .main .block-container {
-            max-width: 1720px;
-            padding-top: 2rem;
-            padding-right: 2.5rem;
-            padding-bottom: 3rem;
-            padding-left: 2.5rem;
-            margin-right: auto;
-            margin-left: auto;
-        }
+body,
+[data-testid="stAppViewContainer"],
+[data-testid="stSidebar"] {
+    font-size: 1rem;
+}
 
-        /*
-         * Szerszy panel boczny ułatwia obsługę formularzy i suwaków.
-         */
-        [data-testid="stSidebar"] {
-            min-width: 350px;
-            max-width: 350px;
-        }
+[data-testid="stAppViewContainer"] .main .block-container {
+    max-width: 1840px;
+    padding-top: 2.25rem;
+    padding-right: 2.75rem;
+    padding-bottom: 3.5rem;
+    padding-left: 2.75rem;
+    margin-right: auto;
+    margin-left: auto;
+}
 
-        [data-testid="stSidebar"] > div:first-child {
-            width: 350px;
-        }
+/* Panel boczny: duże etykiety, ikony i wygodne cele kliknięcia. */
+[data-testid="stSidebar"] {
+    min-width: 410px;
+    max-width: 410px;
+}
 
-        /*
-         * Nagłówki i zwykły tekst.
-         */
-        h1 {
-            font-size: 2.35rem !important;
-            line-height: 1.18 !important;
-            margin-bottom: 0.75rem !important;
-        }
+[data-testid="stSidebar"] > div:first-child {
+    width: 410px;
+}
 
-        h2 {
-            font-size: 1.75rem !important;
-            line-height: 1.25 !important;
-            margin-top: 1.5rem !important;
-        }
+[data-testid="stSidebar"] [role="radiogroup"] label {
+    min-height: 3.1rem;
+    padding: 0.55rem 0.45rem;
+    align-items: center;
+}
 
-        h3 {
-            font-size: 1.35rem !important;
-            line-height: 1.3 !important;
-        }
+[data-testid="stSidebar"] [role="radiogroup"] label p {
+    font-size: 1.08rem !important;
+    font-weight: 600;
+}
 
-        p,
-        li,
-        label,
-        [data-testid="stMarkdownContainer"] {
-            font-size: 1rem;
-            line-height: 1.55;
-        }
+/* Nagłówki i tekst. */
+h1 {
+    font-size: 2.7rem !important;
+    line-height: 1.14 !important;
+    margin-bottom: 0.85rem !important;
+}
 
-        [data-testid="stCaptionContainer"] {
-            font-size: 0.92rem;
-            line-height: 1.45;
-        }
+h2 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+    margin-top: 1.7rem !important;
+}
 
-        /*
-         * Metryki na dashboardach.
-         */
-        [data-testid="stMetricLabel"] {
-            font-size: 0.95rem;
-        }
+h3 {
+    font-size: 1.5rem !important;
+    line-height: 1.28 !important;
+}
 
-        [data-testid="stMetricValue"] {
-            font-size: 2rem;
-            line-height: 1.15;
-        }
+p,
+li,
+label,
+[data-testid="stMarkdownContainer"] {
+    font-size: 1.05rem;
+    line-height: 1.58;
+}
 
-        [data-testid="stMetricDelta"] {
-            font-size: 0.9rem;
-        }
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p {
+    font-size: 0.98rem !important;
+    line-height: 1.48;
+}
 
-        /*
-         * Formularze i kontrolki.
-         */
-        [data-testid="stWidgetLabel"] p,
-        [data-testid="stRadio"] label,
-        [data-testid="stCheckbox"] label {
-            font-size: 0.98rem !important;
-        }
+/* Ikony Streamlit i SVG w kontrolkach. */
+[data-testid="stIconMaterial"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+}
 
-        input,
-        textarea,
-        [data-baseweb="select"] > div,
-        [data-baseweb="input"] > div {
-            min-height: 2.65rem;
-            font-size: 1rem !important;
-        }
+button svg,
+[data-testid="stSidebar"] svg,
+[data-testid="stFileUploader"] svg {
+    width: 1.45rem !important;
+    height: 1.45rem !important;
+}
 
-        [data-testid="stButton"] button,
-        [data-testid="stDownloadButton"] button,
-        [data-testid="baseButton-primary"],
-        [data-testid="baseButton-secondary"] {
-            min-height: 2.75rem;
-            padding: 0.55rem 1rem;
-            font-size: 1rem !important;
-            font-weight: 600;
-        }
+/* Metryki. */
+[data-testid="stMetricLabel"],
+[data-testid="stMetricLabel"] p {
+    font-size: 1rem !important;
+}
 
-        /*
-         * Czytelniejsze zakładki, alerty i ekspandery.
-         */
-        [data-baseweb="tab"] {
-            min-height: 3rem;
-            font-size: 1rem;
-        }
+[data-testid="stMetricValue"] {
+    font-size: 2.25rem !important;
+    line-height: 1.12;
+}
 
-        [data-testid="stAlertContainer"] {
-            font-size: 0.98rem;
-        }
+[data-testid="stMetricDelta"] {
+    font-size: 0.95rem !important;
+}
 
-        [data-testid="stExpander"] summary {
-            font-size: 1rem;
-            min-height: 2.75rem;
-        }
+/* Formularze i kontrolki. */
+[data-testid="stWidgetLabel"] p,
+[data-testid="stRadio"] label,
+[data-testid="stCheckbox"] label,
+[data-testid="stToggle"] label {
+    font-size: 1.04rem !important;
+}
 
-        /*
-         * Tabele i ramki danych.
-         */
-        [data-testid="stDataFrame"] {
-            font-size: 0.95rem;
-        }
+input,
+textarea,
+[data-baseweb="select"] > div,
+[data-baseweb="input"] > div {
+    min-height: 3rem;
+    font-size: 1.05rem !important;
+}
 
-        /*
-         * Na bardzo szerokich ekranach zwiększamy skalę jeszcze nieznacznie.
-         */
-        @media (min-width: 2200px) {
-            html {
-                font-size: 20px;
-            }
+textarea {
+    line-height: 1.5 !important;
+}
 
-            [data-testid="stAppViewContainer"] .main .block-container {
-                max-width: 1840px;
-            }
+[data-testid="stButton"] button,
+[data-testid="stDownloadButton"] button,
+[data-testid="baseButton-primary"],
+[data-testid="baseButton-secondary"],
+[data-testid="stFormSubmitButton"] button {
+    min-height: 3.15rem;
+    padding: 0.65rem 1.15rem;
+    font-size: 1.05rem !important;
+    font-weight: 650;
+    border-radius: 0.55rem;
+}
 
-            [data-testid="stSidebar"] {
-                min-width: 380px;
-                max-width: 380px;
-            }
+[data-testid="stSlider"] [role="slider"] {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
 
-            [data-testid="stSidebar"] > div:first-child {
-                width: 380px;
-            }
-        }
+[data-testid="stFileUploaderDropzone"] {
+    min-height: 8rem;
+    padding: 1.2rem;
+}
 
-        /*
-         * Na mniejszych ekranach zachowujemy miejsce na treść.
-         */
-        @media (max-width: 1100px) {
-            html {
-                font-size: 16px;
-            }
+/* Zakładki, alerty i ekspandery. */
+[data-baseweb="tab"] {
+    min-height: 3.35rem;
+    padding-right: 1.2rem !important;
+    padding-left: 1.2rem !important;
+}
 
-            [data-testid="stAppViewContainer"] .main .block-container {
-                padding-right: 1.25rem;
-                padding-left: 1.25rem;
-            }
+[data-baseweb="tab"] p {
+    font-size: 1.05rem !important;
+    font-weight: 600;
+}
 
-            [data-testid="stSidebar"] {
-                min-width: 300px;
-                max-width: 300px;
-            }
+[data-testid="stAlertContainer"],
+[data-testid="stAlertContainer"] p {
+    font-size: 1.03rem !important;
+}
 
-            [data-testid="stSidebar"] > div:first-child {
-                width: 300px;
-            }
-        }
+[data-testid="stExpander"] summary {
+    font-size: 1.05rem;
+    min-height: 3.15rem;
+}
+
+/* Tabele i wykresy. */
+[data-testid="stDataFrame"] {
+    font-size: 1rem;
+}
+
+[data-testid="stDataFrame"] canvas {
+    font-size: 16px !important;
+}
+
+.js-plotly-plot .plotly .legendtext,
+.js-plotly-plot .plotly .xtick text,
+.js-plotly-plot .plotly .ytick text {
+    font-size: 16px !important;
+}
+
+/* Monitory 4K. */
+@media (min-width: 2200px) {
+    html {
+        font-size: 22px;
+    }
+
+    [data-testid="stAppViewContainer"] .main .block-container {
+        max-width: 2040px;
+    }
+
+    [data-testid="stSidebar"] {
+        min-width: 450px;
+        max-width: 450px;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        width: 450px;
+    }
+}
+
+/* Laptopy i mniejsze okna nadal pozostają czytelne. */
+@media (max-width: 1200px) {
+    html {
+        font-size: 18px;
+    }
+
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-right: 1.35rem;
+        padding-left: 1.35rem;
+    }
+
+    [data-testid="stSidebar"] {
+        min-width: 340px;
+        max-width: 340px;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        width: 340px;
+    }
+}
+
+/* Mapy Plotly: pełna szerokość, czytelny pasek narzędzi i obramowanie. */
+[data-testid="stPlotlyChart"] {
+    width: 100% !important;
+    border: 1px solid rgba(148, 163, 184, 0.20);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: rgba(8, 13, 22, 0.40);
+}
+
+.js-plotly-plot .modebar {
+    top: 10px !important;
+    right: 10px !important;
+    padding: 5px 7px !important;
+    border-radius: 8px !important;
+    background: rgba(8, 13, 22, 0.82) !important;
+}
+
+.js-plotly-plot .modebar-btn {
+    padding: 5px !important;
+}
+
+.js-plotly-plot .modebar-btn svg {
+    width: 22px !important;
+    height: 22px !important;
+}
+
+/* Większe znaczniki wyboru w multiselectach używanych przy orbitach. */
+[data-baseweb="tag"] {
+    min-height: 2rem;
+    padding: 0.25rem 0.55rem !important;
+    font-size: 0.95rem !important;
+}
+
+/* Osadzony globus 3D: spójne obramowanie i pełna szerokość. */
+iframe[title="streamlit.components.v1.html"] {
+    width: 100% !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    border-radius: 0.85rem !important;
+    background: #060b14;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}

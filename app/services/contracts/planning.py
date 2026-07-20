@@ -18,6 +18,15 @@ class PlanningOptions:
 
     memory_reserve_ratio: float = 0.15
 
+    use_dynamic_transition_model: bool = False
+    eo_stabilization_time_s: float = 3.0
+    sar_stabilization_time_s: float = 10.0
+    sar_side_switch_penalty_s: float = 60.0
+    sar_mode_switch_penalty_s: float = 15.0
+    sar_slew_rate_deg_s: float = 2.0
+    sar_pass_gap_s: float = 900.0
+    sar_max_acquisitions_per_pass: int = 3
+
     priority_weight: float = 10.0
     quality_weight: float = 3.0
     coverage_weight: float = 2.0
@@ -78,6 +87,11 @@ class PlanningOptions:
             )
 
         nonnegative_values = {
+            "eo_stabilization_time_s": self.eo_stabilization_time_s,
+            "sar_stabilization_time_s": self.sar_stabilization_time_s,
+            "sar_side_switch_penalty_s": self.sar_side_switch_penalty_s,
+            "sar_mode_switch_penalty_s": self.sar_mode_switch_penalty_s,
+            "sar_pass_gap_s": self.sar_pass_gap_s,
             "priority_weight": self.priority_weight,
             "quality_weight": self.quality_weight,
             "coverage_weight": self.coverage_weight,
@@ -92,6 +106,16 @@ class PlanningOptions:
                 raise ValueError(
                     f"{name} nie może być ujemne"
                 )
+
+        if self.sar_slew_rate_deg_s <= 0.0:
+            raise ValueError(
+                "sar_slew_rate_deg_s musi być większe od zera"
+            )
+
+        if self.sar_max_acquisitions_per_pass <= 0:
+            raise ValueError(
+                "sar_max_acquisitions_per_pass musi być większe od zera"
+            )
 
         if self.cp_sat_time_limit_s <= 0.0:
             raise ValueError(

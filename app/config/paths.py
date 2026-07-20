@@ -71,6 +71,12 @@ class ProjectPaths:
     def generated_benchmarks(self) -> Path:
         return self.generated / "benchmarks"
 
+    @property
+    def generated_orbits(self) -> Path:
+        """Cache publicznych elementów orbitalnych GP/OMM."""
+
+        return self.generated / "orbits"
+
     # Krótkie aliasy zachowują czytelność starszych modułów.
     @property
     def reports(self) -> Path:
@@ -90,6 +96,7 @@ class ProjectPaths:
         slugs = {
             "EXAMPLE": "example",
             "STRESS": "stress",
+            "POLAND_DEMO": "poland_demo",
         }
 
         try:
@@ -165,12 +172,13 @@ class ProjectPaths:
             self.generated_schedules,
             self.generated_reports,
             self.generated_benchmarks,
+            self.generated_orbits,
         )
 
         for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
 
-        for scenario_id in ("EXAMPLE", "STRESS"):
+        for scenario_id in ("EXAMPLE", "STRESS", "POLAND_DEMO"):
             self.generated_schedule(
                 scenario_id=scenario_id,
                 name="placeholder",

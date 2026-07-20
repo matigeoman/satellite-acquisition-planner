@@ -5,7 +5,7 @@ from app.config.paths import DEFAULT_PATHS, ProjectPaths
 
 
 def test_source_scenarios_use_nested_directories() -> None:
-    for scenario_id in ("EXAMPLE", "STRESS"):
+    for scenario_id in ("EXAMPLE", "STRESS", "POLAND_DEMO"):
         scenario = DEFAULT_PATHS.scenario(scenario_id)
         assert all(path.is_file() for path in scenario.all)
         assert scenario.catalog.parent.parent == DEFAULT_PATHS.scenarios
@@ -67,6 +67,7 @@ def test_cli_check_loads_registered_scenarios(capsys) -> None:
     assert exit_code == 0
     assert "EXAMPLE" in output
     assert "STRESS" in output
+    assert "POLAND_DEMO" in output
     assert "Struktura i dane wejściowe są poprawne" in output
 
 

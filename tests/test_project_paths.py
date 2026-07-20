@@ -49,6 +49,17 @@ def test_stress_scenario_paths_are_stable(tmp_path: Path) -> None:
     assert scenario.catalog.parent.name == "stress"
 
 
+
+def test_poland_demo_scenario_paths_are_stable(tmp_path: Path) -> None:
+    scenario = ProjectPaths(tmp_path).scenario("POLAND_DEMO")
+
+    assert scenario.catalog.parent.name == "poland_demo"
+    assert [path.name for path in scenario.all] == [
+        "system.json",
+        "requests.json",
+        "opportunities.json",
+    ]
+
 def test_unknown_scenario_path_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Nieobsługiwany scenariusz"):
         ProjectPaths(tmp_path).scenario("UNKNOWN")
@@ -106,5 +117,6 @@ def test_ensure_output_directories_creates_structure(tmp_path: Path) -> None:
         paths.generated_benchmarks,
         paths.generated_schedules / "example",
         paths.generated_schedules / "stress",
+        paths.generated_schedules / "poland_demo",
     ):
         assert directory.is_dir()

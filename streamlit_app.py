@@ -28,15 +28,39 @@ st.set_page_config(
 
 from app.ui.navigation import ApplicationPage, render_navigation
 from app.ui.pages import (
+    render_access_page,
+    render_benchmark_page,
     render_disruption_page,
+    render_demo_page,
     render_experiments_page,
+    render_globe_page,
+    render_live_tracking_page,
     render_planning_page,
+    render_public_planning_page,
+    render_public_replanning_page,
+    render_projects_page,
+    render_reports_page,
+    render_orbits_page,
     render_replanning_page,
+    render_targets_page,
+    render_stk_validation_page,
 )
 from app.ui.styles import apply_application_styles
 
 
 _PAGE_RENDERERS = {
+    ApplicationPage.DEMO: render_demo_page,
+    ApplicationPage.TARGETS: render_targets_page,
+    ApplicationPage.ORBITS: render_orbits_page,
+    ApplicationPage.ACCESS: render_access_page,
+    ApplicationPage.GLOBE: render_globe_page,
+    ApplicationPage.LIVE_TRACKING: render_live_tracking_page,
+    ApplicationPage.PUBLIC_PLANNING: render_public_planning_page,
+    ApplicationPage.PUBLIC_REPLANNING: render_public_replanning_page,
+    ApplicationPage.STK_VALIDATION: render_stk_validation_page,
+    ApplicationPage.BENCHMARKS: render_benchmark_page,
+    ApplicationPage.PROJECTS: render_projects_page,
+    ApplicationPage.REPORTS: render_reports_page,
     ApplicationPage.PLANNING: render_planning_page,
     ApplicationPage.REPLANNING: render_replanning_page,
     ApplicationPage.DISRUPTIONS: render_disruption_page,

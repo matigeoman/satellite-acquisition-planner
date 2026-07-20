@@ -1,3 +1,10 @@
+from app.analysis.algorithm_benchmark import (
+    AlgorithmBenchmarkConfig,
+    AlgorithmBenchmarkResult,
+    BenchmarkPairRecord,
+    BenchmarkRunRecord,
+    BenchmarkSummaryRecord,
+)
 """Narzędzia analityczne i raportowe planera."""
 
 from app.analysis.schedule import (
@@ -12,6 +19,11 @@ from app.analysis.schedule import (
 )
 
 __all__ = [
+    "AlgorithmBenchmarkConfig",
+    "AlgorithmBenchmarkResult",
+    "BenchmarkPairRecord",
+    "BenchmarkRunRecord",
+    "BenchmarkSummaryRecord",
     "EntryKPI",
     "RequestDiagnostic",
     "RequestFulfillmentStatus",

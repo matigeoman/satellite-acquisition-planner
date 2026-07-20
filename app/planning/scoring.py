@@ -7,6 +7,7 @@ from app.models.enums import RequestMode, SensorType
 from app.models.opportunity import AcquisitionOpportunity
 from app.models.request import ObservationRequest
 from app.models.request_set import ObservationRequestSet
+from app.planning.operational import dual_pair_is_compatible
 
 
 class ObjectiveScoringConfig(Protocol):
@@ -93,6 +94,11 @@ def calculate_objective_contributions(
                 len(opportunities) == 2
                 and sensor_types
                 == {SensorType.SAR, SensorType.OPTICAL}
+                and dual_pair_is_compatible(
+                    request,
+                    opportunities[0],
+                    opportunities[1],
+                )
             )
             reward_share = (
                 reward / len(opportunities)
@@ -123,11 +129,18 @@ def calculate_objective_contributions(
         )
 
         for secondary_opportunity in ordered_opportunities[1:]:
-            contributions[
-                secondary_opportunity.opportunity_id
-            ] = round(
+            second_bonus = (
+                config.dual_optional_second_bonus
+                if dual_pair_is_compatible(
+                    request,
+                    primary_opportunity,
+                    secondary_opportunity,
+                )
+                else 0.0
+            )
+            contributions[secondary_opportunity.opportunity_id] = round(
                 acquisition_score(secondary_opportunity, config)
-                + config.dual_optional_second_bonus,
+                + second_bonus,
                 6,
             )
 

@@ -8,6 +8,18 @@ import streamlit as st
 class ApplicationPage(StrEnum):
     """Dostępne moduły aplikacji operacyjnej."""
 
+    DEMO = "Demo i kontrola wydania"
+    TARGETS = "Cele i zlecenia"
+    ORBITS = "Orbity publiczne"
+    ACCESS = "Okna dostępu"
+    GLOBE = "Globus i orbity"
+    LIVE_TRACKING = "Śledzenie satelitów na żywo"
+    PUBLIC_PLANNING = "Planowanie publiczne"
+    PUBLIC_REPLANNING = "Przeplanowanie publiczne"
+    STK_VALIDATION = "Walidacja STK"
+    BENCHMARKS = "Benchmarki algorytmów"
+    PROJECTS = "Projekty i scenariusze"
+    REPORTS = "Raporty i wyniki"
     PLANNING = "Planowanie"
     REPLANNING = "Dynamiczne przeplanowanie"
     DISRUPTIONS = "Zakłócenia"

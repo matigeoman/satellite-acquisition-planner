@@ -1,0 +1,1881 @@
+{
+  "request_set_id": "REQSET-POLAND-DEMO",
+  "name": "Polska — 50 zróżnicowanych zleceń demonstracyjnych",
+  "version": "1.0.0",
+  "horizon_start_utc": "2026-07-15T00:00:00Z",
+  "horizon_end_utc": "2026-07-17T00:00:00Z",
+  "generated_at_utc": "2026-07-15T00:00:00Z",
+  "requests": [
+    {
+      "request_id": "REQ-DEMO-SAR-001",
+      "name": "SAR — Warszawa — pełne 48 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-17T00:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.2,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 70.0,
+      "max_off_nadir_deg": 70.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "POL-DEMO-001",
+      "notes": "Zróżnicowane okno demonstracyjne: pełne 48 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-002",
+      "name": "SAR — Gdańsk — pilne 2 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.6466,
+          54.352
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T06:00:00Z",
+      "latest_end_utc": "2026-07-15T08:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-002",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 2 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-003",
+      "name": "SAR — Kraków — pilne 3 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T11:30:00Z",
+      "latest_end_utc": "2026-07-15T14:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 55.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-003",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 3 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-004",
+      "name": "SAR — Wrocław — krótkie 5 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.0385,
+          51.1079
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T17:00:00Z",
+      "latest_end_utc": "2026-07-15T22:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.25,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-004",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 5 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-005",
+      "name": "SAR — Poznań — krótkie 6 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-15T23:00:00Z",
+      "latest_end_utc": "2026-07-16T05:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-005",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 6 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-006",
+      "name": "SAR — Lublin — krótkie 8 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T05:00:00Z",
+      "latest_end_utc": "2026-07-16T13:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 55.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-006",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 8 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-007",
+      "name": "SAR — Białystok — średnie 12 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.1688,
+          53.1325
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T10:30:00Z",
+      "latest_end_utc": "2026-07-16T22:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.25,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-007",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 12 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-008",
+      "name": "SAR — Szczecin — średnie 16 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.5528,
+          53.4285
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-15T08:00:00Z",
+      "latest_end_utc": "2026-07-16T00:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-008",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 16 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-009",
+      "name": "SAR — Rzeszów — średnie 20 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.0047,
+          50.0412
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T18:00:00Z",
+      "latest_end_utc": "2026-07-16T14:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 55.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-009",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 20 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-010",
+      "name": "SAR — Łódź — długie 30 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.456,
+          51.7592
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T16:00:00Z",
+      "latest_end_utc": "2026-07-16T22:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.25,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "POL-DEMO-010",
+      "notes": "Zróżnicowane okno demonstracyjne: długie 30 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-011",
+      "name": "SAR — Bydgoszcz — pełne 48 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.0084,
+          53.1235
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-17T00:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-011",
+      "notes": "Zróżnicowane okno demonstracyjne: pełne 48 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-012",
+      "name": "SAR — Toruń — pilne 2 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.5984,
+          53.0138
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T17:00:00Z",
+      "latest_end_utc": "2026-07-15T19:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 55.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-012",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 2 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-013",
+      "name": "SAR — Olsztyn — pilne 3 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.4801,
+          53.7784
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T00:00:00Z",
+      "latest_end_utc": "2026-07-16T03:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.25,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-013",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 3 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-014",
+      "name": "SAR — Kielce — krótkie 5 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.6286,
+          50.8661
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T08:00:00Z",
+      "latest_end_utc": "2026-07-16T13:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-014",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 5 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-015",
+      "name": "SAR — Opole — krótkie 6 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.9213,
+          50.6751
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T14:30:00Z",
+      "latest_end_utc": "2026-07-16T20:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 55.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-015",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 6 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-016",
+      "name": "SAR — Zielona Góra — krótkie 8 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.5062,
+          51.9356
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-15T06:00:00Z",
+      "latest_end_utc": "2026-07-15T14:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.25,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-016",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 8 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-017",
+      "name": "SAR — Suwałki — średnie 12 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.6308,
+              53.9515
+            ],
+            [
+              23.230800000000002,
+              53.9515
+            ],
+            [
+              23.230800000000002,
+              54.271499999999996
+            ],
+            [
+              22.6308,
+              54.271499999999996
+            ],
+            [
+              22.6308,
+              53.9515
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T20:00:00Z",
+      "latest_end_utc": "2026-07-16T08:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-017",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 12 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-018",
+      "name": "SAR — Wybrzeże Bałtyku — średnie 16 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.220000000000002,
+              54.38
+            ],
+            [
+              18.98,
+              54.38
+            ],
+            [
+              18.98,
+              54.82
+            ],
+            [
+              18.220000000000002,
+              54.82
+            ],
+            [
+              18.220000000000002,
+              54.38
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T02:00:00Z",
+      "latest_end_utc": "2026-07-15T18:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 55.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-018",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 16 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-019",
+      "name": "SAR — Żuławy Wiślane — średnie 20 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.98,
+              53.99
+            ],
+            [
+              19.419999999999998,
+              53.99
+            ],
+            [
+              19.419999999999998,
+              54.309999999999995
+            ],
+            [
+              18.98,
+              54.309999999999995
+            ],
+            [
+              18.98,
+              53.99
+            ]
+          ]
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T19:30:00Z",
+      "latest_end_utc": "2026-07-16T15:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 0.25,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 45.0,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-019",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 20 h."
+    },
+    {
+      "request_id": "REQ-DEMO-SAR-020",
+      "name": "SAR — Mazury — długie 30 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              21.2,
+              53.58
+            ],
+            [
+              21.8,
+              53.58
+            ],
+            [
+              21.8,
+              54.019999999999996
+            ],
+            [
+              21.2,
+              54.019999999999996
+            ],
+            [
+              21.2,
+              53.58
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T01:00:00Z",
+      "latest_end_utc": "2026-07-16T07:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "SAR"
+      ],
+      "max_resolution_m": 1.0,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": null,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-020",
+      "notes": "Zróżnicowane okno demonstracyjne: długie 30 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-001",
+      "name": "EO — Górny Śląsk — pełne 48 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.67,
+              50.14
+            ],
+            [
+              19.43,
+              50.14
+            ],
+            [
+              19.43,
+              50.459999999999994
+            ],
+            [
+              18.67,
+              50.459999999999994
+            ],
+            [
+              18.67,
+              50.14
+            ]
+          ]
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-17T00:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.15,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-021",
+      "notes": "Zróżnicowane okno demonstracyjne: pełne 48 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-002",
+      "name": "EO — Zagłębie Miedziowe — pilne 2 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.88,
+              51.230000000000004
+            ],
+            [
+              16.32,
+              51.230000000000004
+            ],
+            [
+              16.32,
+              51.67
+            ],
+            [
+              15.88,
+              51.67
+            ],
+            [
+              15.88,
+              51.230000000000004
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-16T05:00:00Z",
+      "latest_end_utc": "2026-07-16T07:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-022",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 2 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-003",
+      "name": "EO — Bieszczady — pilne 3 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.2,
+              49.190000000000005
+            ],
+            [
+              22.8,
+              49.190000000000005
+            ],
+            [
+              22.8,
+              49.51
+            ],
+            [
+              22.2,
+              49.51
+            ],
+            [
+              22.2,
+              49.190000000000005
+            ]
+          ]
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-16T12:30:00Z",
+      "latest_end_utc": "2026-07-16T15:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 40.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-023",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 3 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-004",
+      "name": "EO — Dolina Odry — krótkie 5 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.470000000000002,
+              51.28
+            ],
+            [
+              17.23,
+              51.28
+            ],
+            [
+              17.23,
+              51.72
+            ],
+            [
+              16.470000000000002,
+              51.72
+            ],
+            [
+              16.470000000000002,
+              51.28
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-15T03:00:00Z",
+      "latest_end_utc": "2026-07-15T08:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.45,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-024",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 5 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-005",
+      "name": "EO — Wschodnia granica — krótkie 6 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.28,
+              51.84
+            ],
+            [
+              23.72,
+              51.84
+            ],
+            [
+              23.72,
+              52.16
+            ],
+            [
+              23.28,
+              52.16
+            ],
+            [
+              23.28,
+              51.84
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T12:00:00Z",
+      "latest_end_utc": "2026-07-15T18:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.15,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "POL-DEMO-025",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 6 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-006",
+      "name": "EO — Warszawa — krótkie 8 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-16T00:00:00Z",
+      "latest_end_utc": "2026-07-16T08:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 40.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-026",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 8 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-007",
+      "name": "EO — Gdańsk — średnie 12 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.6466,
+          54.352
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T05:30:00Z",
+      "latest_end_utc": "2026-07-15T17:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-027",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 12 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-008",
+      "name": "EO — Kraków — średnie 16 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.945,
+          50.0647
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T03:00:00Z",
+      "latest_end_utc": "2026-07-16T19:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.45,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-028",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 16 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-009",
+      "name": "EO — Wrocław — średnie 20 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.0385,
+          51.1079
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-15T21:00:00Z",
+      "latest_end_utc": "2026-07-16T17:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.15,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 40.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-029",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 20 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-010",
+      "name": "EO — Poznań — długie 30 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.9252,
+          52.4064
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-15T05:00:00Z",
+      "latest_end_utc": "2026-07-16T11:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-030",
+      "notes": "Zróżnicowane okno demonstracyjne: długie 30 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-011",
+      "name": "EO — Lublin — pełne 48 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.5684,
+          51.2465
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-17T00:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-031",
+      "notes": "Zróżnicowane okno demonstracyjne: pełne 48 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-012",
+      "name": "EO — Białystok — pilne 2 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.1688,
+          53.1325
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-16T16:00:00Z",
+      "latest_end_utc": "2026-07-16T18:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.45,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 40.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-032",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 2 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-013",
+      "name": "EO — Szczecin — pilne 3 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.5528,
+          53.4285
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T04:00:00Z",
+      "latest_end_utc": "2026-07-15T07:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.15,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-033",
+      "notes": "Zróżnicowane okno demonstracyjne: pilne 3 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-014",
+      "name": "EO — Rzeszów — krótkie 5 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          22.0047,
+          50.0412
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T18:00:00Z",
+      "latest_end_utc": "2026-07-15T23:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "POL-DEMO-034",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 5 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-015",
+      "name": "EO — Łódź — krótkie 6 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.456,
+          51.7592
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-16T03:30:00Z",
+      "latest_end_utc": "2026-07-16T09:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 40.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-035",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 6 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-016",
+      "name": "EO — Bydgoszcz — krótkie 8 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.0084,
+          53.1235
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-15T01:00:00Z",
+      "latest_end_utc": "2026-07-15T09:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.45,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-036",
+      "notes": "Zróżnicowane okno demonstracyjne: krótkie 8 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-017",
+      "name": "EO — Toruń — średnie 12 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.5984,
+          53.0138
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-16T03:00:00Z",
+      "latest_end_utc": "2026-07-16T15:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.15,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-037",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 12 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-018",
+      "name": "EO — Olsztyn — średnie 16 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.4801,
+          53.7784
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-15T21:00:00Z",
+      "latest_end_utc": "2026-07-16T13:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.85,
+      "max_cloud_cover": 0.25,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 40.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-038",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 16 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-019",
+      "name": "EO — Kielce — średnie 20 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.6286,
+          50.8661
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-15T22:30:00Z",
+      "latest_end_utc": "2026-07-16T18:30:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 0.3,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.95,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 45.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-039",
+      "notes": "Zróżnicowane okno demonstracyjne: średnie 20 h."
+    },
+    {
+      "request_id": "REQ-DEMO-EO-020",
+      "name": "EO — Opole — długie 30 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.9213,
+          50.6751
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-15T08:00:00Z",
+      "latest_end_utc": "2026-07-16T14:00:00Z",
+      "request_mode": "SINGLE",
+      "requested_sensor_types": [
+        "OPTICAL"
+      ],
+      "max_resolution_m": 1.2,
+      "max_sar_resolution_m": null,
+      "max_optical_resolution_m": null,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.45,
+      "max_incidence_angle_deg": null,
+      "max_off_nadir_deg": 35.0,
+      "max_dual_separation_s": null,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-040",
+      "notes": "Zróżnicowane okno demonstracyjne: długie 30 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-OPT-001",
+      "name": "SAR+EO — Zielona Góra — pełne 48 h",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          15.5062,
+          51.9356
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-15T00:00:00Z",
+      "latest_end_utc": "2026-07-17T00:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 3.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 7200.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-041",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: pełne 48 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-OPT-002",
+      "name": "SAR+EO — Suwałki — pilne 2 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.550800000000002,
+              53.8915
+            ],
+            [
+              23.3108,
+              53.8915
+            ],
+            [
+              23.3108,
+              54.3315
+            ],
+            [
+              22.550800000000002,
+              54.3315
+            ],
+            [
+              22.550800000000002,
+              53.8915
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T06:00:00Z",
+      "latest_end_utc": "2026-07-15T08:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 1.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 14400.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-042",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: pilne 2 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-OPT-003",
+      "name": "SAR+EO — Wybrzeże Bałtyku — pilne 3 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.380000000000003,
+              54.440000000000005
+            ],
+            [
+              18.82,
+              54.440000000000005
+            ],
+            [
+              18.82,
+              54.76
+            ],
+            [
+              18.380000000000003,
+              54.76
+            ],
+            [
+              18.380000000000003,
+              54.440000000000005
+            ]
+          ]
+        ]
+      },
+      "priority": 8,
+      "earliest_start_utc": "2026-07-15T16:30:00Z",
+      "latest_end_utc": "2026-07-15T19:30:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 3.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 21600.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-043",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: pilne 3 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-OPT-004",
+      "name": "SAR+EO — Żuławy Wiślane — krótkie 5 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.9,
+              53.93
+            ],
+            [
+              19.5,
+              53.93
+            ],
+            [
+              19.5,
+              54.37
+            ],
+            [
+              18.9,
+              54.37
+            ],
+            [
+              18.9,
+              53.93
+            ]
+          ]
+        ]
+      },
+      "priority": 7,
+      "earliest_start_utc": "2026-07-16T08:00:00Z",
+      "latest_end_utc": "2026-07-16T13:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 1.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 28800.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-044",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: krótkie 5 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-OPT-005",
+      "name": "SAR+EO — Mazury — krótkie 6 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              21.12,
+              53.64
+            ],
+            [
+              21.88,
+              53.64
+            ],
+            [
+              21.88,
+              53.959999999999994
+            ],
+            [
+              21.12,
+              53.959999999999994
+            ],
+            [
+              21.12,
+              53.64
+            ]
+          ]
+        ]
+      },
+      "priority": 6,
+      "earliest_start_utc": "2026-07-15T01:00:00Z",
+      "latest_end_utc": "2026-07-15T07:00:00Z",
+      "request_mode": "DUAL_OPTIONAL",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 3.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 36000.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-045",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: krótkie 6 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-REQ-001",
+      "name": "SAR+EO — Górny Śląsk — krótkie 8 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.830000000000002,
+              50.08
+            ],
+            [
+              19.27,
+              50.08
+            ],
+            [
+              19.27,
+              50.519999999999996
+            ],
+            [
+              18.830000000000002,
+              50.519999999999996
+            ],
+            [
+              18.830000000000002,
+              50.08
+            ]
+          ]
+        ]
+      },
+      "priority": 5,
+      "earliest_start_utc": "2026-07-15T19:00:00Z",
+      "latest_end_utc": "2026-07-16T03:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 1.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 7200.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-046",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: krótkie 8 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-REQ-002",
+      "name": "SAR+EO — Zagłębie Miedziowe — średnie 12 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.8,
+              51.290000000000006
+            ],
+            [
+              16.400000000000002,
+              51.290000000000006
+            ],
+            [
+              16.400000000000002,
+              51.61
+            ],
+            [
+              15.8,
+              51.61
+            ],
+            [
+              15.8,
+              51.290000000000006
+            ]
+          ]
+        ]
+      },
+      "priority": 4,
+      "earliest_start_utc": "2026-07-15T12:30:00Z",
+      "latest_end_utc": "2026-07-16T00:30:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 3.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 14400.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-047",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: średnie 12 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-REQ-003",
+      "name": "SAR+EO — Bieszczady — średnie 16 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.12,
+              49.13
+            ],
+            [
+              22.88,
+              49.13
+            ],
+            [
+              22.88,
+              49.57
+            ],
+            [
+              22.12,
+              49.57
+            ],
+            [
+              22.12,
+              49.13
+            ]
+          ]
+        ]
+      },
+      "priority": 3,
+      "earliest_start_utc": "2026-07-15T14:00:00Z",
+      "latest_end_utc": "2026-07-16T06:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 1.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 21600.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-048",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: średnie 16 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-REQ-004",
+      "name": "SAR+EO — Dolina Odry — średnie 20 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.630000000000003,
+              51.34
+            ],
+            [
+              17.07,
+              51.34
+            ],
+            [
+              17.07,
+              51.66
+            ],
+            [
+              16.630000000000003,
+              51.66
+            ],
+            [
+              16.630000000000003,
+              51.34
+            ]
+          ]
+        ]
+      },
+      "priority": 10,
+      "earliest_start_utc": "2026-07-16T00:00:00Z",
+      "latest_end_utc": "2026-07-16T20:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 3.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 28800.0,
+      "status": "ACTIVE",
+      "is_mandatory": true,
+      "external_reference": "POL-DEMO-049",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: średnie 20 h."
+    },
+    {
+      "request_id": "REQ-DEMO-DUAL-REQ-005",
+      "name": "SAR+EO — Wschodnia granica — długie 30 h",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.2,
+              51.78
+            ],
+            [
+              23.8,
+              51.78
+            ],
+            [
+              23.8,
+              52.22
+            ],
+            [
+              23.2,
+              52.22
+            ],
+            [
+              23.2,
+              51.78
+            ]
+          ]
+        ]
+      },
+      "priority": 9,
+      "earliest_start_utc": "2026-07-15T12:00:00Z",
+      "latest_end_utc": "2026-07-16T18:00:00Z",
+      "request_mode": "DUAL_REQUIRED",
+      "requested_sensor_types": [
+        "SAR",
+        "OPTICAL"
+      ],
+      "max_resolution_m": 3.0,
+      "max_sar_resolution_m": 1.0,
+      "max_optical_resolution_m": 1.2,
+      "minimum_coverage_ratio": 0.75,
+      "max_cloud_cover": 0.35,
+      "max_incidence_angle_deg": 50.0,
+      "max_off_nadir_deg": 50.0,
+      "max_dual_separation_s": 36000.0,
+      "status": "ACTIVE",
+      "is_mandatory": false,
+      "external_reference": "POL-DEMO-050",
+      "notes": "Zlecenie podwójne do demonstracji parowania SAR–EO; okno: długie 30 h."
+    }
+  ],
+  "notes": "20 zleceń SAR, 20 EO, 5 DUAL_OPTIONAL i 5 DUAL_REQUIRED. Okna mają długości od 2 do 48 godzin."
+}
