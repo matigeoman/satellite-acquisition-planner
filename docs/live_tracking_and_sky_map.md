@@ -121,3 +121,15 @@ sprawdza dodatkowo:
 - propagację bieżących stanów dla sześciu obiektów,
 - dodatnią odległość topocentryczną,
 - występowanie przelotów AOS/MAX/LOS w ciągu 24 godzin.
+
+## Utwardzenie Stage 17.3
+
+Wersja `1.0.0-rc4` dodaje wymuszone odświeżanie OMM, jawne metadane źródła
+i cache, ranking przelotów oraz filtry operacyjne. Wynik jakości `0–100` łączy
+maksymalną elewację, czas powyżej 10°, długość przelotu, minimalną odległość
+i szacowaną widoczność optyczną. Jest to metryka porównawcza planera, a nie
+certyfikowany model obserwacyjny.
+
+Tabela przelotów pokazuje również liczbę nakładających się okien access i
+zaplanowanych akwizycji. Filtr „Tylko powiązane z plannerem” ogranicza wyniki
+do przelotów istotnych dla bieżącego stanu sesji.

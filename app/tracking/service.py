@@ -23,6 +23,7 @@ from app.tracking.models import (
     ObserverSite,
     OrbitDataQuality,
     PassPrediction,
+    PassQuality,
     SkyTrack,
     TopocentricState,
 )
@@ -55,6 +56,117 @@ def orbit_data_quality(age_hours: float) -> OrbitDataQuality:
     if age_hours <= 168.0:
         return OrbitDataQuality.STALE
     return OrbitDataQuality.VERY_STALE
+
+
+
+def _linear_value(
+    first_time: datetime,
+    first_value: float,
+    second_time: datetime,
+    second_value: float,
+    timestamp: datetime,
+) -> float:
+    duration = (second_time - first_time).total_seconds()
+    if duration <= 0.0:
+        return first_value
+    fraction = (timestamp - first_time).total_seconds() / duration
+    fraction = max(0.0, min(1.0, fraction))
+    return first_value + (second_value - first_value) * fraction
+
+
+def _duration_above_elevation(
+    samples: tuple[TopocentricState, ...],
+    *,
+    start_utc: datetime,
+    end_utc: datetime,
+    threshold_deg: float,
+) -> float:
+    total = 0.0
+    for first, second in zip(samples, samples[1:]):
+        segment_start = max(first.timestamp_utc, start_utc)
+        segment_end = min(second.timestamp_utc, end_utc)
+        if segment_end <= segment_start:
+            continue
+        first_elevation = _linear_value(
+            first.timestamp_utc, first.elevation_deg,
+            second.timestamp_utc, second.elevation_deg, segment_start,
+        )
+        second_elevation = _linear_value(
+            first.timestamp_utc, first.elevation_deg,
+            second.timestamp_utc, second.elevation_deg, segment_end,
+        )
+        duration = (segment_end - segment_start).total_seconds()
+        first_above = first_elevation >= threshold_deg
+        second_above = second_elevation >= threshold_deg
+        if first_above and second_above:
+            total += duration
+        elif first_above != second_above:
+            denominator = second_elevation - first_elevation
+            if abs(denominator) < 1e-12:
+                total += duration / 2.0
+            else:
+                crossing = (threshold_deg - first_elevation) / denominator
+                crossing = max(0.0, min(1.0, crossing))
+                total += duration * ((1.0 - crossing) if first_above else crossing)
+    return total
+
+
+def _visible_duration(
+    *,
+    observer: ObserverSite,
+    states: tuple[PropagatedState, ...],
+    samples: tuple[TopocentricState, ...],
+    start_utc: datetime,
+    end_utc: datetime,
+) -> float:
+    flags = [
+        assess_visibility(
+            observer=observer,
+            propagated=state,
+            topocentric=sample,
+        ).is_optically_visible
+        for state, sample in zip(states, samples)
+    ]
+    total = 0.0
+    for index, (first, second) in enumerate(zip(samples, samples[1:])):
+        segment_start = max(first.timestamp_utc, start_utc)
+        segment_end = min(second.timestamp_utc, end_utc)
+        if segment_end <= segment_start:
+            continue
+        duration = (segment_end - segment_start).total_seconds()
+        total += duration * (int(flags[index]) + int(flags[index + 1])) / 2.0
+    return total
+
+
+def pass_quality_score(
+    *,
+    maximum_elevation_deg: float,
+    duration_minutes: float,
+    time_above_10_deg_minutes: float,
+    minimum_range_km: float,
+    optically_visible_duration_minutes: float,
+) -> float:
+    """Zwraca deterministyczny wynik 0–100 do rankingu przelotów."""
+
+    elevation_points = min(50.0, max(0.0, maximum_elevation_deg) / 90.0 * 50.0)
+    useful_time_points = min(25.0, max(0.0, time_above_10_deg_minutes) / 10.0 * 25.0)
+    duration_points = min(10.0, max(0.0, duration_minutes) / 12.0 * 10.0)
+    range_points = max(0.0, min(10.0, (2500.0 - minimum_range_km) / 2000.0 * 10.0))
+    optical_points = min(5.0, max(0.0, optically_visible_duration_minutes) / 3.0 * 5.0)
+    return round(
+        elevation_points + useful_time_points + duration_points + range_points + optical_points,
+        1,
+    )
+
+
+def pass_quality(score: float) -> PassQuality:
+    if score >= 80.0:
+        return PassQuality.EXCELLENT
+    if score >= 60.0:
+        return PassQuality.GOOD
+    if score >= 40.0:
+        return PassQuality.MARGINAL
+    return PassQuality.POOR
 
 
 def _speed_km_s(state: PropagatedState) -> float:
@@ -291,6 +403,29 @@ class LiveTrackingService:
                 propagated=maximum_state,
                 topocentric=maximum_sample,
             )
+            time_above_10 = _duration_above_elevation(
+                samples,
+                start_utc=aos.timestamp_utc,
+                end_utc=los.timestamp_utc,
+                threshold_deg=10.0,
+            )
+            visible_duration = _visible_duration(
+                observer=observer,
+                states=states,
+                samples=samples,
+                start_utc=aos.timestamp_utc,
+                end_utc=los.timestamp_utc,
+            )
+            duration_minutes = (
+                los.timestamp_utc - aos.timestamp_utc
+            ).total_seconds() / 60.0
+            quality_score = pass_quality_score(
+                maximum_elevation_deg=maximum_sample.elevation_deg,
+                duration_minutes=duration_minutes,
+                time_above_10_deg_minutes=time_above_10 / 60.0,
+                minimum_range_km=maximum_sample.range_km,
+                optically_visible_duration_minutes=visible_duration / 60.0,
+            )
             result.append(
                 PassPrediction(
                     slot_id=satellite.slot_id,
@@ -313,6 +448,10 @@ class LiveTrackingService:
                     optical_visibility_at_maximum=(
                         visibility.optical_visibility
                     ),
+                    time_above_10_deg_s=time_above_10,
+                    optically_visible_duration_s=visible_duration,
+                    quality_score=quality_score,
+                    quality=pass_quality(quality_score),
                 )
             )
             active_indices = []

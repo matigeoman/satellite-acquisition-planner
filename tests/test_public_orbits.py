@@ -168,3 +168,66 @@ def test_celestrak_url_explicitly_requests_json() -> None:
 
     assert "NAME=PLEIADES+NEO" in url
     assert "FORMAT=JSON" in url
+
+
+def test_celestrak_force_refresh_bypasses_fresh_cache(tmp_path: Path) -> None:
+    calls: list[str] = []
+    current = [datetime(2026, 7, 16, 12, tzinfo=timezone.utc)]
+
+    def transport(url: str, _timeout: float) -> bytes:
+        calls.append(url)
+        norad = 65000 + len(calls)
+        return json.dumps([_omm(f"ICEYE-X{len(calls)}", norad)]).encode()
+
+    client = CelestrakClient(
+        cache_directory=tmp_path,
+        transport=transport,
+        now_provider=lambda: current[0],
+    )
+
+    first = client.fetch_by_name("ICEYE")
+    current[0] += timedelta(minutes=5)
+    refreshed = client.fetch_by_name("ICEYE", force_refresh=True)
+
+    assert first.from_cache is False
+    assert refreshed.from_cache is False
+    assert refreshed.records[0].norad_cat_id == 65002
+    assert len(calls) == 2
+
+
+def test_celestrak_rejects_force_refresh_in_offline_mode(tmp_path: Path) -> None:
+    client = CelestrakClient(cache_directory=tmp_path)
+
+    with pytest.raises(ValueError, match="allow_network=True"):
+        client.fetch_by_name(
+            "ICEYE",
+            allow_network=False,
+            force_refresh=True,
+        )
+
+
+def test_force_refresh_failure_uses_fresh_cache_without_marking_it_stale(
+    tmp_path: Path,
+) -> None:
+    current = [datetime(2026, 7, 16, 12, tzinfo=timezone.utc)]
+
+    def working(_url: str, _timeout: float) -> bytes:
+        return json.dumps([_omm("ICEYE-X99", 65001)]).encode()
+
+    client = CelestrakClient(
+        cache_directory=tmp_path,
+        transport=working,
+        now_provider=lambda: current[0],
+    )
+    client.fetch_by_name("ICEYE")
+    current[0] += timedelta(minutes=5)
+
+    def failing(_url: str, _timeout: float) -> bytes:
+        raise TimeoutError("forced refresh timeout")
+
+    client.transport = failing
+    result = client.fetch_by_name("ICEYE", force_refresh=True)
+
+    assert result.from_cache is True
+    assert result.is_stale is False
+    assert "ostatniego cache" in (result.warning or "")

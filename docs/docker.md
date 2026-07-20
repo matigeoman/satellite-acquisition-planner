@@ -23,7 +23,7 @@ Najprostsza metoda:
 Skrypt:
 
 1. sprawdza obecność Docker i Compose,
-2. buduje obraz `satplan:1.0.0-rc3`,
+2. buduje obraz `satplan:1.0.0-rc4`,
 3. uruchamia usługę w tle,
 4. czeka na stan `healthy`,
 5. wyświetla adres aplikacji.
@@ -163,8 +163,8 @@ python -m app.cli release-check --algorithm GREEDY
 
 ```powershell
 docker build `
-    --build-arg APP_VERSION=1.0.0-rc3 `
-    --tag satplan:1.0.0-rc3 `
+    --build-arg APP_VERSION=1.0.0-rc4 `
+    --tag satplan:1.0.0-rc4 `
     .
 ```
 
@@ -174,7 +174,7 @@ Uruchomienie:
 docker run --rm `
     --publish 8501:8501 `
     --name satplan `
-    satplan:1.0.0-rc3
+    satplan:1.0.0-rc4
 ```
 
 W tym wariancie bez dodatkowych wolumenów dane z warstwy zapisywalnej kontenera

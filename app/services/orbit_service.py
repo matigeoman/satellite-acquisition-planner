@@ -60,14 +60,17 @@ class PublicOrbitService:
         self,
         *,
         allow_network: bool = True,
+        force_refresh: bool = False,
     ) -> PublicConstellationSnapshot:
         iceye_query = self.client.fetch_by_name(
             "ICEYE",
             allow_network=allow_network,
+            force_refresh=force_refresh,
         )
         pleiades_query = self.client.fetch_by_name(
             "PLEIADES NEO",
             allow_network=allow_network,
+            force_refresh=force_refresh,
         )
 
         iceye = select_iceye_records(iceye_query.records, count=4)

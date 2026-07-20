@@ -18,11 +18,17 @@ from app.tracking.models import (
     OpticalVisibility,
     OrbitDataQuality,
     PassPrediction,
+    PassQuality,
     SatelliteVisibility,
     SkyTrack,
     TopocentricState,
 )
-from app.tracking.service import LiveTrackingService, orbit_data_quality
+from app.tracking.service import (
+    LiveTrackingService,
+    orbit_data_quality,
+    pass_quality,
+    pass_quality_score,
+)
 
 __all__ = [
     "LiveSatelliteState",
@@ -32,6 +38,7 @@ __all__ = [
     "OpticalVisibility",
     "OrbitDataQuality",
     "PassPrediction",
+    "PassQuality",
     "SatelliteVisibility",
     "SkyTrack",
     "TopocentricState",
@@ -39,6 +46,8 @@ __all__ = [
     "geodetic_to_ecef",
     "interpolate_threshold_crossing",
     "orbit_data_quality",
+    "pass_quality",
+    "pass_quality_score",
     "satellite_is_illuminated",
     "spherical_circle",
     "sun_unit_vector_eci",

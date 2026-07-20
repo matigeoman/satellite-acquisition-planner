@@ -181,15 +181,23 @@ class CelestrakClient:
         name: str,
         *,
         allow_network: bool = True,
+        force_refresh: bool = False,
     ) -> CelestrakQueryResult:
-        """Pobiera rekordy po nazwie, nie częściej niż raz na dwie godziny."""
+        """Pobiera rekordy OMM, korzystając z cache lub wymuszając sieć.
+
+        ``force_refresh`` omija świeży cache, ale nadal używa go jako
+        bezpiecznego fallbacku, jeśli CelesTrak nie odpowiada.
+        """
+
+        if force_refresh and not allow_network:
+            raise ValueError("force_refresh wymaga allow_network=True")
 
         normalized = name.strip()
         request_url = self.build_name_query_url(normalized)
         now = self.now_provider().astimezone(timezone.utc)
         cached = self._read_cache(normalized)
 
-        if cached is not None:
+        if cached is not None and not force_refresh:
             fetched_at, _records = cached
             if now - fetched_at < self.cache_ttl:
                 return self._result_from_cache(
@@ -227,11 +235,12 @@ class CelestrakClient:
             OSError,
         ) as error:
             if cached is not None:
+                cache_is_stale = now - cached[0] >= self.cache_ttl
                 return self._result_from_cache(
                     name=normalized,
                     cached=cached,
                     request_url=request_url,
-                    stale=True,
+                    stale=cache_is_stale,
                     warning=(
                         "Nie udało się odświeżyć CelesTrak. "
                         f"Użyto ostatniego cache: {error}"

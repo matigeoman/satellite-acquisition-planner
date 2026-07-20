@@ -17,6 +17,15 @@ class OrbitDataQuality(StrEnum):
     VERY_STALE = "VERY_STALE"
 
 
+class PassQuality(StrEnum):
+    """Operacyjna ocena jakości geometrycznej jednego przelotu."""
+
+    EXCELLENT = "EXCELLENT"
+    GOOD = "GOOD"
+    MARGINAL = "MARGINAL"
+    POOR = "POOR"
+
+
 class OpticalVisibility(StrEnum):
     """Uproszczona ocena widoczności optycznej satelity."""
 
@@ -160,6 +169,10 @@ class PassPrediction:
     satellite_illuminated_at_maximum: bool
     observer_sun_elevation_at_maximum_deg: float
     optical_visibility_at_maximum: OpticalVisibility
+    time_above_10_deg_s: float
+    optically_visible_duration_s: float
+    quality_score: float
+    quality: PassQuality
 
     @property
     def duration_s(self) -> float:
@@ -168,6 +181,14 @@ class PassPrediction:
     @property
     def duration_minutes(self) -> float:
         return self.duration_s / 60.0
+
+    @property
+    def time_above_10_deg_minutes(self) -> float:
+        return self.time_above_10_deg_s / 60.0
+
+    @property
+    def optically_visible_duration_minutes(self) -> float:
+        return self.optically_visible_duration_s / 60.0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -192,6 +213,10 @@ class PassPrediction:
             "optical_visibility_at_maximum": (
                 self.optical_visibility_at_maximum.value
             ),
+            "time_above_10_deg_s": self.time_above_10_deg_s,
+            "optically_visible_duration_s": self.optically_visible_duration_s,
+            "quality_score": self.quality_score,
+            "quality": self.quality.value,
         }
 
 

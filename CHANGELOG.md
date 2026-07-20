@@ -3,6 +3,22 @@
 Wszystkie istotne zmiany projektu są dokumentowane w tym pliku. Projekt stosuje
 wersjonowanie zgodne z Semantic Versioning.
 
+## [1.0.0-rc4] — 2026-07-20
+
+### Dodano
+
+- wymuszone odświeżanie OMM, które omija świeży cache i nadal zachowuje fallback offline;
+- ranking przelotów 0–100 oraz klasy jakości: bardzo dobry, dobry, graniczny i słaby;
+- czas przelotu powyżej 10° i szacowany czas widoczności optycznej;
+- filtry jakości, widoczności oraz powiązania z oknami access i harmonogramem;
+- panel pochodzenia danych OMM, wieku cache i ostrzeżeń o starej epoce;
+- przełączniki warstw mapy Ziemi: ground track, footprint i terminator.
+
+### Zmieniono
+
+- test wydania waliduje wyniki jakości i metryki utwardzonego live trackingu;
+- obraz Docker i dokumentacja używają wersji `1.0.0-rc4`.
+
 ## [1.0.0-rc3] — 2026-07-20
 
 ### Dodano

@@ -1,6 +1,6 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.0.0-rc3`
+**Wersja:** `1.0.0-rc4`
 
 Aplikacja do wielokryterialnego planowania akwizycji zobrazowań satelitarnych
 SAR i optycznych EO. Łączy publiczne dane orbitalne, propagację SGP4,

@@ -37,3 +37,17 @@ def test_live_tracking_time_input_uses_supported_step() -> None:
     assert 'step=timedelta(minutes=1)' in source
     assert 'step=timedelta(seconds=30),\n                key="live_tracking_time"' not in source
 
+
+
+def test_live_tracking_hardening_controls_are_present() -> None:
+    source = (PROJECT_ROOT / "app/ui/pages/live_tracking.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "force_refresh=True" in source
+    assert "Źródło i jakość danych orbitalnych" in source
+    assert "Tylko widoczne optycznie" in source
+    assert "Tylko powiązane z plannerem" in source
+    assert "Ground track" in source
+    assert "Wynik [0–100]" in source
+    assert '"Okna access"' in source

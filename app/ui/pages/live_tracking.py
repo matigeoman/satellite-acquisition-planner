@@ -23,6 +23,7 @@ from app.tracking import (
     OpticalVisibility,
     OrbitDataQuality,
     PassPrediction,
+    PassQuality,
 )
 from app.ui.app_context import (
     get_live_tracking_service,
@@ -273,9 +274,60 @@ def _visibility_label(value: OpticalVisibility) -> str:
     }[value]
 
 
-def _pass_dataframe(passes: tuple[PassPrediction, ...]) -> pd.DataFrame:
+def _pass_quality_label(value: PassQuality) -> str:
+    return {
+        PassQuality.EXCELLENT: "bardzo dobry",
+        PassQuality.GOOD: "dobry",
+        PassQuality.MARGINAL: "graniczny",
+        PassQuality.POOR: "słaby",
+    }[value]
+
+
+def _source_dataframe(snapshot: PublicConstellationSnapshot) -> pd.DataFrame:
     return pd.DataFrame(
         [
+            {
+                "Zapytanie": query.query_name,
+                "Pobrano UTC": query.fetched_at_utc,
+                "Wiek cache [h]": round(query.age_seconds / 3600.0, 2),
+                "Źródło": "cache" if query.from_cache else "CelesTrak online",
+                "Przeterminowane": query.is_stale,
+                "Rekordy": len(query.records),
+                "Ostrzeżenie": query.warning,
+            }
+            for query in snapshot.queries
+        ]
+    )
+
+
+def _planner_overlap(pass_prediction: PassPrediction) -> tuple[int, int, str]:
+    access_count = 0
+    acquisition_count = 0
+    request_ids: set[str] = set()
+    access_result = st.session_state.get(ACCESS_RESULT_STATE_KEY)
+    if access_result is not None:
+        for window in access_result.windows:
+            if window.satellite_id != pass_prediction.slot_id:
+                continue
+            if window.end_utc < pass_prediction.aos_utc or window.start_utc > pass_prediction.los_utc:
+                continue
+            access_count += 1
+            request_ids.add(window.request_id)
+
+    planning = st.session_state.get(PLANNING_RESULT_STATE_KEY)
+    if isinstance(planning, PlanningResult):
+        for entry in planning.schedule.active_entries:
+            if entry.satellite_id != pass_prediction.slot_id:
+                continue
+            if entry.end_utc < pass_prediction.aos_utc or entry.start_utc > pass_prediction.los_utc:
+                continue
+            acquisition_count += 1
+            request_ids.add(entry.request_id)
+    return access_count, acquisition_count, ", ".join(sorted(request_ids))
+
+
+def _pass_dataframe(passes: tuple[PassPrediction, ...]) -> pd.DataFrame:
+    rows = [
             {
                 "Satelita": item.slot_id,
                 "Nazwa": item.object_name,
@@ -287,13 +339,24 @@ def _pass_dataframe(passes: tuple[PassPrediction, ...]) -> pd.DataFrame:
                 "Azymut AOS [°]": round(item.aos_azimuth_deg, 1),
                 "Azymut LOS [°]": round(item.los_azimuth_deg, 1),
                 "Min. odległość [km]": round(item.minimum_range_km),
+                ">10° [min]": round(item.time_above_10_deg_minutes, 1),
+                "Widoczny optycznie [min]": round(
+                    item.optically_visible_duration_minutes, 1
+                ),
+                "Jakość": _pass_quality_label(item.quality),
+                "Wynik [0–100]": item.quality_score,
                 "Widoczność": _visibility_label(
                     item.optical_visibility_at_maximum
                 ),
             }
             for item in passes
         ]
-    )
+    for item, row in zip(passes, rows):
+        access_count, acquisition_count, request_ids = _planner_overlap(item)
+        row["Okna access"] = access_count
+        row["Akwizycje"] = acquisition_count
+        row["Powiązane zlecenia"] = request_ids or None
+    return pd.DataFrame(rows)
 
 
 def _operational_context_dataframe(
@@ -351,6 +414,12 @@ def _render_live_fragment(
     minimum_elevation_deg: float,
     forecast_hours: int,
     footprint_radius_km: float,
+    show_ground_tracks: bool,
+    show_footprint: bool,
+    show_terminator: bool,
+    pass_quality_filter: tuple[str, ...],
+    optical_only: bool,
+    planner_only: bool,
 ) -> None:
     focus_utc = _current_focus_time()
     service = get_live_tracking_service()
@@ -402,7 +471,7 @@ def _render_live_fragment(
         (item for item in states if item.slot_id == selected_slot_id),
         states[0],
     )
-    metrics = st.columns(7)
+    metrics = st.columns(8)
     metrics[0].metric("Czas UTC", focus_utc.strftime("%H:%M:%S"))
     metrics[1].metric("Nad horyzontem", sum(s.topocentric.is_above_horizon for s in states))
     metrics[2].metric("Satelita", current.slot_id)
@@ -410,6 +479,12 @@ def _render_live_fragment(
     metrics[4].metric("Azymut", f"{current.topocentric.azimuth_deg:.1f}°")
     metrics[5].metric("Odległość", f"{current.topocentric.range_km:.0f} km")
     metrics[6].metric("OMM age", f"{current.orbit_data_age_hours:.1f} h")
+    selected_record = next(
+        satellite.record
+        for satellite in snapshot.satellites
+        if satellite.slot_id == current.slot_id
+    )
+    metrics[7].metric("Okres orbity", f"{selected_record.orbital_period_minutes:.1f} min")
 
     st.caption(
         f"{focus_utc.isoformat()} · {current.object_name} · "
@@ -465,6 +540,9 @@ def _render_live_fragment(
                 timestamp_utc=focus_utc,
                 selected_slot_id=selected_slot_id,
                 footprint_radius_km=footprint_radius_km,
+                show_ground_tracks=show_ground_tracks,
+                show_footprint=show_footprint,
+                show_terminator=show_terminator,
             ),
             width="stretch",
             config={"displaylogo": False, "responsive": True},
@@ -476,18 +554,28 @@ def _render_live_fragment(
         )
 
     with passes_tab:
-        if not passes:
+        filtered_passes = tuple(
+            item
+            for item in passes
+            if (not pass_quality_filter or item.quality.value in pass_quality_filter)
+            and (not optical_only or item.optically_visible_duration_s > 0.0)
+            and (
+                not planner_only
+                or any(_planner_overlap(item)[:2])
+            )
+        )
+        if not filtered_passes:
             st.info("Brak przelotów spełniających wybrany próg elewacji.")
         else:
             st.dataframe(
-                _pass_dataframe(passes),
+                _pass_dataframe(filtered_passes),
                 width="stretch",
                 hide_index=True,
                 height=520,
             )
             st.download_button(
                 "Pobierz predykcję przelotów JSON",
-                data=pd.Series([item.to_dict() for item in passes]).to_json(
+                data=pd.Series([item.to_dict() for item in filtered_passes]).to_json(
                     force_ascii=False,
                     orient="values",
                     date_format="iso",
@@ -545,7 +633,11 @@ def render_live_tracking_page() -> None:
     )
     if source_columns[1].button("Odśwież OMM online", width="stretch"):
         try:
-            snapshot = load_public_orbit_snapshot(allow_network=True)
+            snapshot = load_public_orbit_snapshot(
+                allow_network=True,
+                force_refresh=True,
+            )
+            _cached_pass_predictions.clear()
         except CelestrakClientError as error:
             st.error(str(error))
         else:
@@ -559,6 +651,34 @@ def render_live_tracking_page() -> None:
         else:
             st.success("Wczytano lokalny cache OMM.")
             st.rerun()
+
+    with st.expander("Źródło i jakość danych orbitalnych", expanded=False):
+        if snapshot.queries:
+            st.dataframe(
+                _source_dataframe(snapshot),
+                width="stretch",
+                hide_index=True,
+            )
+        else:
+            st.info(
+                "Snapshot demonstracyjny/offline nie zawiera historii zapytań "
+                "sieciowych. Epoki OMM są nadal prezentowane dla każdego obiektu."
+            )
+        oldest_age = max(
+            abs((datetime.now(timezone.utc) - satellite.record.epoch_utc).total_seconds())
+            / 3600.0
+            for satellite in snapshot.satellites
+        )
+        if oldest_age > 168.0:
+            st.warning(
+                f"Najstarsza epoka OMM ma {oldest_age / 24.0:.1f} dnia. "
+                "Predykcja długoterminowa może mieć istotny błąd położenia."
+            )
+        elif oldest_age > 72.0:
+            st.warning(
+                f"Najstarsza epoka OMM ma {oldest_age:.1f} h. "
+                "Przed użyciem operacyjnym odśwież dane."
+            )
 
     observer = _resolve_observer()
     _render_time_controls(snapshot)
@@ -606,6 +726,28 @@ def render_live_tracking_page() -> None:
             "Satelita wyróżniony",
             options=list(selected_slots),
         )
+        map_columns = st.columns(3)
+        show_ground_tracks = map_columns[0].toggle("Ground track", value=True)
+        show_footprint = map_columns[1].toggle("Footprint", value=True)
+        show_terminator = map_columns[2].toggle("Terminator", value=True)
+
+        filter_columns = st.columns([1.5, 1.0, 1.0])
+        pass_quality_filter = tuple(
+            filter_columns[0].multiselect(
+                "Jakość przelotu",
+                options=[quality.value for quality in PassQuality],
+                default=[quality.value for quality in PassQuality],
+                format_func=lambda value: _pass_quality_label(PassQuality(value)),
+            )
+        )
+        optical_only = filter_columns[1].toggle(
+            "Tylko widoczne optycznie",
+            value=False,
+        )
+        planner_only = filter_columns[2].toggle(
+            "Tylko powiązane z plannerem",
+            value=False,
+        )
 
     _render_live_fragment(
         snapshot=snapshot,
@@ -615,6 +757,12 @@ def render_live_tracking_page() -> None:
         minimum_elevation_deg=minimum_elevation,
         forecast_hours=forecast_hours,
         footprint_radius_km=footprint_radius,
+        show_ground_tracks=show_ground_tracks,
+        show_footprint=show_footprint,
+        show_terminator=show_terminator,
+        pass_quality_filter=pass_quality_filter,
+        optical_only=optical_only,
+        planner_only=planner_only,
     )
 
 

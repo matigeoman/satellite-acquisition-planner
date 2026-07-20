@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        APP_VERSION: 1.0.0-rc3
-    image: satplan:1.0.0-rc3
+        APP_VERSION: 1.0.0-rc4
+    image: satplan:1.0.0-rc4
     container_name: satplan
     init: true
     restart: unless-stopped

@@ -148,3 +148,27 @@ def test_sky_tracks_keep_samples_for_each_satellite() -> None:
     assert tracks[0].slot_id == "SAR-01"
     assert len(tracks[0].samples) == 5
     assert tracks[0].above_horizon_samples
+
+
+def test_pass_prediction_contains_operational_quality_metrics() -> None:
+    service = LiveTrackingService(propagator=FakePropagator())
+    passes = service.predict_passes(
+        _snapshot(),
+        observer=ObserverSite("WAT", 52.2532, 20.8997, 110.0),
+        start_utc=START,
+        duration=timedelta(minutes=10),
+        step=timedelta(minutes=1),
+        minimum_elevation_deg=5.0,
+    )
+
+    prediction = passes[0]
+    assert 0.0 <= prediction.quality_score <= 100.0
+    assert prediction.time_above_10_deg_s > 0.0
+    assert prediction.optically_visible_duration_s >= 0.0
+    assert prediction.quality.value in {
+        "EXCELLENT",
+        "GOOD",
+        "MARGINAL",
+        "POOR",
+    }
+    assert prediction.to_dict()["quality"] == prediction.quality.value

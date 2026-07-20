@@ -283,6 +283,8 @@ def run_release_check(
                 len(tracking_states) == len(orbit_snapshot.satellites)
                 and len(tracking_passes) > 0
                 and all(state.topocentric.range_km > 0.0 for state in tracking_states)
+                and all(0.0 <= item.quality_score <= 100.0 for item in tracking_passes)
+                and all(item.time_above_10_deg_s >= 0.0 for item in tracking_passes)
             )
         except Exception as error:  # noqa: BLE001
             steps.append(
@@ -302,6 +304,7 @@ def run_release_check(
                     f"Stany bieżące: {len(tracking_states)}",
                     f"Przeloty 24 h: {len(tracking_passes)}",
                     f"Obserwator: {observer.name}",
+                    f"Najlepszy wynik: {max(item.quality_score for item in tracking_passes):.1f}",
                 )
             )
 
