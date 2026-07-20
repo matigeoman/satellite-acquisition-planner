@@ -35,3 +35,6 @@ jobs:
 
       - name: Repository audit
         run: python -m app.cli audit --strict
+
+      - name: End-to-end release check
+        run: python -m app.cli release-check --algorithm GREEDY

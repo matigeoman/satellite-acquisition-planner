@@ -23,7 +23,7 @@ Najprostsza metoda:
 Skrypt:
 
 1. sprawdza obecność Docker i Compose,
-2. buduje obraz `satplan:1.0.0-rc2`,
+2. buduje obraz `satplan:1.0.0-rc3`,
 3. uruchamia usługę w tle,
 4. czeka na stan `healthy`,
 5. wyświetla adres aplikacji.
@@ -157,8 +157,8 @@ python -m app.cli health --skip-http
 
 ```powershell
 docker build `
-    --build-arg APP_VERSION=1.0.0-rc2 `
-    --tag satplan:1.0.0-rc2 `
+    --build-arg APP_VERSION=1.0.0-rc3 `
+    --tag satplan:1.0.0-rc3 `
     .
 ```
 
@@ -168,7 +168,7 @@ Uruchomienie:
 docker run --rm `
     --publish 8501:8501 `
     --name satplan `
-    satplan:1.0.0-rc2
+    satplan:1.0.0-rc3
 ```
 
 W tym wariancie bez dodatkowych wolumenów dane z warstwy zapisywalnej kontenera

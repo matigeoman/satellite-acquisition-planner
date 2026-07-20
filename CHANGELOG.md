@@ -3,6 +3,24 @@
 Wszystkie istotne zmiany projektu są dokumentowane w tym pliku. Projekt stosuje
 wersjonowanie zgodne z Semantic Versioning.
 
+## [1.0.0-rc3] — 2026-07-20
+
+### Dodano
+
+- gotowy scenariusz demonstracyjny Polski działający bez sieci,
+- polecenie `python -m app.cli release-check` wykonujące test E2E,
+- skrypt porządkujący repozytorium i usuwający artefakty etapów.
+
+### Usunięto
+
+- nieaktywny renderer Cesium, jego testy, dokumentację i teksturę zastępczą,
+- robocze notatki etapów z finalnej struktury repozytorium.
+
+### Zmieniono
+
+- audyt wymaga czystego repozytorium bez śledzonych paczek, instalatorów i kopii roboczych,
+- wersję kandydującą podniesiono do `1.0.0-rc3`.
+
 ## [1.0.0-rc2] — 2026-07-17
 
 ### Dodano

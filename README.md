@@ -1,6 +1,6 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.0.0-rc2`
+**Wersja:** `1.0.0-rc3`
 
 Aplikacja do wielokryterialnego planowania akwizycji zobrazowań satelitarnych
 SAR i optycznych EO. Łączy publiczne dane orbitalne, propagację SGP4,
@@ -23,7 +23,8 @@ dynamiczne przeplanowanie, walidację STK i eksport wyników naukowych.
 - przenośne archiwa `.satplan.zip` z manifestem SHA-256,
 - raporty HTML, DOCX, XLSX, JSON, CSV i PNG,
 - audyt repozytorium oraz automatyczna kontrola GitHub Actions,
-- obraz Docker, healthcheck i uruchamianie jednym poleceniem.
+- obraz Docker, healthcheck i uruchamianie jednym poleceniem,
+- gotowy scenariusz demonstracyjny Polski i końcowa kontrola E2E wydania.
 
 ## Instalacja
 
@@ -60,6 +61,7 @@ python -m app.cli paths
 python -m app.cli plan --scenario EXAMPLE --algorithm CP_SAT
 python -m app.cli audit
 python -m app.cli health --skip-http
+python -m app.cli release-check --algorithm GREEDY
 ```
 
 ## Kontrola jakości
@@ -113,7 +115,8 @@ app/services        przypadki użycia
 app/analysis        KPI, porównania i eksperymenty
 app/projects        archiwa projektów
 app/reporting       HTML, DOCX, XLSX i dane źródłowe
-app/quality         audyt repozytorium i środowiska
+app/quality         audyt repozytorium, środowiska i kontrola E2E
+app/demo            deterministyczny scenariusz prezentacyjny
 app/ui              interfejs Streamlit
 app/visualization   wizualizacje Plotly
 scripts             skrypty uruchomieniowe
@@ -139,7 +142,8 @@ Najważniejsze rozdziały:
 - [przewodnik deweloperski](docs/developer_guide.md),
 - [kontrola jakości i wydania](docs/quality_and_release.md),
 - [rozwiązywanie problemów](docs/troubleshooting.md),
-- [Docker i wdrożenie](docs/docker.md).
+- [Docker i wdrożenie](docs/docker.md),
+- [demo i kontrola wydania](docs/demo_and_release_check.md).
 
 ## Zakres interpretacji
 

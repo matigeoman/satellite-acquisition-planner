@@ -24,6 +24,10 @@ def test_release_files_and_documentation_index_exist() -> None:
         "docs/developer_guide.md",
         "docs/quality_and_release.md",
         "docs/docker.md",
+        "docs/demo_and_release_check.md",
+        "scripts/cleanup_repository.py",
+        "app/demo/service.py",
+        "app/quality/release_check.py",
         "Dockerfile",
         "docker-compose.yml",
         ".dockerignore",
@@ -43,6 +47,7 @@ def test_quality_workflow_runs_all_project_checks() -> None:
     assert "ruff check app tests streamlit_app.py scripts" in workflow
     assert "python -m app.cli check" in workflow
     assert "python -m app.cli audit --strict" in workflow
+    assert "python -m app.cli release-check --algorithm GREEDY" in workflow
 
 
 def test_documentation_contains_mermaid_architecture_diagrams() -> None:

@@ -31,6 +31,7 @@ from app.ui.pages import (
     render_access_page,
     render_benchmark_page,
     render_disruption_page,
+    render_demo_page,
     render_experiments_page,
     render_globe_page,
     render_planning_page,
@@ -47,6 +48,7 @@ from app.ui.styles import apply_application_styles
 
 
 _PAGE_RENDERERS = {
+    ApplicationPage.DEMO: render_demo_page,
     ApplicationPage.TARGETS: render_targets_page,
     ApplicationPage.ORBITS: render_orbits_page,
     ApplicationPage.ACCESS: render_access_page,

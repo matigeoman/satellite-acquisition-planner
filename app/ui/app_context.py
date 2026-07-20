@@ -20,6 +20,7 @@ from app.services.scenario_service import LoadedScenario, ScenarioService
 from app.services.stk_validation_service import StkValidationService
 from app.projects import ProjectArchiveService
 from app.reporting import ScientificReportService
+from app.demo import DemoProjectService
 from app.ui.paths import PROJECT_ROOT, reference_schedule_path
 
 
@@ -144,6 +145,16 @@ def get_scientific_report_service() -> ScientificReportService:
     """Zwraca generator raportów HTML, DOCX, XLSX i CSV."""
 
     return ScientificReportService()
+
+
+@st.cache_resource(scope="session", show_spinner=False)
+def get_demo_project_service() -> DemoProjectService:
+    """Zwraca serwis deterministycznego scenariusza demonstracyjnego."""
+
+    return DemoProjectService(
+        scenario_service=get_scenario_service(),
+        planning_service=get_planning_service(),
+    )
 
 
 @st.cache_resource(scope="session", show_spinner=False)

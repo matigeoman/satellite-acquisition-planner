@@ -23,7 +23,7 @@ python -m app.cli health --skip-http
 - import głównych modułów,
 - katalogi wynikowe,
 - kompletność Dockerfile, Compose, wolumenów i healthchecku,
-- obecność nieaktywnych modułów historycznych Cesium.
+- brak nieaktywnych modułów Cesium, notatek etapów, paczek roboczych i instalatorów.
 
 Raport maszynowy:
 
@@ -36,7 +36,7 @@ python -m app.cli audit --json .\data\generated\reports\project_audit.json
 ## GitHub Actions
 
 Workflow `.github/workflows/quality.yml` uruchamia się przy push i pull request.
-Wykonuje instalację na Pythonie 3.11, testy, Ruff, `check` i ścisły audyt.
+Wykonuje instalację na Pythonie 3.11, testy, Ruff, `check`, ścisły audyt oraz kontrolę E2E `release-check --algorithm GREEDY`.
 
 Workflow `.github/workflows/docker.yml` sprawdza Compose, buduje obraz, uruchamia
 kontener testowy i oczekuje na pozytywny healthcheck. Następnie wykonuje kontrolę
@@ -65,3 +65,11 @@ Streamlit. W czasie budowy obrazu używany jest wariant `--skip-http`.
 - obraz Docker przechodzi build i test uruchomieniowy,
 - raport STK zawiera co najmniej jeden pełny przypadek walidacyjny,
 - benchmark ma zapisane surowe przebiegi i parametry.
+
+## Końcowa kontrola E2E
+
+```powershell
+python -m app.cli release-check
+```
+
+Polecenie sprawdza planowanie, archiwum projektu i generator raportu.

@@ -1,6 +1,6 @@
 # Dokumentacja Satellite Acquisition Planner
 
-Wersja dokumentacji: `1.0.0-rc2`.
+Wersja dokumentacji: `1.0.0-rc3`.
 
 ## Start
 
@@ -42,3 +42,5 @@ Wersja dokumentacji: `1.0.0-rc2`.
 - [Kontrola jakości i wydania](quality_and_release.md)
 - [Architektura UI](ui_architecture.md)
 - [Usługi i analiza](analysis_and_services.md)
+
+- [Demo i kontrola wydania](demo_and_release_check.md)

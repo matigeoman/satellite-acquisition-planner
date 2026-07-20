@@ -3,6 +3,7 @@
 from app.ui.pages.access import render_access_page
 from app.ui.pages.benchmark import render_benchmark_page
 from app.ui.pages.disruption import render_disruption_page
+from app.ui.pages.demo import render_demo_page
 from app.ui.pages.experiments import render_experiments_page
 from app.ui.pages.globe import render_globe_page
 from app.ui.pages.planning import render_planning_page
@@ -19,6 +20,7 @@ __all__ = [
     "render_access_page",
     "render_benchmark_page",
     "render_disruption_page",
+    "render_demo_page",
     "render_experiments_page",
     "render_globe_page",
     "render_planning_page",

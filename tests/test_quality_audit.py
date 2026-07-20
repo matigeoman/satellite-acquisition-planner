@@ -16,7 +16,7 @@ def test_version_is_loaded_from_repository_file() -> None:
     expected = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
     assert __version__ == expected
-    assert __version__ == "1.0.0-rc2"
+    assert __version__ == "1.0.0-rc3"
 
 
 def test_audit_parser_is_registered() -> None:
@@ -39,7 +39,7 @@ def test_project_audit_has_no_failures() -> None:
     assert statuses["windows-powershell-encoding"] is AuditStatus.PASS
     assert statuses["scenario-integrity"] is AuditStatus.PASS
     assert statuses["docker-assets"] is AuditStatus.PASS
-    assert statuses["legacy-cesium"] in {AuditStatus.INFO, AuditStatus.PASS}
+    assert statuses["repository-cleanliness"] is AuditStatus.PASS
 
 
 def test_cli_audit_writes_json_report(tmp_path: Path) -> None:

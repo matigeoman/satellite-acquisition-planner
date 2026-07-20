@@ -8,6 +8,7 @@ import streamlit as st
 class ApplicationPage(StrEnum):
     """Dostępne moduły aplikacji operacyjnej."""
 
+    DEMO = "Demo i kontrola wydania"
     TARGETS = "Cele i zlecenia"
     ORBITS = "Orbity publiczne"
     ACCESS = "Okna dostępu"

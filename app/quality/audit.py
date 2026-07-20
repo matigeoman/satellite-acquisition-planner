@@ -6,6 +6,7 @@ import json
 import platform
 import re
 import sys
+import subprocess
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import StrEnum
@@ -98,6 +99,11 @@ _REQUIRED_PATHS = (
     "scripts/stop_satplan.bat",
     ".github/workflows/quality.yml",
     ".github/workflows/docker.yml",
+    ".gitignore",
+    "app/demo/service.py",
+    "app/quality/release_check.py",
+    "docs/demo_and_release_check.md",
+    "scripts/cleanup_repository.py",
 )
 
 _REQUIRED_MODULES = (
@@ -123,6 +129,8 @@ _SMOKE_IMPORTS = (
     "app.projects",
     "app.reporting",
     "app.visualization.plotly_globe",
+    "app.demo",
+    "app.quality.release_check",
 )
 
 _TEXT_SUFFIXES = {
@@ -449,19 +457,71 @@ def _check_docker_assets(paths: ProjectPaths) -> AuditCheck:
     )
 
 
-def _check_legacy_cesium(paths: ProjectPaths) -> AuditCheck:
-    legacy = (
-        paths.root / "app/visualization/cesium_scene.py",
-        paths.root / "app/ui/components/cesium_globe.py",
+def _repository_files(paths: ProjectPaths) -> tuple[Path, ...]:
+    git_directory = paths.root / ".git"
+    if git_directory.exists():
+        try:
+            completed = subprocess.run(
+                ["git", "ls-files", "-z"],
+                cwd=paths.root,
+                check=True,
+                capture_output=True,
+            )
+        except (OSError, subprocess.CalledProcessError):
+            pass
+        else:
+            tracked = tuple(
+                paths.root / item.decode("utf-8")
+                for item in completed.stdout.split(b"\0")
+                if item
+            )
+            return tuple(path for path in tracked if path.exists())
+
+    return tuple(
+        path
+        for path in paths.root.rglob("*")
+        if path.is_file()
+        and not any(part in _EXCLUDED_PARTS for part in path.relative_to(paths.root).parts)
+        and path.relative_to(paths.root).parts[:2] != ("data", "generated")
     )
-    present = [str(path.relative_to(paths.root)) for path in legacy if path.exists()]
-    if present:
-        return _info(
-            "legacy-cesium",
-            "Repozytorium zawiera nieaktywne moduły historycznego renderera Cesium.",
-            *present,
+
+
+def _check_repository_cleanliness(paths: ProjectPaths) -> AuditCheck:
+    forbidden_exact = {
+        "app/ui/components/cesium_globe.py",
+        "app/visualization/czml.py",
+        "app/ui/assets/earth_fallback.jpg",
+        "docs/cesium_3d_globe.md",
+        "tests/test_cesium_scene.py",
+    }
+    forbidden_suffixes = (".bak-stage", ".exe", ".msi")
+    problems: list[str] = []
+
+    for path in _repository_files(paths):
+        relative = path.relative_to(paths.root).as_posix()
+        name = path.name
+        if relative in forbidden_exact:
+            problems.append(relative)
+            continue
+        if name.endswith("_NOTES.txt"):
+            problems.append(relative)
+            continue
+        if name.startswith("satplan-") and name.endswith(".zip"):
+            problems.append(relative)
+            continue
+        if any(marker in name for marker in forbidden_suffixes):
+            problems.append(relative)
+
+    if problems:
+        return _fail(
+            "repository-cleanliness",
+            "Repozytorium zawiera pliki robocze lub nieaktywny kod.",
+            *sorted(set(problems)),
         )
-    return _pass("legacy-cesium", "Brak nieaktywnych modułów Cesium.")
+    return _pass(
+        "repository-cleanliness",
+        "Brak śledzonych notatek etapów, paczek roboczych i modułów Cesium.",
+    )
 
 
 _CHECKS: tuple[Callable[[ProjectPaths], AuditCheck], ...] = (
@@ -476,7 +536,7 @@ _CHECKS: tuple[Callable[[ProjectPaths], AuditCheck], ...] = (
     _check_imports,
     _check_output_layout,
     _check_docker_assets,
-    _check_legacy_cesium,
+    _check_repository_cleanliness,
 )
 
 
