@@ -36,6 +36,7 @@ Wersja dokumentacji: `1.1.0`.
 - [Ograniczenia operacyjne](operational_constraints.md)
 - [Benchmarking Greedy i CP-SAT](benchmarking.md)
 - [Metodyka naukowa](scientific_methodology.md)
+- [Podstawy naukowe, inspiracje i bibliografia](references.md)
 - [Raporty naukowe](scientific_reports.md)
 - [Archiwa projektów](project_archives.md)
 - [Ograniczenia i zakres interpretacji](limitations.md)

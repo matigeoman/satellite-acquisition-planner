@@ -5,6 +5,14 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ## [Unreleased]
 
+### Dokumentacja
+
+- dodano bibliografię projektu oraz mapowanie źródeł na elementy modelu;
+- rozdzielono standardy implementacyjne, literaturę planowania, materiały
+  operatorów i jawne założenia autorskie;
+- dodano odwołania do źródeł w dokumentacji orbit, planowania, profili
+  sensorów, pogody, metodyki naukowej i walidacji STK.
+
 ## [1.1.0] — 2026-07-21
 
 ### Interfejs

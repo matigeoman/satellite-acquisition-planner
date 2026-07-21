@@ -12,3 +12,8 @@
    być konfigurowane możliwie identycznie.
 10. Wynik aplikacji nie jest potwierdzeniem rezerwacji komercyjnej ani wykonania
     akwizycji.
+
+
+Źródła standardów, literatury i parametrów publicznych są zestawione w
+[bibliografii projektu](references.md). Bibliografia nie zmienia statusu
+parametrów oznaczonych jako założenia autorskie lub `MODEL_DERIVED`.

@@ -134,7 +134,18 @@ Szczegółowy opis znajduje się w
 - [walidacja STK](docs/stk_validation.md),
 - [kontrola jakości](docs/quality_and_release.md),
 - [ograniczenia modelu](docs/limitations.md),
+- [podstawy naukowe, inspiracje i bibliografia](docs/references.md),
 - [informacje o wydaniu](RELEASE_NOTES.md).
+
+## Podstawy naukowe i inspiracje
+
+Projekt korzysta ze standardu OMM, modelu SGP4, literatury dotyczącej
+planowania obserwacji satelitarnych oraz oficjalnej dokumentacji OR-Tools,
+ICEYE, Airbus, Open-Meteo i STK. Model planowania jest implementacją autorską:
+nie stanowi kopii jednego artykułu ani systemu operatora.
+
+Powiązanie elementów aplikacji ze źródłami oraz pełna bibliografia znajdują się
+w [`docs/references.md`](docs/references.md).
 
 ## Ograniczenia interpretacyjne
 

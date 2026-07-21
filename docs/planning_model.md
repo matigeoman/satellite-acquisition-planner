@@ -1,5 +1,11 @@
 # Model planowania
 
+Problem należy do klasy problemów harmonogramowania obserwacji satelitarnych
+z oknami czasowymi, konfliktami operacyjnymi i ograniczonymi zasobami. Kontekst
+modeli i metod opisują przeglądy [R6], [R7], klasyczna praca [R8] oraz
+monografia [R9] z [bibliografii projektu](references.md). Konkretny scoring
+i zestaw ograniczeń w tej aplikacji są autorskie.
+
 ## Zmienna decyzyjna
 
 Dla każdej wykonalnej okazji `i` tworzona jest zmienna binarna `x_i`. Wartość
@@ -54,12 +60,15 @@ deterministyczny.
 
 ## CP-SAT
 
-CP-SAT rozwiązuje kombinatoryczny problem wyboru. Współczynniki funkcji celu i
-zasobów są skalowane do liczb całkowitych. Po rozwiązaniu modelu wkłady są
-ponownie obliczane w jednostkach zmiennoprzecinkowych do raportowania.
+CP-SAT rozwiązuje kombinatoryczny problem wyboru. Zgodnie z wymaganiami
+solvera OR-Tools [R10] współczynniki funkcji celu i zasobów są skalowane do
+liczb całkowitych. Po rozwiązaniu modelu wkłady są ponownie obliczane
+w jednostkach zmiennoprzecinkowych do raportowania.
 
 Limit czasu, liczba wątków i ziarno losowe są parametrami eksperymentu. Status
-`FEASIBLE` nie oznacza dowodu optymalności.
+`FEASIBLE` oznacza znalezienie rozwiązania wykonalnego, ale nie dowód
+optymalności; interpretacja statusów i limitów jest zgodna z dokumentacją
+[R10].
 
 ## Przeplanowanie
 

@@ -1,5 +1,14 @@
 # Metodyka naukowa
 
+## Kontekst badawczy
+
+Metodyka wynika z literatury dotyczącej problemów planowania obserwacji
+satelitarnych, w której porównuje się metody dokładne, heurystyczne i hybrydowe
+przy wspólnych instancjach i ograniczeniach [R6]–[R9]. Projekt nie odtwarza
+eksperymentu z jednej publikacji. Definicje scenariuszy, funkcja celu i profile
+zakłóceń są jawnie opisanymi elementami autorskimi. Pełne źródła:
+[bibliografia projektu](references.md).
+
 ## Pytanie badawcze
 
 W jakim stopniu model CP-SAT poprawia jakość planu akwizycji heterogenicznej
@@ -44,3 +53,11 @@ algorytm + limit czasu + random seed.
 Walidacja wewnętrzna obejmuje testy modeli i ograniczeń. Walidacja zewnętrzna
 porównuje Access/AER z STK. Różnice należy raportować jako MAE, RMSE, błąd ze
 znakiem, maksimum oraz stopień nakładania przedziałów.
+
+## Raportowanie źródeł i założeń
+
+Każdy raport naukowy powinien podawać wersję aplikacji, snapshot OMM z epoką,
+źródło prognozy pogody, konfigurację solvera i random seed. Parametry oznaczone
+jako `MODEL_DERIVED` należy przedstawiać jako założenia modelu, a nie dane
+operatora. W części bibliograficznej należy wskazać co najmniej [R3] dla SGP4,
+[R6]–[R10] dla planowania oraz [R11]–[R13] dla profili i danych publicznych.

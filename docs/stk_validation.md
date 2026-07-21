@@ -2,7 +2,9 @@
 
 Moduł **Walidacja STK** porównuje okna wyznaczone przez publiczny model
 `CelesTrak OMM + SGP4 + publiczny profil sensora` z raportami wygenerowanymi
-w Systems Tool Kit.
+w Systems Tool Kit. Definicje raportów i dostawcy danych są opisane
+w dokumentacji Ansys [R14], [R15] z
+[bibliografii projektu](references.md).
 
 ## Przebieg
 

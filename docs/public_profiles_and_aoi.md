@@ -3,9 +3,9 @@
 Pierwszy etap integracji danych publicznych dodaje dwa profile:
 
 - `ICEYE_PUBLIC_PROFILE` — dziewięć trybów SAR z ICEYE Product
-  Documentation 6.0.7,
+  Documentation 6.0.7 [R11],
 - `PLEIADES_NEO_PUBLIC_PROFILE` — profil optyczny PAN, MS i
-  pansharpened oparty na Pléiades Neo User Guide.
+  pansharpened oparty na Pléiades Neo User Guide [R12].
 
 Każda grupa parametrów ma oznaczone pochodzenie:
 
@@ -24,7 +24,8 @@ Zakładka **Cele i zlecenia** pozwala:
 - utworzyć walidowane `ObservationRequest`.
 
 Prostokąt Leaflet jest zapisywany jako `Polygon`. Wszystkie współrzędne
-są przechowywane w WGS84 w kolejności GeoJSON `[longitude, latitude]`.
+są przechowywane w WGS 84 w kolejności GeoJSON `[longitude, latitude]`,
+zgodnej z RFC 7946 [R16].
 
 ## Ograniczenia etapu
 
@@ -45,3 +46,5 @@ Dla zlecenia łączonego można podać osobny limit rozdzielczości SAR i EO.
 Pole `max_resolution_m` pozostaje wspólną wartością zapasową dla zgodności
 z wcześniejszymi scenariuszami, a metoda `resolution_limit_for()` zwraca
 limit właściwy dla typu sensora.
+
+Oznaczenia źródeł prowadzą do [bibliografii projektu](references.md).
