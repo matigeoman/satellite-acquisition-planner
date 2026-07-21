@@ -22,10 +22,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ## Brak `ortools` albo `sgp4`
 
 ```powershell
-python -m pip install -r .\requirements-dev.txt
+python -m pip install -r .\requirements-dev.txt -c .\requirements-lock.txt
 ```
 
-Sprawdź, czy aktywne jest środowisko `satplan`.
+Sprawdź, czy aktywne jest środowisko `.venv` i czy polecenie
+`python -c "import sys; print(sys.executable)"` wskazuje interpreter projektu.
 
 ## Streamlit interpretuje kolejne polecenie jako opcję
 

@@ -3,17 +3,20 @@
 ## Środowisko
 
 ```powershell
-conda activate satplan
-python -m pip install -r .\requirements-dev.txt
+py -3.11 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r .\requirements-dev.txt -c .\requirements-lock.txt
 ```
 
 ## Kontrola przed commitem
 
 ```powershell
-pytest -q
-ruff check app tests streamlit_app.py scripts
+python -m pytest -q
+python -m ruff check app tests streamlit_app.py scripts
 python -m app.cli check
-python -m app.cli audit
+python -m app.cli audit --strict
 ```
 
 ## Dodawanie funkcji
@@ -33,14 +36,17 @@ mieć jawne `encoding="utf-8"`.
 
 ## Determinizm
 
-- ustawiaj random seed,
-- nie opieraj testów na aktualnym czasie bez kontrolowanej wartości,
-- nie wykonuj żądań sieciowych w testach jednostkowych,
-- używaj fixture lub publicznego snapshotu testowego,
-- dla CP-SAT preferuj jeden wątek w testach porównawczych.
+- ustawiaj jawny `random_seed`;
+- nie opieraj testów na aktualnym czasie bez kontrolowanej wartości;
+- nie wykonuj żądań sieciowych w testach jednostkowych;
+- używaj fixture albo publicznego snapshotu testowego;
+- dla CP-SAT preferuj jeden wątek w testach porównawczych;
+- w jednym powtórzeniu benchmarku stosuj to samo ziarno dla wszystkich limitów
+  czasu solvera.
 
-## Paczki aktualizacyjne
+## Przygotowanie zmian
 
-Paczka etapowa powinna zawierać wyłącznie pliki nowe lub zmienione. Po jej
-utworzeniu należy nałożyć ją na czystą kopię poprzedniego etapu i ponownie
-uruchomić cały zestaw kontroli.
+Zmiany powinny być przekazywane jako commit lub patch wygenerowany względem
+znanego commita bazowego. Przed publikacją zastosuj patch na czystej kopii,
+uruchom pełny zestaw kontroli i sprawdź, czy `git status` nie zawiera plików
+roboczych.

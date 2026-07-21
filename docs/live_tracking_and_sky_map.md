@@ -1,4 +1,4 @@
-# Śledzenie i przeloty i mapa nieba
+# Śledzenie satelitów, przeloty i mapa nieba
 
 Moduł **Śledzenie i przeloty** prezentuje pozycje obiektów orbitalnych
 propagowane z publicznych elementów GP/OMM przez SGP4. Nie jest to telemetria
@@ -10,8 +10,9 @@ Moduł udostępnia cztery widoki:
 
 1. **Mapa nieba** — lokalny układ azymut–elewacja z aktualnymi pozycjami i
    przewidywaną trajektorią przez kolejne 45 minut.
-2. **Mapa Ziemi** — aktualne podpunkty satelitów, 90-minutowe ground tracki,
-   pozycję obserwatora, terminator dnia i nocy oraz referencyjny footprint.
+2. **Mapa Ziemi / globus** — aktualne podpunkty satelitów, 90-minutowe ground
+   tracki, pozycję obserwatora, terminator dnia i nocy oraz referencyjny
+   footprint. Użytkownik może przełączyć projekcję i wyróżnić wybrany obiekt.
 3. **Najbliższe przeloty** — predykcje AOS, maksimum elewacji i LOS dla
    wybranego progu elewacji.
 4. **Kontekst planera** — okna dostępu oraz zaplanowane akwizycje dla

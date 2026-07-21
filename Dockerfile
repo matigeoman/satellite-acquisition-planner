@@ -10,15 +10,15 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN python -m venv "${VIRTUAL_ENV}"
 
 WORKDIR /build
-COPY requirements.txt requirements-ui.txt ./
+COPY requirements.txt requirements-ui.txt requirements-lock.txt ./
 RUN python -m pip install --upgrade pip \
-    && python -m pip install -r requirements-ui.txt \
+    && python -m pip install -r requirements-ui.txt -c requirements-lock.txt \
     && python -m pip check
 
 
 FROM python:3.11-slim AS runtime
 
-ARG APP_VERSION=1.0.1
+ARG APP_VERSION=1.1.0
 
 LABEL org.opencontainers.image.title="Satellite Acquisition Planner" \
       org.opencontainers.image.description="Planowanie akwizycji satelitarnych SAR i EO" \

@@ -9,8 +9,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_final_release_version_and_assets_are_consistent() -> None:
-    assert __version__ == "1.0.1"
-    assert (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip() == "1.0.1"
+    assert __version__ == "1.1.0"
+    assert (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip() == "1.1.0"
 
     dockerfile = (PROJECT_ROOT / "Dockerfile").read_text(encoding="utf-8")
     compose = (PROJECT_ROOT / "docker-compose.yml").read_text(encoding="utf-8")
@@ -18,24 +18,30 @@ def test_final_release_version_and_assets_are_consistent() -> None:
         encoding="utf-8"
     )
 
-    assert "ARG APP_VERSION=1.0.1" in dockerfile
-    assert "image: satplan:1.0.1" in compose
-    assert "APP_VERSION=1.0.1" in workflow
+    assert "ARG APP_VERSION=1.1.0" in dockerfile
+    assert "image: satplan:1.1.0" in compose
+    assert "APP_VERSION=1.1.0" in workflow
 
 
-def test_final_release_contains_no_root_hotfix_or_generated_report() -> None:
-    forbidden = (
-        "HOTFIX_README.txt",
-        "RECOVERY_README.txt",
-        "README_STAGE17_WINDOWS.txt",
-        "run_stage17_checks.ps1",
-        "report.docx",
-        "main.py",
-        "docs/algorithm_benchmarks.md",
-        "docs/planning_architecture.md",
+def test_final_release_contains_no_root_update_artifacts() -> None:
+    forbidden_patterns = (
+        "satplan-*.zip",
+        "*.patch",
+        "*_NOTES.txt",
+        "*_README.txt",
+        "README_*.txt",
+        "run_*_checks.ps1",
+        "report.*",
     )
+    matches = {
+        path.name
+        for pattern in forbidden_patterns
+        for path in PROJECT_ROOT.glob(pattern)
+        if path.is_file()
+    }
 
-    assert all(not (PROJECT_ROOT / relative).exists() for relative in forbidden)
+    assert not matches
+    assert not (PROJECT_ROOT / "main.py").exists()
 
 
 def test_release_notes_define_validation_and_compatibility() -> None:
@@ -45,4 +51,4 @@ def test_release_notes_define_validation_and_compatibility() -> None:
     assert "verify_release.ps1 -Docker -NoCache" in notes
     assert "Nie jest wymagana migracja danych" in notes
     assert "release-check --algorithm BOTH" in script
-    assert "FINAL RELEASE 1.0.1: READY" in script
+    assert "FINAL RELEASE 1.1.0: READY" in script

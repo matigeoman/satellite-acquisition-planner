@@ -19,6 +19,8 @@ def test_dockerfile_uses_python_311_non_root_and_healthcheck() -> None:
     assert '"python", "-m", "app.cli", "health", "--quiet"' in dockerfile
     assert '"streamlit", "run", "streamlit_app.py"' in dockerfile
     assert "python -m app.cli audit --strict" in dockerfile
+    assert "requirements-lock.txt" in dockerfile
+    assert "-c requirements-lock.txt" in dockerfile
 
 
 def test_compose_has_persistent_volumes_configurable_port_and_security() -> None:
@@ -53,7 +55,20 @@ def test_release_version_is_consistent_in_container_assets() -> None:
     compose = _read("docker-compose.yml")
     workflow = _read(".github/workflows/docker.yml")
 
-    assert version == "1.0.1"
+    assert version == "1.1.0"
     assert f"ARG APP_VERSION={version}" in dockerfile
     assert f"image: satplan:{version}" in compose
     assert f"APP_VERSION={version}" in workflow
+
+
+def test_development_tools_are_not_runtime_dependencies() -> None:
+    runtime = _read("requirements.txt")
+    development = _read("requirements-dev.txt")
+    lock = _read("requirements-lock.txt")
+
+    assert "pytest" not in runtime.lower()
+    assert "ruff" not in runtime.lower()
+    assert "pytest" in development.lower()
+    assert "ruff" in development.lower()
+    assert "pytest==" in lock.lower()
+    assert "ruff==" in lock.lower()

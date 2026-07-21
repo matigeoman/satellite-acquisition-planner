@@ -33,6 +33,16 @@ Panel boczny dzieli moduły na trzy grupy:
 - Projekty
 - Raporty
 
+## Wspólna powłoka interfejsu
+
+`application.css` definiuje typografię, odstępy, szerokości paneli, wygląd
+metryk, formularzy, zakładek i tabel. Strony nie powinny nadpisywać tych reguł
+lokalnym CSS, chyba że wymagają zachowania specyficznego dla danego widoku.
+
+Globus operacyjny i śledzenie korzystają ze wspólnych funkcji wizualizacji
+Plotly. Wyróżniony satelita, sposób centrowania i widoczność etykiet są stanem
+warstwy prezentacji; nie zmieniają danych orbitalnych ani wyników planowania.
+
 ## Moduły wspólne
 
 - `app/ui/app_context.py` — buforowane serwisy i stan scenariusza;

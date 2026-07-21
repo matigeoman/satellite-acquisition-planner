@@ -1,0 +1,15 @@
+# Referencyjne wersje bezpośrednich zależności dla Python 3.11.
+# Plik jest używany jako constraints file: pip install -r ... -c requirements-lock.txt
+pydantic==2.13.4
+ortools==9.15.6755
+matplotlib==3.11.1
+sgp4==2.27
+pandas==2.3.3
+plotly==6.9.0
+streamlit==1.59.2
+folium==0.20.0
+streamlit-folium==0.27.2
+python-docx==1.2.0
+XlsxWriter==3.2.9
+pytest==9.1.1
+ruff==0.12.12

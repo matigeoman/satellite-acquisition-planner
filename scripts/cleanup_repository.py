@@ -21,19 +21,20 @@ LEGACY_PATHS = (
     "docs/planning_architecture.md",
 )
 
-TRANSIENT_EXACT = (
-    "HOTFIX_README.txt",
-    "RECOVERY_README.txt",
-    "README_STAGE17_WINDOWS.txt",
-    "run_stage17_checks.ps1",
-    "report.docx",
+TRANSIENT_ROOT_PATTERNS = (
+    "satplan-*.zip",
+    "*.patch",
+    "*_NOTES.txt",
+    "*_README.txt",
+    "README_*.txt",
+    "run_*_checks.ps1",
+    "report.*",
 )
 
-
 TRANSIENT_PATTERNS = (
-    "*_NOTES.txt",
-    "satplan-*.zip",
-    "*.bak-stage*",
+    "*.bak",
+    "*.bak-*",
+    "*~",
 )
 
 
@@ -41,12 +42,14 @@ def discover_cleanup_targets(root: Path) -> tuple[Path, ...]:
     targets: set[Path] = set()
     for relative in LEGACY_PATHS:
         path = root / relative
-        if path.exists():
-            targets.add(path)
-    for relative in TRANSIENT_EXACT:
-        path = root / relative
         if path.is_file():
             targets.add(path)
+
+    for pattern in TRANSIENT_ROOT_PATTERNS:
+        for path in root.glob(pattern):
+            if path.is_file():
+                targets.add(path)
+
     for pattern in TRANSIENT_PATTERNS:
         for path in root.rglob(pattern):
             if not path.is_file():
@@ -54,6 +57,7 @@ def discover_cleanup_targets(root: Path) -> tuple[Path, ...]:
             if ".git" in path.relative_to(root).parts:
                 continue
             targets.add(path)
+
     return tuple(sorted(targets))
 
 
@@ -69,7 +73,7 @@ def remove_targets(paths: Iterable[Path]) -> tuple[Path, ...]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description=("Usuwa wycofane moduły i tymczasowe artefakty repozytorium.")
+        description="Usuwa wycofane moduły i tymczasowe artefakty repozytorium."
     )
     parser.add_argument(
         "--project-root",

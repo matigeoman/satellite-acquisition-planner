@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+from fnmatch import fnmatch
 import json
 import platform
 import re
@@ -87,6 +88,7 @@ _REQUIRED_PATHS = (
     "requirements.txt",
     "requirements-ui.txt",
     "requirements-dev.txt",
+    "requirements-lock.txt",
     "streamlit_app.py",
     "app",
     "data/scenarios",
@@ -522,31 +524,35 @@ def _check_repository_cleanliness(paths: ProjectPaths) -> AuditCheck:
         "app/ui/assets/earth_fallback.jpg",
         "docs/cesium_3d_globe.md",
         "tests/test_cesium_scene.py",
-        "HOTFIX_README.txt",
-        "RECOVERY_README.txt",
-        "README_STAGE17_WINDOWS.txt",
-        "run_stage17_checks.ps1",
-        "report.docx",
         "main.py",
         "docs/algorithm_benchmarks.md",
         "docs/planning_architecture.md",
     }
-    forbidden_suffixes = (".bak-stage", ".exe", ".msi")
+    forbidden_root_patterns = (
+        "satplan-*.zip",
+        "*.patch",
+        "*_NOTES.txt",
+        "*_README.txt",
+        "README_*.txt",
+        "run_*_checks.ps1",
+        "report.*",
+    )
+    forbidden_anywhere_patterns = ("*.bak", "*.bak-*", "*~", "*.exe", "*.msi")
     problems: list[str] = []
 
     for path in _repository_files(paths):
-        relative = path.relative_to(paths.root).as_posix()
+        relative_path = path.relative_to(paths.root)
+        relative = relative_path.as_posix()
         name = path.name
         if relative in forbidden_exact:
             problems.append(relative)
             continue
-        if name.endswith("_NOTES.txt"):
+        if len(relative_path.parts) == 1 and any(
+            fnmatch(name, pattern) for pattern in forbidden_root_patterns
+        ):
             problems.append(relative)
             continue
-        if name.startswith("satplan-") and name.endswith(".zip"):
-            problems.append(relative)
-            continue
-        if any(marker in name for marker in forbidden_suffixes):
+        if any(fnmatch(name, pattern) for pattern in forbidden_anywhere_patterns):
             problems.append(relative)
 
     if problems:

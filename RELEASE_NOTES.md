@@ -1,29 +1,51 @@
-# Satellite Acquisition Planner 1.0.1
+# Satellite Acquisition Planner 1.1.0
 
-Data wydania: **20 lipca 2026 r.**
+Data wydania: **21 lipca 2026 r.**
 
-Wersja `1.0.1` porządkuje pierwsze stabilne wydanie bez zmiany modelu
-planowania ani formatów danych. Aktualizacja koncentruje się na spójności
-repozytorium, dokumentacji i interfejsu.
+Wersja `1.1.0` porządkuje interfejs aplikacji i sposób prezentowania wyników.
+Model danych oraz formaty scenariuszy i archiwów pozostają zgodne z wydaniem
+`1.0.1`.
 
-## Zmiany
+## Najważniejsze zmiany
 
-- uporządkowano nawigację Streamlit według przepływu operacyjnego, analizy oraz
-  zarządzania projektem;
-- ujednolicono nazwy modułów i terminologię polsko-angielską w interfejsie;
-- skrócono teksty informacyjne i usunięto sformułowania o charakterze roboczym;
-- zaktualizowano opis struktury projektu do rzeczywistego układu pakietów;
-- połączono powielone rozdziały dotyczące benchmarków i planowania;
-- usunięto nieużywany punkt wejścia `main.py`;
-- usunięto nieużywane importy i rozszerzono linting o kontrolę `F401`;
-- dodano `.editorconfig` i `.gitattributes`, aby jednoznacznie ustalić UTF-8
-  oraz zakończenia linii na Windows i Linux;
-- rozszerzono audyt repozytorium o kontrolę plików konfiguracyjnych i
-  wycofanego punktu wejścia.
+### Interfejs i globus
+
+- zastosowano wspólny układ wizualny dla wszystkich stron Streamlit;
+- uproszczono panel boczny i grupowanie modułów;
+- globus operacyjny pozwala wyróżnić satelitę, wycentrować widok na Polsce,
+  Europie albo wybranym obiekcie oraz sterować etykietami i warstwami;
+- w widoku śledzenia dodano przełączanie między mapą globalną i globusem,
+  wyróżniony ground track oraz czytelniejszy układ parametrów;
+- poprawiono responsywność tabel, formularzy i paneli wynikowych.
+
+### Benchmarki
+
+- limity czasu CP-SAT w jednym powtórzeniu korzystają z tego samego ziarna;
+- wykresy dla jednego rozmiaru problemu mają osie kategorialne;
+- przyczyny niezrealizowania zleceń są agregowane według wariantu algorytmu;
+- eksport zachowuje status solvera, czasy, wartości funkcji celu i informacje o
+  poprawności każdego przebiegu.
+
+### Projekty i przeplanowanie
+
+- podgląd archiwum poprawnie liczy okazje znajdujące się w aktywnym wyniku;
+- aplikacja ostrzega, gdy zapisany harmonogram obejmuje tylko część zleceń;
+- puste wyniki filtrów przeplanowania są prezentowane jako komunikat, a nie
+  pusta tabela.
+
+### Repozytorium
+
+- README opisuje Docker jako podstawową metodę uruchomienia i zwykłe `venv` jako
+  metodę lokalną;
+- narzędzia deweloperskie zostały oddzielone od zależności obrazu produkcyjnego;
+- dodano referencyjne wersje bezpośrednich zależności dla Pythona 3.11;
+- reguły audytu i sprzątania używają ogólnych wzorców zamiast nazw dawnych
+  etapów i hotfixów;
+- dokumentacja nie odwołuje się już do usuniętego renderera Cesium.
 
 ## Walidacja
 
-Referencyjna kontrola wykonywana jest na Pythonie 3.11:
+Referencyjna kontrola:
 
 ```powershell
 .\scripts\verify_release.ps1 -Docker -NoCache
@@ -34,17 +56,17 @@ Oczekiwany wynik końcowy:
 ```text
 Stan: RELEASE READY
 Docker status: healthy
-FINAL RELEASE 1.0.1: READY
+FINAL RELEASE 1.1.0: READY
 ```
 
 ## Zgodność
 
-Aktualizacja zachowuje:
+Wersja zachowuje:
 
-- format scenariuszy i harmonogramów `1.0.0`;
-- format archiwum projektu `1.0.0`;
-- istniejące interfejsy importu z `app.io` i modułów zgodnościowych;
-- scenariusz `POLAND_DEMO` i jego wyniki referencyjne.
+- format scenariuszy i harmonogramów `1.0.x`;
+- format archiwum projektu `1.0.x`;
+- interfejsy importu z `app.io` i modułów zgodnościowych;
+- scenariusz `POLAND_DEMO` oraz jego dane referencyjne.
 
 Nie jest wymagana migracja danych.
 
@@ -52,7 +74,8 @@ Nie jest wymagana migracja danych.
 
 - OMM/SGP4 i geometria sensora nie zastępują efemeryd ani planu operatora;
 - prognoza zachmurzenia EO jest danymi zewnętrznymi i może ulec zmianie;
-- parametry manewrowe oraz budżety zasobów są założeniami modelu;
+- parametry manewrowe i budżety zasobów są założeniami modelu;
 - wynik planowania nie stanowi potwierdzenia wykonania akwizycji.
 
-Szczegółowy opis: [`docs/limitations.md`](docs/limitations.md).
+Szczegółowy opis znajduje się w
+[`docs/limitations.md`](docs/limitations.md).

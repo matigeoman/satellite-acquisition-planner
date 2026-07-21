@@ -1,60 +1,59 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.0.1`
+**Wersja:** `1.1.0`
 
-Satellite Acquisition Planner jest aplikacją badawczo-inżynierską do planowania
-akwizycji zobrazowań satelitarnych SAR i EO. Łączy dane orbitalne OMM,
-propagację SGP4, geometryczne okna dostępu, prognozę zachmurzenia, algorytmy
+Satellite Acquisition Planner służy do planowania akwizycji zobrazowań
+satelitarnych SAR i EO. Aplikacja łączy publiczne dane orbitalne OMM,
+propagację SGP4, wyznaczanie okien dostępu, prognozę zachmurzenia, algorytmy
 Greedy i CP-SAT, przeplanowanie oraz walidację względem STK.
 
-Projekt działa lokalnie albo w kontenerze Docker. Scenariusz `POLAND_DEMO`
-zawiera kompletny zestaw danych offline do prezentacji i testów regresyjnych.
+Scenariusz `POLAND_DEMO` zawiera kompletny zestaw danych offline do prezentacji
+i testów regresyjnych. Wyniki mają charakter badawczy: nie potwierdzają
+komercyjnego taskingu ani wykonania akwizycji przez operatora.
 
-## Zakres funkcjonalny
-
-### Dane i geometria
+## Najważniejsze funkcje
 
 - profile 4 satelitów ICEYE i 2 satelitów Pléiades Neo;
 - AOI typu Point, Polygon i Rectangle oraz import/eksport GeoJSON;
-- pobieranie OMM z CelesTrak, lokalna pamięć podręczna i propagacja SGP4;
-- okna dostępu, ślady naziemne, mapa nieba i predykcja AOS/MAX/LOS;
-- zachmurzenie Open-Meteo uwzględniane dla okazji EO.
+- OMM z CelesTrak, lokalny cache i propagacja SGP4;
+- okna dostępu, ślady naziemne, globus operacyjny i mapa nieba;
+- prognoza zachmurzenia Open-Meteo dla okazji EO;
+- planowanie Greedy i OR-Tools CP-SAT ze wspólną funkcją celu;
+- przeplanowanie z oknem zamrożonym i zakłóceniami operacyjnymi;
+- benchmarki, raporty naukowe i walidacja względem STK;
+- przenośne archiwa `.satplan.zip` z kontrolą integralności SHA-256.
 
-### Planowanie
+## Szybki start — Docker
 
-- zlecenia `SINGLE`, `DUAL_OPTIONAL` i `DUAL_REQUIRED`;
-- wspólna funkcja celu dla Greedy i OR-Tools CP-SAT;
-- ograniczenia zasobów, manewrów, trybów obrazowania i par SAR–EO;
-- przeplanowanie z oknem zamrożonym i odświeżeniem danych pogodowych;
-- benchmarki oraz porównanie jakości i czasu działania algorytmów.
-
-### Wyniki i walidacja
-
-- globus operacyjny i wizualizacje Plotly;
-- import raportów Access/AER z STK;
-- przenośne archiwa `.satplan.zip` z manifestem SHA-256;
-- raporty HTML, DOCX, XLSX, JSON, CSV i PNG;
-- audyt repozytorium, test E2E, GitHub Actions i healthcheck Dockera.
-
-## Szybki start
-
-Projekt jest walidowany referencyjnie na Pythonie 3.11.
+Docker jest najprostszą metodą uruchomienia kompletnego środowiska:
 
 ```powershell
-conda create -n satplan python=3.11
-conda activate satplan
-python -m pip install --upgrade pip
-python -m pip install -r .\requirements-dev.txt
-python -m streamlit run .\streamlit_app.py
+docker compose up --build --detach
+docker compose ps
 ```
 
-Uruchomienie przez Docker:
+Aplikacja jest dostępna pod adresem `http://localhost:8501`. Kontener powinien
+osiągnąć status `healthy`.
+
+Można też użyć skryptu:
 
 ```powershell
 .\scripts\start_satplan.ps1
 ```
 
-Domyślny adres aplikacji: `http://localhost:8501`.
+## Instalacja lokalna na Windows
+
+Projekt jest walidowany referencyjnie na Pythonie 3.11. `uv` ani Conda nie są
+wymagane.
+
+```powershell
+py -3.11 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r .\requirements-dev.txt -c .\requirements-lock.txt
+python -m streamlit run .\streamlit_app.py
+```
 
 ## CLI
 
@@ -69,20 +68,19 @@ python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
 
 ## Kontrola jakości
 
-Pełna kontrola lokalna:
-
 ```powershell
 .\scripts\verify_release.ps1
 ```
 
-Kontrola z czystym buildem obrazu:
+Pełna kontrola z czystym buildem obrazu:
 
 ```powershell
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Skrypt wykonuje testy, linting, audyt, healthcheck, pełny scenariusz E2E oraz
-kontrole wewnątrz kontenera.
+Skrypt uruchamia testy, Ruff, audyt repozytorium, healthcheck oraz scenariusz
+E2E. Produkcyjny obraz Docker nie zawiera narzędzi deweloperskich takich jak
+Pytest i Ruff; są instalowane przez `requirements-dev.txt`.
 
 ## Przepływ danych
 
@@ -102,7 +100,7 @@ harmonogram i przeplanowanie
 walidacja STK, archiwum projektu i raporty
 ```
 
-## Struktura
+## Struktura repozytorium
 
 ```text
 app/models          modele domenowe i walidacja
@@ -121,7 +119,8 @@ tests               testy jednostkowe, integracyjne i regresyjne
 docs                dokumentacja techniczna i użytkowa
 ```
 
-Pełny opis znajduje się w [`docs/project_structure.md`](docs/project_structure.md).
+Szczegółowy opis znajduje się w
+[`docs/project_structure.md`](docs/project_structure.md).
 
 ## Dokumentacja
 
@@ -137,15 +136,13 @@ Pełny opis znajduje się w [`docs/project_structure.md`](docs/project_structure
 - [ograniczenia modelu](docs/limitations.md),
 - [informacje o wydaniu](RELEASE_NOTES.md).
 
-## Zakres interpretacji
+## Ograniczenia interpretacyjne
 
-Wyniki są rezultatami modelu opartego na danych publicznych. Nie potwierdzają
-komercyjnej dostępności satelity, rezerwacji taskingu ani wykonania akwizycji.
-Parametry manewrowe i budżety zasobów są jawnymi założeniami badawczymi.
-Zachmurzenie wpływa na EO, lecz nie na SAR. STK służy do walidacji i nie jest
-wymagany do podstawowego działania aplikacji.
+OMM/SGP4, geometria sensora, parametry manewrowe i budżety zasobów są jawnymi
+założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. STK służy do
+walidacji zewnętrznej i nie jest wymagany do podstawowego działania aplikacji.
 
 ## Wersjonowanie
 
-Bieżąca wersja znajduje się w pliku [`VERSION`](VERSION). Historia zmian jest
+Wersja aplikacji znajduje się w pliku [`VERSION`](VERSION). Historia zmian jest
 prowadzona w [`CHANGELOG.md`](CHANGELOG.md).

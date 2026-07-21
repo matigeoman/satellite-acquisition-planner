@@ -8,25 +8,27 @@ htmlcov/
 .venv/
 venv/
 .env
+
+# Local packages, reports and temporary update files
 satplan-*.zip
+*.patch
+*_NOTES.txt
+*_README.txt
+README_*.txt
+run_*_checks.ps1
+/report.*
+
+# Backup files and editor leftovers
+*.bak
+*.bak-*
+*~
+
+# Local installers and binary packages
+*.exe
+*.msi
 
 # Working outputs. Keep directory structure through .gitkeep files.
 data/generated/**
 !data/generated/**/.gitkeep
 data/imports/stk/**
 !data/imports/stk/.gitkeep
-
-# Temporary package notes
-*_NOTES.txt
-
-# Local installers and binary packages
-*.exe
-*.msi
-*.bak-stage*
-
-# Temporary recovery and generated root artifacts
-HOTFIX_README.txt
-RECOVERY_README.txt
-README_STAGE17_WINDOWS.txt
-run_stage17_checks.ps1
-/report.docx

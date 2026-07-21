@@ -23,7 +23,7 @@ Najprostsza metoda:
 Skrypt:
 
 1. sprawdza obecność Docker i Compose,
-2. buduje obraz `satplan:1.0.1`,
+2. buduje obraz `satplan:1.1.0`,
 3. uruchamia usługę w tle,
 4. czeka na stan `healthy`,
 5. wyświetla adres aplikacji.
@@ -163,8 +163,8 @@ python -m app.cli release-check --algorithm GREEDY
 
 ```powershell
 docker build `
-    --build-arg APP_VERSION=1.0.1 `
-    --tag satplan:1.0.1 `
+    --build-arg APP_VERSION=1.1.0 `
+    --tag satplan:1.1.0 `
     .
 ```
 
@@ -174,7 +174,7 @@ Uruchomienie:
 docker run --rm `
     --publish 8501:8501 `
     --name satplan `
-    satplan:1.0.1
+    satplan:1.1.0
 ```
 
 W tym wariancie bez dodatkowych wolumenów dane z warstwy zapisywalnej kontenera
@@ -186,7 +186,8 @@ znikną po jego usunięciu.
 - włączono `no-new-privileges`,
 - katalog tymczasowy jest osobnym `tmpfs`,
 - obraz bazuje na `python:3.11-slim`,
-- zależności są instalowane z `requirements-ui.txt`,
+- zależności runtime są instalowane z `requirements-ui.txt` z ograniczeniami z `requirements-lock.txt`,
+- Pytest i Ruff pozostają poza obrazem produkcyjnym,
 - podczas budowy uruchamiane są `check`, `audit --strict` i kontrola runtime,
 - obraz nie zawiera cache testów, środowisk lokalnych ani wygenerowanych danych.
 

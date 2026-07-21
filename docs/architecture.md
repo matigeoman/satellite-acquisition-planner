@@ -49,6 +49,6 @@ sequenceDiagram
 
 ## Renderowanie globusa
 
-Aktywny renderer używa Plotly. Pliki związane z wcześniejszym prototypem Cesium
-pozostają wyłącznie jako kod historyczny i nie są importowane przez bieżącą
-stronę `Globus operacyjny`.
+Aktywny renderer używa Plotly. Poprzedni prototyp Cesium został usunięty wraz
+z nieużywanymi zasobami i testami. Strona `Globus operacyjny` korzysta wyłącznie
+z bieżącej warstwy `app.visualization.plotly_globe`.
