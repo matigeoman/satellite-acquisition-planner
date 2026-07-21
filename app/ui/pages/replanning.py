@@ -215,12 +215,18 @@ def render_replanning_result(result: ReplanningResult) -> None:
         displayed = changes.loc[
             changes["change_type"].isin(selected_changes)
         ]
-        st.dataframe(
-            displayed,
-            width="stretch",
-            hide_index=True,
-            height=360,
-        )
+        if displayed.empty:
+            st.info(
+                "Brak rekordów dla wybranych typów zmian. "
+                "Zaznacz „Bez zmian”, aby zobaczyć zachowane akwizycje."
+            )
+        else:
+            st.dataframe(
+                displayed,
+                width="stretch",
+                hide_index=True,
+                height=360,
+            )
 
     first, second = st.columns(2)
     first.download_button(

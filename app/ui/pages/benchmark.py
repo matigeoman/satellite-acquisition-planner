@@ -112,7 +112,7 @@ def render_benchmark_page() -> None:
 - Scenariusze są zagnieżdżone: większy wariant zawiera wszystkie zlecenia mniejszego.
 - Każde zlecenie ma 10 okazji, dlatego 500 zleceń oznacza 5000 okazji.
 - Greedy jest uruchamiany raz dla każdego powtórzenia, a CP-SAT osobno dla każdego limitu czasu.
-- `random_seed` zmienia się między powtórzeniami i wariantami CP-SAT.
+- Każde powtórzenie używa jednego wspólnego `random_seed` dla wszystkich limitów CP-SAT, aby porównanie 2/5/10/30 s nie było zaburzone zmianą ziarna.
 - Błąd lub status `UNKNOWN` nie zatrzymuje całej serii; zostaje zapisany jako nieudany przebieg.
             """
         )

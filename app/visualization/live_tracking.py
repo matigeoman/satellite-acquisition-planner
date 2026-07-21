@@ -54,6 +54,7 @@ def build_sky_map_figure(
     states: Sequence[LiveSatelliteState],
     tracks: Sequence[SkyTrack],
     minimum_elevation_deg: float = 0.0,
+    selected_slot_id: str | None = None,
     height_px: int = 650,
 ) -> go.Figure:
     """Buduje lokalną mapę nieba w układzie azymut–elewacja."""
@@ -61,6 +62,9 @@ def build_sky_map_figure(
     figure = go.Figure()
     state_by_slot = {state.slot_id: state for state in states}
     for track in tracks:
+        is_selected = (
+            selected_slot_id is None or track.slot_id == selected_slot_id
+        )
         visible = tuple(
             sample
             for sample in track.samples
@@ -72,8 +76,11 @@ def build_sky_map_figure(
                     r=[90.0 - sample.elevation_deg for sample in visible],
                     theta=[sample.azimuth_deg for sample in visible],
                     mode="lines",
-                    line={"color": _family_color(track.family), "width": 2},
-                    opacity=0.72,
+                    line={
+                        "color": _family_color(track.family),
+                        "width": 3.2 if is_selected else 1.5,
+                    },
+                    opacity=0.95 if is_selected else 0.42,
                     name=f"{track.slot_id} · trajektoria",
                     hovertemplate=(
                         f"{track.slot_id}<br>"
@@ -100,9 +107,12 @@ def build_sky_map_figure(
                 text=[track.slot_id],
                 textposition="top center",
                 marker={
-                    "size": 13,
+                    "size": 17 if is_selected else 10,
                     "color": _family_color(track.family),
-                    "line": {"color": "#f8fafc", "width": 1.5},
+                    "line": {
+                        "color": "#f8fafc" if is_selected else "#0f172a",
+                        "width": 2.2 if is_selected else 1.0,
+                    },
                 },
                 name=track.slot_id,
                 customdata=[
@@ -151,6 +161,8 @@ def build_sky_map_figure(
             },
         },
         showlegend=False,
+        template=None,
+        uirevision="satplan-sky-map-v2",
     )
     if not figure.data:
         figure.add_annotation(
@@ -218,6 +230,7 @@ def build_live_ground_map_figure(
     show_ground_tracks: bool = True,
     show_footprint: bool = True,
     show_terminator: bool = True,
+    projection_type: str = "natural earth",
     height_px: int = 650,
 ) -> go.Figure:
     """Buduje globalną mapę aktualnych pozycji, śladów i footprintu."""
@@ -225,6 +238,7 @@ def build_live_ground_map_figure(
     figure = go.Figure()
     if show_ground_tracks:
         for track in tracks:
+            is_selected = track.satellite.slot_id == selected_slot_id
             longitudes, latitudes = _split_antimeridian(
                 [state.longitude_deg for state in track.states],
                 [state.latitude_deg for state in track.states],
@@ -236,9 +250,9 @@ def build_live_ground_map_figure(
                     mode="lines",
                     line={
                         "color": _family_color(track.satellite.family),
-                        "width": 1.6,
+                        "width": 3.0 if is_selected else 1.35,
                     },
-                    opacity=0.62,
+                    opacity=0.92 if is_selected else 0.38,
                     name=f"{track.satellite.slot_id} · ground track",
                     hoverinfo="skip",
                     showlegend=False,
@@ -341,8 +355,27 @@ def build_live_ground_map_figure(
             )
         )
 
+    if projection_type == "orthographic":
+        center_longitude = (
+            selected_state.propagated.longitude_deg
+            if selected_state is not None
+            else observer.longitude_deg
+        )
+        center_latitude = (
+            selected_state.propagated.latitude_deg
+            if selected_state is not None
+            else observer.latitude_deg
+        )
+        projection = {
+            "type": "orthographic",
+            "rotation": {"lon": center_longitude, "lat": center_latitude},
+            "scale": 1.2,
+        }
+    else:
+        projection = {"type": "natural earth"}
+
     figure.update_geos(
-        projection_type="natural earth",
+        projection=projection,
         showland=True,
         landcolor=LAND_COLOR,
         showocean=True,
@@ -364,8 +397,17 @@ def build_live_ground_map_figure(
         margin={"l": 10, "r": 10, "t": 55, "b": 10},
         paper_bgcolor=BACKGROUND_COLOR,
         font={"color": "#e2e8f0"},
-        title={"text": "Położenie i ground track", "x": 0.5},
+        title={
+            "text": (
+                "Globus śledzący"
+                if projection_type == "orthographic"
+                else "Położenie i ślad naziemny"
+            ),
+            "x": 0.5,
+        },
         showlegend=False,
+        template=None,
+        uirevision=f"satplan-ground-map-{projection_type}-v2",
     )
     return figure
 

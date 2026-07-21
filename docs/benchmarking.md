@@ -19,7 +19,8 @@ Zalecana konfiguracja eksperymentu:
 - jeden wątek CP-SAT dla maksymalnej porównywalności;
 - limity czasu 1, 5, 10 i 30 sekund;
 - osobny pomiar czasu budowy modelu i pracy solvera, gdy jest dostępny;
-- identyczna rezerwa pamięci i ten sam zestaw ograniczeń dynamicznych.
+- identyczna rezerwa pamięci i ten sam zestaw ograniczeń dynamicznych;
+- wspólne ziarno CP-SAT dla wszystkich limitów czasu w obrębie tego samego powtórzenia; ziarno zmienia się dopiero między powtórzeniami.
 
 ## Rejestrowane metryki
 

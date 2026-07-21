@@ -73,12 +73,6 @@ def main() -> None:
 
     apply_application_styles()
 
-    st.title("Satellite Acquisition Planner")
-    st.caption(
-        "Operacyjne planowanie, przeplanowanie i walidacja "
-        "akwizycji satelitarnych SAR oraz optycznych"
-    )
-
     selected_page = render_navigation()
     _PAGE_RENDERERS[selected_page]()
 

@@ -186,3 +186,55 @@ def test_project_archive_rejects_path_traversal() -> None:
 
     with pytest.raises(ValueError, match="Niebezpieczna ścieżka"):
         ProjectArchiveService().preview_archive(buffer.getvalue())
+
+
+def test_project_archive_counts_planning_opportunities_without_public_builds() -> None:
+    planning = _planning_result()
+    state: dict[str, object] = {
+        CUSTOM_REQUESTS_STATE_KEY: list(
+            planning.scenario.request_set.requests
+        ),
+        PLANNING_RESULT_STATE_KEY: planning,
+    }
+
+    exported = ProjectArchiveService().export_project(
+        state,
+        project_name="Pełny scenariusz planowania",
+    )
+    preview = ProjectArchiveService().preview_archive(
+        exported.archive_bytes
+    )
+
+    assert exported.metadata.component_counts["opportunities"] == (
+        planning.scenario.opportunity_count
+    )
+    assert preview.opportunity_count == planning.scenario.opportunity_count
+
+
+def test_project_archive_warns_when_schedule_covers_request_subset() -> None:
+    planning = _planning_result()
+    extra_request = planning.scenario.request_set.requests[0].model_copy(
+        update={
+            "request_id": "REQ-ARCHIVE-EXTRA",
+            "name": "Dodatkowe zlecenie poza aktywnym harmonogramem",
+        }
+    )
+    project_requests = list(planning.scenario.request_set.requests) + [
+        extra_request
+    ]
+    exported = ProjectArchiveService().export_project(
+        {
+            CUSTOM_REQUESTS_STATE_KEY: project_requests,
+            PLANNING_RESULT_STATE_KEY: planning,
+        },
+        project_name="Projekt z szerszym zestawem zleceń",
+    )
+
+    preview = ProjectArchiveService().preview_archive(
+        exported.archive_bytes
+    )
+
+    assert any(
+        "20 z 21 zleceń projektu" in warning
+        for warning in preview.warnings
+    )

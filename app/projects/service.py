@@ -116,11 +116,21 @@ def _component_counts(state: Mapping[str, Any]) -> dict[str, int]:
     builds = state.get(OPPORTUNITY_BUILDS_STATE_KEY, {})
     planning = state.get(PLANNING_RESULT_STATE_KEY)
     history = state.get(SCHEDULE_HISTORY_STATE_KEY, ())
+    build_opportunity_count = sum(
+        len(build.opportunities) for build in builds.values()
+    )
+    planning_opportunity_count = (
+        planning.scenario.opportunity_count
+        if isinstance(planning, PlanningResult)
+        else 0
+    )
     return {
         "requests": len(requests),
         "opportunity_builds": len(builds),
-        "opportunities": sum(
-            len(build.opportunities) for build in builds.values()
+        "opportunities": (
+            build_opportunity_count
+            if build_opportunity_count
+            else planning_opportunity_count
         ),
         "access_windows": len(
             getattr(state.get(ACCESS_RESULT_STATE_KEY), "windows", ())
@@ -482,6 +492,19 @@ class ProjectArchiveService:
             present.append("Benchmark")
 
         self._validate_restored_state(restored)
+        planning = restored.get(PLANNING_RESULT_STATE_KEY)
+        project_requests = restored.get(CUSTOM_REQUESTS_STATE_KEY, ())
+        if isinstance(planning, PlanningResult) and project_requests:
+            planned_request_count = len(
+                planning.scenario.request_set.requests
+            )
+            if planned_request_count != len(project_requests):
+                warnings.append(
+                    "Zapisany harmonogram obejmuje "
+                    f"{planned_request_count} z {len(project_requests)} "
+                    "zleceń projektu. Pozostałe zlecenia są zachowane, "
+                    "ale nie należą do aktywnego wyniku planowania."
+                )
         if metadata.application_version != APPLICATION_VERSION:
             warnings.append(
                 "Projekt utworzono w wersji aplikacji "

@@ -421,6 +421,7 @@ def _render_live_fragment(
     show_ground_tracks: bool,
     show_footprint: bool,
     show_terminator: bool,
+    earth_projection: str,
     pass_quality_filter: tuple[str, ...],
     optical_only: bool,
     planner_only: bool,
@@ -475,23 +476,39 @@ def _render_live_fragment(
         (item for item in states if item.slot_id == selected_slot_id),
         states[0],
     )
-    metrics = st.columns(8)
-    metrics[0].metric("Czas UTC", focus_utc.strftime("%H:%M:%S"))
-    metrics[1].metric(
-        "Nad horyzontem", sum(s.topocentric.is_above_horizon for s in states)
+    primary_metrics = st.columns(4)
+    primary_metrics[0].metric("Czas UTC", focus_utc.strftime("%H:%M:%S"))
+    primary_metrics[1].metric(
+        "Nad horyzontem",
+        sum(item.topocentric.is_above_horizon for item in states),
     )
-    metrics[2].metric("Satelita", current.slot_id)
-    metrics[3].metric("Elewacja", f"{current.topocentric.elevation_deg:.1f}°")
-    metrics[4].metric("Azymut", f"{current.topocentric.azimuth_deg:.1f}°")
-    metrics[5].metric("Odległość", f"{current.topocentric.range_km:.0f} km")
-    metrics[6].metric("OMM age", f"{current.orbit_data_age_hours:.1f} h")
+    primary_metrics[2].metric("Satelita", current.slot_id)
+    primary_metrics[3].metric(
+        "Elewacja",
+        f"{current.topocentric.elevation_deg:.1f}°",
+    )
+
     selected_record = next(
         satellite.record
         for satellite in snapshot.satellites
         if satellite.slot_id == current.slot_id
     )
-    metrics[7].metric(
-        "Okres orbity", f"{selected_record.orbital_period_minutes:.1f} min"
+    geometry_metrics = st.columns(4)
+    geometry_metrics[0].metric(
+        "Azymut",
+        f"{current.topocentric.azimuth_deg:.1f}°",
+    )
+    geometry_metrics[1].metric(
+        "Odległość",
+        f"{current.topocentric.range_km:.0f} km",
+    )
+    geometry_metrics[2].metric(
+        "Wiek OMM",
+        f"{current.orbit_data_age_hours:.1f} h",
+    )
+    geometry_metrics[3].metric(
+        "Okres orbity",
+        f"{selected_record.orbital_period_minutes:.1f} min",
     )
 
     st.caption(
@@ -501,6 +518,13 @@ def _render_live_fragment(
         "Pozycja jest propagowana z OMM/SGP4; nie jest telemetrią pokładową."
     )
 
+    chart_config = {
+        "displaylogo": False,
+        "responsive": True,
+        "scrollZoom": True,
+        "modeBarButtonsToRemove": ["select2d", "lasso2d"],
+        "toImageButtonOptions": {"format": "png", "scale": 2},
+    }
     sky_tab, earth_tab, passes_tab, context_tab = st.tabs(
         ["Mapa nieba", "Mapa Ziemi", "Najbliższe przeloty", "Kontekst planera"]
     )
@@ -510,9 +534,10 @@ def _render_live_fragment(
                 states=states,
                 tracks=sky_tracks,
                 minimum_elevation_deg=0.0,
+                selected_slot_id=selected_slot_id,
             ),
             width="stretch",
-            config={"displaylogo": False, "responsive": True},
+            config=chart_config,
         )
         state_table = pd.DataFrame(
             [
@@ -549,9 +574,10 @@ def _render_live_fragment(
                 show_ground_tracks=show_ground_tracks,
                 show_footprint=show_footprint,
                 show_terminator=show_terminator,
+                projection_type=earth_projection,
             ),
             width="stretch",
-            config={"displaylogo": False, "responsive": True},
+            config=chart_config,
         )
         st.caption(
             "Zielony okrąg jest referencyjnym footprintem prezentacyjnym. "
@@ -608,10 +634,10 @@ def render_live_tracking_page() -> None:
     """Renderuje mapę nieba, pozycje SGP4 i predykcję przelotów."""
 
     st.header("Śledzenie i przeloty")
-    st.info(
-        "Moduł propaguje publiczne OMM przez SGP4, przelicza pozycję do "
-        "lokalnego układu azymut–elewacja i przewiduje przeloty AOS/MAX/LOS. "
-        "Tryb działa również offline na danych scenariusza demonstracyjnego."
+    st.caption(
+        "Bieżąca propagacja OMM/SGP4, lokalna mapa nieba i predykcja "
+        "przelotów AOS/MAX/LOS. Tryb działa online oraz na danych offline "
+        "scenariusza demonstracyjnego."
     )
 
     snapshot = get_public_orbit_snapshot()
@@ -733,10 +759,19 @@ def render_live_tracking_page() -> None:
             "Satelita wyróżniony",
             options=list(selected_slots),
         )
-        map_columns = st.columns(3)
+        map_columns = st.columns([1.0, 1.0, 1.0, 1.2])
         show_ground_tracks = map_columns[0].toggle("Ślad naziemny", value=True)
         show_footprint = map_columns[1].toggle("Obszar pokrycia", value=True)
         show_terminator = map_columns[2].toggle("Granica dnia i nocy", value=True)
+        earth_projection_label = map_columns[3].selectbox(
+            "Widok Ziemi",
+            options=["Mapa globalna", "Globus śledzący"],
+        )
+        earth_projection = (
+            "orthographic"
+            if earth_projection_label == "Globus śledzący"
+            else "natural earth"
+        )
 
         filter_columns = st.columns([1.5, 1.0, 1.0])
         pass_quality_filter = tuple(
@@ -767,6 +802,7 @@ def render_live_tracking_page() -> None:
         show_ground_tracks=show_ground_tracks,
         show_footprint=show_footprint,
         show_terminator=show_terminator,
+        earth_projection=earth_projection,
         pass_quality_filter=pass_quality_filter,
         optical_only=optical_only,
         planner_only=planner_only,

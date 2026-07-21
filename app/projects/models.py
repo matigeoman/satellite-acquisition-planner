@@ -86,7 +86,14 @@ class ProjectArchivePreview:
     @property
     def opportunity_count(self) -> int:
         builds = self.restored_state.get("public_opportunity_builds", {})
-        return sum(len(build.opportunities) for build in builds.values())
+        build_count = sum(
+            len(build.opportunities) for build in builds.values()
+        )
+        if build_count:
+            return build_count
+        planning = self.restored_state.get("public_planning_result")
+        scenario = getattr(planning, "scenario", None)
+        return int(getattr(scenario, "opportunity_count", 0))
 
     @property
     def schedule_count(self) -> int:

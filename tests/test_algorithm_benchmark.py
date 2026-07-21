@@ -17,7 +17,14 @@ from app.analysis.algorithm_benchmark import (
 from app.scenarios.scalability import build_scalability_source
 from app.services.benchmark_service import AlgorithmBenchmarkService
 from app.services.scenario_service import ScenarioService
-from app.ui.benchmark_view import build_benchmark_export_zip
+from app.ui.benchmark_view import (
+    build_benchmark_export_zip,
+    build_benchmark_improvement_figure,
+    build_benchmark_objective_figure,
+    build_benchmark_rejections_figure,
+    build_benchmark_runtime_figure,
+    build_benchmark_satisfaction_figure,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -63,6 +70,27 @@ def _record(
         imaging_time_rejections=4,
         dual_separation_rejections=5,
         error_message=error,
+    )
+
+
+def _result(
+    records: tuple[BenchmarkRunRecord, ...],
+    *,
+    limits: tuple[float, ...],
+) -> AlgorithmBenchmarkResult:
+    now = datetime.now(timezone.utc)
+    return AlgorithmBenchmarkResult(
+        base_scenario_id="TEST",
+        config=AlgorithmBenchmarkConfig(
+            request_counts=(10,),
+            cp_sat_time_limits_s=limits,
+        ),
+        run_records=records,
+        pair_records=build_benchmark_pairs(records),
+        summary_records=build_benchmark_summary(records),
+        started_at_utc=now,
+        completed_at_utc=now,
+        wall_clock_runtime_s=1.0,
     )
 
 
@@ -185,3 +213,71 @@ def test_export_zip_contains_research_files() -> None:
         "benchmark_results.json",
         "benchmark_charts.html",
     }
+
+
+def test_service_reuses_one_seed_across_cp_sat_time_limits() -> None:
+    scenario = ScenarioService(project_root=PROJECT_ROOT).load("STRESS")
+    result = AlgorithmBenchmarkService().run(
+        base_scenario=scenario,
+        config=AlgorithmBenchmarkConfig(
+            request_counts=(10,),
+            repetitions=1,
+            cp_sat_time_limits_s=(0.05, 0.1),
+            use_dynamic_transition_model=False,
+        ),
+    )
+
+    assert len(result.run_records) == 3
+    assert len({record.random_seed for record in result.run_records}) == 1
+    assert {record.random_seed for record in result.pair_records} == {
+        result.run_records[0].random_seed
+    }
+
+
+def test_single_request_count_uses_readable_bar_charts() -> None:
+    records = (
+        _record(algorithm="GREEDY", objective=100.0, runtime=0.1),
+        _record(algorithm="CP_SAT", limit=2.0, objective=99.0, runtime=2.0),
+        _record(algorithm="CP_SAT", limit=5.0, objective=103.0, runtime=5.0),
+        _record(algorithm="CP_SAT", limit=10.0, objective=105.0, runtime=10.0),
+    )
+    result = _result(records, limits=(2.0, 5.0, 10.0))
+
+    for figure in (
+        build_benchmark_runtime_figure(result),
+        build_benchmark_objective_figure(result),
+        build_benchmark_satisfaction_figure(result),
+        build_benchmark_improvement_figure(result),
+    ):
+        assert figure.data
+        assert all(trace.type == "bar" for trace in figure.data)
+        assert "10 zleceń" in figure.layout.title.text
+
+    improvement = build_benchmark_improvement_figure(result)
+    assert improvement.layout.shapes
+    assert {value for trace in improvement.data for value in trace.x} == {
+        "CP-SAT 2s",
+        "CP-SAT 5s",
+        "CP-SAT 10s",
+    }
+
+
+def test_rejection_chart_uses_stacked_variant_bars_without_zero_series() -> None:
+    records = (
+        _record(algorithm="GREEDY"),
+        _record(algorithm="CP_SAT", limit=2.0),
+    )
+    result = _result(records, limits=(2.0,))
+
+    figure = build_benchmark_rejections_figure(result)
+
+    assert figure.data
+    assert figure.layout.barmode == "stack"
+    assert any(
+        "Liczba zleceń: 10" in annotation.text
+        for annotation in figure.layout.annotations
+    )
+    assert all(
+        all(float(value) > 0.0 for value in trace.y)
+        for trace in figure.data
+    )

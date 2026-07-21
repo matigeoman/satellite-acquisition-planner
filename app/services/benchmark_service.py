@@ -74,10 +74,7 @@ class AlgorithmBenchmarkService:
                         created_at_utc=started_at,
                     )
                 )
-                for limit_index, time_limit_s in enumerate(
-                    config.cp_sat_time_limits_s,
-                    start=1,
-                ):
+                for time_limit_s in config.cp_sat_time_limits_s:
                     records.append(
                         self._run_single(
                             scenario=scenario,
@@ -86,7 +83,7 @@ class AlgorithmBenchmarkService:
                             repetition=repetition,
                             algorithm=PlanningAlgorithm.CP_SAT,
                             time_limit_s=time_limit_s,
-                            random_seed=seed_base + limit_index,
+                            random_seed=seed_base,
                             created_at_utc=started_at,
                         )
                     )

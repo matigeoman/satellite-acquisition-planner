@@ -1,8 +1,23 @@
-/*
- * Czytelna, powiększona skala aplikacji.
- * Większość komponentów Streamlit używa rem, więc 20 px zwiększa zarówno
- * typografię, jak i kontrolki bez ręcznego skalowania każdej strony.
- */
+:root {
+    --satplan-bg: #070b12;
+    --satplan-panel: rgba(15, 23, 42, 0.72);
+    --satplan-panel-strong: rgba(17, 27, 46, 0.92);
+    --satplan-panel-soft: rgba(18, 29, 49, 0.52);
+    --satplan-border: rgba(148, 163, 184, 0.20);
+    --satplan-border-strong: rgba(148, 163, 184, 0.34);
+    --satplan-text: #e7edf6;
+    --satplan-muted: #9baabd;
+    --satplan-accent: #ff4b55;
+    --satplan-accent-soft: rgba(255, 75, 85, 0.14);
+    --satplan-sar: #ff636a;
+    --satplan-eo: #50a9ff;
+    --satplan-success: #34d399;
+    --satplan-warning: #f59e0b;
+    --satplan-radius: 0.85rem;
+    --satplan-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+/* Czytelna skala całej aplikacji. */
 html {
     font-size: 20px;
 }
@@ -11,117 +26,231 @@ body,
 [data-testid="stAppViewContainer"],
 [data-testid="stSidebar"] {
     font-size: 1rem;
+    color: var(--satplan-text);
+}
+
+[data-testid="stAppViewContainer"] {
+    background:
+        radial-gradient(circle at 74% -10%, rgba(55, 108, 180, 0.12), transparent 34rem),
+        radial-gradient(circle at 24% 0%, rgba(255, 75, 85, 0.06), transparent 28rem),
+        var(--satplan-bg);
+}
+
+[data-testid="stHeader"] {
+    background: rgba(7, 11, 18, 0.76);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
 }
 
 [data-testid="stAppViewContainer"] .main .block-container {
-    max-width: 1840px;
-    padding-top: 2.25rem;
-    padding-right: 2.75rem;
+    max-width: 1920px;
+    padding-top: 1.45rem;
+    padding-right: 2.2rem;
     padding-bottom: 3.5rem;
-    padding-left: 2.75rem;
+    padding-left: 2.2rem;
     margin-right: auto;
     margin-left: auto;
 }
 
-/* Panel boczny: duże etykiety, ikony i wygodne cele kliknięcia. */
+/* Panel boczny i identyfikacja produktu. */
 [data-testid="stSidebar"] {
-    min-width: 410px;
-    max-width: 410px;
+    min-width: 370px;
+    max-width: 370px;
+    background:
+        linear-gradient(180deg, rgba(20, 28, 43, 0.98), rgba(12, 18, 30, 0.98));
+    border-right: 1px solid rgba(148, 163, 184, 0.16);
 }
 
 [data-testid="stSidebar"] > div:first-child {
-    width: 410px;
+    width: 370px;
+    padding-top: 1.1rem;
+}
+
+.satplan-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.78rem;
+    padding: 0.85rem 0.9rem;
+    margin: 0 0 1.1rem 0;
+    border: 1px solid var(--satplan-border);
+    border-radius: 0.9rem;
+    background:
+        linear-gradient(135deg, rgba(80, 169, 255, 0.10), rgba(255, 75, 85, 0.07)),
+        rgba(15, 23, 42, 0.72);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.16);
+}
+
+.satplan-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 2.85rem;
+    height: 2.85rem;
+    flex: 0 0 2.85rem;
+    border-radius: 0.72rem;
+    background: linear-gradient(145deg, #ff5963, #d92f3a);
+    color: white;
+    font-size: 0.86rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    box-shadow: 0 8px 18px rgba(255, 75, 85, 0.24);
+}
+
+.satplan-brand-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+}
+
+.satplan-brand-copy strong {
+    font-size: 0.98rem;
+    line-height: 1.22;
+    color: #f8fafc;
+}
+
+.satplan-brand-copy span,
+.satplan-sidebar-context span,
+.satplan-sidebar-label {
+    color: var(--satplan-muted);
+    font-size: 0.77rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.satplan-sidebar-label {
+    margin: 0.2rem 0 0.45rem 0.1rem;
+}
+
+.satplan-sidebar-context {
+    margin: 1.15rem 0 0.85rem 0;
+    padding: 0.85rem 0.9rem;
+    border-left: 3px solid var(--satplan-accent);
+    border-radius: 0.2rem 0.75rem 0.75rem 0.2rem;
+    background: rgba(255, 75, 85, 0.07);
+}
+
+.satplan-sidebar-context strong {
+    display: block;
+    margin-top: 0.28rem;
+    color: #f8fafc;
+    font-size: 0.94rem;
+}
+
+.satplan-sidebar-context p {
+    margin: 0.4rem 0 0 0;
+    color: var(--satplan-muted);
+    font-size: 0.82rem !important;
+    line-height: 1.42;
 }
 
 [data-testid="stSidebar"] [role="radiogroup"] label {
-    min-height: 3.1rem;
-    padding: 0.55rem 0.45rem;
+    min-height: 2.75rem;
+    padding: 0.42rem 0.55rem;
+    margin: 0.08rem 0;
     align-items: center;
+    border-radius: 0.58rem;
+    transition: background 120ms ease, border-color 120ms ease;
+}
+
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {
+    background: rgba(148, 163, 184, 0.08);
 }
 
 [data-testid="stSidebar"] [role="radiogroup"] label p {
-    font-size: 1.08rem !important;
-    font-weight: 600;
+    font-size: 0.96rem !important;
+    font-weight: 590;
 }
 
-/* Nagłówki i tekst. */
+/* Typografia. */
 h1 {
-    font-size: 2.7rem !important;
-    line-height: 1.14 !important;
-    margin-bottom: 0.85rem !important;
+    font-size: 2.45rem !important;
+    line-height: 1.12 !important;
+    margin-bottom: 0.65rem !important;
+    letter-spacing: -0.025em;
 }
 
 h2 {
-    font-size: 2rem !important;
-    line-height: 1.2 !important;
-    margin-top: 1.7rem !important;
+    font-size: 1.82rem !important;
+    line-height: 1.18 !important;
+    margin-top: 1.15rem !important;
+    margin-bottom: 0.75rem !important;
+    letter-spacing: -0.018em;
 }
 
 h3 {
-    font-size: 1.5rem !important;
-    line-height: 1.28 !important;
+    font-size: 1.34rem !important;
+    line-height: 1.25 !important;
+    margin-top: 1rem !important;
 }
 
 p,
 li,
 label,
 [data-testid="stMarkdownContainer"] {
-    font-size: 1.05rem;
-    line-height: 1.58;
+    font-size: 1rem;
+    line-height: 1.54;
 }
 
 [data-testid="stCaptionContainer"],
 [data-testid="stCaptionContainer"] p {
-    font-size: 0.98rem !important;
-    line-height: 1.48;
+    color: var(--satplan-muted) !important;
+    font-size: 0.88rem !important;
+    line-height: 1.46;
 }
 
-/* Ikony Streamlit i SVG w kontrolkach. */
-[data-testid="stIconMaterial"] {
-    font-size: 1.5rem !important;
-    line-height: 1 !important;
+/* Karty, formularze i sekcje. */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-color: var(--satplan-border) !important;
+    border-radius: var(--satplan-radius) !important;
+    background:
+        linear-gradient(180deg, rgba(20, 31, 52, 0.48), rgba(12, 20, 34, 0.48));
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
 }
 
-button svg,
-[data-testid="stSidebar"] svg,
-[data-testid="stFileUploader"] svg {
-    width: 1.45rem !important;
-    height: 1.45rem !important;
+[data-testid="stMetric"] {
+    min-height: 5.25rem;
+    padding: 0.72rem 0.85rem;
+    border: 1px solid var(--satplan-border);
+    border-radius: 0.72rem;
+    background: rgba(15, 23, 42, 0.54);
 }
 
-/* Metryki. */
 [data-testid="stMetricLabel"],
 [data-testid="stMetricLabel"] p {
-    font-size: 1rem !important;
+    color: var(--satplan-muted) !important;
+    font-size: 0.82rem !important;
+    font-weight: 650;
 }
 
 [data-testid="stMetricValue"] {
-    font-size: 2.25rem !important;
+    font-size: 1.72rem !important;
     line-height: 1.12;
+    color: #f8fafc;
 }
 
 [data-testid="stMetricDelta"] {
-    font-size: 0.95rem !important;
+    font-size: 0.86rem !important;
 }
 
-/* Formularze i kontrolki. */
 [data-testid="stWidgetLabel"] p,
 [data-testid="stRadio"] label,
 [data-testid="stCheckbox"] label,
 [data-testid="stToggle"] label {
-    font-size: 1.04rem !important;
+    font-size: 0.95rem !important;
 }
 
 input,
 textarea,
 [data-baseweb="select"] > div,
 [data-baseweb="input"] > div {
-    min-height: 3rem;
-    font-size: 1.05rem !important;
+    min-height: 2.75rem;
+    font-size: 0.98rem !important;
+    border-radius: 0.58rem !important;
 }
 
 textarea {
-    line-height: 1.5 !important;
+    line-height: 1.48 !important;
 }
 
 [data-testid="stButton"] button,
@@ -129,116 +258,119 @@ textarea {
 [data-testid="baseButton-primary"],
 [data-testid="baseButton-secondary"],
 [data-testid="stFormSubmitButton"] button {
-    min-height: 3.15rem;
-    padding: 0.65rem 1.15rem;
-    font-size: 1.05rem !important;
-    font-weight: 650;
-    border-radius: 0.55rem;
+    min-height: 2.85rem;
+    padding: 0.58rem 1rem;
+    font-size: 0.96rem !important;
+    font-weight: 680;
+    border-radius: 0.62rem;
+    transition: transform 100ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+[data-testid="stButton"] button:hover,
+[data-testid="stDownloadButton"] button:hover,
+[data-testid="stFormSubmitButton"] button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 9px 20px rgba(0, 0, 0, 0.18);
+}
+
+[data-testid="baseButton-primary"] {
+    box-shadow: 0 8px 20px rgba(255, 75, 85, 0.18);
 }
 
 [data-testid="stSlider"] [role="slider"] {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
+    width: 1.12rem !important;
+    height: 1.12rem !important;
 }
 
 [data-testid="stFileUploaderDropzone"] {
-    min-height: 8rem;
-    padding: 1.2rem;
+    min-height: 7rem;
+    padding: 1.1rem;
+    border-radius: 0.72rem;
 }
 
 /* Zakładki, alerty i ekspandery. */
+[data-baseweb="tab-list"] {
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 0.72rem;
+    background: rgba(15, 23, 42, 0.40);
+}
+
 [data-baseweb="tab"] {
-    min-height: 3.35rem;
-    padding-right: 1.2rem !important;
-    padding-left: 1.2rem !important;
+    min-height: 2.85rem;
+    padding-right: 0.95rem !important;
+    padding-left: 0.95rem !important;
+    border-radius: 0.5rem;
+}
+
+[data-baseweb="tab"][aria-selected="true"] {
+    background: rgba(255, 75, 85, 0.12);
 }
 
 [data-baseweb="tab"] p {
-    font-size: 1.05rem !important;
-    font-weight: 600;
+    font-size: 0.94rem !important;
+    font-weight: 650;
+}
+
+[data-testid="stAlertContainer"] {
+    border-radius: 0.72rem;
+    border-color: rgba(148, 163, 184, 0.18) !important;
 }
 
 [data-testid="stAlertContainer"],
 [data-testid="stAlertContainer"] p {
-    font-size: 1.03rem !important;
+    font-size: 0.94rem !important;
+}
+
+[data-testid="stExpander"] {
+    border-color: var(--satplan-border) !important;
+    border-radius: 0.72rem !important;
+    overflow: hidden;
 }
 
 [data-testid="stExpander"] summary {
-    font-size: 1.05rem;
-    min-height: 3.15rem;
+    font-size: 0.96rem;
+    min-height: 2.8rem;
+    background: rgba(15, 23, 42, 0.42);
 }
 
 /* Tabele i wykresy. */
 [data-testid="stDataFrame"] {
-    font-size: 1rem;
+    font-size: 0.92rem;
+    border: 1px solid var(--satplan-border);
+    border-radius: 0.72rem;
+    overflow: hidden;
+    background: rgba(8, 13, 22, 0.44);
 }
 
 [data-testid="stDataFrame"] canvas {
-    font-size: 16px !important;
+    font-size: 15px !important;
+}
+
+[data-testid="stPlotlyChart"] {
+    width: 100% !important;
+    border: 1px solid var(--satplan-border);
+    border-radius: 0.78rem;
+    overflow: hidden;
+    background: rgba(5, 9, 17, 0.72);
+    box-shadow: var(--satplan-shadow);
 }
 
 .js-plotly-plot .plotly .legendtext,
 .js-plotly-plot .plotly .xtick text,
 .js-plotly-plot .plotly .ytick text {
-    font-size: 16px !important;
-}
-
-/* Monitory 4K. */
-@media (min-width: 2200px) {
-    html {
-        font-size: 22px;
-    }
-
-    [data-testid="stAppViewContainer"] .main .block-container {
-        max-width: 2040px;
-    }
-
-    [data-testid="stSidebar"] {
-        min-width: 450px;
-        max-width: 450px;
-    }
-
-    [data-testid="stSidebar"] > div:first-child {
-        width: 450px;
-    }
-}
-
-/* Laptopy i mniejsze okna nadal pozostają czytelne. */
-@media (max-width: 1200px) {
-    html {
-        font-size: 18px;
-    }
-
-    [data-testid="stAppViewContainer"] .main .block-container {
-        padding-right: 1.35rem;
-        padding-left: 1.35rem;
-    }
-
-    [data-testid="stSidebar"] {
-        min-width: 340px;
-        max-width: 340px;
-    }
-
-    [data-testid="stSidebar"] > div:first-child {
-        width: 340px;
-    }
-}
-
-/* Mapy Plotly: pełna szerokość, czytelny pasek narzędzi i obramowanie. */
-[data-testid="stPlotlyChart"] {
-    width: 100% !important;
-    border: 1px solid rgba(148, 163, 184, 0.20);
-    border-radius: 0.75rem;
-    overflow: hidden;
-    background: rgba(8, 13, 22, 0.40);
+    font-size: 15px !important;
 }
 
 .js-plotly-plot .modebar {
     top: 10px !important;
     right: 10px !important;
     padding: 5px 7px !important;
+    border: 1px solid rgba(148, 163, 184, 0.18);
     border-radius: 8px !important;
-    background: rgba(8, 13, 22, 0.82) !important;
+    background: rgba(8, 13, 22, 0.86) !important;
+    backdrop-filter: blur(8px);
 }
 
 .js-plotly-plot .modebar-btn {
@@ -246,22 +378,98 @@ textarea {
 }
 
 .js-plotly-plot .modebar-btn svg {
-    width: 22px !important;
-    height: 22px !important;
+    width: 21px !important;
+    height: 21px !important;
 }
 
-/* Większe znaczniki wyboru w multiselectach używanych przy orbitach. */
+[data-testid="stIconMaterial"] {
+    font-size: 1.35rem !important;
+    line-height: 1 !important;
+}
+
+button svg,
+[data-testid="stSidebar"] svg,
+[data-testid="stFileUploader"] svg {
+    width: 1.3rem !important;
+    height: 1.3rem !important;
+}
+
 [data-baseweb="tag"] {
-    min-height: 2rem;
-    padding: 0.25rem 0.55rem !important;
-    font-size: 0.95rem !important;
+    min-height: 1.85rem;
+    padding: 0.2rem 0.48rem !important;
+    font-size: 0.86rem !important;
 }
 
-/* Osadzony globus 3D: spójne obramowanie i pełna szerokość. */
 iframe[title="streamlit.components.v1.html"] {
     width: 100% !important;
-    border: 1px solid rgba(148, 163, 184, 0.24) !important;
-    border-radius: 0.85rem !important;
+    border: 1px solid var(--satplan-border) !important;
+    border-radius: 0.82rem !important;
     background: #060b14;
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+    box-shadow: var(--satplan-shadow);
+}
+
+/* Monitory 4K. */
+@media (min-width: 2200px) {
+    html {
+        font-size: 21px;
+    }
+
+    [data-testid="stAppViewContainer"] .main .block-container {
+        max-width: 2160px;
+    }
+
+    [data-testid="stSidebar"] {
+        min-width: 410px;
+        max-width: 410px;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        width: 410px;
+    }
+}
+
+/* Laptopy. */
+@media (max-width: 1280px) {
+    html {
+        font-size: 17px;
+    }
+
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-right: 1.25rem;
+        padding-left: 1.25rem;
+    }
+
+    [data-testid="stSidebar"] {
+        min-width: 330px;
+        max-width: 330px;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        width: 330px;
+    }
+}
+
+/* Wąskie okna i urządzenia mobilne. */
+@media (max-width: 760px) {
+    html {
+        font-size: 16px;
+    }
+
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 1rem;
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+
+    [data-testid="stMetric"] {
+        min-height: 4.5rem;
+    }
+
+    h1 {
+        font-size: 2rem !important;
+    }
+
+    h2 {
+        font-size: 1.55rem !important;
+    }
 }

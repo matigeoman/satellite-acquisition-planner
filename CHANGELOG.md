@@ -3,6 +3,16 @@
 Wszystkie istotne zmiany projektu są dokumentowane w tym pliku. Projekt stosuje
 wersjonowanie zgodne z Semantic Versioning.
 
+## [Unreleased]
+
+### Poprawiono
+
+- benchmark używa wspólnego ziarna CP-SAT dla wszystkich limitów czasu w obrębie danego powtórzenia, dzięki czemu porównanie 2/5/10/30 s nie miesza wpływu czasu z wpływem losowości;
+- wykresy benchmarku dla pojedynczego rozmiaru problemu używają czytelnych słupków zamiast osi 99–101 i nakładających się punktów;
+- diagnostyka odrzuceń pokazuje skumulowane przyczyny według wariantu i pomija serie o wartości zerowej;
+- przeplanowanie wyświetla jednoznaczny komunikat, gdy aktywny filtr nie zawiera żadnych zmian;
+- podgląd archiwum projektu poprawnie liczy okazje zapisane wewnątrz aktywnego wyniku planowania i ostrzega, gdy harmonogram obejmuje tylko część zleceń projektu.
+
 ## [1.0.1] — 2026-07-20
 
 ### Uporządkowano

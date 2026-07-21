@@ -236,10 +236,16 @@ def _add_operational_tracks(
     focus_utc: datetime,
     *,
     show_ground_tracks: bool,
+    highlighted_slot_id: str | None,
+    show_satellite_labels: bool,
 ) -> None:
     for track in tracks:
         color = _family_color(track.satellite.family)
         family_name = _family_name(track.satellite.family)
+        is_highlighted = (
+            highlighted_slot_id is None
+            or track.satellite.slot_id == highlighted_slot_id
+        )
         if show_ground_tracks:
             longitude_values = [state.longitude_deg for state in track.states]
             latitude_values = [state.latitude_deg for state in track.states]
@@ -252,8 +258,11 @@ def _add_operational_tracks(
                     lon=longitude_values,
                     lat=latitude_values,
                     mode="lines",
-                    line={"color": color, "width": 1.8},
-                    opacity=0.68,
+                    line={
+                        "color": color,
+                        "width": 3.0 if is_highlighted else 1.35,
+                    },
+                    opacity=0.92 if is_highlighted else 0.38,
                     name=f"{track.satellite.slot_id} · ground track",
                     legendgroup=track.satellite.slot_id,
                     hoverinfo="skip",
@@ -261,20 +270,27 @@ def _add_operational_tracks(
             )
 
         state = _nearest_state(track, focus_utc)
+        show_text = show_satellite_labels or is_highlighted
         figure.add_trace(
             go.Scattergeo(
                 lon=[state.longitude_deg],
                 lat=[state.latitude_deg],
-                mode="markers+text",
+                mode="markers+text" if show_text else "markers",
                 marker={
-                    "size": 13,
+                    "size": 17 if is_highlighted else 10,
                     "color": color,
-                    "line": {"color": "white", "width": 1.5},
-                    "symbol": "circle",
+                    "line": {
+                        "color": "white" if is_highlighted else "#0f172a",
+                        "width": 2.2 if is_highlighted else 1.0,
+                    },
+                    "symbol": "diamond" if is_highlighted else "circle",
                 },
-                text=[track.satellite.slot_id],
+                text=[track.satellite.slot_id] if show_text else None,
                 textposition="top center",
-                textfont={"color": "white", "size": 13},
+                textfont={
+                    "color": "white",
+                    "size": 14 if is_highlighted else 11,
+                },
                 customdata=[
                     [
                         family_name,
@@ -285,7 +301,7 @@ def _add_operational_tracks(
                     ]
                 ],
                 hovertemplate=(
-                    "<b>%{text}</b><br>"
+                    f"<b>{track.satellite.slot_id}</b><br>"
                     "%{customdata[0]}<br>"
                     "Obiekt: %{customdata[1]}<br>"
                     "NORAD: %{customdata[2]}<br>"
@@ -307,10 +323,16 @@ def _add_spatial_tracks(
     focus_utc: datetime,
     *,
     show_orbits_3d: bool,
+    highlighted_slot_id: str | None,
+    show_satellite_labels: bool,
 ) -> None:
     for track in tracks:
         color = _family_color(track.satellite.family)
         family_name = _family_name(track.satellite.family)
+        is_highlighted = (
+            highlighted_slot_id is None
+            or track.satellite.slot_id == highlighted_slot_id
+        )
         if show_orbits_3d:
             coordinates = [
                 _cartesian(
@@ -326,8 +348,11 @@ def _add_spatial_tracks(
                     y=[point[1] for point in coordinates],
                     z=[point[2] for point in coordinates],
                     mode="lines",
-                    line={"color": color, "width": 5},
-                    opacity=0.9,
+                    line={
+                        "color": color,
+                        "width": 8 if is_highlighted else 3,
+                    },
+                    opacity=0.96 if is_highlighted else 0.38,
                     name=f"{track.satellite.slot_id} · orbita",
                     legendgroup=track.satellite.slot_id,
                     hoverinfo="skip",
@@ -340,20 +365,27 @@ def _add_spatial_tracks(
             state.latitude_deg,
             state.altitude_km,
         )
+        show_text = show_satellite_labels or is_highlighted
         figure.add_trace(
             go.Scatter3d(
                 x=[x],
                 y=[y],
                 z=[z],
-                mode="markers+text",
+                mode="markers+text" if show_text else "markers",
                 marker={
-                    "size": 7,
+                    "size": 9 if is_highlighted else 5,
                     "color": color,
-                    "line": {"color": "white", "width": 1},
+                    "line": {
+                        "color": "white" if is_highlighted else "#0f172a",
+                        "width": 1.5 if is_highlighted else 0.5,
+                    },
                 },
-                text=[track.satellite.slot_id],
+                text=[track.satellite.slot_id] if show_text else None,
                 textposition="top center",
-                textfont={"color": "white", "size": 12},
+                textfont={
+                    "color": "white",
+                    "size": 13 if is_highlighted else 10,
+                },
                 customdata=[
                     [
                         family_name,
@@ -364,7 +396,7 @@ def _add_spatial_tracks(
                     ]
                 ],
                 hovertemplate=(
-                    "<b>%{text}</b><br>"
+                    f"<b>{track.satellite.slot_id}</b><br>"
                     "%{customdata[0]}<br>"
                     "Czas: %{customdata[1]}<br>"
                     "Lat/Lon: %{customdata[2]:.3f}°, "
@@ -655,15 +687,25 @@ def _add_schedule_layers(
     return len(active_entries)
 
 
-def _configure_operational_figure(figure: go.Figure, height_px: int) -> None:
+def _configure_operational_figure(
+    figure: go.Figure,
+    height_px: int,
+    *,
+    center_longitude_deg: float,
+    center_latitude_deg: float,
+    projection_scale: float,
+) -> None:
     figure.update_geos(
         projection={
             "type": "orthographic",
-            "rotation": {"lon": 19, "lat": 52},
-            "scale": 1.22,
+            "rotation": {
+                "lon": center_longitude_deg,
+                "lat": center_latitude_deg,
+            },
+            "scale": projection_scale,
         },
         showframe=True,
-        framecolor="#475569",
+        framecolor="#52657a",
         framewidth=1.1,
         showland=True,
         landcolor=LAND_COLOR,
@@ -672,11 +714,11 @@ def _configure_operational_figure(figure: go.Figure, height_px: int) -> None:
         showlakes=True,
         lakecolor=OCEAN_COLOR,
         showcoastlines=True,
-        coastlinecolor="#a8b5c3",
-        coastlinewidth=0.75,
+        coastlinecolor="#b4c1cf",
+        coastlinewidth=0.8,
         showcountries=True,
-        countrycolor="#708196",
-        countrywidth=0.4,
+        countrycolor="#73869b",
+        countrywidth=0.45,
         bgcolor="#050911",
         resolution=110,
         domain={"x": [0.18, 0.82], "y": [0.0, 1.0]},
@@ -693,7 +735,8 @@ def _configure_operational_figure(figure: go.Figure, height_px: int) -> None:
             "bordercolor": "#64748b",
             "font": {"color": "white", "size": 13},
         },
-        uirevision="satplan-operational-globe-v3",
+        template=None,
+        uirevision="satplan-operational-globe-v4",
     )
 
 
@@ -725,6 +768,7 @@ def _configure_spatial_figure(figure: go.Figure, height_px: int) -> None:
             "bordercolor": "#64748b",
             "font": {"color": "white", "size": 13},
         },
+        template=None,
         uirevision="satplan-spatial-orbits-v2",
     )
 
@@ -742,6 +786,11 @@ def build_plotly_globe_scene(
     show_access_windows: bool = True,
     show_schedule: bool = True,
     show_graticule: bool = True,
+    highlighted_slot_id: str | None = None,
+    show_satellite_labels: bool = True,
+    center_longitude_deg: float = 19.0,
+    center_latitude_deg: float = 52.0,
+    projection_scale: float = 1.22,
     height_px: int = 760,
 ) -> PlotlyGlobeScene:
     """Buduje stabilny globus 2D/3D bez Cesium, tokenów i usług kafelkowych."""
@@ -772,12 +821,16 @@ def build_plotly_globe_scene(
         normalized_tracks,
         focus_utc,
         show_ground_tracks=show_ground_tracks,
+        highlighted_slot_id=highlighted_slot_id,
+        show_satellite_labels=show_satellite_labels,
     )
     _add_spatial_tracks(
         spatial,
         normalized_tracks,
         focus_utc,
         show_orbits_3d=show_orbits_3d,
+        highlighted_slot_id=highlighted_slot_id,
+        show_satellite_labels=show_satellite_labels,
     )
 
     request_count = 0
@@ -799,7 +852,13 @@ def build_plotly_globe_scene(
             planning_result,
         )
 
-    _configure_operational_figure(operational, height_px)
+    _configure_operational_figure(
+        operational,
+        height_px,
+        center_longitude_deg=center_longitude_deg,
+        center_latitude_deg=center_latitude_deg,
+        projection_scale=projection_scale,
+    )
     _configure_spatial_figure(spatial, height_px)
 
     return PlotlyGlobeScene(
