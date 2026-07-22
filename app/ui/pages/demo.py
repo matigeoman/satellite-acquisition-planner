@@ -28,7 +28,9 @@ def _render_demo_loader() -> None:
             options=[
                 PlanningAlgorithm.GREEDY.value,
                 PlanningAlgorithm.CP_SAT.value,
+                PlanningAlgorithm.HYBRID.value,
             ],
+            index=2,
             format_func=lambda value: value.replace("_", "-"),
             horizontal=True,
         )
@@ -37,7 +39,7 @@ def _render_demo_loader() -> None:
             options=[1.0, 2.0, 5.0, 10.0],
             value=5.0,
             format_func=lambda value: f"{value:g} s",
-            disabled=algorithm_value != PlanningAlgorithm.CP_SAT.value,
+            disabled=algorithm_value == PlanningAlgorithm.GREEDY.value,
         )
         load_clicked = st.button(
             "Wczytaj scenariusz demonstracyjny Polski",
@@ -122,7 +124,7 @@ def _render_loaded_demo() -> None:
         "Dalsza praca: „Globus operacyjny” pokazuje ślady i okna "
         "dostępu, „Projekty” umożliwiają eksport ZIP, „Raporty” generują "
         "DOCX/XLSX/HTML, a „Planowanie scenariuszy referencyjnych” "
-        "porównuje Greedy i CP-SAT na tych samych 50 zleceniach."
+        "porównuje Greedy, CP-SAT i Hybrid na tych samych 50 zleceniach."
     )
 
 

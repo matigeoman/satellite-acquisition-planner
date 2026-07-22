@@ -12,7 +12,7 @@ Wariant z czystym buildem obrazu Docker:
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Skrypt wymaga wersji `1.1.0`, zatrzymuje się po pierwszym błędzie i domyślnie
+Skrypt wymaga wersji `1.2.0`, zatrzymuje się po pierwszym błędzie i domyślnie
 wyłącza kontener po zakończeniu. Parametr `-KeepContainer` pozostawia go
 uruchomionego.
 
@@ -25,7 +25,7 @@ ruff check app tests streamlit_app.py scripts
 python -m app.cli check
 python -m app.cli audit --strict
 python -m app.cli health --skip-http
-python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
+python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
 python .\scripts\cleanup_repository.py --project-root . --dry-run
 ```
 

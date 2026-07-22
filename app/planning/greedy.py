@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from math import log1p
 from time import perf_counter
 from typing import Iterable
 
@@ -18,6 +19,10 @@ from app.models.request import ObservationRequest
 from app.models.request_set import ObservationRequestSet
 from app.models.satellite import Satellite
 from app.models.schedule import Schedule, ScheduleEntry
+from app.planning.conflict_graph import (
+    OpportunityConflictGraph,
+    build_opportunity_conflict_graph,
+)
 from app.planning.fixed import FixedOpportunityAssignment
 from app.planning.config import GreedyPlannerConfig
 from app.planning.operational import (
@@ -96,6 +101,20 @@ class GreedyScheduler:
                 continue
 
             self._opportunities_by_request[opportunity.request_id].append(opportunity)
+
+        self._opportunities_by_id = {
+            opportunity.opportunity_id: opportunity
+            for opportunities in self._opportunities_by_request.values()
+            for opportunity in opportunities
+        }
+        self._conflict_graph: OpportunityConflictGraph | None = None
+        if self.config.use_opportunity_cost_heuristic:
+            self._conflict_graph = build_opportunity_conflict_graph(
+                catalog=self.catalog,
+                request_set=self.request_set,
+                opportunity_set=self.opportunity_set,
+                config=self.config,
+            )
 
         self._sar_pass_by_opportunity_id: dict[str, int] = {}
         for satellite in catalog.satellites:
@@ -288,7 +307,14 @@ class GreedyScheduler:
             unassigned_request_ids=unassigned_request_ids,
             notes=(
                 "Harmonogram wygenerowany deterministycznym "
-                "algorytmem zachłannym. Nagroda priorytetowa jest "
+                "algorytmem zachłannym. "
+                + (
+                    "Ranking okazji uwzględnia koszt utraconych "
+                    "alternatyw i rzadkość okien. "
+                    if self.config.use_opportunity_cost_heuristic
+                    else ""
+                )
+                + "Nagroda priorytetowa jest "
                 "naliczana raz na zrealizowane zlecenie. "
                 f"Liczba stałych akwizycji: "
                 f"{len(self.fixed_assignments)}."
@@ -331,11 +357,24 @@ class GreedyScheduler:
             RequestMode.DUAL_OPTIONAL: 2,
         }
 
+        if not self.config.use_opportunity_cost_heuristic:
+            return sorted(
+                self.request_set.active_requests,
+                key=lambda request: (
+                    -int(request.is_mandatory),
+                    -request.priority,
+                    mode_rank[request.request_mode],
+                    request.latest_end_utc,
+                    request.request_id,
+                ),
+            )
+
         return sorted(
             self.request_set.active_requests,
             key=lambda request: (
                 -int(request.is_mandatory),
                 -request.priority,
+                len(self._opportunities_by_request.get(request.request_id, [])),
                 mode_rank[request.request_mode],
                 request.latest_end_utc,
                 request.request_id,
@@ -555,7 +594,10 @@ class GreedyScheduler:
 
         pairs.sort(
             key=lambda pair: (
-                -(self._acquisition_score(pair[0]) + self._acquisition_score(pair[1])),
+                -(
+                    self._candidate_priority_score(pair[0])
+                    + self._candidate_priority_score(pair[1])
+                ),
                 max(
                     pair[0].end_utc,
                     pair[1].end_utc,
@@ -583,10 +625,70 @@ class GreedyScheduler:
         return sorted(
             candidates,
             key=lambda opportunity: (
-                -self._acquisition_score(opportunity),
+                -self._candidate_priority_score(opportunity),
                 opportunity.start_utc,
                 opportunity.opportunity_id,
             ),
+        )
+
+    def _candidate_priority_score(
+        self,
+        opportunity: AcquisitionOpportunity,
+    ) -> float:
+        base_score = self._acquisition_score(opportunity)
+        if not self.config.use_opportunity_cost_heuristic:
+            return base_score
+
+        alternatives = self._opportunities_by_request.get(
+            opportunity.request_id,
+            [],
+        )
+        scarcity_bonus = self.config.scarcity_bonus_weight / max(
+            1,
+            len(alternatives),
+        )
+        duration_cost = (
+            self.config.duration_cost_weight * opportunity.duration_s
+        )
+        memory_cost = (
+            self.config.memory_cost_weight
+            * opportunity.estimated_data_volume_mb
+        )
+
+        conflict_cost = 0.0
+        if self._conflict_graph is not None:
+            external_neighbors = [
+                self._opportunities_by_id[neighbor_id]
+                for neighbor_id in self._conflict_graph.neighbors(
+                    opportunity.opportunity_id
+                )
+                if neighbor_id in self._opportunities_by_id
+                and self._opportunities_by_id[neighbor_id].request_id
+                != opportunity.request_id
+            ]
+            if external_neighbors:
+                blocked_by_request: dict[str, float] = {}
+                for neighbor in external_neighbors:
+                    blocked_by_request[neighbor.request_id] = max(
+                        blocked_by_request.get(neighbor.request_id, 0.0),
+                        self._acquisition_score(neighbor),
+                    )
+                mean_blocked_value = sum(blocked_by_request.values()) / len(
+                    blocked_by_request
+                )
+                conflict_cost = (
+                    self.config.conflict_cost_weight
+                    * mean_blocked_value
+                    * log1p(len(blocked_by_request))
+                )
+
+        return round(
+            base_score
+            + scarcity_bonus
+            - duration_cost
+            - memory_cost
+            - conflict_cost,
+            6,
         )
 
     def _first_assignable(

@@ -5,13 +5,33 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ## [Unreleased]
 
+Brak zmian po wydaniu 1.2.0.
+
+## [1.2.0] — 2026-07-22
+
+### Planowanie
+
+- dodano graf niewykonalności okazji z przyczynami konfliktów i komponentami;
+- dodano Greedy 2.0 uwzględniający rzadkość okien, koszt zasobów i koszt
+  blokowanych okazji;
+- dodano planer Hybrid: Greedy jako incumbent i lokalna poprawa CP-SAT;
+- CP-SAT obsługuje hints oraz ustalenie decyzji poza lokalnym sąsiedztwem;
+- dodano profile decyzyjne `BALANCED`, `EMERGENCY`, `QUALITY_FIRST`,
+  `THROUGHPUT`, `SAR_EO_FUSION` i `CUSTOM`.
+
+### Benchmarki i interfejs
+
+- benchmark może porównywać Greedy, CP-SAT i Hybrid przy wspólnych seedach;
+- eksport zawiera ogólną tabelę porównań wszystkich challengerów z Greedy;
+- wyniki planowania pokazują diagnostykę grafu konfliktów;
+- CLI i kontrola wydania obsługują `HYBRID` i tryb `ALL`.
+
 ### Dokumentacja
 
-- dodano bibliografię projektu oraz mapowanie źródeł na elementy modelu;
-- rozdzielono standardy implementacyjne, literaturę planowania, materiały
-  operatorów i jawne założenia autorskie;
-- dodano odwołania do źródeł w dokumentacji orbit, planowania, profili
-  sensorów, pogody, metodyki naukowej i walidacji STK.
+- dodano mapowanie metod na konkretne publikacje i repozytoria referencyjne;
+- rozdzielono adaptacje naukowe, elementy autorskie i przyszłe kierunki;
+- rozszerzono bibliografię oraz opis metodyki eksperymentalnej;
+- podniesiono wersję aplikacji i zasobów wydaniowych do `1.2.0`.
 
 ## [1.1.0] — 2026-07-21
 

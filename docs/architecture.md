@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
     UI[app/ui\nStreamlit] --> SVC[app/services\nprzypadki użycia]
-    SVC --> PLN[app/planning\nGreedy i CP-SAT]
+    SVC --> PLN[app/planning\nGreedy, CP-SAT, Hybrid]
     SVC --> INT[app/integrations\norbity, dostęp, pogoda, STK]
     SVC --> ANA[app/analysis\nKPI i porównania]
     SVC --> PROJ[app/projects\narchiwa]

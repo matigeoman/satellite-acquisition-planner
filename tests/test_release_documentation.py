@@ -19,6 +19,8 @@ def test_release_files_and_documentation_index_exist() -> None:
         "docs/architecture.md",
         "docs/data_model.md",
         "docs/planning_model.md",
+        "docs/research_foundations.md",
+        "docs/references.md",
         "docs/public_data_sources.md",
         "docs/benchmarking.md",
         "docs/scientific_methodology.md",
@@ -65,7 +67,7 @@ def test_quality_workflow_runs_all_project_checks() -> None:
     assert "python -m app.cli check" in workflow
     assert "python -m app.cli audit --strict" in workflow
     assert (
-        "python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2"
+        "python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2"
         in workflow
     )
 

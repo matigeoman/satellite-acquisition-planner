@@ -107,6 +107,19 @@ def test_config_normalizes_counts_and_limits() -> None:
     assert config.estimated_cp_sat_budget_s == 36.0
 
 
+
+def test_config_counts_optional_hybrid_runs_and_budget() -> None:
+    config = AlgorithmBenchmarkConfig(
+        request_counts=(20,),
+        repetitions=2,
+        cp_sat_time_limits_s=(1.0, 5.0),
+        include_hybrid=True,
+    )
+
+    assert config.expected_run_count == 10
+    assert config.estimated_cp_sat_budget_s == 24.0
+
+
 def test_config_rejects_more_than_500_requests() -> None:
     with pytest.raises(ValueError, match="500"):
         AlgorithmBenchmarkConfig(request_counts=(501,))
@@ -209,6 +222,7 @@ def test_export_zip_contains_research_files() -> None:
     assert set(archive.namelist()) == {
         "benchmark_runs.csv",
         "benchmark_pairs.csv",
+        "benchmark_algorithm_comparisons.csv",
         "benchmark_summary.csv",
         "benchmark_results.json",
         "benchmark_charts.html",

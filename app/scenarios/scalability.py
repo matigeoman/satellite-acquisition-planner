@@ -84,7 +84,7 @@ def build_scalability_source(
     request_data["version"] = "2.0.0"
     request_data["notes"] = (
         "Rozszerzony scenariusz stresowy przeznaczony "
-        "do benchmarku skalowalności Greedy i CP-SAT."
+        "do benchmarku skalowalności Greedy, CP-SAT i Hybrid."
     )
 
     expanded_requests = list(request_data["requests"])

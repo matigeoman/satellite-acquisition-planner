@@ -1,7 +1,7 @@
 {
   "catalog_id": "CATALOG-PL-STRESS",
   "name": "Polski system obserwacji Ziemi — stres",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "orbits": [
     {
       "orbit_id": "ORB-SAR-01",

@@ -6,13 +6,17 @@ import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
 from app.projects import record_schedule_history
+from app.planning.profiles import DecisionProfile
 from app.services.contracts.planning import PlanningOptions, PlanningResult
 from app.services.planning_service import PlanningService
 from app.ui.app_context import (
     get_planning_service,
     get_public_scenario_service,
 )
-from app.ui.common import algorithm_display_name
+from app.ui.common import (
+    algorithm_display_name,
+    decision_profile_display_name,
+)
 from app.ui.pages.planning import (
     render_planning_result,
     render_scenario_overview,
@@ -42,7 +46,7 @@ def _build_scenario():
 
 
 def render_public_planning_page() -> None:
-    """Uruchamia Greedy lub CP-SAT na okazjach publicznych z sesji."""
+    """Uruchamia Greedy, CP-SAT albo Hybrid na danych publicznych."""
 
     st.header("Planowanie na danych publicznych")
     st.info(
@@ -72,17 +76,32 @@ def render_public_planning_page() -> None:
 
     with st.container(border=True):
         st.markdown("### Konfiguracja solvera")
-        first, second, third, fourth = st.columns([1.2, 1.1, 1.1, 1.1])
+        first, second, third, fourth, fifth = st.columns(
+            [1.35, 1.35, 1.0, 1.0, 0.9]
+        )
         algorithm_value = first.radio(
             "Algorytm",
             options=[
                 PlanningAlgorithm.GREEDY.value,
                 PlanningAlgorithm.CP_SAT.value,
+                PlanningAlgorithm.HYBRID.value,
             ],
+            index=2,
             format_func=algorithm_display_name,
             horizontal=True,
         )
-        memory_reserve_percent = second.slider(
+        decision_profile_value = second.selectbox(
+            "Profil decyzyjny",
+            options=[profile.value for profile in DecisionProfile],
+            index=1,
+            format_func=decision_profile_display_name,
+            help=(
+                "Profil ustawia jawne wagi priorytetu, jakości, pokrycia "
+                "i kosztu utraconych okazji."
+            ),
+        )
+        custom_profile = decision_profile_value == DecisionProfile.CUSTOM.value
+        memory_reserve_percent = third.slider(
             "Rezerwa pamięci",
             min_value=0,
             max_value=50,
@@ -90,18 +109,20 @@ def render_public_planning_page() -> None:
             step=1,
             format="%d%%",
         )
-        cp_sat_time_limit_s = third.select_slider(
-            "Limit CP-SAT",
+        cp_sat_time_limit_s = fourth.select_slider(
+            "Budżet CP-SAT",
             options=[1.0, 5.0, 10.0, 30.0],
             value=10.0,
             format_func=lambda value: f"{value:g} s",
+            disabled=algorithm_value == PlanningAlgorithm.GREEDY.value,
         )
-        cp_sat_workers = fourth.number_input(
+        cp_sat_workers = fifth.number_input(
             "Wątki CP-SAT",
             min_value=1,
             max_value=16,
             value=1,
             step=1,
+            disabled=algorithm_value == PlanningAlgorithm.GREEDY.value,
         )
 
         with st.expander("Wagi funkcji celu"):
@@ -111,30 +132,35 @@ def render_public_planning_page() -> None:
                 min_value=0.0,
                 value=10.0,
                 step=1.0,
+                disabled=not custom_profile,
             )
             quality_weight = weights[1].number_input(
                 "Jakość",
                 min_value=0.0,
                 value=3.0,
                 step=0.5,
+                disabled=not custom_profile,
             )
             coverage_weight = weights[2].number_input(
                 "Pokrycie",
                 min_value=0.0,
                 value=2.0,
                 step=0.5,
+                disabled=not custom_profile,
             )
             mandatory_bonus = weights[3].number_input(
                 "Obowiązkowe",
                 min_value=0.0,
                 value=100.0,
                 step=10.0,
+                disabled=not custom_profile,
             )
             dual_optional_bonus = weights[4].number_input(
                 "Drugi sensor",
                 min_value=0.0,
                 value=5.0,
                 step=1.0,
+                disabled=not custom_profile,
             )
 
         force_mandatory = st.checkbox(
@@ -209,6 +235,7 @@ def render_public_planning_page() -> None:
     if run_clicked:
         options = PlanningOptions(
             algorithm=PlanningAlgorithm(algorithm_value),
+            decision_profile=DecisionProfile(decision_profile_value),
             memory_reserve_ratio=memory_reserve_percent / 100.0,
             use_dynamic_transition_model=use_dynamic_transition_model,
             eo_stabilization_time_s=float(eo_stabilization_time_s),

@@ -51,7 +51,7 @@ Wariant z Dockerem:
 ## Kontrola E2E
 
 ```powershell
-python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
+python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
 ```
 
 Kontrola obejmuje:
@@ -70,7 +70,7 @@ Zapis artefaktów:
 
 ```powershell
 python -m app.cli release-check `
-    --algorithm BOTH `
+    --algorithm ALL `
     --output-directory .\data\generated\release-check `
     --json .\data\generated\release-check\result.json
 ```

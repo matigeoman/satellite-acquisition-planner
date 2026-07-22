@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from time import perf_counter
-from typing import Iterable
+from typing import Iterable, Mapping
 
 from ortools.sat.python import cp_model
 
@@ -47,6 +47,8 @@ class CpSatScheduler:
             FixedOpportunityAssignment
         ] | None = None,
         frozen_until_utc: datetime | None = None,
+        fixed_selection: Mapping[str, bool] | None = None,
+        solution_hint_ids: Iterable[str] | None = None,
     ) -> None:
         self.catalog = catalog
         self.request_set = request_set
@@ -62,6 +64,14 @@ class CpSatScheduler:
             assignment.opportunity_id: assignment
             for assignment in self.fixed_assignments
         }
+        self.fixed_selection = {
+            str(opportunity_id).strip().upper(): bool(selected)
+            for opportunity_id, selected in (fixed_selection or {}).items()
+        }
+        self.solution_hint_ids = frozenset(
+            str(opportunity_id).strip().upper()
+            for opportunity_id in (solution_hint_ids or ())
+        )
 
         if (
             len(self._fixed_assignments_by_id)
@@ -144,6 +154,31 @@ class CpSatScheduler:
 
         self._validate_input_sets()
         self._validate_fixed_assignments()
+        self._validate_research_constraints()
+
+    def _validate_research_constraints(self) -> None:
+        candidate_ids = {
+            opportunity.opportunity_id
+            for opportunity in self._candidate_opportunities
+        }
+        unknown_fixed = sorted(set(self.fixed_selection) - candidate_ids)
+        if unknown_fixed:
+            raise ValueError(
+                "fixed_selection zawiera nieznane okazje: "
+                + ", ".join(unknown_fixed[:5])
+            )
+        unknown_hints = sorted(set(self.solution_hint_ids) - candidate_ids)
+        if unknown_hints:
+            raise ValueError(
+                "solution_hint_ids zawiera nieznane okazje: "
+                + ", ".join(unknown_hints[:5])
+            )
+        for opportunity_id in self._fixed_assignments_by_id:
+            if self.fixed_selection.get(opportunity_id) is False:
+                raise ValueError(
+                    "fixed_selection nie może wyłączyć stałej okazji: "
+                    f"{opportunity_id}"
+                )
 
     def _validate_input_sets(self) -> None:
         self.opportunity_set.validate_against(
@@ -441,6 +476,13 @@ class CpSatScheduler:
         self._request_fulfilled_variables = {}
         self._dual_optional_second_variables = {}
 
+        if self.solution_hint_ids:
+            for opportunity_id, variable in self._selection_variables.items():
+                model.add_hint(
+                    variable,
+                    1 if opportunity_id in self.solution_hint_ids else 0,
+                )
+
         self._add_request_constraints(model)
         self._add_fixed_opportunity_constraints(model)
         self._add_satellite_constraints(model)
@@ -618,6 +660,12 @@ class CpSatScheduler:
             ):
                 model.add(
                     variable == 1
+                )
+
+            elif opportunity.opportunity_id in self.fixed_selection:
+                model.add(
+                    variable
+                    == int(self.fixed_selection[opportunity.opportunity_id])
                 )
 
             elif (
@@ -1079,6 +1127,8 @@ def build_cp_sat_schedule(
         FixedOpportunityAssignment
     ] | None = None,
     frozen_until_utc: datetime | None = None,
+    fixed_selection: Mapping[str, bool] | None = None,
+    solution_hint_ids: Iterable[str] | None = None,
 ) -> Schedule:
     """Funkcja pomocnicza budująca harmonogram CP-SAT."""
 
@@ -1089,6 +1139,8 @@ def build_cp_sat_schedule(
         config=config,
         fixed_assignments=fixed_assignments,
         frozen_until_utc=frozen_until_utc,
+        fixed_selection=fixed_selection,
+        solution_hint_ids=solution_hint_ids,
     )
 
     return scheduler.build_schedule(

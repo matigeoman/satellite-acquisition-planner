@@ -5,6 +5,7 @@ from datetime import timedelta
 import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
+from app.planning.profiles import DecisionProfile
 from app.scenarios.disruption import build_configurable_disruption_plan
 from app.services.disruption_service import DisruptionReplanningResult
 from app.services.planning_service import PlanningOptions
@@ -53,7 +54,7 @@ def render_disruption_page() -> None:
         )
         replanning_algorithm = st.radio(
             "Algorytm reakcji",
-            options=["CP_SAT", "GREEDY"],
+            options=["HYBRID", "CP_SAT", "GREEDY"],
             format_func=algorithm_display_name,
             horizontal=True,
             key="disruption_algorithm",
@@ -220,6 +221,11 @@ def render_disruption_page() -> None:
             )
             options = PlanningOptions(
                 algorithm=PlanningAlgorithm(replanning_algorithm),
+                decision_profile=(
+                    DecisionProfile.BALANCED
+                    if replanning_algorithm == PlanningAlgorithm.HYBRID.value
+                    else DecisionProfile.CUSTOM
+                ),
                 memory_reserve_ratio=0.0,
                 cp_sat_time_limit_s=float(cp_sat_time_limit),
                 cp_sat_num_search_workers=1,

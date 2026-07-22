@@ -68,7 +68,7 @@ def render_public_replanning_page() -> None:
     st.info(
         "Moduł odświeża prognozę Open-Meteo dla przyszłych okazji EO, "
         "zachowuje akwizycje wykonane i znajdujące się w oknie zamrożonym, "
-        "a pozostałą część harmonogramu przelicza Greedy albo CP-SAT."
+        "a pozostałą część harmonogramu przelicza Greedy, CP-SAT albo Hybrid."
     )
 
     previous_result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)
@@ -115,8 +115,13 @@ def render_public_replanning_page() -> None:
             options=[
                 PlanningAlgorithm.GREEDY.value,
                 PlanningAlgorithm.CP_SAT.value,
+                PlanningAlgorithm.HYBRID.value,
             ],
-            index=(1 if previous_result.algorithm == PlanningAlgorithm.CP_SAT else 0),
+            index={
+                PlanningAlgorithm.GREEDY: 0,
+                PlanningAlgorithm.CP_SAT: 1,
+                PlanningAlgorithm.HYBRID: 2,
+            }.get(previous_result.algorithm, 2),
             format_func=algorithm_display_name,
             horizontal=True,
         )
@@ -192,6 +197,7 @@ def render_public_replanning_page() -> None:
     if submitted:
         options = PlanningOptions(
             algorithm=PlanningAlgorithm(algorithm_value),
+            decision_profile=previous_result.options.decision_profile,
             memory_reserve_ratio=memory_reserve_percent / 100.0,
             use_dynamic_transition_model=(
                 previous_result.options.use_dynamic_transition_model
@@ -209,6 +215,22 @@ def render_public_replanning_page() -> None:
             sar_max_acquisitions_per_pass=(
                 previous_result.options.sar_max_acquisitions_per_pass
             ),
+            priority_weight=previous_result.options.priority_weight,
+            quality_weight=previous_result.options.quality_weight,
+            coverage_weight=previous_result.options.coverage_weight,
+            mandatory_bonus=previous_result.options.mandatory_bonus,
+            dual_optional_second_bonus=(
+                previous_result.options.dual_optional_second_bonus
+            ),
+            use_opportunity_cost_heuristic=(
+                previous_result.options.use_opportunity_cost_heuristic
+            ),
+            scarcity_bonus_weight=(
+                previous_result.options.scarcity_bonus_weight
+            ),
+            conflict_cost_weight=previous_result.options.conflict_cost_weight,
+            duration_cost_weight=previous_result.options.duration_cost_weight,
+            memory_cost_weight=previous_result.options.memory_cost_weight,
             cp_sat_time_limit_s=float(cp_sat_time_limit),
             cp_sat_num_search_workers=int(cp_sat_workers),
             cp_sat_force_mandatory_requests=force_mandatory,

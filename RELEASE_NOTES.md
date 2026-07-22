@@ -1,81 +1,105 @@
-# Satellite Acquisition Planner 1.1.0
+# Satellite Acquisition Planner 1.2.0
 
-Data wydania: **21 lipca 2026 r.**
+Data wydania: **22 lipca 2026 r.**
 
-Wersja `1.1.0` porządkuje interfejs aplikacji i sposób prezentowania wyników.
-Model danych oraz formaty scenariuszy i archiwów pozostają zgodne z wydaniem
-`1.0.1`.
+Wersja 1.2.0 rozwija planer w kierunku jawnie udokumentowanej metody badawczej.
+Nie zmienia formatu scenariuszy ani archiwów projektu, ale dodaje nowy algorytm,
+warstwę grafową, profile decyzji i rozszerzony benchmark.
 
 ## Najważniejsze zmiany
 
-### Interfejs i globus
+### Graf niewykonalności
 
-- zastosowano wspólny układ wizualny dla wszystkich stron Streamlit;
-- uproszczono panel boczny i grupowanie modułów;
-- globus operacyjny pozwala wyróżnić satelitę, wycentrować widok na Polsce,
-  Europie albo wybranym obiekcie oraz sterować etykietami i warstwami;
-- w widoku śledzenia dodano przełączanie między mapą globalną i globusem,
-  wyróżniony ground track oraz czytelniejszy układ parametrów;
-- poprawiono responsywność tabel, formularzy i paneli wynikowych.
+- każda wykonalna okazja może być węzłem grafu;
+- krawędzie opisują alternatywy tego samego zlecenia, niezgodne pary SAR–EO i
+  brak czasu na przeorientowanie;
+- interfejs pokazuje gęstość, komponenty, przyczyny konfliktów i okazje o
+  najwyższym stopniu.
+
+### Greedy 2.0
+
+- ranking uwzględnia rzadkość alternatywnych okien;
+- kosztuje czas, pamięć i blokowanie wartościowych okazji innych zleceń;
+- klasyczny Greedy pozostaje dostępny dla zgodności wyników historycznych.
+
+### Planer Hybrid
+
+- Greedy 2.0 tworzy rozwiązanie początkowe;
+- CP-SAT optymalizuje kolejne sąsiedztwa zleceń wyznaczone z grafu;
+- decyzje poza sąsiedztwem pozostają zablokowane;
+- gorszy kandydat nie zastępuje incumbenta;
+- CLI i release-check obsługują `HYBRID` oraz `ALL`.
+
+### Profile decyzyjne
+
+Dodano profile:
+
+- `BALANCED`;
+- `EMERGENCY`;
+- `QUALITY_FIRST`;
+- `THROUGHPUT`;
+- `SAR_EO_FUSION`;
+- `CUSTOM`.
+
+Profile jawnie ustawiają wagi scoringu i heurystyki. Nie są deklarowane jako
+pełna implementacja ELECTRE III lub TOPSIS.
 
 ### Benchmarki
 
-- limity czasu CP-SAT w jednym powtórzeniu korzystają z tego samego ziarna;
-- wykresy dla jednego rozmiaru problemu mają osie kategorialne;
-- przyczyny niezrealizowania zleceń są agregowane według wariantu algorytmu;
-- eksport zachowuje status solvera, czasy, wartości funkcji celu i informacje o
-  poprawności każdego przebiegu.
+- możliwe jest równoległe porównanie Greedy, CP-SAT i Hybrid;
+- wszystkie warianty jednego powtórzenia używają tego samego ziarna;
+- eksport zawiera dodatkowy plik
+  `benchmark_algorithm_comparisons.csv`;
+- osobno raportowane są wyniki CP-SAT i Hybrid względem Greedy.
 
-### Projekty i przeplanowanie
+### Dokumentacja naukowa
 
-- podgląd archiwum poprawnie liczy okazje znajdujące się w aktywnym wyniku;
-- aplikacja ostrzega, gdy zapisany harmonogram obejmuje tylko część zleceń;
-- puste wyniki filtrów przeplanowania są prezentowane jako komunikat, a nie
-  pusta tabela.
+- dodano mapę źródło → implementacja → zakres adaptacji;
+- rozbudowano bibliografię o prace Eddy’ego, Antuoriego i in., Xu i in.,
+  Verfaillie i in., Vasegaarda i in., Globusa i in. oraz CCSDS;
+- opisano, które elementy są autorskie, a które pozostają dopiero kierunkiem
+  rozwoju;
+- udokumentowano licencje analizowanych repozytoriów i brak kopiowania kodu.
 
-### Repozytorium
+## Podstawa metodologiczna
 
-- README opisuje Docker jako podstawową metodę uruchomienia i zwykłe `venv` jako
-  metodę lokalną;
-- narzędzia deweloperskie zostały oddzielone od zależności obrazu produkcyjnego;
-- dodano referencyjne wersje bezpośrednich zależności dla Pythona 3.11;
-- reguły audytu i sprzątania używają ogólnych wzorców zamiast nazw dawnych
-  etapów i hotfixów;
-- dokumentacja nie odwołuje się już do usuniętego renderera Cesium.
+Szczegółowy opis znajduje się w:
 
-## Walidacja
+- [`docs/research_foundations.md`](docs/research_foundations.md),
+- [`docs/planning_model.md`](docs/planning_model.md),
+- [`docs/scientific_methodology.md`](docs/scientific_methodology.md),
+- [`docs/references.md`](docs/references.md).
 
-Referencyjna kontrola:
+## Walidacja referencyjna
 
 ```powershell
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Oczekiwany wynik końcowy:
+Oczekiwany wynik:
 
 ```text
 Stan: RELEASE READY
 Docker status: healthy
-FINAL RELEASE 1.1.0: READY
+FINAL RELEASE 1.2.0: READY
 ```
 
 ## Zgodność
 
 Wersja zachowuje:
 
-- format scenariuszy i harmonogramów `1.0.x`;
-- format archiwum projektu `1.0.x`;
-- interfejsy importu z `app.io` i modułów zgodnościowych;
-- scenariusz `POLAND_DEMO` oraz jego dane referencyjne.
+- format scenariuszy i harmonogramów `1.0.x` i `1.1.x`;
+- format archiwum projektu;
+- publiczne interfejsy `app.io` i moduły zgodnościowe;
+- scenariusze `EXAMPLE`, `POLAND_DEMO` i `STRESS`.
 
 Nie jest wymagana migracja danych.
 
 ## Znane ograniczenia
 
-- OMM/SGP4 i geometria sensora nie zastępują efemeryd ani planu operatora;
-- prognoza zachmurzenia EO jest danymi zewnętrznymi i może ulec zmianie;
-- parametry manewrowe i budżety zasobów są założeniami modelu;
-- wynik planowania nie stanowi potwierdzenia wykonania akwizycji.
-
-Szczegółowy opis znajduje się w
-[`docs/limitations.md`](docs/limitations.md).
+- Hybrid gwarantuje zachowanie własnego incumbenta Greedy 2.0, ale nie optimum
+  globalne;
+- graf obejmuje konflikty parowe, a nie wszystkie ograniczenia zasobowe;
+- profile są ważoną funkcją użyteczności, bez pełnego ELECTRE III;
+- pamięć pozostaje modelem budżetowym bez planowania downlinku w czasie;
+- OMM/SGP4 i parametry sensorów nie zastępują danych operatora.

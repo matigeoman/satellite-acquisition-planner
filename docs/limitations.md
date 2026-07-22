@@ -8,9 +8,15 @@
 6. Interpolacja manewrowości Pléiades Neo upraszcza dynamikę ADCS.
 7. Pamięć i energia są modelami budżetowymi, bez pełnej telemetrii platformy.
 8. CP-SAT z limitem czasu może zwrócić rozwiązanie wykonalne bez dowodu optimum.
-9. STK może używać innego modelu sił, epoki i definicji sensora; przypadki muszą
+9. Hybrid zachowuje własny incumbent Greedy 2.0, ale nie gwarantuje optimum
+   globalnego; jakość zależy od budowy i liczby sąsiedztw.
+10. Graf konfliktów opisuje ograniczenia parowe. Pamięć, czas pracy i limity
+    akwizycji pozostają ograniczeniami globalnymi planerów.
+11. Profile preferencji są ważoną funkcją użyteczności, nie implementacją
+    ELECTRE III lub TOPSIS.
+12. STK może używać innego modelu sił, epoki i definicji sensora; przypadki muszą
    być konfigurowane możliwie identycznie.
-10. Wynik aplikacji nie jest potwierdzeniem rezerwacji komercyjnej ani wykonania
+13. Wynik aplikacji nie jest potwierdzeniem rezerwacji komercyjnej ani wykonania
     akwizycji.
 
 

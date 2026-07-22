@@ -75,7 +75,7 @@ def build_stress_catalog(
 
     data["catalog_id"] = "CATALOG-PL-STRESS"
     data["name"] = "Polski system obserwacji Ziemi — stres"
-    data["version"] = "1.1.0"
+    data["version"] = "1.2.0"
     data["notes"] = (
         "Katalog stresowy z ograniczoną pamięcią, "
         "czasem obrazowania i liczbą akwizycji."

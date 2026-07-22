@@ -5,6 +5,7 @@ from datetime import timedelta
 import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
+from app.planning.profiles import DecisionProfile
 from app.services.planning_service import PlanningOptions
 from app.services.replanning_service import ReplanningResult
 from app.ui import (
@@ -53,7 +54,7 @@ def render_replanning_page() -> None:
         )
         replanning_algorithm = st.radio(
             "Algorytm przeplanowania",
-            options=["CP_SAT", "GREEDY"],
+            options=["HYBRID", "CP_SAT", "GREEDY"],
             format_func=algorithm_display_name,
             horizontal=True,
             key="replanning_algorithm",
@@ -133,6 +134,11 @@ def render_replanning_page() -> None:
         try:
             options = PlanningOptions(
                 algorithm=PlanningAlgorithm(replanning_algorithm),
+                decision_profile=(
+                    DecisionProfile.BALANCED
+                    if replanning_algorithm == PlanningAlgorithm.HYBRID.value
+                    else DecisionProfile.CUSTOM
+                ),
                 memory_reserve_ratio=memory_reserve_percent / 100.0,
                 cp_sat_time_limit_s=float(cp_sat_time_limit),
                 cp_sat_num_search_workers=1,

@@ -78,7 +78,7 @@ def get_experimental_validation_service() -> ExperimentalValidationService:
 
 @st.cache_resource(scope="session", show_spinner=False)
 def get_algorithm_benchmark_service() -> AlgorithmBenchmarkService:
-    """Zwraca serwis benchmarków skalowalności Greedy i CP-SAT."""
+    """Zwraca serwis benchmarków Greedy, CP-SAT i Hybrid."""
 
     return AlgorithmBenchmarkService(
         planning_service=get_planning_service()

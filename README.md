@@ -1,11 +1,17 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.1.0`
+**Wersja:** `1.2.0`
 
 Satellite Acquisition Planner służy do planowania akwizycji zobrazowań
 satelitarnych SAR i EO. Aplikacja łączy publiczne dane orbitalne OMM,
-propagację SGP4, wyznaczanie okien dostępu, prognozę zachmurzenia, algorytmy
-Greedy i CP-SAT, przeplanowanie oraz walidację względem STK.
+propagację SGP4, okna dostępu, prognozę zachmurzenia, planowanie Greedy,
+CP-SAT i Hybrid, przeplanowanie oraz walidację względem STK.
+
+Wersja 1.2.0 rozwija model planowania na podstawie konkretnych prac naukowych:
+wprowadza graf niewykonalności okazji, Greedy 2.0 z kosztem utraconych
+możliwości, lokalną poprawę CP-SAT i jawne profile decyzyjne. Zakres adaptacji
+oraz elementy autorskie opisano w
+[`docs/research_foundations.md`](docs/research_foundations.md).
 
 Scenariusz `POLAND_DEMO` zawiera kompletny zestaw danych offline do prezentacji
 i testów regresyjnych. Wyniki mają charakter badawczy: nie potwierdzają
@@ -18,14 +24,15 @@ komercyjnego taskingu ani wykonania akwizycji przez operatora.
 - OMM z CelesTrak, lokalny cache i propagacja SGP4;
 - okna dostępu, ślady naziemne, globus operacyjny i mapa nieba;
 - prognoza zachmurzenia Open-Meteo dla okazji EO;
-- planowanie Greedy i OR-Tools CP-SAT ze wspólną funkcją celu;
+- Greedy, Greedy 2.0, OR-Tools CP-SAT i planer Hybrid;
+- graf konfliktów z diagnostyką komponentów i przyczyn;
+- profile `BALANCED`, `EMERGENCY`, `QUALITY_FIRST`, `THROUGHPUT` i
+  `SAR_EO_FUSION`;
 - przeplanowanie z oknem zamrożonym i zakłóceniami operacyjnymi;
-- benchmarki, raporty naukowe i walidacja względem STK;
+- benchmarki trzech metod, raporty naukowe i walidacja względem STK;
 - przenośne archiwa `.satplan.zip` z kontrolą integralności SHA-256.
 
 ## Szybki start — Docker
-
-Docker jest najprostszą metodą uruchomienia kompletnego środowiska:
 
 ```powershell
 docker compose up --build --detach
@@ -60,10 +67,10 @@ python -m streamlit run .\streamlit_app.py
 ```powershell
 python -m app.cli check
 python -m app.cli paths
-python -m app.cli plan --scenario POLAND_DEMO --algorithm CP_SAT
+python -m app.cli plan --scenario POLAND_DEMO --algorithm HYBRID
 python -m app.cli audit --strict
 python -m app.cli health --skip-http
-python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
+python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
 ```
 
 ## Kontrola jakości
@@ -79,8 +86,8 @@ Pełna kontrola z czystym buildem obrazu:
 ```
 
 Skrypt uruchamia testy, Ruff, audyt repozytorium, healthcheck oraz scenariusz
-E2E. Produkcyjny obraz Docker nie zawiera narzędzi deweloperskich takich jak
-Pytest i Ruff; są instalowane przez `requirements-dev.txt`.
+E2E. Produkcyjny obraz Docker nie zawiera Pytest ani Ruff; narzędzia
+programistyczne są instalowane przez `requirements-dev.txt`.
 
 ## Przepływ danych
 
@@ -93,7 +100,9 @@ okna dostępu i pogoda EO
     ↓
 okazje akwizycyjne
     ↓
-Greedy / CP-SAT
+graf konfliktów + profil decyzyjny
+    ↓
+Greedy / CP-SAT / Hybrid
     ↓
 harmonogram i przeplanowanie
     ↓
@@ -105,7 +114,7 @@ walidacja STK, archiwum projektu i raporty
 ```text
 app/models          modele domenowe i walidacja
 app/integrations    orbity, dostęp, pogoda i STK
-app/planning        Greedy, CP-SAT i ograniczenia
+app/planning        Greedy, CP-SAT, Hybrid, graf i ograniczenia
 app/services        przypadki użycia
 app/analysis        KPI, benchmarki i eksperymenty
 app/projects        archiwa projektów
@@ -116,44 +125,46 @@ app/ui              interfejs Streamlit
 app/visualization   wizualizacje Plotly
 scripts             narzędzia uruchomieniowe i diagnostyczne
 tests               testy jednostkowe, integracyjne i regresyjne
-docs                dokumentacja techniczna i użytkowa
+docs                dokumentacja techniczna i naukowa
 ```
 
-Szczegółowy opis znajduje się w
-[`docs/project_structure.md`](docs/project_structure.md).
+Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 
 ## Dokumentacja
 
 - [indeks dokumentacji](docs/index.md),
-- [instalacja](docs/installation.md),
 - [instrukcja użytkownika](docs/user_guide.md),
-- [architektura](docs/architecture.md),
 - [model planowania](docs/planning_model.md),
-- [źródła danych](docs/public_data_sources.md),
-- [śledzenie satelitów](docs/live_tracking_and_sky_map.md),
+- [podstawy badawcze wersji 1.2.0](docs/research_foundations.md),
+- [bibliografia i repozytoria referencyjne](docs/references.md),
+- [metodyka naukowa](docs/scientific_methodology.md),
+- [benchmarki](docs/benchmarking.md),
 - [walidacja STK](docs/stk_validation.md),
-- [kontrola jakości](docs/quality_and_release.md),
 - [ograniczenia modelu](docs/limitations.md),
-- [podstawy naukowe, inspiracje i bibliografia](docs/references.md),
 - [informacje o wydaniu](RELEASE_NOTES.md).
 
-## Podstawy naukowe i inspiracje
+## Podstawy naukowe
 
-Projekt korzysta ze standardu OMM, modelu SGP4, literatury dotyczącej
-planowania obserwacji satelitarnych oraz oficjalnej dokumentacji OR-Tools,
-ICEYE, Airbus, Open-Meteo i STK. Model planowania jest implementacją autorską:
-nie stanowi kopii jednego artykułu ani systemu operatora.
+Wersja 1.2.0 jest autorską adaptacją metod opisanych w literaturze. Nie stanowi
+kopii jednego artykułu ani repozytorium. Najważniejsze podstawy to:
 
-Powiązanie elementów aplikacji ze źródłami oraz pełna bibliografia znajdują się
-w [`docs/references.md`](docs/references.md).
+- opportunity-based model i graf niewykonalności;
+- korzyść oraz koszt utraconych okazji w heurystyce konstrukcyjnej;
+- Greedy jako incumbent i lokalne podproblemy CP-SAT;
+- wielokryterialne profile preferencji;
+- reaktywne przeplanowanie po zakłóceniach.
+
+Dokładne przypisanie źródło → moduł → zakres adaptacji znajduje się w
+[`docs/research_foundations.md`](docs/research_foundations.md).
 
 ## Ograniczenia interpretacyjne
 
 OMM/SGP4, geometria sensora, parametry manewrowe i budżety zasobów są jawnymi
-założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. STK służy do
-walidacji zewnętrznej i nie jest wymagany do podstawowego działania aplikacji.
+założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. Hybrid
+zachowuje własny plan początkowy Greedy 2.0 przy równym statusie wykonalności, ale nie gwarantuje optimum globalnego. STK
+służy do walidacji zewnętrznej i nie jest wymagany do działania aplikacji.
 
 ## Wersjonowanie
 
-Wersja aplikacji znajduje się w pliku [`VERSION`](VERSION). Historia zmian jest
-prowadzona w [`CHANGELOG.md`](CHANGELOG.md).
+Wersja aplikacji znajduje się w [`VERSION`](VERSION), a historia zmian w
+[`CHANGELOG.md`](CHANGELOG.md).

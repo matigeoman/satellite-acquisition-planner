@@ -9,6 +9,7 @@ from app.analysis.algorithm_benchmark import (
 from app.ui.app_context import get_algorithm_benchmark_service, load_scenario
 from app.ui.benchmark_view import (
     build_benchmark_export_zip,
+    build_benchmark_algorithm_comparisons_dataframe,
     build_benchmark_improvement_figure,
     build_benchmark_objective_figure,
     build_benchmark_pairs_dataframe,
@@ -28,7 +29,7 @@ _TIME_LIMIT_OPTIONS = [0.5, 1.0, 2.0, 5.0, 10.0, 30.0]
 def render_benchmark_page() -> None:
     st.header("Benchmarki")
     st.write(
-        "Porównanie skalowalności Greedy i CP-SAT dla zagnieżdżonych "
+        "Porównanie skalowalności Greedy, CP-SAT i planera Hybrid dla zagnieżdżonych "
         "scenariuszy od 20 do 500 zleceń. Każde zlecenie posiada "
         "dziesięć okazji akwizycji."
     )
@@ -84,11 +85,29 @@ def render_benchmark_page() -> None:
             key="benchmark_dynamic_constraints",
         )
 
-        estimated_budget = len(request_counts) * repetitions * sum(cp_sat_limits)
-        total_runs = len(request_counts) * repetitions * (1 + len(cp_sat_limits))
+        include_hybrid = st.checkbox(
+            "Uwzględnij planer Hybrid",
+            value=True,
+            key="benchmark_include_hybrid",
+            help=(
+                "Hybrid uruchamia Greedy 2.0, a następnie lokalną poprawę "
+                "CP-SAT przy tym samym limicie czasu."
+            ),
+        )
+
+        solver_multiplier = 2 if include_hybrid else 1
+        estimated_budget = (
+            len(request_counts)
+            * repetitions
+            * sum(cp_sat_limits)
+            * solver_multiplier
+        )
+        total_runs = len(request_counts) * repetitions * (
+            1 + len(cp_sat_limits) * solver_multiplier
+        )
         st.caption(
             f"Planowane przebiegi: {total_runs}. Minimalny budżet "
-            f"solvera CP-SAT: około {estimated_budget:.1f} s."
+            f"solverów CP-SAT/Hybrid: około {estimated_budget:.1f} s."
         )
         if any(value >= 200 for value in request_counts):
             st.warning(
@@ -97,7 +116,7 @@ def render_benchmark_page() -> None:
                 "sam ustawiony limit solvera."
             )
         submitted = st.button(
-            "Uruchom benchmark Greedy vs CP-SAT",
+            "Uruchom benchmark planerów",
             type="primary",
             width="stretch",
             key="run_algorithm_benchmark",
@@ -111,8 +130,9 @@ def render_benchmark_page() -> None:
             """
 - Scenariusze są zagnieżdżone: większy wariant zawiera wszystkie zlecenia mniejszego.
 - Każde zlecenie ma 10 okazji, dlatego 500 zleceń oznacza 5000 okazji.
-- Greedy jest uruchamiany raz dla każdego powtórzenia, a CP-SAT osobno dla każdego limitu czasu.
-- Każde powtórzenie używa jednego wspólnego `random_seed` dla wszystkich limitów CP-SAT, aby porównanie 2/5/10/30 s nie było zaburzone zmianą ziarna.
+- Greedy jest uruchamiany raz dla każdego powtórzenia, a CP-SAT i opcjonalny Hybrid osobno dla każdego limitu czasu.
+- Hybrid wykorzystuje Greedy 2.0 jako rozwiązanie początkowe i akceptuje wyłącznie lokalne poprawy CP-SAT, dlatego nie powinien kończyć z celem gorszym od własnego incumbenta Greedy.
+- Każde powtórzenie używa jednego wspólnego `random_seed` dla wszystkich limitów i algorytmów, aby porównanie nie było zaburzone zmianą ziarna.
 - Błąd lub status `UNKNOWN` nie zatrzymuje całej serii; zostaje zapisany jako nieudany przebieg.
             """
         )
@@ -132,6 +152,7 @@ def render_benchmark_page() -> None:
                     base_seed=int(base_seed),
                     memory_reserve_ratio=(memory_reserve_percent / 100.0),
                     use_dynamic_transition_model=dynamic_constraints,
+                    include_hybrid=include_hybrid,
                 )
                 with st.spinner("Budowanie scenariuszy i uruchamianie benchmarku..."):
                     result = get_algorithm_benchmark_service().run(
@@ -161,7 +182,7 @@ def render_benchmark_result(result: AlgorithmBenchmarkResult) -> None:
     st.divider()
     st.subheader("Wyniki benchmarku")
 
-    metrics = st.columns(6)
+    metrics = st.columns(7)
     metrics[0].metric("Przebiegi", len(result.run_records))
     metrics[1].metric("Poprawne", result.successful_run_count)
     metrics[2].metric("Błędy", result.failed_run_count)
@@ -170,13 +191,18 @@ def render_benchmark_result(result: AlgorithmBenchmarkResult) -> None:
         f"{result.cp_sat_better_count}/{len(result.pair_records)}",
     )
     metrics[4].metric(
-        "Średnia poprawa celu",
+        "Śr. poprawa CP-SAT",
         f"{result.mean_objective_improvement_pct:+.2f}%",
     )
-    metrics[5].metric("Czas całkowity", f"{result.wall_clock_runtime_s:.2f} s")
+    metrics[5].metric(
+        "Hybrid nie gorszy",
+        result.hybrid_not_worse_count,
+    )
+    metrics[6].metric("Czas całkowity", f"{result.wall_clock_runtime_s:.2f} s")
 
     summary = build_benchmark_summary_dataframe(result)
     pairs = build_benchmark_pairs_dataframe(result)
+    comparisons = build_benchmark_algorithm_comparisons_dataframe(result)
     runs = build_benchmark_runs_dataframe(result)
     result_key = result.started_at_utc.strftime("%Y%m%d%H%M%S%f")
 
@@ -214,8 +240,16 @@ def render_benchmark_result(result: AlgorithmBenchmarkResult) -> None:
 
     with summary_tab:
         st.dataframe(summary, width="stretch", hide_index=True, height=420)
-        st.markdown("### Porównania CP-SAT względem Greedy")
-        st.dataframe(pairs, width="stretch", hide_index=True, height=360)
+        st.markdown("### Porównania algorytmów względem Greedy")
+        if comparisons.empty:
+            st.dataframe(pairs, width="stretch", hide_index=True, height=360)
+        else:
+            st.dataframe(
+                comparisons,
+                width="stretch",
+                hide_index=True,
+                height=360,
+            )
 
     with runs_tab:
         st.dataframe(runs, width="stretch", hide_index=True, height=520)
@@ -259,7 +293,8 @@ def render_benchmark_result(result: AlgorithmBenchmarkResult) -> None:
         )
         st.caption(
             "Pakiet zawiera benchmark_runs.csv, benchmark_pairs.csv, "
-            "benchmark_summary.csv, benchmark_results.json oraz "
+            "benchmark_algorithm_comparisons.csv, benchmark_summary.csv, "
+            "benchmark_results.json oraz "
             "benchmark_charts.html."
         )
 

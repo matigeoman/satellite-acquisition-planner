@@ -6,15 +6,19 @@ from datetime import datetime
 from app.analysis.schedule import ScheduleAnalysis
 from app.models.enums import PlanningAlgorithm
 from app.models.schedule import Schedule
+from app.planning.profiles import (
+    DecisionProfile,
+    decision_profile_weights,
+)
 from app.services.scenario_service import LoadedScenario
+
 
 @dataclass(frozen=True)
 class PlanningOptions:
     """Parametry wspólnego interfejsu planowania."""
 
-    algorithm: PlanningAlgorithm = (
-        PlanningAlgorithm.GREEDY
-    )
+    algorithm: PlanningAlgorithm = PlanningAlgorithm.GREEDY
+    decision_profile: DecisionProfile = DecisionProfile.CUSTOM
 
     memory_reserve_ratio: float = 0.15
 
@@ -33,57 +37,76 @@ class PlanningOptions:
     mandatory_bonus: float = 100.0
     dual_optional_second_bonus: float = 5.0
 
+    use_opportunity_cost_heuristic: bool = False
+    scarcity_bonus_weight: float = 2.0
+    conflict_cost_weight: float = 0.20
+    duration_cost_weight: float = 0.010
+    memory_cost_weight: float = 0.00010
+
     cp_sat_time_limit_s: float = 10.0
     cp_sat_num_search_workers: int = 1
     cp_sat_random_seed: int = 20260716
     cp_sat_force_mandatory_requests: bool = True
     cp_sat_log_search_progress: bool = False
 
+    hybrid_neighborhood_request_limit: int = 12
+    hybrid_max_neighborhoods: int = 6
+    hybrid_minimum_improvement: float = 1e-6
+
     def __post_init__(self) -> None:
         algorithm = self.algorithm
-
-        if isinstance(
-            algorithm,
-            str,
-        ):
+        if isinstance(algorithm, str):
             try:
-                algorithm = PlanningAlgorithm(
-                    algorithm.strip().upper()
-                )
+                algorithm = PlanningAlgorithm(algorithm.strip().upper())
             except ValueError as error:
                 raise ValueError(
-                    "Nieobsługiwany algorytm: "
-                    f"{self.algorithm}"
+                    "Nieobsługiwany algorytm: " f"{self.algorithm}"
                 ) from error
+            object.__setattr__(self, "algorithm", algorithm)
 
-            object.__setattr__(
-                self,
-                "algorithm",
-                algorithm,
-            )
-
-        if not isinstance(
-            algorithm,
-            PlanningAlgorithm,
-        ):
-            raise TypeError(
-                "algorithm musi być wartością "
-                "PlanningAlgorithm"
-            )
-
+        if not isinstance(algorithm, PlanningAlgorithm):
+            raise TypeError("algorithm musi być wartością PlanningAlgorithm")
         if algorithm not in {
             PlanningAlgorithm.GREEDY,
             PlanningAlgorithm.CP_SAT,
+            PlanningAlgorithm.HYBRID,
         }:
             raise ValueError(
-                "PlanningService obsługuje wyłącznie "
-                "GREEDY i CP_SAT"
+                "PlanningService obsługuje GREEDY, CP_SAT i HYBRID"
             )
+
+        profile = self.decision_profile
+        if isinstance(profile, str):
+            try:
+                profile = DecisionProfile(profile.strip().upper())
+            except ValueError as error:
+                raise ValueError(
+                    "Nieobsługiwany profil decyzyjny: "
+                    f"{self.decision_profile}"
+                ) from error
+            object.__setattr__(self, "decision_profile", profile)
+        if not isinstance(profile, DecisionProfile):
+            raise TypeError("decision_profile musi być wartością DecisionProfile")
+
+        if profile != DecisionProfile.CUSTOM:
+            weights = decision_profile_weights(profile)
+            for field_name in (
+                "priority_weight",
+                "quality_weight",
+                "coverage_weight",
+                "mandatory_bonus",
+                "dual_optional_second_bonus",
+                "scarcity_bonus_weight",
+                "conflict_cost_weight",
+                "duration_cost_weight",
+                "memory_cost_weight",
+            ):
+                object.__setattr__(self, field_name, getattr(weights, field_name))
+            object.__setattr__(self, "use_opportunity_cost_heuristic", True)
 
         if not 0.0 <= self.memory_reserve_ratio <= 1.0:
             raise ValueError(
-                "memory_reserve_ratio musi należeć "
-                "do zakresu [0, 1]"
+                "memory_reserve_ratio musi należeć do zakresu [0, 1]"
             )
 
         nonnegative_values = {
@@ -96,43 +119,37 @@ class PlanningOptions:
             "quality_weight": self.quality_weight,
             "coverage_weight": self.coverage_weight,
             "mandatory_bonus": self.mandatory_bonus,
-            "dual_optional_second_bonus": (
-                self.dual_optional_second_bonus
-            ),
+            "dual_optional_second_bonus": self.dual_optional_second_bonus,
+            "scarcity_bonus_weight": self.scarcity_bonus_weight,
+            "conflict_cost_weight": self.conflict_cost_weight,
+            "duration_cost_weight": self.duration_cost_weight,
+            "memory_cost_weight": self.memory_cost_weight,
+            "hybrid_minimum_improvement": self.hybrid_minimum_improvement,
         }
-
         for name, value in nonnegative_values.items():
             if value < 0.0:
-                raise ValueError(
-                    f"{name} nie może być ujemne"
-                )
+                raise ValueError(f"{name} nie może być ujemne")
 
         if self.sar_slew_rate_deg_s <= 0.0:
-            raise ValueError(
-                "sar_slew_rate_deg_s musi być większe od zera"
-            )
-
+            raise ValueError("sar_slew_rate_deg_s musi być większe od zera")
         if self.sar_max_acquisitions_per_pass <= 0:
             raise ValueError(
                 "sar_max_acquisitions_per_pass musi być większe od zera"
             )
-
         if self.cp_sat_time_limit_s <= 0.0:
-            raise ValueError(
-                "cp_sat_time_limit_s musi być "
-                "większe od zera"
-            )
-
+            raise ValueError("cp_sat_time_limit_s musi być większe od zera")
         if self.cp_sat_num_search_workers <= 0:
             raise ValueError(
-                "cp_sat_num_search_workers musi być "
-                "większe od zera"
+                "cp_sat_num_search_workers musi być większe od zera"
             )
-
         if self.cp_sat_random_seed < 0:
+            raise ValueError("cp_sat_random_seed nie może być ujemny")
+        if self.hybrid_neighborhood_request_limit <= 0:
             raise ValueError(
-                "cp_sat_random_seed nie może być ujemny"
+                "hybrid_neighborhood_request_limit musi być dodatnie"
             )
+        if self.hybrid_max_neighborhoods <= 0:
+            raise ValueError("hybrid_max_neighborhoods musi być dodatnie")
 
 
 @dataclass(frozen=True)

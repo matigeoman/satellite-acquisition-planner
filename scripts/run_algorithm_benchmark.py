@@ -13,7 +13,7 @@ from app.ui.benchmark_view import build_benchmark_export_zip
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Benchmark skalowalności Greedy i CP-SAT."
+        description="Benchmark skalowalności Greedy, CP-SAT i Hybrid."
     )
     parser.add_argument(
         "--request-counts",
@@ -44,6 +44,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Rezerwa pamięci w zakresie 0–1.",
     )
     parser.add_argument(
+        "--include-hybrid",
+        action="store_true",
+        help="Dodaje Hybrid Greedy + lokalna poprawa CP-SAT.",
+    )
+    parser.add_argument(
         "--disable-dynamic-constraints",
         action="store_true",
         help="Wyłącza dynamiczny model przeorientowania.",
@@ -70,13 +75,15 @@ def main() -> None:
         base_seed=args.base_seed,
         memory_reserve_ratio=args.memory_reserve,
         use_dynamic_transition_model=(not args.disable_dynamic_constraints),
+        include_hybrid=args.include_hybrid,
     )
     scenario = ScenarioService(project_root=PROJECT_ROOT).load("STRESS")
 
-    print("BENCHMARK GREEDY VS CP-SAT")
+    print("BENCHMARK GREEDY / CP-SAT / HYBRID")
     print(f"Rozmiary: {config.request_counts}")
     print(f"Powtórzenia: {config.repetitions}")
-    print(f"Limity CP-SAT: {config.cp_sat_time_limits_s}")
+    print(f"Limity solverów CP-SAT: {config.cp_sat_time_limits_s}")
+    print(f"Hybrid: {'włączony' if config.include_hybrid else 'wyłączony'}")
     print(f"Planowane przebiegi: {config.expected_run_count}")
     print(f"Minimalny budżet solvera: {config.estimated_cp_sat_budget_s:.1f} s")
 
@@ -91,6 +98,11 @@ def main() -> None:
     print(f"Poprawne przebiegi: {result.successful_run_count}")
     print(f"Nieudane przebiegi: {result.failed_run_count}")
     print(f"Średnia poprawa celu CP-SAT: {result.mean_objective_improvement_pct:+.2f}%")
+    if config.include_hybrid:
+        print(
+            "Średnia poprawa celu Hybrid: "
+            f"{result.mean_hybrid_improvement_pct:+.2f}%"
+        )
     print(f"Czas całkowity: {result.wall_clock_runtime_s:.3f} s")
     print(f"Pakiet wyników: {args.output.resolve()}")
 

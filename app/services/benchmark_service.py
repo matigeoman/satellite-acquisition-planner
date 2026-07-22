@@ -87,6 +87,19 @@ class AlgorithmBenchmarkService:
                             created_at_utc=started_at,
                         )
                     )
+                    if config.include_hybrid:
+                        records.append(
+                            self._run_single(
+                                scenario=scenario,
+                                config=config,
+                                request_count=request_count,
+                                repetition=repetition,
+                                algorithm=PlanningAlgorithm.HYBRID,
+                                time_limit_s=time_limit_s,
+                                random_seed=seed_base,
+                                created_at_utc=started_at,
+                            )
+                        )
 
         completed_at = datetime.now(timezone.utc)
         wall_clock_runtime_s = round(perf_counter() - timer_start, 6)
@@ -155,7 +168,7 @@ class AlgorithmBenchmarkService:
                 scenario_id=f"BENCHMARK-{request_count:03d}",
                 name=f"Benchmark — {request_count} zleceń",
                 description=(
-                    "Zbalansowany podzbiór do porównania Greedy i CP-SAT."
+                    "Zbalansowany podzbiór do porównania Greedy, CP-SAT i Hybrid."
                 ),
             ),
             catalog=source_scenario.catalog,
@@ -186,11 +199,12 @@ class AlgorithmBenchmarkService:
             cp_sat_random_seed=random_seed,
             cp_sat_force_mandatory_requests=False,
         )
-        variant = (
-            "GREEDY"
-            if algorithm == PlanningAlgorithm.GREEDY
-            else f"CP-SAT-{time_limit_s:g}S".replace(".", "P")
-        )
+        if algorithm == PlanningAlgorithm.GREEDY:
+            variant = "GREEDY"
+        elif algorithm == PlanningAlgorithm.HYBRID:
+            variant = f"HYBRID-{time_limit_s:g}S".replace(".", "P")
+        else:
+            variant = f"CP-SAT-{time_limit_s:g}S".replace(".", "P")
         schedule_id = (
             f"SCHEDULE-BENCH-{request_count:03d}-"
             f"R{repetition:02d}-{variant}"

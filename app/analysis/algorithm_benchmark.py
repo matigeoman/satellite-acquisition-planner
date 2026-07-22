@@ -8,7 +8,7 @@ from typing import Iterable
 
 @dataclass(frozen=True)
 class AlgorithmBenchmarkConfig:
-    """Konfiguracja benchmarku skalowalności Greedy i CP-SAT."""
+    """Konfiguracja benchmarku skalowalności Greedy, CP-SAT i Hybrid."""
 
     request_counts: tuple[int, ...] = (20, 50, 100)
     repetitions: int = 1
@@ -17,6 +17,7 @@ class AlgorithmBenchmarkConfig:
     base_seed: int = 20260717
     memory_reserve_ratio: float = 0.15
     use_dynamic_transition_model: bool = True
+    include_hybrid: bool = False
 
     def __post_init__(self) -> None:
         if not self.request_counts:
@@ -51,15 +52,20 @@ class AlgorithmBenchmarkConfig:
 
     @property
     def expected_run_count(self) -> int:
-        per_problem = 1 + len(self.cp_sat_time_limits_s)
+        solver_variants = len(self.cp_sat_time_limits_s)
+        if self.include_hybrid:
+            solver_variants *= 2
+        per_problem = 1 + solver_variants
         return len(self.request_counts) * self.repetitions * per_problem
 
     @property
     def estimated_cp_sat_budget_s(self) -> float:
+        multiplier = 2 if self.include_hybrid else 1
         return round(
             len(self.request_counts)
             * self.repetitions
-            * sum(self.cp_sat_time_limits_s),
+            * sum(self.cp_sat_time_limits_s)
+            * multiplier,
             3,
         )
 
@@ -104,6 +110,8 @@ class BenchmarkRunRecord:
     def algorithm_variant(self) -> str:
         if self.algorithm == "GREEDY":
             return "GREEDY"
+        if self.algorithm == "HYBRID":
+            return f"HYBRID {self.time_limit_s:g}s"
         return f"CP-SAT {self.time_limit_s:g}s"
 
 
@@ -148,6 +156,8 @@ class BenchmarkSummaryRecord:
     def algorithm_variant(self) -> str:
         if self.algorithm == "GREEDY":
             return "GREEDY"
+        if self.algorithm == "HYBRID":
+            return f"HYBRID {self.time_limit_s:g}s"
         return f"CP-SAT {self.time_limit_s:g}s"
 
 
@@ -208,6 +218,44 @@ class AlgorithmBenchmarkResult:
         ]
         return round(mean(values), 6) if values else 0.0
 
+    def _challenger_improvements(self, algorithm: str) -> list[float]:
+        grouped: dict[tuple[int, int], list[BenchmarkRunRecord]] = {}
+        for record in self.run_records:
+            grouped.setdefault(
+                (record.request_count, record.repetition), []
+            ).append(record)
+        values: list[float] = []
+        for runs in grouped.values():
+            greedy = next(
+                (run for run in runs if run.algorithm == "GREEDY" and run.successful),
+                None,
+            )
+            if greedy is None:
+                continue
+            for challenger in runs:
+                if challenger.algorithm != algorithm or not challenger.successful:
+                    continue
+                difference = challenger.objective_value - greedy.objective_value
+                values.append(
+                    difference / greedy.objective_value * 100.0
+                    if greedy.objective_value > 0.0
+                    else 0.0
+                )
+        return values
+
+    @property
+    def hybrid_better_count(self) -> int:
+        return sum(value > 1e-9 for value in self._challenger_improvements("HYBRID"))
+
+    @property
+    def hybrid_not_worse_count(self) -> int:
+        return sum(value >= -1e-9 for value in self._challenger_improvements("HYBRID"))
+
+    @property
+    def mean_hybrid_improvement_pct(self) -> float:
+        values = self._challenger_improvements("HYBRID")
+        return round(mean(values), 6) if values else 0.0
+
     def metadata_dict(self) -> dict[str, object]:
         return {
             "base_scenario_id": self.base_scenario_id,
@@ -222,6 +270,9 @@ class AlgorithmBenchmarkResult:
             "mean_objective_improvement_pct": (
                 self.mean_objective_improvement_pct
             ),
+            "hybrid_better_count": self.hybrid_better_count,
+            "hybrid_not_worse_count": self.hybrid_not_worse_count,
+            "mean_hybrid_improvement_pct": self.mean_hybrid_improvement_pct,
         }
 
 
@@ -320,7 +371,7 @@ def build_benchmark_summary(
         grouped.items(),
         key=lambda item: (
             item[0][0],
-            0 if item[0][1] == "GREEDY" else 1,
+            {"GREEDY": 0, "CP_SAT": 1, "HYBRID": 2}.get(item[0][1], 9),
             item[0][2] or 0.0,
         ),
     ):

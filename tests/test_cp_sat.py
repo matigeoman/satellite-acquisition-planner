@@ -580,3 +580,37 @@ def test_schedule_save_and_load_roundtrip(
         loaded_schedule.model_dump(mode="json")
         == schedule.model_dump(mode="json")
     )
+
+def test_cp_sat_can_fix_an_opportunity_selection(reference_data) -> None:
+    catalog, request_set, opportunity_set = reference_data
+    opportunity = opportunity_set.feasible_opportunities[0]
+    scheduler = CpSatScheduler(
+        catalog=catalog,
+        request_set=request_set,
+        opportunity_set=opportunity_set,
+        config=CpSatPlannerConfig(
+            force_mandatory_requests=False,
+            max_time_s=5.0,
+            num_search_workers=1,
+        ),
+        fixed_selection={opportunity.opportunity_id: True},
+        solution_hint_ids={opportunity.opportunity_id},
+    )
+
+    schedule = scheduler.build_schedule(created_at_utc=FIXED_CREATED_AT)
+
+    assert opportunity.opportunity_id in {
+        entry.opportunity_id for entry in schedule.active_entries
+    }
+
+
+def test_cp_sat_rejects_unknown_local_decision(reference_data) -> None:
+    catalog, request_set, opportunity_set = reference_data
+
+    with pytest.raises(ValueError, match="nieznane okazje"):
+        CpSatScheduler(
+            catalog=catalog,
+            request_set=request_set,
+            opportunity_set=opportunity_set,
+            fixed_selection={"UNKNOWN-OPPORTUNITY": True},
+        )

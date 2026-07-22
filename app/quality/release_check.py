@@ -364,8 +364,10 @@ def run_release_check(
             )
         )
 
-    preferred = results.get(PlanningAlgorithm.CP_SAT) or results.get(
-        PlanningAlgorithm.GREEDY
+    preferred = (
+        results.get(PlanningAlgorithm.HYBRID)
+        or results.get(PlanningAlgorithm.CP_SAT)
+        or results.get(PlanningAlgorithm.GREEDY)
     )
     if preferred is None:
         steps.append(

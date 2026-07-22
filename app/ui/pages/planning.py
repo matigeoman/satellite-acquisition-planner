@@ -3,6 +3,8 @@ from __future__ import annotations
 import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
+from app.planning.conflict_graph import build_opportunity_conflict_graph
+from app.planning.profiles import DecisionProfile
 from app.services.comparison_service import PlanningComparisonResult
 from app.services.planning_service import PlanningOptions, PlanningResult
 from app.services.scenario_service import LoadedScenario
@@ -200,9 +202,33 @@ def render_sidebar_form(
                 options=[
                     PlanningAlgorithm.GREEDY.value,
                     PlanningAlgorithm.CP_SAT.value,
+                    PlanningAlgorithm.HYBRID.value,
                 ],
+                index=2,
                 format_func=algorithm_display_name,
                 horizontal=True,
+            )
+
+            decision_profile_value = st.selectbox(
+                "Profil decyzyjny",
+                options=[profile.value for profile in DecisionProfile],
+                index=1,
+                format_func=lambda value: {
+                    "CUSTOM": "Własne wagi",
+                    "BALANCED": "Zrównoważony",
+                    "EMERGENCY": "Reagowanie kryzysowe",
+                    "QUALITY_FIRST": "Najwyższa jakość",
+                    "THROUGHPUT": "Maksymalna przepustowość",
+                    "SAR_EO_FUSION": "Fuzja SAR–EO",
+                }[value],
+                help=(
+                    "Jawne profile preferencji inspirowane podejściem "
+                    "wielokryterialnym. Profil inny niż Własne wagi "
+                    "ustawia wagi automatycznie."
+                ),
+            )
+            custom_profile = (
+                decision_profile_value == DecisionProfile.CUSTOM.value
             )
 
             memory_reserve_percent = st.slider(
@@ -274,6 +300,7 @@ def render_sidebar_form(
                     min_value=0.0,
                     value=10.0,
                     step=1.0,
+                    disabled=not custom_profile,
                 )
 
                 quality_weight = st.number_input(
@@ -281,6 +308,7 @@ def render_sidebar_form(
                     min_value=0.0,
                     value=3.0,
                     step=0.5,
+                    disabled=not custom_profile,
                 )
 
                 coverage_weight = st.number_input(
@@ -288,6 +316,7 @@ def render_sidebar_form(
                     min_value=0.0,
                     value=2.0,
                     step=0.5,
+                    disabled=not custom_profile,
                 )
 
                 mandatory_bonus = st.number_input(
@@ -295,6 +324,7 @@ def render_sidebar_form(
                     min_value=0.0,
                     value=100.0,
                     step=10.0,
+                    disabled=not custom_profile,
                 )
 
                 dual_optional_second_bonus = (
@@ -303,7 +333,47 @@ def render_sidebar_form(
                         min_value=0.0,
                         value=5.0,
                         step=1.0,
+                        disabled=not custom_profile,
                     )
+                )
+
+            with st.expander("Heurystyka badawcza Greedy / Hybrid"):
+                use_opportunity_cost_heuristic = st.checkbox(
+                    "Uwzględnij koszt utraconych okazji",
+                    value=True,
+                    disabled=not custom_profile,
+                    help=(
+                        "Ranking uwzględnia rzadkość okien, czas, pamięć "
+                        "i wartość konfliktujących okazji."
+                    ),
+                )
+                scarcity_bonus_weight = st.number_input(
+                    "Premia za rzadkość okazji",
+                    min_value=0.0,
+                    value=2.0,
+                    step=0.25,
+                    disabled=not custom_profile,
+                )
+                conflict_cost_weight = st.number_input(
+                    "Waga kosztu konfliktów",
+                    min_value=0.0,
+                    value=0.20,
+                    step=0.05,
+                    disabled=not custom_profile,
+                )
+                hybrid_neighborhood_request_limit = st.number_input(
+                    "Maks. zleceń w sąsiedztwie Hybrid",
+                    min_value=2,
+                    max_value=100,
+                    value=12,
+                    step=1,
+                )
+                hybrid_max_neighborhoods = st.number_input(
+                    "Maks. liczba sąsiedztw Hybrid",
+                    min_value=1,
+                    max_value=30,
+                    value=6,
+                    step=1,
                 )
 
             submitted = st.form_submit_button(
@@ -327,6 +397,7 @@ def render_sidebar_form(
 
     options = PlanningOptions(
         algorithm=algorithm,
+        decision_profile=DecisionProfile(decision_profile_value),
         memory_reserve_ratio=(
             memory_reserve_percent
             / 100.0
@@ -346,6 +417,13 @@ def render_sidebar_form(
         dual_optional_second_bonus=float(
             dual_optional_second_bonus
         ),
+        use_opportunity_cost_heuristic=use_opportunity_cost_heuristic,
+        scarcity_bonus_weight=float(scarcity_bonus_weight),
+        conflict_cost_weight=float(conflict_cost_weight),
+        hybrid_neighborhood_request_limit=int(
+            hybrid_neighborhood_request_limit
+        ),
+        hybrid_max_neighborhoods=int(hybrid_max_neighborhoods),
         cp_sat_time_limit_s=float(
             cp_sat_time_limit_s
         ),
@@ -1006,6 +1084,7 @@ def render_result_tabs(
         schedule_tab,
         requests_tab,
         satellites_tab,
+        conflict_graph_tab,
         export_tab,
     ) = st.tabs(
         [
@@ -1014,6 +1093,7 @@ def render_result_tabs(
             "Harmonogram",
             "Zlecenia",
             "Satelity",
+            "Graf konfliktów",
             "Eksport",
         ]
     )
@@ -1437,6 +1517,65 @@ def render_result_tabs(
             "Wykorzystanie zasobów jest prezentowane "
             "jako procent odpowiedniego limitu."
         )
+
+    with conflict_graph_tab:
+        st.markdown("### Graf niewykonalności okazji")
+        st.caption(
+            "Węzeł oznacza wykonalną okazję akwizycyjną, a krawędź — "
+            "parę okazji, których nie można wybrać jednocześnie z powodu "
+            "alternatyw tego samego zlecenia, niezgodnej pary SAR–EO albo "
+            "konfliktu przejścia satelity."
+        )
+        try:
+            graph = build_opportunity_conflict_graph(
+                catalog=result.scenario.catalog,
+                request_set=result.scenario.request_set,
+                opportunity_set=result.scenario.opportunity_set,
+                config=result.options,
+            )
+        except (KeyError, TypeError, ValueError) as error:
+            st.warning(f"Nie udało się zbudować grafu konfliktów: {error}")
+        else:
+            components = graph.connected_components()
+            graph_metrics = st.columns(5)
+            graph_metrics[0].metric("Węzły", graph.node_count)
+            graph_metrics[1].metric("Krawędzie", graph.edge_count)
+            graph_metrics[2].metric("Gęstość", f"{graph.density:.4f}")
+            graph_metrics[3].metric("Komponenty", len(components))
+            graph_metrics[4].metric(
+                "Największy komponent",
+                max((len(component) for component in components), default=0),
+            )
+
+            reason_rows = [
+                {"przyczyna": reason, "liczba_krawędzi": count}
+                for reason, count in graph.reason_counts().items()
+            ]
+            if reason_rows:
+                st.dataframe(
+                    reason_rows,
+                    width="stretch",
+                    hide_index=True,
+                )
+            else:
+                st.info("W tym scenariuszu nie wykryto konfliktów parowych.")
+
+            degree_rows = sorted(
+                (
+                    {
+                        "opportunity_id": opportunity_id,
+                        "stopień": graph.degree(opportunity_id),
+                    }
+                    for opportunity_id in graph.opportunity_ids
+                ),
+                key=lambda row: (-row["stopień"], row["opportunity_id"]),
+            )[:25]
+            st.markdown("#### Najbardziej konfliktowe okazje")
+            st.dataframe(
+                degree_rows,
+                width="stretch",
+                hide_index=True,
+            )
 
     with export_tab:
         st.markdown(

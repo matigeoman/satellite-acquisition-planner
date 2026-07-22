@@ -101,6 +101,7 @@ class OpportunitySourceType(str, Enum):
 class PlanningAlgorithm(str, Enum):
     GREEDY = "GREEDY"
     CP_SAT = "CP_SAT"
+    HYBRID = "HYBRID"
     MANUAL = "MANUAL"
 
 

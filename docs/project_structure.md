@@ -32,7 +32,7 @@ app/
 │   └── weather/
 ├── io/               odczyt i zapis modeli
 ├── models/           modele Pydantic i walidacja domenowa
-├── planning/         Greedy, CP-SAT, scoring i ograniczenia
+├── planning/         Greedy, CP-SAT, Hybrid, graf, profile i ograniczenia
 ├── projects/         archiwa projektów i historia harmonogramów
 ├── quality/          audyt, healthcheck i kontrola E2E
 ├── reporting/        raporty HTML, DOCX i XLSX

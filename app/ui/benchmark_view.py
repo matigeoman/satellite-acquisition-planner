@@ -40,6 +40,93 @@ def build_benchmark_pairs_dataframe(
     return pd.DataFrame([asdict(record) for record in result.pair_records])
 
 
+def build_benchmark_algorithm_comparisons_dataframe(
+    result: AlgorithmBenchmarkResult,
+) -> pd.DataFrame:
+    runs = build_benchmark_runs_dataframe(result)
+    if runs.empty:
+        return pd.DataFrame()
+    successful = runs[runs["successful"]].copy()
+    greedy = successful[successful["algorithm"] == "GREEDY"][
+        [
+            "request_count",
+            "repetition",
+            "objective_value",
+            "fully_satisfied_requests",
+            "runtime_s",
+        ]
+    ].rename(
+        columns={
+            "objective_value": "greedy_objective_value",
+            "fully_satisfied_requests": "greedy_fully_satisfied_requests",
+            "runtime_s": "greedy_runtime_s",
+        }
+    )
+    challengers = successful[
+        successful["algorithm"].isin(["CP_SAT", "HYBRID"])
+    ].copy()
+    if challengers.empty or greedy.empty:
+        return pd.DataFrame()
+    comparisons = challengers.merge(
+        greedy,
+        on=["request_count", "repetition"],
+        how="inner",
+    )
+    comparisons["objective_difference"] = (
+        comparisons["objective_value"]
+        - comparisons["greedy_objective_value"]
+    )
+    comparisons["objective_improvement_pct"] = comparisons.apply(
+        lambda row: (
+            row["objective_difference"]
+            / row["greedy_objective_value"]
+            * 100.0
+            if row["greedy_objective_value"] > 0.0
+            else 0.0
+        ),
+        axis=1,
+    )
+    comparisons["fully_satisfied_difference"] = (
+        comparisons["fully_satisfied_requests"]
+        - comparisons["greedy_fully_satisfied_requests"]
+    )
+    comparisons["runtime_ratio"] = comparisons.apply(
+        lambda row: (
+            row["runtime_s"] / row["greedy_runtime_s"]
+            if row["greedy_runtime_s"] > 0.0
+            else None
+        ),
+        axis=1,
+    )
+    return comparisons[
+        [
+            "request_count",
+            "repetition",
+            "algorithm",
+            "time_limit_s",
+            "random_seed",
+            "greedy_objective_value",
+            "objective_value",
+            "objective_difference",
+            "objective_improvement_pct",
+            "greedy_fully_satisfied_requests",
+            "fully_satisfied_requests",
+            "fully_satisfied_difference",
+            "greedy_runtime_s",
+            "runtime_s",
+            "runtime_ratio",
+            "solver_status",
+        ]
+    ].rename(
+        columns={
+            "objective_value": "challenger_objective_value",
+            "fully_satisfied_requests": "challenger_fully_satisfied_requests",
+            "runtime_s": "challenger_runtime_s",
+            "solver_status": "challenger_solver_status",
+        }
+    )
+
+
 def build_benchmark_summary_dataframe(
     result: AlgorithmBenchmarkResult,
 ) -> pd.DataFrame:
@@ -206,21 +293,29 @@ def build_benchmark_satisfaction_figure(
 def build_benchmark_improvement_figure(
     result: AlgorithmBenchmarkResult,
 ) -> Figure:
-    frame = build_benchmark_pairs_dataframe(result)
-    frame = frame[frame["cp_sat_successful"]].copy()
+    frame = build_benchmark_algorithm_comparisons_dataframe(result)
     if frame.empty:
         return Figure().update_layout(
-            title="Brak poprawnych wyników CP-SAT do porównania"
+            title="Brak poprawnych wyników do porównania z Greedy"
         )
     grouped = (
-        frame.groupby(["request_count", "time_limit_s"], as_index=False)[
-            "objective_improvement_pct"
-        ]
+        frame.groupby(
+            ["request_count", "algorithm", "time_limit_s"],
+            as_index=False,
+        )["objective_improvement_pct"]
         .mean()
-        .sort_values(["request_count", "time_limit_s"])
+        .sort_values(["request_count", "algorithm", "time_limit_s"])
     )
-    grouped["variant"] = grouped["time_limit_s"].map(lambda value: f"CP-SAT {value:g}s")
+    grouped["variant"] = grouped.apply(
+        lambda row: (
+            f"HYBRID {row['time_limit_s']:g}s"
+            if row["algorithm"] == "HYBRID"
+            else f"CP-SAT {row['time_limit_s']:g}s"
+        ),
+        axis=1,
+    )
     request_count = _single_request_count(grouped)
+    title = "Zmiana funkcji celu względem Greedy"
     if request_count is not None:
         figure = px.bar(
             grouped,
@@ -231,9 +326,7 @@ def build_benchmark_improvement_figure(
                 "variant": "Wariant",
                 "objective_improvement_pct": "Przewaga nad Greedy [%]",
             },
-            title=(
-                f"Zmiana funkcji celu CP-SAT względem Greedy — {request_count} zleceń"
-            ),
+            title=f"{title} — {request_count} zleceń",
         )
         figure.update_layout(showlegend=False)
     else:
@@ -249,7 +342,7 @@ def build_benchmark_improvement_figure(
                 "objective_improvement_pct": "Przewaga nad Greedy [%]",
                 "variant": "Wariant",
             },
-            title="Zmiana funkcji celu CP-SAT względem Greedy",
+            title=title,
         )
     figure.add_hline(y=0)
     figure.update_layout(uirevision="benchmark-improvement")
@@ -312,6 +405,11 @@ def build_benchmark_results_json(
         "metadata": result.metadata_dict(),
         "runs": [asdict(record) for record in result.run_records],
         "pairs": [asdict(record) for record in result.pair_records],
+        "algorithm_comparisons": json.loads(
+            build_benchmark_algorithm_comparisons_dataframe(result).to_json(
+                orient="records"
+            )
+        ),
         "summary": [asdict(record) for record in result.summary_records],
     }
     return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
@@ -339,8 +437,8 @@ def build_benchmark_charts_html(
         )
     return (
         "<!doctype html><html lang='pl'><head><meta charset='utf-8'>"
-        "<title>Benchmark Greedy vs CP-SAT</title></head><body>"
-        "<h1>Benchmark Greedy vs CP-SAT</h1>"
+        "<title>Benchmark planerów</title></head><body>"
+        "<h1>Benchmark Greedy, CP-SAT i Hybrid</h1>"
         + "\n".join(fragments)
         + "</body></html>"
     )
@@ -351,6 +449,7 @@ def build_benchmark_export_zip(
 ) -> bytes:
     runs = build_benchmark_runs_dataframe(result)
     pairs = build_benchmark_pairs_dataframe(result)
+    comparisons = build_benchmark_algorithm_comparisons_dataframe(result)
     summary = build_benchmark_summary_dataframe(result)
     archive_buffer = BytesIO()
     with ZipFile(archive_buffer, "w", compression=ZIP_DEFLATED) as archive:
@@ -361,6 +460,10 @@ def build_benchmark_export_zip(
         archive.writestr(
             "benchmark_pairs.csv",
             pairs.to_csv(index=False).encode("utf-8-sig"),
+        )
+        archive.writestr(
+            "benchmark_algorithm_comparisons.csv",
+            comparisons.to_csv(index=False).encode("utf-8-sig"),
         )
         archive.writestr(
             "benchmark_summary.csv",
@@ -378,6 +481,7 @@ def build_benchmark_export_zip(
 
 
 __all__ = [
+    "build_benchmark_algorithm_comparisons_dataframe",
     "build_benchmark_charts_html",
     "build_benchmark_export_zip",
     "build_benchmark_improvement_figure",

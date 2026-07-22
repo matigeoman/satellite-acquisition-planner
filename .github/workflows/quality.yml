@@ -37,4 +37,4 @@ jobs:
         run: python -m app.cli audit --strict
 
       - name: End-to-end release check
-        run: python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
+        run: python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2

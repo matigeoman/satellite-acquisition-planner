@@ -8,6 +8,7 @@ from typing import Any, Mapping, MutableMapping
 
 from app.integrations.access import AccessCalculationResult
 from app.models.enums import PlanningAlgorithm
+from app.planning.profiles import DecisionProfile
 from app.projects.codec import decode_access_result, decode_orbit_snapshot
 from app.projects.history import (
     PROJECT_METADATA_STATE_KEY,
@@ -128,6 +129,7 @@ class DemoProjectService:
 
         options = PlanningOptions(
             algorithm=algorithm,
+            decision_profile=DecisionProfile.BALANCED,
             memory_reserve_ratio=0.15,
             use_dynamic_transition_model=True,
             cp_sat_time_limit_s=cp_sat_time_limit_s,

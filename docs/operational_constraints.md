@@ -61,7 +61,7 @@ pojedyncza akwizycja nadal realizuje podstawową część zlecenia, natomiast
 druga akwizycja i premia za parę są dopuszczane tylko dla pary zgodnej
 czasowo.
 
-## Greedy i CP-SAT
+## Greedy, CP-SAT i Hybrid
 
 Oba algorytmy korzystają z tego samego modułu `app.planning.operational`:
 

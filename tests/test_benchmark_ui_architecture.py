@@ -16,7 +16,7 @@ def test_benchmark_page_is_registered() -> None:
     assert "BENCHMARKS" in navigation
     assert "Benchmarki" in navigation
     assert "render_benchmark_page" in streamlit_app
-    assert "Uruchom benchmark Greedy vs CP-SAT" in page
+    assert "Uruchom benchmark planerów" in page
     assert "5000 okazji" in page
 
 

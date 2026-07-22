@@ -114,7 +114,7 @@ zawiera referencyjny stan sześciu satelitów i predykcję przelotów nad WAT dl
 Polecenie:
 
 ```powershell
-python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
+python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
 ```
 
 sprawdza dodatkowo:

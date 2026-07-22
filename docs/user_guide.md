@@ -9,7 +9,7 @@ flowchart LR
     C --> D[Okna dostępu]
     D --> E[Pogoda EO]
     E --> F[Okazje]
-    F --> G[Greedy lub CP-SAT]
+    F --> G[Graf + profil + planer]
     G --> H[Harmonogram]
     H --> I[Globus i raport]
 ```
@@ -31,8 +31,12 @@ przybliżeniem dostępu. Dla EO pobierz zachmurzenie i zbuduj okazje planistyczn
 
 ## 4. Planowanie na danych publicznych
 
-Uruchom Greedy lub CP-SAT. Ustaw rezerwę pamięci, limit solvera i ograniczenia
-operacyjne. Sprawdź harmonogram oraz diagnostykę niezrealizowanych zleceń.
+Wybierz Greedy, CP-SAT albo Hybrid oraz profil decyzyjny. `BALANCED` jest
+punktem wyjścia, `EMERGENCY` wzmacnia zlecenia obowiązkowe,
+`QUALITY_FIRST` jakość, `THROUGHPUT` przepustowość, a `SAR_EO_FUSION`
+kompletność par. Ustaw rezerwę pamięci, limit solvera i ograniczenia
+operacyjne. Po planowaniu sprawdź harmonogram, diagnostykę niezrealizowanych
+zleceń oraz zakładkę grafu konfliktów.
 
 ## 5. Przeplanowanie na danych publicznych
 
@@ -52,7 +56,7 @@ zaimportuj raport. Porównaj błędy granic okien i geometrii.
 ## 8. Benchmarki
 
 Uruchom serię scenariuszy o rosnącej liczbie zleceń. Eksportuj surowe przebiegi,
-podsumowania i wykresy porównujące Greedy z CP-SAT.
+podsumowania i wykresy porównujące Greedy, CP-SAT i Hybrid.
 
 ## 9. Projekty
 

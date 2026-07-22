@@ -102,7 +102,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     release_parser.add_argument(
         "--algorithm",
-        choices=("GREEDY", "CP_SAT", "BOTH"),
+        choices=("GREEDY", "CP_SAT", "HYBRID", "BOTH", "ALL"),
         default="BOTH",
     )
     release_parser.add_argument(
@@ -127,7 +127,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     plan_parser = subparsers.add_parser(
         "plan",
-        help="Uruchamia Greedy albo CP-SAT dla wybranego scenariusza.",
+        help="Uruchamia Greedy, CP-SAT albo Hybrid dla wybranego scenariusza.",
     )
     plan_parser.add_argument(
         "--scenario",
@@ -136,8 +136,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_parser.add_argument(
         "--algorithm",
-        choices=("GREEDY", "CP_SAT"),
-        default="CP_SAT",
+        choices=("GREEDY", "CP_SAT", "HYBRID"),
+        default="HYBRID",
     )
     plan_parser.add_argument(
         "--memory-reserve-ratio",
@@ -282,7 +282,13 @@ def _handle_release_check(args: argparse.Namespace, paths: ProjectPaths) -> int:
     algorithms = {
         "GREEDY": (PlanningAlgorithm.GREEDY,),
         "CP_SAT": (PlanningAlgorithm.CP_SAT,),
+        "HYBRID": (PlanningAlgorithm.HYBRID,),
         "BOTH": (PlanningAlgorithm.GREEDY, PlanningAlgorithm.CP_SAT),
+        "ALL": (
+            PlanningAlgorithm.GREEDY,
+            PlanningAlgorithm.CP_SAT,
+            PlanningAlgorithm.HYBRID,
+        ),
     }[args.algorithm]
     report = run_release_check(
         paths,

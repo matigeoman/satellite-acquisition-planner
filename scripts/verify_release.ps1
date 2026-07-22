@@ -54,8 +54,8 @@ function Wait-ContainerHealthy {
 }
 
 $Version = (Get-Content .\VERSION -Raw).Trim()
-if ($Version -ne "1.1.0") {
-    throw "Expected VERSION=1.1.0, found '$Version'."
+if ($Version -ne "1.2.0") {
+    throw "Expected VERSION=1.2.0, found '$Version'."
 }
 
 Write-Host "Project: $ProjectRoot"
@@ -81,7 +81,7 @@ Invoke-CheckedCommand "Runtime health" {
     & $Python -m app.cli health --skip-http
 }
 Invoke-CheckedCommand "Offline demo and full E2E" {
-    & $Python -m app.cli release-check --algorithm BOTH --cp-sat-time-limit 2
+    & $Python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
 }
 Invoke-CheckedCommand "Repository cleanup dry-run" {
     & $Python .\scripts\cleanup_repository.py --project-root . --dry-run
@@ -129,4 +129,4 @@ if ($Docker) {
 }
 
 Write-Host ""
-Write-Host "FINAL RELEASE 1.1.0: READY"
+Write-Host "FINAL RELEASE 1.2.0: READY"
