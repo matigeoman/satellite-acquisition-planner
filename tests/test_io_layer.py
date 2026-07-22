@@ -5,8 +5,10 @@ from pydantic import BaseModel, ConfigDict
 
 from app.catalog_loader import load_system_catalog as legacy_load_catalog
 from app.io import (
+    load_downlink_opportunity_set,
     load_schedule,
     load_system_catalog,
+    save_downlink_opportunity_set,
     save_schedule,
 )
 from app.io.json_files import load_json_model, save_json_model
@@ -81,4 +83,20 @@ def test_schedule_round_trip_through_new_io_layer(tmp_path: Path) -> None:
     loaded = load_schedule(destination)
 
     assert isinstance(loaded, Schedule)
+    assert loaded.model_dump(mode="json") == source.model_dump(mode="json")
+
+
+def test_downlink_set_round_trip_through_io_layer(tmp_path: Path) -> None:
+    catalog = load_system_catalog(
+        PROJECT_ROOT / "data" / "scenarios" / "example" / "system.json"
+    )
+    source = load_downlink_opportunity_set(
+        PROJECT_ROOT / "data" / "scenarios" / "example" / "downlinks.json",
+        catalog=catalog,
+    )
+    destination = tmp_path / "downlinks.json"
+
+    save_downlink_opportunity_set(source, destination)
+    loaded = load_downlink_opportunity_set(destination, catalog=catalog)
+
     assert loaded.model_dump(mode="json") == source.model_dump(mode="json")

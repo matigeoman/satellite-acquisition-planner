@@ -94,3 +94,13 @@ def test_reference_schedule_path_rejects_unknown_scenario() -> None:
             scenario_id="UNKNOWN",
             algorithm_value="GREEDY",
         )
+
+
+def test_planning_page_contains_integrated_downlink_view() -> None:
+    path = PROJECT_ROOT / "app" / "ui" / "pages" / "planning.py"
+    source = path.read_text(encoding="utf-8")
+
+    assert "Pamięć i downlink" in source
+    assert "Zintegrowane planowanie downlinku" in source
+    assert "Pobierz downlink CSV" in source
+    assert "build_memory_timeline_dataframe" in source

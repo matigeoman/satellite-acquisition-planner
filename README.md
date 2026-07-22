@@ -1,16 +1,16 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.2.0`
+**Wersja:** `1.3.0`
 
 Satellite Acquisition Planner służy do planowania akwizycji zobrazowań
 satelitarnych SAR i EO. Aplikacja łączy publiczne dane orbitalne OMM,
 propagację SGP4, okna dostępu, prognozę zachmurzenia, planowanie Greedy,
 CP-SAT i Hybrid, przeplanowanie oraz walidację względem STK.
 
-Wersja 1.2.0 rozwija model planowania na podstawie konkretnych prac naukowych:
-wprowadza graf niewykonalności okazji, Greedy 2.0 z kosztem utraconych
-możliwości, lokalną poprawę CP-SAT i jawne profile decyzyjne. Zakres adaptacji
-oraz elementy autorskie opisano w
+Wersja 1.3.0 rozszerza badawczy model planowania o stacje naziemne, jawne
+okna downlinku i pamięć zmienną w czasie. Akwizycje zwiększają zajętość
+pamięci, a zaplanowane transmisje zwalniają ją zgodnie z przepustowością
+kontaktu. Zakres adaptacji oraz elementy autorskie opisano w
 [`docs/research_foundations.md`](docs/research_foundations.md).
 
 Scenariusz `POLAND_DEMO` zawiera kompletny zestaw danych offline do prezentacji
@@ -25,6 +25,7 @@ komercyjnego taskingu ani wykonania akwizycji przez operatora.
 - okna dostępu, ślady naziemne, globus operacyjny i mapa nieba;
 - prognoza zachmurzenia Open-Meteo dla okazji EO;
 - Greedy, Greedy 2.0, OR-Tools CP-SAT i planer Hybrid;
+- stacje naziemne, okna downlinku, przepustowość i dynamiczna pamięć;
 - graf konfliktów z diagnostyką komponentów i przyczyn;
 - profile `BALANCED`, `EMERGENCY`, `QUALITY_FIRST`, `THROUGHPUT` i
   `SAR_EO_FUSION`;
@@ -98,11 +99,13 @@ OMM + SGP4
     ↓
 okna dostępu i pogoda EO
     ↓
-okazje akwizycyjne
+okazje akwizycyjne + okna downlinku
     ↓
 graf konfliktów + profil decyzyjny
     ↓
 Greedy / CP-SAT / Hybrid
+    ↓
+oś pamięci + transmisja do stacji naziemnych
     ↓
 harmonogram i przeplanowanie
     ↓
@@ -135,7 +138,8 @@ Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 - [indeks dokumentacji](docs/index.md),
 - [instrukcja użytkownika](docs/user_guide.md),
 - [model planowania](docs/planning_model.md),
-- [podstawy badawcze wersji 1.2.0](docs/research_foundations.md),
+- [podstawy badawcze wersji 1.3.0](docs/research_foundations.md),
+- [downlink i pamięć dynamiczna](docs/downlink_and_dynamic_memory.md),
 - [bibliografia i repozytoria referencyjne](docs/references.md),
 - [metodyka naukowa](docs/scientific_methodology.md),
 - [benchmarki](docs/benchmarking.md),
@@ -145,14 +149,15 @@ Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 
 ## Podstawy naukowe
 
-Wersja 1.2.0 jest autorską adaptacją metod opisanych w literaturze. Nie stanowi
+Wersja 1.3.0 jest autorską adaptacją metod opisanych w literaturze. Nie stanowi
 kopii jednego artykułu ani repozytorium. Najważniejsze podstawy to:
 
 - opportunity-based model i graf niewykonalności;
 - korzyść oraz koszt utraconych okazji w heurystyce konstrukcyjnej;
 - Greedy jako incumbent i lokalne podproblemy CP-SAT;
 - wielokryterialne profile preferencji;
-- reaktywne przeplanowanie po zakłóceniach.
+- reaktywne przeplanowanie po zakłóceniach;
+- zintegrowane planowanie akwizycji, dynamicznej pamięci i downlinku.
 
 Dokładne przypisanie źródło → moduł → zakres adaptacji znajduje się w
 [`docs/research_foundations.md`](docs/research_foundations.md).
@@ -160,8 +165,10 @@ Dokładne przypisanie źródło → moduł → zakres adaptacji znajduje się w
 ## Ograniczenia interpretacyjne
 
 OMM/SGP4, geometria sensora, parametry manewrowe i budżety zasobów są jawnymi
-założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. Hybrid
-zachowuje własny plan początkowy Greedy 2.0 przy równym statusie wykonalności, ale nie gwarantuje optimum globalnego. STK
+założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. Hybrid zachowuje własny plan początkowy Greedy 2.0 przy równym statusie
+wykonalności, ale nie gwarantuje optimum globalnego. Okna stacji naziemnych
+w scenariuszach demonstracyjnych są syntetyczne i nie potwierdzają
+operacyjnego dostępu do infrastruktury. STK
 służy do walidacji zewnętrznej i nie jest wymagany do działania aplikacji.
 
 ## Wersjonowanie

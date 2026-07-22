@@ -45,6 +45,7 @@ def test_stress_scenario_paths_are_stable(tmp_path: Path) -> None:
         "system.json",
         "requests.json",
         "opportunities.json",
+        "downlinks.json",
     ]
     assert scenario.catalog.parent.name == "stress"
 
@@ -58,6 +59,7 @@ def test_poland_demo_scenario_paths_are_stable(tmp_path: Path) -> None:
         "system.json",
         "requests.json",
         "opportunities.json",
+        "downlinks.json",
     ]
 
 def test_unknown_scenario_path_is_rejected(tmp_path: Path) -> None:

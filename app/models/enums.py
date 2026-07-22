@@ -98,6 +98,13 @@ class OpportunitySourceType(str, Enum):
     SAVOIR = "SAVOIR"
 
 
+class DownlinkSourceType(str, Enum):
+    SYNTHETIC = "SYNTHETIC"
+    PUBLIC_DATA = "PUBLIC_DATA"
+    EXTERNAL = "EXTERNAL"
+    STK = "STK"
+
+
 class PlanningAlgorithm(str, Enum):
     GREEDY = "GREEDY"
     CP_SAT = "CP_SAT"

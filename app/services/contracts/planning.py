@@ -22,6 +22,11 @@ class PlanningOptions:
 
     memory_reserve_ratio: float = 0.15
 
+    enable_downlink_planning: bool = False
+    require_full_downlink: bool = False
+    allow_simultaneous_imaging_downlink: bool = False
+    downlink_capacity_reserve_ratio: float = 0.10
+
     use_dynamic_transition_model: bool = False
     eo_stabilization_time_s: float = 3.0
     sar_stabilization_time_s: float = 10.0
@@ -107,6 +112,15 @@ class PlanningOptions:
         if not 0.0 <= self.memory_reserve_ratio <= 1.0:
             raise ValueError(
                 "memory_reserve_ratio musi należeć do zakresu [0, 1]"
+            )
+
+        if not 0.0 <= self.downlink_capacity_reserve_ratio <= 1.0:
+            raise ValueError(
+                "downlink_capacity_reserve_ratio musi należeć do zakresu [0, 1]"
+            )
+        if self.require_full_downlink and not self.enable_downlink_planning:
+            raise ValueError(
+                "require_full_downlink wymaga enable_downlink_planning"
             )
 
         nonnegative_values = {

@@ -40,6 +40,7 @@ from app.integrations.weather import (
     WindowCloudAssessment,
 )
 from app.models.catalog import SystemCatalog
+from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.enums import ObservationSide, ScheduleEntryStatus, SensorType
 from app.models.opportunity import AcquisitionOpportunity
 from app.models.opportunity_set import AcquisitionOpportunitySet
@@ -313,7 +314,7 @@ def decode_opportunity_builds(
 
 
 def encode_scenario(scenario: LoadedScenario) -> dict[str, Any]:
-    return {
+    payload = {
         "definition": {
             "scenario_id": scenario.definition.scenario_id,
             "name": scenario.definition.name,
@@ -323,6 +324,9 @@ def encode_scenario(scenario: LoadedScenario) -> dict[str, Any]:
         "request_set": scenario.request_set.model_dump(mode="json"),
         "opportunity_set": scenario.opportunity_set.model_dump(mode="json"),
     }
+    if scenario.downlink_set is not None:
+        payload["downlink_set"] = scenario.downlink_set.model_dump(mode="json")
+    return payload
 
 
 def decode_scenario(payload: Mapping[str, Any]) -> LoadedScenario:
@@ -333,6 +337,21 @@ def decode_scenario(payload: Mapping[str, Any]) -> LoadedScenario:
         payload["opportunity_set"]
     )
     opportunity_set.validate_against(catalog, request_set)
+    downlink_payload = payload.get("downlink_set")
+    downlink_set = (
+        DownlinkOpportunitySet.model_validate(downlink_payload)
+        if downlink_payload is not None
+        else None
+    )
+    if downlink_set is not None:
+        downlink_set.validate_against(catalog)
+        if (
+            downlink_set.horizon_start_utc != request_set.horizon_start_utc
+            or downlink_set.horizon_end_utc != request_set.horizon_end_utc
+        ):
+            raise ValueError(
+                "Horyzont downlinków w archiwum jest niezgodny ze scenariuszem"
+            )
     definition = ScenarioDefinition(
         scenario_id=str(definition_payload.get("scenario_id", "PUBLIC")),
         name=str(definition_payload.get("name", "Projekt zaimportowany")),
@@ -345,12 +364,18 @@ def decode_scenario(payload: Mapping[str, Any]) -> LoadedScenario:
         catalog_path=Path("archive/system.json"),
         request_set_path=Path("archive/requests.json"),
         opportunity_set_path=Path("archive/opportunities.json"),
+        downlink_set_path=(
+            Path("archive/downlinks.json")
+            if downlink_set is not None
+            else None
+        ),
     )
     return LoadedScenario(
         definition=definition,
         catalog=catalog,
         request_set=request_set,
         opportunity_set=opportunity_set,
+        downlink_set=downlink_set,
     )
 
 

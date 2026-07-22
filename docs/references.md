@@ -12,10 +12,12 @@ Dokument rozdziela cztery rodzaje podstaw projektu:
    implementacji pokrewnych modeli.
 
 Satellite Acquisition Planner jest implementacją autorską. Kod analizowanych
-repozytoriów nie został skopiowany. Wersja 1.2.0 świadomie adaptuje wybrane
-koncepcje naukowe: graf niewykonalności, heurystykę kosztu utraconych okazji,
-Greedy jako rozwiązanie początkowe i lokalną poprawę CP-SAT oraz jawne profile
-preferencji. Dokładne mapowanie znajduje się w
+repozytoriów nie został skopiowany. Wersja 1.3.0 rozwija wcześniejszą warstwę badawczą o zintegrowane
+planowanie pamięci i downlinku: akwizycje generują dane, kontakty ze stacjami
+zwalniają pamięć, a planery respektują przepustowość i liczbę kanałów stacji.
+Pozostałe adaptowane koncepcje obejmują graf niewykonalności, heurystykę kosztu
+utraconych okazji, Greedy jako rozwiązanie początkowe i lokalną poprawę
+CP-SAT oraz jawne profile preferencji. Dokładne mapowanie znajduje się w
 [`research_foundations.md`](research_foundations.md).
 
 ## Powiązanie źródeł z elementami aplikacji
@@ -31,6 +33,7 @@ preferencji. Dokładne mapowanie znajduje się w
 | Hybrid Greedy–CP-SAT | [R18] | rozwiązanie początkowe Greedy i lokalna poprawa wybranych sąsiedztw |
 | profile preferencji | [R21], [G2] | jawne profile wag; bez deklarowania pełnej implementacji ELECTRE III |
 | reaktywne przeplanowanie | [R20], [R22] | zachowanie wpisów wykonanych i zamrożonych oraz ponowna optymalizacja |
+| dynamiczna pamięć i downlink | [R18], [R22], [R28], [G1] | agregatowa objętość danych, okna kontaktów, przepustowość i limity kanałów |
 | metodyka benchmarków | [R23] | wspólne instancje, wiele ziaren i raportowanie rozkładu wyników |
 | solver CP-SAT | [R10] | zmienne całkowite, limity czasu, hints i interpretacja statusów |
 | profil SAR ICEYE | [R11] | publiczne tryby i parametry produktów; wartości modelowe są oznaczone osobno |
@@ -50,9 +53,11 @@ preferencji. Dokładne mapowanie znajduje się w
   limity akwizycji pozostają osobnymi ograniczeniami planerów.
 - Greedy 2.0 nie jest przepisaniem wzorów PSB/POC. Jest ich adaptacją do
   istniejącego scoringu, okazji SAR/EO i grafu projektu.
-- Planer Hybrid nie odtwarza całego solvera Antuoriego i in. Nie planuje
-  downlinku i nie implementuje pełnego LNS. Wykorzystuje ten sam ogólny schemat:
-  szybki incumbent, ograniczone podproblemy CP oraz akceptacja poprawy.
+- Planer Hybrid nie odtwarza całego solvera Antuoriego i in. Nie implementuje
+  pełnego LNS ani ich dokładnego rozkładu na komponenty TSPTW. W wersji 1.3.0
+  przekazuje jednak model pamięci i downlinku zarówno do Greedy, jak i lokalnego
+  CP-SAT. Zachowuje ogólny schemat: szybki incumbent, ograniczone podproblemy CP
+  oraz akceptacja poprawy.
 - Profile preferencji są ważoną funkcją użyteczności. Nie są implementacją
   ELECTRE III, TOPSIS ani pełnej analizy przestrzeni wag.
 - Parametry ICEYE i Pléiades Neo pochodzą z materiałów publicznych albo są
@@ -163,6 +168,10 @@ Constellations,” *Journal of Spacecraft and Rockets*, 58(5), 1416–1429, 2021
 V. Baudoui, J. Guerra, “Earth Observation Satellite Scheduling with Graph
 Neural Networks,” *17th European Workshop on Reinforcement Learning*, 2024.
 <https://arxiv.org/abs/2408.15041>
+
+**[R28]** A. J. Vázquez Álvarez, R. S. Erwin,
+*An Introduction to Optimal Satellite Range Scheduling*, Springer, 2015.
+DOI: <https://doi.org/10.1007/978-3-319-25498-3>
 
 ### Systemy obrazowania i publiczne źródła danych
 

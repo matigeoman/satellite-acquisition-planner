@@ -7,7 +7,7 @@ wielosatelitarny wariant AEOSSP dla heterogenicznej konstelacji SAR/EO.
 Kandydatem decyzyjnym jest gotowa okazja akwizycyjna zawierająca satelitę,
 sensor, tryb, przedział czasu, geometrię i ocenę jakości.
 
-Wersja 1.2.0 wprowadza trzy warianty planowania:
+Wersja 1.3.0 udostępnia trzy warianty planowania:
 
 - **Greedy** — deterministyczna heurystyka konstrukcyjna;
 - **CP-SAT** — globalny model wyboru okazji;
@@ -73,8 +73,8 @@ nie może zostać wybrana jednocześnie. Rejestrowane przyczyny to:
 - `SATELLITE_TRANSITION`.
 
 Reprezentacja jest adaptacją perspektywy grafu niewykonalności Eddy’ego
-[R17], [R26]. Ograniczenia globalne, takie jak sumaryczna pamięć, nie są
-sprowadzane do sztucznych konfliktów parowych.
+[R17], [R26]. Ograniczenia globalne, takie jak dynamiczna pamięć, przepustowość downlinku
+i limity kanałów stacji, nie są sprowadzane do sztucznych konfliktów parowych.
 
 Graf służy do:
 
@@ -114,11 +114,50 @@ zasobów są skalowane do liczb całkowitych zgodnie z wymaganiami OR-Tools
 [R10]. Status `FEASIBLE` oznacza znalezienie planu wykonalnego, lecz nie dowód
 optymalności. `OPTIMAL` oznacza dowód optymalności dla zbudowanego modelu.
 
-Wersja 1.2.0 rozszerza model o:
+Warstwa CP-SAT rozszerza model o:
 
 - rozwiązanie początkowe przekazywane przez `AddHint`;
 - możliwość ustalenia decyzji poza lokalnym sąsiedztwem;
 - walidację konfliktu między wpisem stałym a decyzją zablokowaną.
+
+## Pamięć dynamiczna i downlink
+
+Po włączeniu `enable_downlink_planning` decyzje obrazowania są sprzężone z
+oknami kontaktów. Dla satelity `s` stan pamięci w punkcie czasu `t` ma postać:
+
+\[
+M_s(t)=M_s^0+\sum_{i:e_i\le t} d_i x_i
+       -\sum_{w:f_w\le t} q_w,
+\]
+
+gdzie `d_i` oznacza objętość danych akwizycji, `q_w` zaplanowaną objętość
+downlinku, a `e_i` i `f_w` odpowiednio koniec akwizycji i kontaktu. W każdym
+punkcie kontrolnym obowiązuje:
+
+\[
+0 \le M_s(t) \le C_s(1-r_s).
+\]
+
+Objętość transmisji w oknie jest ograniczona przez czas efektywny, szybkość
+łącza, sprawność i rezerwę przepustowości:
+
+\[
+q_w \le \frac{v_w}{8}(T_w-T_{setup}-T_{teardown})\eta_w(1-r_d).
+\]
+
+Dodatkowe ograniczenia zapewniają jednocześnie:
+
+- brak nakładających się kontaktów tej samej anteny satelity;
+- nieprzekroczenie `max_simultaneous_contacts` stacji;
+- opcjonalny zakaz równoczesnego obrazowania i downlinku;
+- brak transmisji danych, które powstaną dopiero po rozpoczęciu kontaktu;
+- opcjonalne opróżnienie pamięci do końca horyzontu.
+
+Greedy wybiera kontakty chronologicznie i rozlicza dane FIFO. CP-SAT tworzy
+zmienne całkowite objętości dla okien kontaktów i ograniczenia pamięci na osi
+czasu. Hybrid przekazuje ten sam zbiór kontaktów do obu etapów. Pełny opis i
+założenia znajdują się w
+[`downlink_and_dynamic_memory.md`](downlink_and_dynamic_memory.md).
 
 ## Planer Hybrid
 
@@ -198,6 +237,7 @@ app/planning/fixed.py           akwizycje wykonane i zamrożone
 app/planning/greedy.py          Greedy i Greedy 2.0
 app/planning/cp_sat.py          globalny i lokalnie blokowany CP-SAT
 app/planning/hybrid.py          iteracyjna poprawa sąsiedztw
+app/planning/resources.py       pamięć na osi czasu i planowanie downlinku
 app/planning/operational.py     ograniczenia operacyjne
 ```
 

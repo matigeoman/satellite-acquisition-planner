@@ -124,6 +124,11 @@ def _component_counts(state: Mapping[str, Any]) -> dict[str, int]:
         if isinstance(planning, PlanningResult)
         else 0
     )
+    downlink_count = (
+        planning.scenario.downlink_opportunity_count
+        if isinstance(planning, PlanningResult)
+        else 0
+    )
     return {
         "requests": len(requests),
         "opportunity_builds": len(builds),
@@ -132,11 +137,17 @@ def _component_counts(state: Mapping[str, Any]) -> dict[str, int]:
             if build_opportunity_count
             else planning_opportunity_count
         ),
+        "downlink_opportunities": downlink_count,
         "access_windows": len(
             getattr(state.get(ACCESS_RESULT_STATE_KEY), "windows", ())
         ),
         "schedule_entries": len(
             planning.schedule.active_entries
+            if isinstance(planning, PlanningResult)
+            else ()
+        ),
+        "downlink_schedule_entries": len(
+            planning.schedule.downlink_entries
             if isinstance(planning, PlanningResult)
             else ()
         ),
@@ -260,6 +271,10 @@ class ProjectArchiveService:
             files["scenario.json"] = _dump_json(
                 encode_planning_result(planning)["scenario"]
             )
+            if planning.scenario.downlink_set is not None:
+                files["downlinks.json"] = _dump_json(
+                    planning.scenario.downlink_set.model_dump(mode="json")
+                )
             files["schedule.json"] = _dump_json(
                 planning.schedule.model_dump(mode="json")
             )

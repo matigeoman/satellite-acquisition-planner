@@ -34,6 +34,7 @@ def test_release_check_validates_full_artifact_pipeline(tmp_path: Path) -> None:
     assert steps["live-tracking-sky-map"].passed
     assert "Zlecenia: 50" in steps["scenario-load"].details
     assert "Okazje: 500" in steps["scenario-load"].details
+    assert "Downlinki: 72" in steps["scenario-load"].details
     assert "Obiekty OMM: 6" in steps["demo-orbit-access"].details
     assert steps["eo-weather-opportunities"].passed
     assert steps["planning-greedy"].passed

@@ -1,105 +1,145 @@
-# Satellite Acquisition Planner 1.2.0
+# Satellite Acquisition Planner 1.3.0
 
 Data wydania: **22 lipca 2026 r.**
 
-Wersja 1.2.0 rozwija planer w kierunku jawnie udokumentowanej metody badawczej.
-Nie zmienia formatu scenariuszy ani archiwów projektu, ale dodaje nowy algorytm,
-warstwę grafową, profile decyzji i rozszerzony benchmark.
+Wersja 1.3.0 rozszerza planer o zintegrowane planowanie akwizycji, pamięci
+pokładowej i transmisji danych do stacji naziemnych. Rozszerzenie zachowuje
+model Hybrid z wersji 1.2.0, ale usuwa wcześniejsze uproszczenie, w którym
+pamięć była wyłącznie sumarycznym budżetem na cały horyzont.
 
-## Najważniejsze zmiany
+## Najważniejsza zmiana
 
-### Graf niewykonalności
+Dla każdego satelity tworzona jest oś zdarzeń:
 
-- każda wykonalna okazja może być węzłem grafu;
-- krawędzie opisują alternatywy tego samego zlecenia, niezgodne pary SAR–EO i
-  brak czasu na przeorientowanie;
-- interfejs pokazuje gęstość, komponenty, przyczyny konfliktów i okazje o
-  najwyższym stopniu.
+```text
+stan początkowy pamięci
+    ↓
+koniec akwizycji: +objętość danych
+    ↓
+koniec downlinku: −objętość wysłanych danych
+    ↓
+kolejne akwizycje i kontakty
+```
 
-### Greedy 2.0
+Plan jest wykonalny tylko wtedy, gdy zajętość pamięci nie przekracza limitu
+planistycznego w żadnym punkcie tej osi. Opcjonalnie można wymagać, aby dane
+zostały w całości przesłane przed końcem horyzontu.
 
-- ranking uwzględnia rzadkość alternatywnych okien;
-- kosztuje czas, pamięć i blokowanie wartościowych okazji innych zleceń;
-- klasyczny Greedy pozostaje dostępny dla zgodności wyników historycznych.
+## Nowe elementy domenowe
 
-### Planer Hybrid
+- `GroundStation` — lokalizacja, minimalna elewacja, aktywność i liczba
+  równoległych kanałów odbiorczych;
+- `DownlinkOpportunity` — stałe okno kontaktu, przepustowość, sprawność,
+  setup/teardown i nominalna pojemność transmisji;
+- `DownlinkOpportunitySet` — zwalidowany zbiór kontaktów zgodny z katalogiem i
+  horyzontem scenariusza;
+- `DownlinkScheduleEntry` — wybrane okno, zaplanowana objętość i identyfikatory
+  danych przesłanych metodą FIFO;
+- `MemoryTimelinePoint` i `SatelliteResourceSummary` — ślad zdarzeń oraz
+  podsumowanie szczytowej, końcowej i przesłanej objętości danych.
 
-- Greedy 2.0 tworzy rozwiązanie początkowe;
-- CP-SAT optymalizuje kolejne sąsiedztwa zleceń wyznaczone z grafu;
-- decyzje poza sąsiedztwem pozostają zablokowane;
-- gorszy kandydat nie zastępuje incumbenta;
-- CLI i release-check obsługują `HYBRID` oraz `ALL`.
+## Planery
 
-### Profile decyzyjne
+### Greedy
 
-Dodano profile:
+Greedy chronologicznie przydziela dostępne kontakty do danych znajdujących się
+już w pamięci. Przy każdej próbie dodania akwizycji sprawdza cały wynikowy
+profil pamięci. Dzięki temu może zaakceptować łączną objętość akwizycji większą
+od fizycznej pojemności pamięci, o ile wcześniejsze downlinki zwalniają miejsce.
 
-- `BALANCED`;
-- `EMERGENCY`;
-- `QUALITY_FIRST`;
-- `THROUGHPUT`;
-- `SAR_EO_FUSION`;
-- `CUSTOM`.
+### CP-SAT
 
-Profile jawnie ustawiają wagi scoringu i heurystyki. Nie są deklarowane jako
-pełna implementacja ELECTRE III lub TOPSIS.
+CP-SAT otrzymał zmienne użycia kontaktu i ilości przesyłanych danych. Model
+uwzględnia:
 
-### Benchmarki
+- pojemność kontaktu po odjęciu rezerwy;
+- dostępność danych przed rozpoczęciem kontaktu;
+- pamięć w kolejnych punktach czasowych;
+- jeden kontakt na antenę satelity;
+- liczbę równoległych kanałów stacji;
+- opcjonalny zakaz jednoczesnego obrazowania i downlinku;
+- opcjonalne opróżnienie pamięci do końca horyzontu.
 
-- możliwe jest równoległe porównanie Greedy, CP-SAT i Hybrid;
-- wszystkie warianty jednego powtórzenia używają tego samego ziarna;
-- eksport zawiera dodatkowy plik
-  `benchmark_algorithm_comparisons.csv`;
-- osobno raportowane są wyniki CP-SAT i Hybrid względem Greedy.
+### Hybrid
 
-### Dokumentacja naukowa
+Hybrid przekazuje ten sam model pamięci i kontaktów do planu początkowego
+Greedy oraz lokalnych podproblemów CP-SAT. Zachowuje dotychczasową zasadę
+nieprzyjmowania gorszego incumbenta przy równym statusie wykonalności.
 
-- dodano mapę źródło → implementacja → zakres adaptacji;
-- rozbudowano bibliografię o prace Eddy’ego, Antuoriego i in., Xu i in.,
-  Verfaillie i in., Vasegaarda i in., Globusa i in. oraz CCSDS;
-- opisano, które elementy są autorskie, a które pozostają dopiero kierunkiem
-  rozwoju;
-- udokumentowano licencje analizowanych repozytoriów i brak kopiowania kodu.
+## Interfejs i eksport
 
-## Podstawa metodologiczna
+Strona planowania zawiera sekcję **Pamięć dynamiczna i downlink** oraz zakładkę
+**Pamięć i downlink**. Dostępne są:
 
-Szczegółowy opis znajduje się w:
+- wykres zajętości pamięci w czasie;
+- podsumowania dla każdego satelity;
+- lista wybranych kontaktów i wykorzystanie ich pojemności;
+- identyfikatory danych przesłanych w każdym kontakcie;
+- eksport akwizycji i downlinków do oddzielnych plików CSV;
+- pełny zapis zasobów w harmonogramie JSON i archiwum `.satplan.zip`.
 
-- [`docs/research_foundations.md`](docs/research_foundations.md),
-- [`docs/planning_model.md`](docs/planning_model.md),
-- [`docs/scientific_methodology.md`](docs/scientific_methodology.md),
-- [`docs/references.md`](docs/references.md).
+CLI obsługuje:
 
-## Walidacja referencyjna
+```text
+--enable-downlink
+--require-full-downlink
+--allow-simultaneous-imaging-downlink
+--downlink-capacity-reserve-ratio
+```
+
+## Scenariusze demonstracyjne
+
+`EXAMPLE`, `STRESS` i `POLAND_DEMO` zawierają po dwie demonstracyjne stacje
+oraz odpowiednio 36, 36 i 72 okna kontaktu. Okna są **syntetyczne**. Służą do
+walidacji algorytmu i nie reprezentują rzeczywistego dostępu operatorskiego,
+licencji częstotliwościowej ani umowy z właścicielem stacji.
+
+## Podstawa naukowa
+
+Rozszerzenie jest autorską implementacją inspirowaną zintegrowanym modelem
+akwizycji, pamięci i downlinku opisanym przez Antuoriego, Wojtowicza i
+Hebrarda, modelami Mission Planning and Scheduling CCSDS oraz literaturą
+Satellite Range Scheduling. Nie skopiowano kodu z repozytoriów referencyjnych.
+Szczegóły znajdują się w:
+
+- `docs/research_foundations.md`;
+- `docs/downlink_and_dynamic_memory.md`;
+- `docs/references.md`.
+
+## Zgodność
+
+- stare katalogi bez `ground_stations` pozostają poprawne;
+- stare harmonogramy bez wpisów downlinku pozostają poprawne;
+- schemat archiwum projektu pozostaje `1.0.0`, ale scenariusz wewnątrz archiwum
+  może zawierać opcjonalny `downlink_set`;
+- planowanie downlinku jest wyłączone domyślnie na poziomie API dla zgodności,
+  a w głównym formularzu scenariuszy wbudowanych jest włączone;
+- Nie jest wymagana migracja danych.
+
+## Kontrola wydania
+
+Pełną walidację wydania uruchamia skrypt:
 
 ```powershell
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Oczekiwany wynik:
+Równoważne kroki ręczne:
 
-```text
-Stan: RELEASE READY
-Docker status: healthy
-FINAL RELEASE 1.2.0: READY
+```powershell
+docker compose build --no-cache satplan
+
+docker compose run --rm --user root `
+  -e PIP_NO_CACHE_DIR=1 `
+  satplan sh -lc "python -m pip install --quiet --no-cache-dir -r requirements-dev.txt -c requirements-lock.txt && python -m pytest -q && python -m ruff check app tests streamlit_app.py scripts"
+
+docker compose up -d --force-recreate satplan
+docker compose exec -T satplan python -m app.cli audit --strict
+docker compose exec -T satplan python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
 ```
 
-## Zgodność
+Oczekiwane zakończenie skryptu wydania:
 
-Wersja zachowuje:
-
-- format scenariuszy i harmonogramów `1.0.x` i `1.1.x`;
-- format archiwum projektu;
-- publiczne interfejsy `app.io` i moduły zgodnościowe;
-- scenariusze `EXAMPLE`, `POLAND_DEMO` i `STRESS`.
-
-Nie jest wymagana migracja danych.
-
-## Znane ograniczenia
-
-- Hybrid gwarantuje zachowanie własnego incumbenta Greedy 2.0, ale nie optimum
-  globalne;
-- graf obejmuje konflikty parowe, a nie wszystkie ograniczenia zasobowe;
-- profile są ważoną funkcją użyteczności, bez pełnego ELECTRE III;
-- pamięć pozostaje modelem budżetowym bez planowania downlinku w czasie;
-- OMM/SGP4 i parametry sensorów nie zastępują danych operatora.
+```text
+FINAL RELEASE 1.3.0: READY
+```

@@ -122,6 +122,8 @@ def test_example_scenario_is_loaded(
         example_scenario.satellite_count
         == 6
     )
+    assert example_scenario.ground_station_count == 2
+    assert example_scenario.downlink_opportunity_count == 36
 
 
 def test_stress_scenario_is_loaded(
@@ -134,6 +136,7 @@ def test_stress_scenario_is_loaded(
     assert scenario.active_request_count == 80
     assert scenario.opportunity_count == 800
     assert scenario.mandatory_request_count == 4
+    assert scenario.downlink_opportunity_count == 36
 
 
 def test_missing_scenario_files_are_rejected(
@@ -268,6 +271,36 @@ def test_greedy_service_builds_schedule(
     assert result.objective_value > 0.0
     assert result.wall_clock_runtime_s >= 0.0
 
+
+
+def test_greedy_service_builds_integrated_downlink_plan(
+    example_scenario,
+) -> None:
+    result = PlanningService().run(
+        scenario=example_scenario,
+        options=PlanningOptions(
+            algorithm=PlanningAlgorithm.GREEDY,
+            memory_reserve_ratio=0.0,
+            enable_downlink_planning=True,
+            require_full_downlink=True,
+            downlink_capacity_reserve_ratio=0.10,
+        ),
+        created_at_utc=FIXED_CREATED_AT,
+    )
+
+    assert result.schedule.status == ScheduleStatus.FEASIBLE
+    assert len(result.schedule.resource_summaries) == 6
+    assert result.schedule.downlink_entries
+    assert result.schedule.total_downlinked_data_mb > 0.0
+    assert all(
+        summary.memory_feasible and summary.delivery_complete
+        for summary in result.schedule.resource_summaries
+    )
+    assert all(
+        entry.planned_data_volume_mb
+        <= entry.effective_planning_capacity_mb + 1e-6
+        for entry in result.schedule.downlink_entries
+    )
 
 def test_cp_sat_service_builds_schedule(
     example_scenario,

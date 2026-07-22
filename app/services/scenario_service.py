@@ -6,11 +6,13 @@ from typing import Iterable
 
 from app.config.paths import DEFAULT_PROJECT_ROOT, ProjectPaths
 from app.io import (
+    load_downlink_opportunity_set,
     load_opportunity_set,
     load_request_set,
     load_system_catalog,
 )
 from app.models.catalog import SystemCatalog
+from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.opportunity_set import AcquisitionOpportunitySet
 from app.models.request_set import ObservationRequestSet
 
@@ -26,6 +28,7 @@ class ScenarioDefinition:
     catalog_path: Path
     request_set_path: Path
     opportunity_set_path: Path
+    downlink_set_path: Path | None = None
 
     def __post_init__(self) -> None:
         normalized_id = self.scenario_id.strip().upper()
@@ -82,14 +85,23 @@ class ScenarioDefinition:
             "opportunity_set_path",
             Path(self.opportunity_set_path),
         )
+        if self.downlink_set_path is not None:
+            object.__setattr__(
+                self,
+                "downlink_set_path",
+                Path(self.downlink_set_path),
+            )
 
     @property
-    def required_paths(self) -> tuple[Path, Path, Path]:
-        return (
+    def required_paths(self) -> tuple[Path, ...]:
+        paths = [
             self.catalog_path,
             self.request_set_path,
             self.opportunity_set_path,
-        )
+        ]
+        if self.downlink_set_path is not None:
+            paths.append(self.downlink_set_path)
+        return tuple(paths)
 
     def validate_files(self) -> None:
         """Sprawdza obecność wszystkich plików scenariusza."""
@@ -120,6 +132,7 @@ class LoadedScenario:
     catalog: SystemCatalog
     request_set: ObservationRequestSet
     opportunity_set: AcquisitionOpportunitySet
+    downlink_set: DownlinkOpportunitySet | None = None
 
     @property
     def scenario_id(self) -> str:
@@ -158,6 +171,16 @@ class LoadedScenario:
         return len(
             self.catalog.satellites
         )
+
+    @property
+    def ground_station_count(self) -> int:
+        return len(self.catalog.ground_stations)
+
+    @property
+    def downlink_opportunity_count(self) -> int:
+        if self.downlink_set is None:
+            return 0
+        return len(self.downlink_set.feasible_opportunities)
 
 
 class ScenarioService:
@@ -279,11 +302,28 @@ class ScenarioService:
             request_set=request_set,
         )
 
+        downlink_set = None
+        if definition.downlink_set_path is not None:
+            downlink_set = load_downlink_opportunity_set(
+                definition.downlink_set_path,
+                catalog=catalog,
+            )
+            if (
+                downlink_set.horizon_start_utc
+                != request_set.horizon_start_utc
+                or downlink_set.horizon_end_utc
+                != request_set.horizon_end_utc
+            ):
+                raise ValueError(
+                    "Horyzont downlinków jest niezgodny ze scenariuszem"
+                )
+
         return LoadedScenario(
             definition=definition,
             catalog=catalog,
             request_set=request_set,
             opportunity_set=opportunity_set,
+            downlink_set=downlink_set,
         )
 
 
@@ -308,6 +348,7 @@ def build_default_scenario_definitions(
             catalog_path=example.catalog,
             request_set_path=example.requests,
             opportunity_set_path=example.opportunities,
+            downlink_set_path=example.downlinks,
         ),
         ScenarioDefinition(
             scenario_id="STRESS",
@@ -319,6 +360,7 @@ def build_default_scenario_definitions(
             catalog_path=stress.catalog,
             request_set_path=stress.requests,
             opportunity_set_path=stress.opportunities,
+            downlink_set_path=stress.downlinks,
         ),
         ScenarioDefinition(
             scenario_id="POLAND_DEMO",
@@ -330,5 +372,6 @@ def build_default_scenario_definitions(
             catalog_path=poland_demo.catalog,
             request_set_path=poland_demo.requests,
             opportunity_set_path=poland_demo.opportunities,
+            downlink_set_path=poland_demo.downlinks,
         ),
     )

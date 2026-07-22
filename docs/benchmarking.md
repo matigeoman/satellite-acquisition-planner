@@ -15,7 +15,7 @@ może realizować więcej zleceń obowiązkowych albo uzyskać wyższą jakość
 
 Hybrid jest opcjonalny w kontrakcie programistycznym
 `AlgorithmBenchmarkConfig(include_hybrid=True)` i domyślnie włączony w
-interfejsie wersji 1.2.0.
+interfejsie wersji 1.3.0.
 
 ## Scenariusze
 
@@ -28,7 +28,7 @@ Zalecana konfiguracja:
 - co najmniej 5 niezależnych powtórzeń;
 - jeden wątek solvera;
 - limity czasu 1, 5, 10 i 30 sekund;
-- identyczna rezerwa pamięci i model przeorientowania;
+- identyczna rezerwa pamięci, zbiór okien downlinku i model przeorientowania;
 - wspólne ziarno dla Greedy, CP-SAT i Hybrid w jednym powtórzeniu;
 - osobne raportowanie statusów solvera;
 - zapis wersji aplikacji i OR-Tools.

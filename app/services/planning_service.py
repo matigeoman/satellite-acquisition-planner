@@ -55,6 +55,11 @@ class PlanningService:
             fixed_assignments or ()
         )
 
+        if options.enable_downlink_planning and scenario.downlink_set is None:
+            raise ValueError(
+                "Scenariusz nie zawiera okien downlinku wymaganych przez konfigurację"
+            )
+
         resolved_schedule_id = (
             schedule_id
             or self.build_schedule_id(
@@ -185,6 +190,14 @@ class PlanningService:
             memory_reserve_ratio=(
                 options.memory_reserve_ratio
             ),
+            enable_downlink_planning=options.enable_downlink_planning,
+            require_full_downlink=options.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                options.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                options.downlink_capacity_reserve_ratio
+            ),
             use_dynamic_transition_model=(
                 options.use_dynamic_transition_model
             ),
@@ -231,6 +244,7 @@ class PlanningService:
             opportunity_set=(
                 scenario.opportunity_set
             ),
+            downlink_set=scenario.downlink_set,
             config=config,
             schedule_id=schedule_id,
             name=schedule_name,
@@ -255,6 +269,14 @@ class PlanningService:
         config = CpSatPlannerConfig(
             memory_reserve_ratio=(
                 options.memory_reserve_ratio
+            ),
+            enable_downlink_planning=options.enable_downlink_planning,
+            require_full_downlink=options.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                options.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                options.downlink_capacity_reserve_ratio
             ),
             use_dynamic_transition_model=(
                 options.use_dynamic_transition_model
@@ -313,6 +335,7 @@ class PlanningService:
             opportunity_set=(
                 scenario.opportunity_set
             ),
+            downlink_set=scenario.downlink_set,
             config=config,
             fixed_assignments=fixed_assignments,
             frozen_until_utc=frozen_until_utc,
@@ -343,6 +366,14 @@ class PlanningService:
     ) -> tuple[Schedule, str]:
         config = HybridPlannerConfig(
             memory_reserve_ratio=options.memory_reserve_ratio,
+            enable_downlink_planning=options.enable_downlink_planning,
+            require_full_downlink=options.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                options.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                options.downlink_capacity_reserve_ratio
+            ),
             use_dynamic_transition_model=options.use_dynamic_transition_model,
             eo_stabilization_time_s=options.eo_stabilization_time_s,
             sar_stabilization_time_s=options.sar_stabilization_time_s,
@@ -379,6 +410,7 @@ class PlanningService:
             catalog=scenario.catalog,
             request_set=scenario.request_set,
             opportunity_set=scenario.opportunity_set,
+            downlink_set=scenario.downlink_set,
             config=config,
             fixed_assignments=fixed_assignments,
             frozen_until_utc=frozen_until_utc,

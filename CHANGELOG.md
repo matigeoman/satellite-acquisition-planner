@@ -5,7 +5,41 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ## [Unreleased]
 
-Brak zmian po wydaniu 1.2.0.
+Brak zmian po wydaniu 1.3.0.
+
+## [1.3.0] — 2026-07-22
+
+### Pamięć i downlink
+
+- dodano modele stacji naziemnych i jawnych okien kontaktu satelita–stacja;
+- akwizycje zwiększają zajętość pamięci w chwili zakończenia, a transmisje
+  zmniejszają ją po zakończeniu kontaktu;
+- dodano przepustowość, sprawność łącza, czasy setup/teardown oraz rezerwę
+  pojemności downlinku;
+- Greedy, CP-SAT i Hybrid mogą planować akwizycje razem z transmisją danych;
+- CP-SAT uwzględnia dynamiczne ograniczenia pamięci, dostępność danych przed
+  kontaktem, konflikty anteny satelity i liczbę kanałów stacji;
+- opcjonalnie można wymagać opróżnienia pamięci do końca horyzontu.
+
+### Interfejs, eksport i scenariusze
+
+- dodano zakładkę z wykresem zajętości pamięci, tabelą kontaktów i zdarzeniami
+  zasobów;
+- harmonogram JSON, raporty, KPI i archiwa projektu zachowują kontakty,
+  podsumowania zasobów oraz identyfikatory przesłanych danych;
+- scenariusze `EXAMPLE`, `STRESS` i `POLAND_DEMO` zawierają syntetyczne okna
+  downlinku dla dwóch demonstracyjnych stacji naziemnych;
+- generator scenariusza stresowego zapisuje również `downlinks.json`;
+- CLI otrzymało parametry planowania downlinku i rezerwy przepustowości.
+
+### Dokumentacja i walidacja
+
+- dodano opis modelu dynamicznej pamięci, założeń czasowych i ograniczeń;
+- rozszerzono mapowanie źródeł naukowych o zintegrowane planowanie akwizycji,
+  pamięci i transmisji;
+- kontrola wydania weryfikuje podsumowania pamięci oraz dane downlinku;
+- dodano testy modeli stacji, okien kontaktu, kanałów stacji, rezerwy łącza,
+  profilu pamięci i eksportu danych.
 
 ## [1.2.0] — 2026-07-22
 

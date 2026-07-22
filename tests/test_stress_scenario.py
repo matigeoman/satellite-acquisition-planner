@@ -45,7 +45,7 @@ def stress_scenario():
 def test_stress_catalog_has_reduced_limits(
     stress_scenario,
 ) -> None:
-    catalog, _, _ = stress_scenario
+    catalog, _, _, _ = stress_scenario
 
     for satellite in catalog.satellites:
         if satellite.satellite_id.startswith("SAR-"):
@@ -67,7 +67,7 @@ def test_stress_catalog_has_reduced_limits(
 def test_stress_request_set_contains_eighty_requests(
     stress_scenario,
 ) -> None:
-    _, request_set, _ = stress_scenario
+    _, request_set, _, _ = stress_scenario
 
     assert len(request_set.requests) == 80
     assert len(request_set.active_requests) == 80
@@ -76,7 +76,7 @@ def test_stress_request_set_contains_eighty_requests(
 def test_stress_request_mode_distribution(
     stress_scenario,
 ) -> None:
-    _, request_set, _ = stress_scenario
+    _, request_set, _, _ = stress_scenario
 
     assert request_set.request_mode_counts == {
         "SINGLE": 64,
@@ -88,7 +88,7 @@ def test_stress_request_mode_distribution(
 def test_stress_request_set_contains_four_mandatory_requests(
     stress_scenario,
 ) -> None:
-    _, request_set, _ = stress_scenario
+    _, request_set, _, _ = stress_scenario
 
     assert len(request_set.mandatory_requests) == 4
 
@@ -96,7 +96,7 @@ def test_stress_request_set_contains_four_mandatory_requests(
 def test_stress_opportunity_set_contains_eight_hundred(
     stress_scenario,
 ) -> None:
-    _, _, opportunity_set = stress_scenario
+    _, _, opportunity_set, _ = stress_scenario
 
     assert len(opportunity_set.opportunities) == 800
 
@@ -104,7 +104,7 @@ def test_stress_opportunity_set_contains_eight_hundred(
 def test_stress_opportunities_are_sensor_balanced(
     stress_scenario,
 ) -> None:
-    _, _, opportunity_set = stress_scenario
+    _, _, opportunity_set, _ = stress_scenario
 
     assert opportunity_set.sensor_type_counts == {
         "SAR": 400,
@@ -115,7 +115,7 @@ def test_stress_opportunities_are_sensor_balanced(
 def test_each_request_has_ten_opportunities(
     stress_scenario,
 ) -> None:
-    _, _, opportunity_set = stress_scenario
+    _, _, opportunity_set, _ = stress_scenario
 
     assert len(opportunity_set.request_counts) == 80
 
@@ -127,7 +127,7 @@ def test_each_request_has_ten_opportunities(
 def test_all_stress_opportunities_are_feasible(
     stress_scenario,
 ) -> None:
-    _, _, opportunity_set = stress_scenario
+    _, _, opportunity_set, _ = stress_scenario
 
     assert len(
         opportunity_set.feasible_opportunities
@@ -138,10 +138,19 @@ def test_all_stress_opportunities_are_feasible(
     )
 
 
+def test_stress_scenario_contains_downlink_windows(
+    stress_scenario,
+) -> None:
+    catalog, _, _, downlink_set = stress_scenario
+
+    assert len(downlink_set.feasible_opportunities) == 36
+    downlink_set.validate_against(catalog)
+
+
 def test_stress_opportunities_validate_against_inputs(
     stress_scenario,
 ) -> None:
-    catalog, request_set, opportunity_set = (
+    catalog, request_set, opportunity_set, _ = (
         stress_scenario
     )
 
@@ -179,11 +188,16 @@ def test_stress_scenario_is_deterministic() -> None:
         == second[2].model_dump(mode="json")
     )
 
+    assert (
+        first[3].model_dump(mode="json")
+        == second[3].model_dump(mode="json")
+    )
+
 
 def test_trap_anchor_has_conflicting_and_safe_options(
     stress_scenario,
 ) -> None:
-    catalog, _, opportunity_set = stress_scenario
+    catalog, _, opportunity_set, _ = stress_scenario
 
     anchor_candidates = [
         opportunity
@@ -272,7 +286,7 @@ def test_trap_anchor_has_conflicting_and_safe_options(
 def test_cp_sat_beats_greedy_on_trap_subset(
     stress_scenario,
 ) -> None:
-    catalog, request_set, opportunity_set = (
+    catalog, request_set, opportunity_set, _ = (
         stress_scenario
     )
 
@@ -371,11 +385,11 @@ def test_cp_sat_beats_greedy_on_trap_subset(
     )
 
 
-def test_save_stress_scenario_creates_three_files(
+def test_save_stress_scenario_creates_four_files(
     tmp_path: Path,
     stress_scenario,
 ) -> None:
-    catalog, request_set, opportunity_set = (
+    catalog, request_set, opportunity_set, downlink_set = (
         stress_scenario
     )
 
@@ -383,6 +397,7 @@ def test_save_stress_scenario_creates_three_files(
         catalog=catalog,
         request_set=request_set,
         opportunity_set=opportunity_set,
+        downlink_set=downlink_set,
         output_directory=tmp_path,
     )
 
@@ -390,6 +405,7 @@ def test_save_stress_scenario_creates_three_files(
         "catalog",
         "requests",
         "opportunities",
+        "downlinks",
     }
 
     assert all(

@@ -35,6 +35,35 @@ SCHEDULE_ENTRY_COLUMNS = [
 ]
 
 
+DOWNLINK_ENTRY_COLUMNS = [
+    "entry_id",
+    "downlink_opportunity_id",
+    "satellite_id",
+    "ground_station_id",
+    "start_utc",
+    "end_utc",
+    "duration_s",
+    "planned_data_volume_mb",
+    "capacity_mb",
+    "planning_capacity_mb",
+    "data_rate_mbps",
+    "station_capacity",
+    "delivered_reference_count",
+    "delivered_reference_ids",
+    "capacity_utilization_ratio",
+]
+
+MEMORY_TIMELINE_COLUMNS = [
+    "satellite_id",
+    "timestamp_utc",
+    "event_type",
+    "reference_id",
+    "delta_mb",
+    "memory_used_mb",
+    "memory_limit_mb",
+    "memory_utilization_ratio",
+]
+
 REQUEST_STATUS_COLUMNS = [
     "request_id",
     "name",
@@ -63,6 +92,10 @@ SATELLITE_USAGE_COLUMNS = [
     "imaging_time_limit_s",
     "imaging_utilization_ratio",
     "generated_data_mb",
+    "downlinked_data_mb",
+    "selected_downlink_windows",
+    "peak_memory_usage_mb",
+    "delivery_complete",
     "initial_memory_usage_mb",
     "planning_memory_limit_mb",
     "final_memory_usage_mb",
@@ -193,6 +226,75 @@ def build_schedule_entries_dataframe(
         kind="stable",
         ignore_index=True,
     )
+
+
+def build_downlink_entries_dataframe(
+    result: PlanningResult,
+) -> pd.DataFrame:
+    """Buduje tabelę zaplanowanych kontaktów ze stacjami naziemnymi."""
+
+    rows = [
+        {
+            "entry_id": entry.entry_id,
+            "downlink_opportunity_id": entry.downlink_opportunity_id,
+            "satellite_id": entry.satellite_id,
+            "ground_station_id": entry.ground_station_id,
+            "start_utc": entry.start_utc,
+            "end_utc": entry.end_utc,
+            "duration_s": round(entry.duration_s, 6),
+            "planned_data_volume_mb": round(
+                entry.planned_data_volume_mb, 6
+            ),
+            "capacity_mb": round(entry.capacity_mb, 6),
+            "planning_capacity_mb": round(
+                entry.effective_planning_capacity_mb,
+                6,
+            ),
+            "data_rate_mbps": round(entry.data_rate_mbps, 6),
+            "station_capacity": entry.station_capacity,
+            "delivered_reference_count": len(
+                entry.delivered_reference_ids
+            ),
+            "delivered_reference_ids": ", ".join(
+                entry.delivered_reference_ids
+            ),
+            "capacity_utilization_ratio": round(
+                entry.planned_data_volume_mb
+                / entry.effective_planning_capacity_mb,
+                6,
+            ),
+        }
+        for entry in result.schedule.downlink_entries
+    ]
+    return pd.DataFrame(rows, columns=DOWNLINK_ENTRY_COLUMNS)
+
+
+def build_memory_timeline_dataframe(
+    result: PlanningResult,
+) -> pd.DataFrame:
+    """Buduje tabelę zmian zajętości pamięci w czasie."""
+
+    rows = [
+        {
+            "satellite_id": point.satellite_id,
+            "timestamp_utc": point.timestamp_utc,
+            "event_type": point.event_type,
+            "reference_id": point.reference_id,
+            "delta_mb": round(point.delta_mb, 6),
+            "memory_used_mb": round(point.memory_used_mb, 6),
+            "memory_limit_mb": round(point.memory_limit_mb, 6),
+            "memory_utilization_ratio": (
+                None
+                if point.memory_limit_mb <= 0.0
+                else round(
+                    point.memory_used_mb / point.memory_limit_mb,
+                    6,
+                )
+            ),
+        }
+        for point in result.schedule.memory_timeline
+    ]
+    return pd.DataFrame(rows, columns=MEMORY_TIMELINE_COLUMNS)
 
 
 def build_request_status_dataframe(
@@ -336,6 +438,11 @@ def build_satellite_usage_dataframe(
         list[Any],
     ] = defaultdict(list)
 
+    resource_summary_by_satellite = {
+        summary.satellite_id: summary
+        for summary in result.schedule.resource_summaries
+    }
+
     for entry in result.schedule.active_entries:
         entries_by_satellite[
             entry.satellite_id
@@ -383,9 +490,33 @@ def build_satellite_usage_dataframe(
             )
         )
 
+        resource_summary = resource_summary_by_satellite.get(
+            satellite.satellite_id
+        )
+        downlinked_data_mb = (
+            resource_summary.downlinked_data_mb
+            if resource_summary is not None
+            else 0.0
+        )
+        selected_downlink_windows = (
+            resource_summary.selected_downlink_windows
+            if resource_summary is not None
+            else 0
+        )
         final_memory_usage_mb = (
-            satellite.initial_memory_usage_mb
-            + generated_data_mb
+            resource_summary.final_memory_usage_mb
+            if resource_summary is not None
+            else satellite.initial_memory_usage_mb + generated_data_mb
+        )
+        peak_memory_usage_mb = (
+            resource_summary.peak_memory_usage_mb
+            if resource_summary is not None
+            else final_memory_usage_mb
+        )
+        delivery_complete = (
+            resource_summary.delivery_complete
+            if resource_summary is not None
+            else False
         )
 
         acquisition_utilization_ratio = (
@@ -450,6 +581,10 @@ def build_satellite_usage_dataframe(
                     generated_data_mb,
                     6,
                 ),
+                "downlinked_data_mb": round(downlinked_data_mb, 6),
+                "selected_downlink_windows": selected_downlink_windows,
+                "peak_memory_usage_mb": round(peak_memory_usage_mb, 6),
+                "delivery_complete": delivery_complete,
                 "initial_memory_usage_mb": (
                     satellite.initial_memory_usage_mb
                 ),

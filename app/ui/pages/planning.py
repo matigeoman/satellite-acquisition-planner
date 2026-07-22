@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import plotly.express as px
 import streamlit as st
 
 from app.models.enums import PlanningAlgorithm
@@ -10,9 +11,11 @@ from app.services.planning_service import PlanningOptions, PlanningResult
 from app.services.scenario_service import LoadedScenario
 from app.ui import (
     build_comparison_gantt_figure,
+    build_downlink_entries_dataframe,
     build_comparison_metrics,
     build_comparison_summary_dataframe,
     build_gantt_figure,
+    build_memory_timeline_dataframe,
     build_objective_comparison_figure,
     build_percentage_display_dataframe,
     build_planning_metrics,
@@ -244,6 +247,43 @@ def render_sidebar_form(
                 ),
             )
 
+            with st.expander("Pamięć dynamiczna i downlink", expanded=True):
+                enable_downlink_planning = st.checkbox(
+                    "Planuj transmisję do stacji naziemnych",
+                    value=True,
+                    help=(
+                        "Akwizycje zwiększają zajętość pamięci, a wybrane "
+                        "okna downlinku zwalniają ją na osi czasu."
+                    ),
+                )
+                require_full_downlink = st.checkbox(
+                    "Opróżnij pamięć do końca horyzontu",
+                    value=True,
+                    disabled=not enable_downlink_planning,
+                    help=(
+                        "Wymaga transmisji wszystkich danych, w tym danych "
+                        "znajdujących się w pamięci na początku horyzontu."
+                    ),
+                )
+                allow_simultaneous_imaging_downlink = st.checkbox(
+                    "Pozwól na jednoczesne obrazowanie i downlink",
+                    value=False,
+                    disabled=not enable_downlink_planning,
+                )
+                downlink_capacity_reserve_percent = st.slider(
+                    "Rezerwa przepustowości downlinku",
+                    min_value=0,
+                    max_value=50,
+                    value=10,
+                    step=1,
+                    format="%d%%",
+                    disabled=not enable_downlink_planning,
+                    help=(
+                        "Margines na narzut protokołów, zakłócenia i "
+                        "niepewność jakości łącza."
+                    ),
+                )
+
             st.caption(
                 "W trybie porównania wybór algorytmu "
                 "pojedynczego jest ignorowany."
@@ -401,6 +441,14 @@ def render_sidebar_form(
         memory_reserve_ratio=(
             memory_reserve_percent
             / 100.0
+        ),
+        enable_downlink_planning=enable_downlink_planning,
+        require_full_downlink=require_full_downlink,
+        allow_simultaneous_imaging_downlink=(
+            allow_simultaneous_imaging_downlink
+        ),
+        downlink_capacity_reserve_ratio=(
+            downlink_capacity_reserve_percent / 100.0
         ),
         priority_weight=float(
             priority_weight
@@ -931,9 +979,7 @@ def render_scenario_overview(
         "Scenariusz"
     )
 
-    first, second, third, fourth = (
-        st.columns(4)
-    )
+    first, second, third, fourth, fifth, sixth = st.columns(6)
 
     first.metric(
         "Aktywne zlecenia",
@@ -953,6 +999,16 @@ def render_scenario_overview(
     fourth.metric(
         "Satelity",
         scenario.satellite_count,
+    )
+
+    fifth.metric(
+        "Okna downlinku",
+        scenario.downlink_opportunity_count,
+    )
+
+    sixth.metric(
+        "Stacje naziemne",
+        scenario.ground_station_count,
     )
 
     st.caption(
@@ -1084,6 +1140,7 @@ def render_result_tabs(
         schedule_tab,
         requests_tab,
         satellites_tab,
+        resources_tab,
         conflict_graph_tab,
         export_tab,
     ) = st.tabs(
@@ -1093,6 +1150,7 @@ def render_result_tabs(
             "Harmonogram",
             "Zlecenia",
             "Satelity",
+            "Pamięć i downlink",
             "Graf konfliktów",
             "Eksport",
         ]
@@ -1127,6 +1185,9 @@ def render_result_tabs(
             result
         )
     )
+
+    downlink_dataframe = build_downlink_entries_dataframe(result)
+    memory_dataframe = build_memory_timeline_dataframe(result)
 
     schedule_key = (
         result.schedule.schedule_id
@@ -1518,6 +1579,87 @@ def render_result_tabs(
             "jako procent odpowiedniego limitu."
         )
 
+    with resources_tab:
+        st.markdown("### Dynamiczna pamięć i transmisja danych")
+        if not result.options.enable_downlink_planning:
+            st.info(
+                "Zintegrowane planowanie downlinku było wyłączone dla tego uruchomienia."
+            )
+        elif not result.schedule.resource_summaries:
+            st.warning("Brak podsumowania zasobów w harmonogramie.")
+        else:
+            totals = st.columns(4)
+            totals[0].metric(
+                "Okna downlinku", result.schedule.selected_downlink_windows
+            )
+            totals[1].metric(
+                "Wysłane dane",
+                f"{result.schedule.total_downlinked_data_mb:,.0f} MB",
+            )
+            totals[2].metric(
+                "Dane z akwizycji",
+                f"{result.schedule.total_data_volume_mb:,.0f} MB",
+            )
+            complete_count = sum(
+                summary.delivery_complete
+                for summary in result.schedule.resource_summaries
+            )
+            totals[3].metric(
+                "Pamięć opróżniona",
+                f"{complete_count}/{len(result.schedule.resource_summaries)}",
+            )
+
+            if not memory_dataframe.empty:
+                figure = px.line(
+                    memory_dataframe,
+                    x="timestamp_utc",
+                    y="memory_used_mb",
+                    color="satellite_id",
+                    markers=True,
+                    hover_data=[
+                        "event_type",
+                        "reference_id",
+                        "delta_mb",
+                        "memory_limit_mb",
+                    ],
+                    title="Zajętość pamięci pokładowej w czasie",
+                )
+                st.plotly_chart(
+                    figure,
+                    width="stretch",
+                    key=f"memory_timeline_{schedule_key}",
+                    config={"displaylogo": False, "scrollZoom": True},
+                )
+
+            st.markdown("#### Wybrane okna transmisji")
+            if downlink_dataframe.empty:
+                st.info("Solver nie musiał wykorzystywać żadnego okna downlinku.")
+            else:
+                downlink_display = build_percentage_display_dataframe(
+                    downlink_dataframe, ["capacity_utilization_ratio"]
+                )
+                st.dataframe(
+                    downlink_display,
+                    width="stretch",
+                    hide_index=True,
+                    column_config={
+                        "capacity_utilization_ratio": st.column_config.ProgressColumn(
+                            "Wykorzystanie okna",
+                            min_value=0.0,
+                            max_value=100.0,
+                            format="%.1f%%",
+                        )
+                    },
+                )
+
+            st.markdown("#### Zdarzenia pamięci")
+            st.dataframe(
+                memory_dataframe,
+                width="stretch",
+                height=420,
+                hide_index=True,
+            )
+
     with conflict_graph_tab:
         st.markdown("### Graf niewykonalności okazji")
         st.caption(
@@ -1598,7 +1740,7 @@ def render_result_tabs(
             + "_entries.csv"
         )
 
-        first, second = st.columns(2)
+        first, second, third = st.columns(3)
 
         with first:
             st.download_button(
@@ -1623,6 +1765,19 @@ def render_result_tabs(
                 mime="text/csv",
                 on_click="ignore",
                 width="stretch",
+            )
+
+        with third:
+            st.download_button(
+                "Pobierz downlink CSV",
+                data=downlink_dataframe.to_csv(index=False).encode("utf-8-sig"),
+                file_name=(
+                    json_filename.removesuffix(".json") + "_downlinks.csv"
+                ),
+                mime="text/csv",
+                on_click="ignore",
+                width="stretch",
+                disabled=downlink_dataframe.empty,
             )
 
         st.markdown(

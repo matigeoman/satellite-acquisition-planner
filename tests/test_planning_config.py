@@ -3,6 +3,7 @@ import pytest
 from app.planning.config import (
     CpSatPlannerConfig,
     GreedyPlannerConfig,
+    HybridPlannerConfig,
 )
 
 
@@ -22,7 +23,7 @@ def test_default_objective_weights_are_identical() -> None:
 
 @pytest.mark.parametrize(
     "config_type",
-    [GreedyPlannerConfig, CpSatPlannerConfig],
+    [GreedyPlannerConfig, CpSatPlannerConfig, HybridPlannerConfig],
 )
 def test_shared_memory_validation(config_type) -> None:
     with pytest.raises(ValueError):
@@ -56,3 +57,30 @@ def test_cp_sat_specific_parameters_are_validated() -> None:
 
     with pytest.raises(ValueError):
         CpSatPlannerConfig(resource_scale=0)
+
+
+@pytest.mark.parametrize(
+    "config_type",
+    [GreedyPlannerConfig, CpSatPlannerConfig, HybridPlannerConfig],
+)
+def test_downlink_capacity_reserve_is_validated(config_type) -> None:
+    with pytest.raises(ValueError):
+        config_type(downlink_capacity_reserve_ratio=-0.01)
+
+    with pytest.raises(ValueError):
+        config_type(downlink_capacity_reserve_ratio=1.01)
+
+
+@pytest.mark.parametrize(
+    "config_type",
+    [GreedyPlannerConfig, CpSatPlannerConfig, HybridPlannerConfig],
+)
+def test_full_downlink_requires_integrated_planning(config_type) -> None:
+    with pytest.raises(ValueError, match="require_full_downlink"):
+        config_type(require_full_downlink=True)
+
+    config = config_type(
+        enable_downlink_planning=True,
+        require_full_downlink=True,
+    )
+    assert config.require_full_downlink is True

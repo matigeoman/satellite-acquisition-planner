@@ -1,6 +1,6 @@
-# Podstawy badawcze wersji 1.2.0
+# Podstawy badawcze wersji 1.3.0
 
-Ten dokument wskazuje, które elementy Satellite Acquisition Planner 1.2.0 są
+Ten dokument wskazuje, które elementy Satellite Acquisition Planner 1.3.0 są
 adaptacją koncepcji opisanych w literaturze, które są rozwiązaniami własnymi,
 a które pozostają jedynie kierunkiem dalszych prac. Celem jest umożliwienie
 rzetelnego opisu projektu jako pracy studenckiej opartej na istniejącym dorobku,
@@ -14,17 +14,19 @@ konkretnej okazji akwizycyjnej, a model uwzględnia okna czasowe, przejścia
 między orientacjami, ograniczenia zasobów, priorytety i heterogeniczne sensory.
 Planowanie statyczne jest rozszerzone o reaktywne przeplanowanie.
 
-Wersja 1.2.0 łączy trzy poziomy rozwiązania:
+Wersja 1.3.0 łączy cztery poziomy rozwiązania:
 
 1. **model opportunity-based** — jedna jawna okazja jest jednym kandydatem do
    wyboru;
 2. **heurystykę konstrukcyjną** — szybki plan początkowy Greedy 2.0;
 3. **lokalną poprawę dokładną** — CP-SAT optymalizuje ograniczone sąsiedztwa,
-   zachowując plan Greedy jako incumbent.
+   zachowując plan Greedy jako incumbent;
+4. **zintegrowane zasoby danych** — akwizycje, pamięć i downlink są liczone
+   na wspólnej osi czasu.
 
 ## Mapa źródło → implementacja
 
-| Element 1.2.0 | Podstawa | Zakres rzeczywistej adaptacji |
+| Element 1.3.0 | Podstawa | Zakres rzeczywistej adaptacji |
 |---|---|---|
 | dyskretne okazje akwizycyjne | Eddy [R17], Wang i in. [R6] | każda wykonalna okazja jest osobnym kandydatem binarnym |
 | graf niewykonalności | Eddy [R17], EOSS_GECCO25 [G3] | parowe konflikty tego samego zlecenia, par SAR–EO i przejść satelity |
@@ -34,6 +36,7 @@ Wersja 1.2.0 łączy trzy poziomy rozwiązania:
 | reaktywne przeplanowanie | Verfaillie i in. [R20], CCSDS [R22] | zachowanie operacji wykonanych i zamrożonych oraz ponowne rozwiązanie części planu |
 | porównania algorytmów | Globus i in. [R23] | wspólne instancje, ziarna, wiele powtórzeń i raportowanie rozkładu wyników |
 | publiczne orbity i OEM/TLE | Ramesh [R24], Vallado i in. [R3] | OMM/TLE, SGP4 i dokumentacja przyszłego eksportu OEM/STK |
+| dynamiczna pamięć i downlink | Antuori i in. [R18], CCSDS [R22], Vázquez Álvarez i Erwin [R28] | stacje, kontakty, przepustowość, pamięć na osi czasu i pełna dostawa jako opcja |
 
 ## Graf niewykonalności okazji
 
@@ -44,7 +47,7 @@ G=(V,E),
 \]
 
 gdzie `V` jest zbiorem wykonalnych okazji, a krawędź `(i,j)` oznacza, że obie
-okazje nie mogą należeć jednocześnie do harmonogramu. W wersji 1.2.0
+okazje nie mogą należeć jednocześnie do harmonogramu. W wersji 1.3.0
 rejestrowane są trzy przyczyny:
 
 - `SAME_REQUEST_ALTERNATIVE` — konkurujące alternatywy jednego zlecenia;
@@ -121,7 +124,8 @@ F_{Hybrid} \geq F_{Greedy\ 2.0}.
 Nie jest to dowód optymalności globalnej. Jest to zachowanie najlepszego
 znanego rozwiązania początkowego przy tej samej klasie wykonalności. Podejście
 jest autorską adaptacją schematu Greedy–CP–Local Search Antuoriego, Wojtowicza i Hebrarda [R18]; ich
-solver rozwiązuje inne podproblemy i dodatkowo planuje downlink.
+solver rozwiązuje inne podproblemy; wersja 1.3.0 adaptuje również ideę
+zintegrowanego planowania pamięci i downlinku.
 
 ## Profile preferencji
 
@@ -140,6 +144,20 @@ inspirowaną systemem EOS [G2] i pracą Vasegaarda i in. [R21]. Nie należy ich
 nazywać implementacją ELECTRE III: obecna wersja wykorzystuje ważoną funkcję
 użyteczności, bez progów obojętności, preferencji i weta.
 
+## Dynamiczna pamięć i downlink
+
+Wersja 1.3.0 dodaje jawne stacje naziemne, okna kontaktu i ilość danych
+przesyłaną w każdym oknie. Pamięć jest liczona na osi zdarzeń, a nie jako
+wyłącznie sumaryczny budżet dobowy. Model CP-SAT łączy binarne decyzje
+akwizycji z całkowitą ilością danych wysyłaną w kontaktach. Greedy stosuje
+deterministyczny przydział chronologiczny i walidację całego profilu pamięci.
+
+Jest to autorska adaptacja zintegrowanego planowania obserwacji, pamięci i
+downloadów opisanego przez Antuoriego i in. [R18]. Nazwy domenowe oraz cykl
+planowania są zgodne z pojęciami CCSDS Mission Planning and Scheduling [R22],
+a ograniczenia kontaktów są powiązane z literaturą Satellite Range Scheduling
+[R28]. Scenariusze demonstracyjne używają danych syntetycznych.
+
 ## Co pozostaje autorskie
 
 Literatura uzasadnia strukturę problemu i wybrane metody, lecz następujące
@@ -155,21 +173,20 @@ połączenie jest specyficzne dla Satellite Acquisition Planner:
 
 ## Repozytoria referencyjne i licencje
 
-Kod wersji 1.2.0 został napisany w obrębie tego projektu. Nie skopiowano kodu
+Kod wersji 1.3.0 został napisany w obrębie tego projektu. Nie skopiowano kodu
 z analizowanych repozytoriów.
 
 | Repozytorium | Wykorzystana koncepcja | Stan licencji i decyzja |
 |---|---|---|
-| `Mala1180/satellites-optimization-algorithms` [G1] | DTO, pamięć i downlink jako przyszłe rozszerzenie | GPL-3.0 — brak kopiowania kodu |
+| `Mala1180/satellites-optimization-algorithms` [G1] | DTO, pamięć i downlink jako koncepcja porównawcza | GPL-3.0 — brak kopiowania kodu |
 | `AlexVasegaard/EOS` [G2] | przepływ end-to-end, MCDM, ELPA | MIT — wykorzystano koncepcje i cytowanie, bez kopiowania modułów |
 | `AlexVasegaard/EOSS_GECCO25` [G3] | macierz/graf niewykonalności i duże benchmarki | opis konkursu; brak kodu do przejęcia w tej wersji |
 | `Issam-KEBIRI/Optimization-of-the-satellite-image-acquisition-plan` [G4] | niezawodność instrumentów jako przyszłe rozszerzenie | MIT — brak kopiowania modelu OPL |
 | `carlosfab/satellite_scheduling_ga` [G5] | GA jako przyszły algorytm porównawczy | GPL-3.0 — brak kopiowania kodu |
 
-## Czego wersja 1.2.0 nie implementuje
+## Czego wersja 1.3.0 nie implementuje
 
 - pełnego LNS z wieloma operatorami destroy/repair;
-- dokładnego modelu downlinku i pamięci zmiennej w czasie;
 - energii, temperatury i cyklu pracy instrumentu;
 - algorytmu genetycznego, simulated annealing, GNN lub DRL;
 - klasyfikatora wykonalności z pracy Barraulta i in. [R25];
@@ -182,13 +199,14 @@ funkcjami bieżącego wydania.
 
 ## Zalecany zapis w pracy lub prezentacji
 
-> Satellite Acquisition Planner 1.2.0 jest autorską implementacją
+> Satellite Acquisition Planner 1.3.0 jest autorską implementacją
 > opportunity-based problemu planowania akwizycji dla heterogenicznej
 > konstelacji SAR/EO. Model grafu niewykonalności oparto na interpretacji
 > grafowej Eddy’ego, heurystykę Greedy 2.0 na koncepcjach korzyści i kosztu
 > utraconych możliwości Xu i in., a procedurę Hybrid na schemacie
 > Greedy–CP–Local Search opisanym przez Antuoriego, Wojtowicza i Hebrarda.
 > Warstwa profili decyzyjnych jest uproszczoną adaptacją podejścia
-> wielokryterialnego Vasegaarda i in. Rozwiązania zostały ponownie
-> zaimplementowane i rozszerzone o własny model SAR–EO, pogodę, przeplanowanie
-> oraz integrację orbitalną.
+> wielokryterialnego Vasegaarda i in. Dynamiczna pamięć i downlink adaptują
+> zintegrowany model zasobów Antuoriego i in. oraz pojęcia CCSDS. Rozwiązania
+> zostały ponownie zaimplementowane i rozszerzone o własny model SAR–EO,
+> pogodę, przeplanowanie oraz integrację orbitalną.

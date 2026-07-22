@@ -6,8 +6,8 @@ from time import perf_counter
 from typing import Iterable
 
 from app.models.catalog import SystemCatalog
+from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.enums import PlanningAlgorithm, ScheduleStatus
-from app.models.opportunity import AcquisitionOpportunity
 from app.models.opportunity_set import AcquisitionOpportunitySet
 from app.models.request_set import ObservationRequestSet
 from app.models.schedule import Schedule
@@ -35,6 +35,7 @@ class HybridScheduler:
         catalog: SystemCatalog,
         request_set: ObservationRequestSet,
         opportunity_set: AcquisitionOpportunitySet,
+        downlink_set: DownlinkOpportunitySet | None = None,
         config: HybridPlannerConfig | None = None,
         fixed_assignments: Iterable[FixedOpportunityAssignment] | None = None,
         frozen_until_utc: datetime | None = None,
@@ -42,6 +43,7 @@ class HybridScheduler:
         self.catalog = catalog
         self.request_set = request_set
         self.opportunity_set = opportunity_set
+        self.downlink_set = downlink_set
         self.config = config or HybridPlannerConfig()
         self.fixed_assignments = tuple(fixed_assignments or ())
         self.frozen_until_utc = frozen_until_utc
@@ -78,6 +80,7 @@ class HybridScheduler:
             catalog=self.catalog,
             request_set=self.request_set,
             opportunity_set=self.opportunity_set,
+            downlink_set=self.downlink_set,
             config=self.config.greedy_config(),
             fixed_assignments=self.fixed_assignments,
             frozen_until_utc=self.frozen_until_utc,
@@ -121,6 +124,7 @@ class HybridScheduler:
                 catalog=self.catalog,
                 request_set=self.request_set,
                 opportunity_set=self.opportunity_set,
+                downlink_set=self.downlink_set,
                 config=self.config.cp_sat_config(
                     max_time_s=local_budget_s,
                     random_seed=self.config.random_seed + index,
@@ -288,6 +292,7 @@ def build_hybrid_schedule(
     request_set: ObservationRequestSet,
     opportunity_set: AcquisitionOpportunitySet,
     *,
+    downlink_set: DownlinkOpportunitySet | None = None,
     config: HybridPlannerConfig | None = None,
     schedule_id: str = "SCHEDULE-HYBRID-001",
     name: str = "Dobowy harmonogram Hybrid",
@@ -299,6 +304,7 @@ def build_hybrid_schedule(
         catalog=catalog,
         request_set=request_set,
         opportunity_set=opportunity_set,
+        downlink_set=downlink_set,
         config=config,
         fixed_assignments=fixed_assignments,
         frozen_until_utc=frozen_until_utc,

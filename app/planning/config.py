@@ -3,6 +3,22 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
+def _validate_downlink_parameters(
+    *,
+    enable_downlink_planning: bool,
+    require_full_downlink: bool,
+    downlink_capacity_reserve_ratio: float,
+) -> None:
+    if not 0.0 <= downlink_capacity_reserve_ratio <= 1.0:
+        raise ValueError(
+            "downlink_capacity_reserve_ratio musi należeć do zakresu [0, 1]"
+        )
+    if require_full_downlink and not enable_downlink_planning:
+        raise ValueError(
+            "require_full_downlink wymaga enable_downlink_planning"
+        )
+
+
 def _validate_memory_reserve_ratio(value: float) -> None:
     if not 0.0 <= value <= 1.0:
         raise ValueError("memory_reserve_ratio musi należeć do zakresu [0, 1]")
@@ -81,6 +97,11 @@ class GreedyPlannerConfig:
 
     memory_reserve_ratio: float = 0.0
 
+    enable_downlink_planning: bool = False
+    require_full_downlink: bool = False
+    allow_simultaneous_imaging_downlink: bool = False
+    downlink_capacity_reserve_ratio: float = 0.0
+
     use_dynamic_transition_model: bool = False
     eo_stabilization_time_s: float = 3.0
     sar_stabilization_time_s: float = 10.0
@@ -104,6 +125,11 @@ class GreedyPlannerConfig:
 
     def __post_init__(self) -> None:
         _validate_memory_reserve_ratio(self.memory_reserve_ratio)
+        _validate_downlink_parameters(
+            enable_downlink_planning=self.enable_downlink_planning,
+            require_full_downlink=self.require_full_downlink,
+            downlink_capacity_reserve_ratio=self.downlink_capacity_reserve_ratio,
+        )
         _validate_operational_parameters(
             eo_stabilization_time_s=self.eo_stabilization_time_s,
             sar_stabilization_time_s=self.sar_stabilization_time_s,
@@ -134,6 +160,11 @@ class CpSatPlannerConfig:
 
     memory_reserve_ratio: float = 0.0
 
+    enable_downlink_planning: bool = False
+    require_full_downlink: bool = False
+    allow_simultaneous_imaging_downlink: bool = False
+    downlink_capacity_reserve_ratio: float = 0.0
+
     use_dynamic_transition_model: bool = False
     eo_stabilization_time_s: float = 3.0
     sar_stabilization_time_s: float = 10.0
@@ -161,6 +192,11 @@ class CpSatPlannerConfig:
 
     def __post_init__(self) -> None:
         _validate_memory_reserve_ratio(self.memory_reserve_ratio)
+        _validate_downlink_parameters(
+            enable_downlink_planning=self.enable_downlink_planning,
+            require_full_downlink=self.require_full_downlink,
+            downlink_capacity_reserve_ratio=self.downlink_capacity_reserve_ratio,
+        )
         _validate_operational_parameters(
             eo_stabilization_time_s=self.eo_stabilization_time_s,
             sar_stabilization_time_s=self.sar_stabilization_time_s,
@@ -195,6 +231,11 @@ class HybridPlannerConfig:
 
     memory_reserve_ratio: float = 0.0
 
+    enable_downlink_planning: bool = False
+    require_full_downlink: bool = False
+    allow_simultaneous_imaging_downlink: bool = False
+    downlink_capacity_reserve_ratio: float = 0.0
+
     use_dynamic_transition_model: bool = False
     eo_stabilization_time_s: float = 3.0
     sar_stabilization_time_s: float = 10.0
@@ -228,6 +269,14 @@ class HybridPlannerConfig:
     def __post_init__(self) -> None:
         GreedyPlannerConfig(
             memory_reserve_ratio=self.memory_reserve_ratio,
+            enable_downlink_planning=self.enable_downlink_planning,
+            require_full_downlink=self.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                self.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                self.downlink_capacity_reserve_ratio
+            ),
             use_dynamic_transition_model=self.use_dynamic_transition_model,
             eo_stabilization_time_s=self.eo_stabilization_time_s,
             sar_stabilization_time_s=self.sar_stabilization_time_s,
@@ -263,6 +312,14 @@ class HybridPlannerConfig:
     def greedy_config(self) -> GreedyPlannerConfig:
         return GreedyPlannerConfig(
             memory_reserve_ratio=self.memory_reserve_ratio,
+            enable_downlink_planning=self.enable_downlink_planning,
+            require_full_downlink=self.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                self.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                self.downlink_capacity_reserve_ratio
+            ),
             use_dynamic_transition_model=self.use_dynamic_transition_model,
             eo_stabilization_time_s=self.eo_stabilization_time_s,
             sar_stabilization_time_s=self.sar_stabilization_time_s,
@@ -286,6 +343,14 @@ class HybridPlannerConfig:
     def cp_sat_config(self, *, max_time_s: float, random_seed: int) -> CpSatPlannerConfig:
         return CpSatPlannerConfig(
             memory_reserve_ratio=self.memory_reserve_ratio,
+            enable_downlink_planning=self.enable_downlink_planning,
+            require_full_downlink=self.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                self.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                self.downlink_capacity_reserve_ratio
+            ),
             use_dynamic_transition_model=self.use_dynamic_transition_model,
             eo_stabilization_time_s=self.eo_stabilization_time_s,
             sar_stabilization_time_s=self.sar_stabilization_time_s,

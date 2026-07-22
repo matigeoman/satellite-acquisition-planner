@@ -1,7 +1,7 @@
 {
   "catalog_id": "CATALOG-PL-STRESS",
   "name": "Polski system obserwacji Ziemi — stres",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "orbits": [
     {
       "orbit_id": "ORB-SAR-01",
@@ -328,5 +328,31 @@
       "notes": null
     }
   ],
-  "notes": "Katalog stresowy z ograniczoną pamięcią, czasem obrazowania i liczbą akwizycji."
+  "notes": "Katalog stresowy z ograniczoną pamięcią, czasem obrazowania i liczbą akwizycji.",
+  "ground_stations": [
+    {
+      "ground_station_id": "GS-WARSAW",
+      "name": "Warsaw Mission Ground Station",
+      "latitude_deg": 52.2297,
+      "longitude_deg": 21.0122,
+      "altitude_m": 110.0,
+      "minimum_elevation_deg": 10.0,
+      "max_simultaneous_contacts": 1,
+      "is_active": true,
+      "source_reference": "Modelowa stacja projektu; współrzędne miasta Warszawa.",
+      "notes": "Parametry łącza są definiowane w oknach downlinku."
+    },
+    {
+      "ground_station_id": "GS-SVALBARD",
+      "name": "Svalbard Reference Ground Station",
+      "latitude_deg": 78.2298,
+      "longitude_deg": 15.4078,
+      "altitude_m": 430.0,
+      "minimum_elevation_deg": 5.0,
+      "max_simultaneous_contacts": 1,
+      "is_active": true,
+      "source_reference": "Model referencyjny lokalizacji Svalbard.",
+      "notes": "Stacja używana do eksperymentów z częstymi kontaktami LEO."
+    }
+  ]
 }

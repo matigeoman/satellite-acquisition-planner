@@ -33,7 +33,7 @@ def test_example_catalog_is_loaded() -> None:
     catalog = load_system_catalog(CATALOG_PATH)
 
     assert catalog.catalog_id == "CATALOG-PL-MODEL"
-    assert catalog.version == "1.0.0"
+    assert catalog.version == "1.3.0"
 
 
 def test_catalog_has_expected_object_counts() -> None:
@@ -44,6 +44,7 @@ def test_catalog_has_expected_object_counts() -> None:
     assert len(catalog.imaging_modes) == 6
     assert len(catalog.satellites) == 6
     assert len(catalog.active_satellites) == 6
+    assert len(catalog.ground_stations) == 2
 
 
 def test_catalog_has_expected_constellation_counts() -> None:
@@ -130,6 +131,21 @@ def test_get_unknown_satellite_raises_key_error() -> None:
 
     with pytest.raises(KeyError):
         catalog.get_satellite("SAR-99")
+
+
+def test_get_ground_station_returns_requested_object() -> None:
+    catalog = load_system_catalog(CATALOG_PATH)
+
+    station = catalog.get_ground_station("GS-WARSAW")
+
+    assert station.name == "Warsaw Mission Ground Station"
+
+
+def test_get_unknown_ground_station_raises_key_error() -> None:
+    catalog = load_system_catalog(CATALOG_PATH)
+
+    with pytest.raises(KeyError):
+        catalog.get_ground_station("GS-UNKNOWN")
 
 
 def test_missing_catalog_file_is_rejected(

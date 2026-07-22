@@ -11,9 +11,13 @@ from app.ui.comparison import (
     build_request_counts_comparison_figure,
 )
 from app.ui.dataframes import (
+    DOWNLINK_ENTRY_COLUMNS,
+    MEMORY_TIMELINE_COLUMNS,
     REQUEST_STATUS_COLUMNS,
     SATELLITE_USAGE_COLUMNS,
     SCHEDULE_ENTRY_COLUMNS,
+    build_downlink_entries_dataframe,
+    build_memory_timeline_dataframe,
     build_percentage_display_dataframe,
     build_request_status_dataframe,
     build_satellite_usage_dataframe,
@@ -41,9 +45,11 @@ from app.ui.metrics import (
 
 __all__ = [
     "COMPARISON_SUMMARY_COLUMNS",
+    "DOWNLINK_ENTRY_COLUMNS",
     "ComparisonMetrics",
     "GANTT_COLUMNS",
     "MAP_COLUMNS",
+    "MEMORY_TIMELINE_COLUMNS",
     "PlanningMetrics",
     "REQUEST_COMPARISON_COLUMNS",
     "REQUEST_STATUS_COLUMNS",
@@ -54,8 +60,10 @@ __all__ = [
     "build_comparison_gantt_figure",
     "build_comparison_metrics",
     "build_comparison_summary_dataframe",
+    "build_downlink_entries_dataframe",
     "build_gantt_dataframe",
     "build_gantt_figure",
+    "build_memory_timeline_dataframe",
     "build_objective_comparison_figure",
     "build_planning_metrics",
     "build_percentage_display_dataframe",

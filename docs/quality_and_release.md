@@ -12,7 +12,7 @@ Wariant z czystym buildem obrazu Docker:
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Skrypt wymaga wersji `1.2.0`, zatrzymuje się po pierwszym błędzie i domyślnie
+Skrypt wymaga wersji `1.3.0`, zatrzymuje się po pierwszym błędzie i domyślnie
 wyłącza kontener po zakończeniu. Parametr `-KeepContainer` pozostawia go
 uruchomionego.
 

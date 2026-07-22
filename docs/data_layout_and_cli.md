@@ -20,6 +20,9 @@ python -m app.cli check
 python -m app.cli paths
 python -m app.cli plan --scenario POLAND_DEMO --algorithm GREEDY
 python -m app.cli plan --scenario STRESS --algorithm CP_SAT --cp-sat-time-limit 10
+python -m app.cli plan --scenario POLAND_DEMO --algorithm HYBRID `
+  --enable-downlink --require-full-downlink `
+  --downlink-capacity-reserve-ratio 0.10
 ```
 
 Starsze skrypty w katalogu `scripts` pozostają dostępne dla wyspecjalizowanych eksperymentów i zgodności z dotychczasowym sposobem pracy.

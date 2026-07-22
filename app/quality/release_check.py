@@ -150,6 +150,10 @@ def _run_planner(
         options=PlanningOptions(
             algorithm=algorithm,
             memory_reserve_ratio=0.15,
+            enable_downlink_planning=True,
+            require_full_downlink=True,
+            allow_simultaneous_imaging_downlink=False,
+            downlink_capacity_reserve_ratio=0.10,
             use_dynamic_transition_model=True,
             cp_sat_time_limit_s=cp_sat_time_limit_s,
             cp_sat_num_search_workers=1,
@@ -208,6 +212,7 @@ def run_release_check(
             f"Satelity: {scenario.satellite_count}",
             f"Zlecenia: {scenario.active_request_count}",
             f"Okazje: {scenario.opportunity_count}",
+            f"Downlinki: {scenario.downlink_opportunity_count}",
         )
     )
 
@@ -352,15 +357,28 @@ def run_release_check(
             continue
 
         results[algorithm] = result
+        resource_ok = (
+            len(result.schedule.resource_summaries)
+            == result.scenario.satellite_count
+            and all(
+                summary.memory_feasible and summary.delivery_complete
+                for summary in result.schedule.resource_summaries
+            )
+        )
         steps.append(
             _step(
                 f"planning-{algorithm.value.lower()}",
-                result.total_acquisitions > 0,
+                result.total_acquisitions > 0 and resource_ok,
                 f"Planowanie {algorithm.value} zakończyło się poprawnie.",
                 f"Status solvera: {result.solver_status}",
                 f"Akwizycje: {result.total_acquisitions}",
                 f"Zrealizowane zlecenia: {result.fully_satisfied_requests}",
                 f"Funkcja celu: {result.objective_value:.3f}",
+                f"Okna downlinku: {result.schedule.selected_downlink_windows}",
+                (
+                    "Wysłane dane: "
+                    f"{result.schedule.total_downlinked_data_mb:.1f} MB"
+                ),
             )
         )
 

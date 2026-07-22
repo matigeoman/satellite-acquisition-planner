@@ -18,7 +18,7 @@ RUN python -m pip install --upgrade pip \
 
 FROM python:3.11-slim AS runtime
 
-ARG APP_VERSION=1.2.0
+ARG APP_VERSION=1.3.0
 
 LABEL org.opencontainers.image.title="Satellite Acquisition Planner" \
       org.opencontainers.image.description="Planowanie akwizycji satelitarnych SAR i EO" \

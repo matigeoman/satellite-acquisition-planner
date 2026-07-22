@@ -19,6 +19,11 @@ from app.planning.greedy import (
     build_greedy_schedule,
 )
 from app.planning.hybrid import HybridScheduler, build_hybrid_schedule
+from app.planning.resources import (
+    ResourcePlanResult,
+    allocate_downlinks_greedily,
+    evaluate_planned_downlinks,
+)
 from app.planning.profiles import (
     DecisionProfile,
     DecisionProfileWeights,
@@ -38,9 +43,12 @@ __all__ = [
     "HybridScheduler",
     "OpportunityConflict",
     "OpportunityConflictGraph",
+    "ResourcePlanResult",
+    "allocate_downlinks_greedily",
     "build_cp_sat_schedule",
     "build_greedy_schedule",
     "build_hybrid_schedule",
     "build_opportunity_conflict_graph",
     "decision_profile_weights",
+    "evaluate_planned_downlinks",
 ]

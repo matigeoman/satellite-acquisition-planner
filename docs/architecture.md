@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
     UI[app/ui\nStreamlit] --> SVC[app/services\nprzypadki użycia]
-    SVC --> PLN[app/planning\nGreedy, CP-SAT, Hybrid]
+    SVC --> PLN[app/planning\nGreedy, CP-SAT, Hybrid, zasoby]
     SVC --> INT[app/integrations\norbity, dostęp, pogoda, STK]
     SVC --> ANA[app/analysis\nKPI i porównania]
     SVC --> PROJ[app/projects\narchiwa]
@@ -43,9 +43,26 @@ sequenceDiagram
     A-->>UI: access windows
     UI->>W: zachmurzenie EO
     W-->>UI: forecast
-    UI->>P: okazje + ograniczenia
-    P-->>UI: harmonogram i diagnostyka
+    UI->>P: okazje + kontakty + ograniczenia
+    P-->>UI: akwizycje, downlink i profil pamięci
 ```
+
+## Przepływ zasobów danych
+
+```mermaid
+flowchart LR
+    A[Akwizycja] -->|zwiększa pamięć| M[Stan pamięci satelity]
+    D[Okno downlinku] -->|zmniejsza pamięć| M
+    G[Stacja naziemna] --> D
+    M --> P[Greedy / CP-SAT / Hybrid]
+    P --> S[Harmonogram akwizycji i transmisji]
+```
+
+Modele `GroundStation`, `DownlinkOpportunity` i `DownlinkOpportunitySet` należą
+do warstwy domenowej. `app/planning/resources.py` buduje profil pamięci i wpisy
+transmisji, natomiast planery decydują o akwizycjach oraz — w trybie
+zintegrowanym — o wykorzystaniu kontaktów. Dane scenariuszy demonstracyjnych są
+syntetyczne i mają służyć walidacji logiki, nie geometrii radiowej.
 
 ## Renderowanie globusa
 

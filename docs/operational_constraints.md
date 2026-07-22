@@ -63,7 +63,7 @@ czasowo.
 
 ## Greedy, CP-SAT i Hybrid
 
-Oba algorytmy korzystają z tego samego modułu `app.planning.operational`:
+Wszystkie trzy planery korzystają z tego samego modułu `app.planning.operational`:
 
 - Greedy sprawdza kierunkowy czas przejścia przed każdą decyzją,
 - CP-SAT tworzy konflikty par akwizycji, które nie mają wystarczającej przerwy,
@@ -73,6 +73,23 @@ Oba algorytmy korzystają z tego samego modułu `app.planning.operational`:
 W modelach ogólnych dynamiczne ograniczenia są domyślnie wyłączone, aby
 zachować zgodność wcześniejszych scenariuszy i harmonogramów referencyjnych.
 W planowaniu publicznym są domyślnie włączone i mogą zostać wyłączone w UI.
+
+## Pamięć, kontakty i stacje naziemne
+
+Tryb zintegrowany zastępuje wyłącznie sumaryczny budżet pamięci profilem
+zdarzeniowym. Akwizycja zajmuje pamięć po zakończeniu, a downlink zwalnia ją po
+zakończeniu kontaktu. Obowiązują:
+
+- limit pamięci po uwzględnieniu rezerwy;
+- pojemność okna po odjęciu setup, teardown, sprawności i rezerwy łącza;
+- jedna aktywna sesja odbiorcza na satelitę;
+- limit równoległych kontaktów stacji;
+- opcjonalny konflikt obrazowanie–downlink;
+- opcjonalne wymaganie przesłania wszystkich danych do końca horyzontu.
+
+Greedy przydziela kontakty chronologicznie, dlatego jest rozwiązaniem szybkim,
+ale nie globalnie optymalnym. CP-SAT dobiera objętości transmisji wspólnie z
+akwizycjami. Okna w scenariuszach wbudowanych są syntetyczne.
 
 ## Diagnostyka
 

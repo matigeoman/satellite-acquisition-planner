@@ -3,6 +3,7 @@ from collections import Counter
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.enums import SensorType
+from app.models.ground_station import GroundStation
 from app.models.imaging import ImagingMode
 from app.models.orbit import OrbitDefinition
 from app.models.satellite import Satellite
@@ -43,6 +44,10 @@ class SystemCatalog(BaseModel):
         min_length=1,
     )
 
+    ground_stations: list[GroundStation] = Field(
+        default_factory=list,
+    )
+
     notes: str | None = Field(
         default=None,
         max_length=2000,
@@ -54,6 +59,7 @@ class SystemCatalog(BaseModel):
     ) -> "SystemCatalog":
         self._validate_unique_identifiers()
         self._validate_sensor_identifiers()
+        self._validate_ground_station_identifiers()
         self._validate_satellite_references()
         self._validate_unique_phases()
 
@@ -86,6 +92,11 @@ class SystemCatalog(BaseModel):
             "mode_id",
         )
 
+        self._ensure_unique(
+            [station.ground_station_id for station in self.ground_stations],
+            "ground_station_id",
+        )
+
     @staticmethod
     def _ensure_unique(
         values: list[str],
@@ -104,6 +115,13 @@ class SystemCatalog(BaseModel):
                 f"Katalog zawiera zduplikowane {field_name}: "
                 f"{duplicate_text}"
             )
+
+    def _validate_ground_station_identifiers(self) -> None:
+        for station in self.ground_stations:
+            if not station.ground_station_id.startswith("GS-"):
+                raise ValueError(
+                    "Identyfikator stacji naziemnej musi rozpoczynać się od GS-"
+                )
 
     def _validate_sensor_identifiers(self) -> None:
         for sensor in self.sensors:
@@ -278,4 +296,17 @@ class SystemCatalog(BaseModel):
 
         raise KeyError(
             f"Nie znaleziono satelity: {satellite_id}"
+        )
+    def get_ground_station(
+        self,
+        ground_station_id: str,
+    ) -> GroundStation:
+        """Zwraca stację naziemną na podstawie identyfikatora."""
+
+        for station in self.ground_stations:
+            if station.ground_station_id == ground_station_id:
+                return station
+
+        raise KeyError(
+            f"Nie znaleziono stacji naziemnej: {ground_station_id}"
         )

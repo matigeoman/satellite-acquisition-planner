@@ -145,6 +145,26 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.15,
     )
     plan_parser.add_argument(
+        "--enable-downlink",
+        action="store_true",
+        help="Włącza dynamiczną pamięć i planowanie okien transmisji.",
+    )
+    plan_parser.add_argument(
+        "--require-full-downlink",
+        action="store_true",
+        help="Wymaga opróżnienia pamięci do końca horyzontu.",
+    )
+    plan_parser.add_argument(
+        "--allow-simultaneous-imaging-downlink",
+        action="store_true",
+        help="Pozwala na jednoczesne obrazowanie i transmisję.",
+    )
+    plan_parser.add_argument(
+        "--downlink-capacity-reserve-ratio",
+        type=float,
+        default=0.10,
+    )
+    plan_parser.add_argument(
         "--cp-sat-time-limit",
         type=float,
         default=10.0,
@@ -185,6 +205,7 @@ def _handle_check(args: argparse.Namespace, paths: ProjectPaths) -> int:
         print(f"  aktywne zlecenia: {scenario.active_request_count}")
         print(f"  okazje: {scenario.opportunity_count}")
         print(f"  wykonalne okazje: {scenario.feasible_opportunity_count}")
+        print(f"  okna downlinku: {scenario.downlink_opportunity_count}")
 
     print()
     print("Struktura i dane wejściowe są poprawne.")
@@ -329,6 +350,14 @@ def _handle_plan(args: argparse.Namespace, paths: ProjectPaths) -> int:
     options = PlanningOptions(
         algorithm=algorithm,
         memory_reserve_ratio=args.memory_reserve_ratio,
+        enable_downlink_planning=args.enable_downlink,
+        require_full_downlink=args.require_full_downlink,
+        allow_simultaneous_imaging_downlink=(
+            args.allow_simultaneous_imaging_downlink
+        ),
+        downlink_capacity_reserve_ratio=(
+            args.downlink_capacity_reserve_ratio
+        ),
         cp_sat_time_limit_s=args.cp_sat_time_limit,
         cp_sat_num_search_workers=args.workers,
     )
@@ -363,6 +392,11 @@ def _handle_plan(args: argparse.Namespace, paths: ProjectPaths) -> int:
     print(f"Status solvera: {result.solver_status}")
     print(f"Status harmonogramu: {result.schedule.status.value}")
     print(f"Akwizycje: {result.total_acquisitions}")
+    print(f"Okna downlinku: {result.schedule.selected_downlink_windows}")
+    print(
+        "Wysłane dane: "
+        f"{result.schedule.total_downlinked_data_mb:.3f} MB"
+    )
     print(
         "Zrealizowane zlecenia: "
         f"{result.fully_satisfied_requests}/"

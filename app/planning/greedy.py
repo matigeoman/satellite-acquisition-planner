@@ -6,6 +6,7 @@ from time import perf_counter
 from typing import Iterable
 
 from app.models.catalog import SystemCatalog
+from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.enums import (
     PlanningAlgorithm,
     RequestMode,
@@ -31,6 +32,7 @@ from app.planning.operational import (
     request_is_fulfilled,
     required_transition_time_s,
 )
+from app.planning.resources import allocate_downlinks_greedily
 from app.planning.scoring import (
     acquisition_score,
     calculate_objective_contributions,
@@ -57,6 +59,7 @@ class GreedyScheduler:
         catalog: SystemCatalog,
         request_set: ObservationRequestSet,
         opportunity_set: AcquisitionOpportunitySet,
+        downlink_set: DownlinkOpportunitySet | None = None,
         config: GreedyPlannerConfig | None = None,
         fixed_assignments: Iterable[FixedOpportunityAssignment] | None = None,
         frozen_until_utc: datetime | None = None,
@@ -64,6 +67,7 @@ class GreedyScheduler:
         self.catalog = catalog
         self.request_set = request_set
         self.opportunity_set = opportunity_set
+        self.downlink_set = downlink_set
         self.config = config or GreedyPlannerConfig()
         self.frozen_until_utc = self._normalize_frozen_until(frozen_until_utc)
         self.fixed_assignments = tuple(fixed_assignments or ())
@@ -139,6 +143,7 @@ class GreedyScheduler:
         self._selected_opportunities: list[AcquisitionOpportunity] = []
 
         self._validate_input_sets()
+        self._validate_downlink_configuration()
         self._validate_fixed_assignments()
 
     def _validate_input_sets(self) -> None:
@@ -152,6 +157,23 @@ class GreedyScheduler:
 
         if self.request_set.horizon_end_utc != self.opportunity_set.horizon_end_utc:
             raise ValueError("Koniec horyzontu zleceń i okazji jest niezgodny")
+
+    def _validate_downlink_configuration(self) -> None:
+        if self.config.enable_downlink_planning:
+            if self.downlink_set is None:
+                raise ValueError(
+                    "Zintegrowane planowanie downlinku wymaga downlink_set"
+                )
+            self.downlink_set.validate_against(self.catalog)
+            if (
+                self.downlink_set.horizon_start_utc
+                != self.request_set.horizon_start_utc
+                or self.downlink_set.horizon_end_utc
+                != self.request_set.horizon_end_utc
+            ):
+                raise ValueError(
+                    "Horyzont zbioru downlinków jest niezgodny ze scenariuszem"
+                )
 
     def _normalize_frozen_until(
         self,
@@ -291,6 +313,25 @@ class GreedyScheduler:
         if created_at_utc is None:
             created_at_utc = datetime.now(timezone.utc)
 
+        resource_result = None
+        if self.config.enable_downlink_planning:
+            assert self.downlink_set is not None
+            resource_result = allocate_downlinks_greedily(
+                catalog=self.catalog,
+                acquisitions=self._selected_opportunities,
+                downlink_set=self.downlink_set,
+                memory_reserve_ratio=self.config.memory_reserve_ratio,
+                require_full_downlink=self.config.require_full_downlink,
+                allow_simultaneous_imaging_downlink=(
+                    self.config.allow_simultaneous_imaging_downlink
+                ),
+                downlink_capacity_reserve_ratio=(
+                    self.config.downlink_capacity_reserve_ratio
+                ),
+            )
+            if not resource_result.feasible:
+                schedule_status = ScheduleStatus.INFEASIBLE
+
         return Schedule(
             schedule_id=schedule_id,
             name=name,
@@ -300,6 +341,21 @@ class GreedyScheduler:
             algorithm=PlanningAlgorithm.GREEDY,
             status=schedule_status,
             entries=entries,
+            downlink_entries=(
+                list(resource_result.downlink_entries)
+                if resource_result is not None
+                else []
+            ),
+            resource_summaries=(
+                list(resource_result.summaries)
+                if resource_result is not None
+                else []
+            ),
+            memory_timeline=(
+                list(resource_result.memory_timeline)
+                if resource_result is not None
+                else []
+            ),
             frozen_until_utc=self.frozen_until_utc,
             memory_reserve_ratio=(self.config.memory_reserve_ratio),
             objective_value=objective_value,
@@ -317,7 +373,13 @@ class GreedyScheduler:
                 + "Nagroda priorytetowa jest "
                 "naliczana raz na zrealizowane zlecenie. "
                 f"Liczba stałych akwizycji: "
-                f"{len(self.fixed_assignments)}."
+                f"{len(self.fixed_assignments)}. "
+                + (
+                    "Pamięć jest liczona dynamicznie i zwalniana po "
+                    "zaplanowanych transmisjach. "
+                    if self.config.enable_downlink_planning
+                    else ""
+                )
             ),
         )
 
@@ -742,18 +804,37 @@ class GreedyScheduler:
         ):
             return False
 
-        usable_memory_mb = satellite.memory_capacity_mb * (
-            1.0 - self.config.memory_reserve_ratio
-        )
+        if self.config.enable_downlink_planning:
+            assert self.downlink_set is not None
+            tentative = [*self._selected_opportunities, opportunity]
+            resource_result = allocate_downlinks_greedily(
+                catalog=self.catalog,
+                acquisitions=tentative,
+                downlink_set=self.downlink_set,
+                memory_reserve_ratio=self.config.memory_reserve_ratio,
+                require_full_downlink=self.config.require_full_downlink,
+                allow_simultaneous_imaging_downlink=(
+                    self.config.allow_simultaneous_imaging_downlink
+                ),
+                downlink_capacity_reserve_ratio=(
+                    self.config.downlink_capacity_reserve_ratio
+                ),
+            )
+            if not resource_result.feasible:
+                return False
+        else:
+            usable_memory_mb = satellite.memory_capacity_mb * (
+                1.0 - self.config.memory_reserve_ratio
+            )
 
-        projected_memory_usage_mb = (
-            satellite.initial_memory_usage_mb
-            + state.data_volume_mb
-            + opportunity.estimated_data_volume_mb
-        )
+            projected_memory_usage_mb = (
+                satellite.initial_memory_usage_mb
+                + state.data_volume_mb
+                + opportunity.estimated_data_volume_mb
+            )
 
-        if projected_memory_usage_mb > usable_memory_mb + 1e-9:
-            return False
+            if projected_memory_usage_mb > usable_memory_mb + 1e-9:
+                return False
 
         if (
             self.config.use_dynamic_transition_model
@@ -882,6 +963,7 @@ def build_greedy_schedule(
     request_set: ObservationRequestSet,
     opportunity_set: AcquisitionOpportunitySet,
     *,
+    downlink_set: DownlinkOpportunitySet | None = None,
     config: GreedyPlannerConfig | None = None,
     schedule_id: str = "SCHEDULE-GREEDY-001",
     name: str = "Dobowy harmonogram Greedy",
@@ -895,6 +977,7 @@ def build_greedy_schedule(
         catalog=catalog,
         request_set=request_set,
         opportunity_set=opportunity_set,
+        downlink_set=downlink_set,
         config=config,
         fixed_assignments=fixed_assignments,
         frozen_until_utc=frozen_until_utc,

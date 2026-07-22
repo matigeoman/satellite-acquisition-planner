@@ -277,6 +277,21 @@ def analyze_schedule(
             schedule.total_data_volume_mb,
             6,
         ),
+        total_downlinked_data_mb=round(
+            schedule.total_downlinked_data_mb,
+            6,
+        ),
+        selected_downlink_windows=schedule.selected_downlink_windows,
+        delivery_completion_ratio=round(
+            _safe_ratio(
+                sum(
+                    summary.delivery_complete
+                    for summary in schedule.resource_summaries
+                ),
+                len(schedule.resource_summaries),
+            ),
+            6,
+        ),
         objective_value=round(
             schedule.objective_value or 0.0,
             6,
@@ -671,9 +686,38 @@ def _build_satellite_kpi(
         * (1.0 - schedule.memory_reserve_ratio)
     )
 
+    resource_summary = next(
+        (
+            item
+            for item in schedule.resource_summaries
+            if item.satellite_id == satellite_id
+        ),
+        None,
+    )
     final_memory_usage_mb = (
-        satellite.initial_memory_usage_mb
-        + generated_data_mb
+        resource_summary.final_memory_usage_mb
+        if resource_summary is not None
+        else satellite.initial_memory_usage_mb + generated_data_mb
+    )
+    downlinked_data_mb = (
+        resource_summary.downlinked_data_mb
+        if resource_summary is not None
+        else 0.0
+    )
+    selected_downlink_windows = (
+        resource_summary.selected_downlink_windows
+        if resource_summary is not None
+        else 0
+    )
+    peak_memory_usage_mb = (
+        resource_summary.peak_memory_usage_mb
+        if resource_summary is not None
+        else final_memory_usage_mb
+    )
+    delivery_complete = (
+        resource_summary.delivery_complete
+        if resource_summary is not None
+        else False
     )
 
     return SatelliteKPI(
@@ -698,6 +742,10 @@ def _build_satellite_kpi(
             generated_data_mb,
             6,
         ),
+        downlinked_data_mb=round(downlinked_data_mb, 6),
+        selected_downlink_windows=selected_downlink_windows,
+        peak_memory_usage_mb=round(peak_memory_usage_mb, 6),
+        delivery_complete=delivery_complete,
         initial_memory_usage_mb=(
             satellite.initial_memory_usage_mb
         ),

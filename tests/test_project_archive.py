@@ -145,6 +145,8 @@ def test_project_archive_roundtrip_restores_core_session_state() -> None:
     assert preview.opportunity_count == 1
     assert "Harmonogram" in preview.present_components
     assert "Snapshot orbit" in preview.present_components
+    assert "downlinks.json" in exported.included_files
+    assert exported.metadata.component_counts["downlink_opportunities"] == 36
 
     restored: dict[str, object] = {"unrelated_widget": "keep"}
     service.apply_preview(restored, preview)
@@ -155,6 +157,8 @@ def test_project_archive_roundtrip_restores_core_session_state() -> None:
     assert isinstance(restored_planning, PlanningResult)
     assert restored_planning.schedule.schedule_id == planning.schedule.schedule_id
     assert restored_planning.analysis.schedule_id == planning.schedule.schedule_id
+    assert restored_planning.scenario.downlink_set is not None
+    assert restored_planning.scenario.downlink_opportunity_count == 36
     restored_snapshot = restored[ORBIT_SNAPSHOT_STATE_KEY]
     assert isinstance(restored_snapshot, PublicConstellationSnapshot)
 

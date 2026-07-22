@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from app.models.catalog import SystemCatalog
+from app.models.downlink import DownlinkOpportunity
+from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.enums import (
     ObservationSide,
     RequestMode,
@@ -75,7 +77,7 @@ def build_stress_catalog(
 
     data["catalog_id"] = "CATALOG-PL-STRESS"
     data["name"] = "Polski system obserwacji Ziemi — stres"
-    data["version"] = "1.2.0"
+    data["version"] = "1.3.0"
     data["notes"] = (
         "Katalog stresowy z ograniczoną pamięcią, "
         "czasem obrazowania i liczbą akwizycji."
@@ -431,12 +433,88 @@ def build_stress_opportunity_set(
     return opportunity_set
 
 
+def build_stress_downlink_set(
+    catalog: SystemCatalog,
+) -> DownlinkOpportunitySet:
+    """Buduje deterministyczne, syntetyczne okna łączności scenariusza."""
+
+    stations = sorted(
+        catalog.ground_stations,
+        key=lambda item: item.ground_station_id,
+    )
+    if len(stations) < 2:
+        raise ValueError("Scenariusz stresowy wymaga co najmniej dwóch stacji")
+
+    opportunities: list[DownlinkOpportunity] = []
+    satellites = sorted(
+        catalog.satellites,
+        key=lambda item: item.satellite_id,
+    )
+    counter = 1
+    for slot in range(6):
+        base = STRESS_HORIZON_START + timedelta(hours=4 * slot, minutes=20)
+        for satellite_index, satellite in enumerate(satellites):
+            pair_index = satellite_index // 2
+            start = base + timedelta(minutes=15 * pair_index)
+            end = start + timedelta(minutes=8)
+            station = stations[(satellite_index + slot) % len(stations)]
+            opportunities.append(
+                DownlinkOpportunity(
+                    downlink_opportunity_id=(
+                        f"DLO-STRESS-{counter:02d}-{satellite.satellite_id}"
+                    ),
+                    satellite_id=satellite.satellite_id,
+                    ground_station_id=station.ground_station_id,
+                    start_utc=start,
+                    end_utc=end,
+                    data_rate_mbps=(
+                        1200.0
+                        if satellite.satellite_id.startswith("SAR-")
+                        else 800.0
+                    ),
+                    link_efficiency=0.78,
+                    setup_time_s=20.0,
+                    teardown_time_s=10.0,
+                    notes=(
+                        "Syntetyczne okno łączności do badań dynamicznej "
+                        "pamięci."
+                    ),
+                )
+            )
+            counter += 1
+
+    result = DownlinkOpportunitySet(
+        downlink_set_id="DLOSET-STRESS",
+        name="Syntetyczne okna downlinku — stress",
+        version="1.3.0",
+        catalog_id=catalog.catalog_id,
+        horizon_start_utc=STRESS_HORIZON_START,
+        horizon_end_utc=STRESS_HORIZON_END,
+        generated_at_utc=datetime(
+            2026,
+            7,
+            15,
+            21,
+            30,
+            tzinfo=timezone.utc,
+        ),
+        opportunities=opportunities,
+        notes=(
+            "Okna syntetyczne. Nie odwzorowują operacyjnej sieci stacji "
+            "ani rzeczywistych umów taskingowych."
+        ),
+    )
+    result.validate_against(catalog)
+    return result
+
+
 def build_stress_scenario(
     base_catalog: SystemCatalog,
 ) -> tuple[
     SystemCatalog,
     ObservationRequestSet,
     AcquisitionOpportunitySet,
+    DownlinkOpportunitySet,
 ]:
     """Buduje kompletny scenariusz stresowy."""
 
@@ -451,10 +529,13 @@ def build_stress_scenario(
         request_set,
     )
 
+    downlink_set = build_stress_downlink_set(catalog)
+
     return (
         catalog,
         request_set,
         opportunity_set,
+        downlink_set,
     )
 
 
@@ -463,9 +544,10 @@ def save_stress_scenario(
     catalog: SystemCatalog,
     request_set: ObservationRequestSet,
     opportunity_set: AcquisitionOpportunitySet,
+    downlink_set: DownlinkOpportunitySet,
     output_directory: str | Path,
 ) -> dict[str, Path]:
-    """Zapisuje trzy pliki JSON scenariusza stresowego."""
+    """Zapisuje cztery pliki JSON scenariusza stresowego."""
 
     directory = Path(
         output_directory
@@ -483,6 +565,7 @@ def save_stress_scenario(
             directory
             / "opportunities.json"
         ),
+        "downlinks": directory / "downlinks.json",
     }
 
     _write_json(
@@ -498,6 +581,11 @@ def save_stress_scenario(
     _write_json(
         paths["opportunities"],
         opportunity_set.model_dump(mode="json"),
+    )
+
+    _write_json(
+        paths["downlinks"],
+        downlink_set.model_dump(mode="json"),
     )
 
     return paths

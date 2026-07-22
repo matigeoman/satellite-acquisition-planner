@@ -47,6 +47,24 @@ def test_cli_parser_exposes_main_commands() -> None:
     assert parser.parse_args(["plan"]).command == "plan"
 
 
+
+def test_cli_plan_exposes_integrated_downlink_options() -> None:
+    args = build_parser().parse_args(
+        [
+            "plan",
+            "--enable-downlink",
+            "--require-full-downlink",
+            "--allow-simultaneous-imaging-downlink",
+            "--downlink-capacity-reserve-ratio",
+            "0.2",
+        ]
+    )
+
+    assert args.enable_downlink is True
+    assert args.require_full_downlink is True
+    assert args.allow_simultaneous_imaging_downlink is True
+    assert args.downlink_capacity_reserve_ratio == 0.2
+
 def test_cli_paths_command_uses_supplied_project_root(
     tmp_path: Path,
     capsys,

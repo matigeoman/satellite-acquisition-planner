@@ -9,9 +9,9 @@ flowchart LR
     C --> D[Okna dostępu]
     D --> E[Pogoda EO]
     E --> F[Okazje]
-    F --> G[Graf + profil + planer]
-    G --> H[Harmonogram]
-    H --> I[Globus i raport]
+    F --> G[Stacje i okna downlinku]
+    G --> H[Graf + profil + planer]
+    H --> I[Harmonogram i pamięć]
 ```
 
 ## 1. Cele i zlecenia
@@ -35,8 +35,16 @@ Wybierz Greedy, CP-SAT albo Hybrid oraz profil decyzyjny. `BALANCED` jest
 punktem wyjścia, `EMERGENCY` wzmacnia zlecenia obowiązkowe,
 `QUALITY_FIRST` jakość, `THROUGHPUT` przepustowość, a `SAR_EO_FUSION`
 kompletność par. Ustaw rezerwę pamięci, limit solvera i ograniczenia
-operacyjne. Po planowaniu sprawdź harmonogram, diagnostykę niezrealizowanych
-zleceń oraz zakładkę grafu konfliktów.
+operacyjne. Włącz zintegrowany downlink, ustaw rezerwę przepustowości i zdecyduj,
+czy wszystkie dane muszą zostać przesłane do końca horyzontu. Po planowaniu
+sprawdź harmonogram, diagnostykę niezrealizowanych zleceń, graf konfliktów oraz
+zakładkę **Pamięć i downlink**.
+
+### Wyniki pamięci i downlinku
+
+Zakładka pokazuje wpisy kontaktów, objętość przesłaną, szczyt i stan końcowy
+pamięci każdego satelity oraz wykres osi czasu. Kontakty w scenariuszach
+referencyjnych są syntetyczne i nie zastępują obliczeń dostępu radiowego.
 
 ## 5. Przeplanowanie na danych publicznych
 

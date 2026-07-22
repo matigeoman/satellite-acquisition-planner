@@ -7,7 +7,8 @@ heurystykę konstrukcyjną, globalny model Constraint Programming oraz metodę
 hybrydową wykorzystującą rozwiązanie początkowe i lokalną poprawę [R6], [R18],
 [R19]. Model opportunity-based i graf konfliktów wynikają z prac Eddy’ego
 [R17], [R26]. Profile preferencji są uproszczoną adaptacją podejścia MCDM
-[R21].
+[R21]. Wersja 1.3.0 dodaje zintegrowane ograniczenia pamięci, kontaktów i
+downlinku zgodne z nurtem integrated scheduling [R18], [R22], [R28].
 
 Projekt nie odtwarza jednego eksperymentu ani operacyjnego systemu operatora.
 Scenariusze SAR/EO, sposób parowania sensorów i integracja orbitalna są
@@ -21,7 +22,8 @@ zmieniają się przy zastosowaniu:
 
 1. Greedy 2.0 z kosztem utraconych okazji;
 2. globalnego CP-SAT;
-3. Hybrid, w którym CP-SAT poprawia lokalne sąsiedztwa planu Greedy?
+3. Hybrid, w którym CP-SAT poprawia lokalne sąsiedztwa planu Greedy;
+4. planowanie bez i ze zintegrowaną pamięcią oraz downlinkiem?
 
 ## Hipotezy robocze
 
@@ -33,7 +35,10 @@ zmieniają się przy zastosowaniu:
 - **H3:** globalny CP-SAT może znaleźć rozwiązanie lepsze od Greedy, ale przy
   krótkim limicie czasu może zakończyć ze statusem `FEASIBLE` i wynikiem
   słabszym od szybko uzyskanego planu zachłannego.
-- **H4:** wpływ profilu decyzyjnego jest widoczny w strukturze planu, np.
+- **H4:** planowanie z downlinkiem pozwala przekroczyć sumaryczną pojemność
+  pamięci w całym horyzoncie bez przekroczenia jej chwilowego limitu, jeżeli
+  wcześniejsze kontakty zwolnią zasób.
+- **H5:** wpływ profilu decyzyjnego jest widoczny w strukturze planu, np.
   `EMERGENCY` zwiększa realizację zleceń obowiązkowych, a `QUALITY_FIRST`
   średnią jakość wybranych akwizycji.
 
@@ -46,6 +51,7 @@ wersja aplikacji
 + scenariusz i snapshot danych
 + profil decyzyjny
 + konfiguracja ograniczeń
++ zbiór okien downlinku i stacji
 + algorytm
 + limit czasu
 + random seed
@@ -57,7 +63,9 @@ wersja aplikacji
 - gęstość grafu konfliktów;
 - udział `DUAL_REQUIRED` i `DUAL_OPTIONAL`;
 - profil decyzyjny;
-- rezerwa pamięci i ograniczenia czasu pracy;
+- rezerwa pamięci, rezerwa przepustowości i wymaganie pełnej dostawy;
+- liczba, rozkład i pojemność okien downlinku;
+- liczba kanałów stacji i konflikt obrazowanie–transmisja;
 - model przeorientowania;
 - zachmurzenie EO;
 - limit czasu CP-SAT/Hybrid;
@@ -72,6 +80,8 @@ wersja aplikacji
 - liczba akwizycji SAR i EO;
 - kompletność par SAR–EO;
 - jakość i objętość danych;
+- szczytowa i końcowa zajętość pamięci;
+- objętość przesłana, wykorzystanie kontaktów i kompletność dostawy;
 - liczba zaakceptowanych ulepszeń Hybrid;
 - gęstość i rozmiary komponentów grafu konfliktów;
 - stabilność po przeplanowaniu;
@@ -119,4 +129,6 @@ Raport powinien podawać wersję aplikacji, commit, snapshot OMM z epoką, źró
 pogody, konfigurację solvera, profil decyzyjny i seed. Parametry
 `MODEL_DERIVED` należy przedstawiać jako założenia modelu, a nie dane operatora.
 Cytowania metod należy dobierać do faktycznie analizowanego modułu: [R17],
-[R26] dla grafu, [R19] dla Greedy 2.0, [R18] dla Hybrid i [R21] dla profili.
+[R26] dla grafu, [R19] dla Greedy 2.0, [R18] dla Hybrid i integrated
+scheduling, [R21] dla profili, [R22] dla cyklu planowania oraz [R28] dla
+harmonogramowania kontaktów stacja–satelita.

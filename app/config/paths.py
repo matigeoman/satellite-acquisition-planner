@@ -11,13 +11,15 @@ class ScenarioPaths:
     catalog: Path
     requests: Path
     opportunities: Path
+    downlinks: Path
 
     @property
-    def all(self) -> tuple[Path, Path, Path]:
+    def all(self) -> tuple[Path, Path, Path, Path]:
         return (
             self.catalog,
             self.requests,
             self.opportunities,
+            self.downlinks,
         )
 
 
@@ -117,6 +119,7 @@ class ProjectPaths:
             catalog=directory / "system.json",
             requests=directory / "requests.json",
             opportunities=directory / "opportunities.json",
+            downlinks=directory / "downlinks.json",
         )
 
     def reference_schedule(

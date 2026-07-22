@@ -20,12 +20,14 @@ def main() -> None:
         stress_catalog,
         stress_request_set,
         stress_opportunity_set,
+        stress_downlink_set,
     ) = build_stress_scenario(base_catalog)
 
     paths = save_stress_scenario(
         catalog=stress_catalog,
         request_set=stress_request_set,
         opportunity_set=stress_opportunity_set,
+        downlink_set=stress_downlink_set,
         output_directory=OUTPUT_DIRECTORY,
     )
 
@@ -36,6 +38,7 @@ def main() -> None:
     print(f"Tryby: {stress_request_set.request_mode_counts}")
     print(f"Okazje: {len(stress_opportunity_set.opportunities)}")
     print(f"Wykonalne: {len(stress_opportunity_set.feasible_opportunities)}")
+    print(f"Okna downlinku: {len(stress_downlink_set.feasible_opportunities)}")
     print(f"Typy sensorów: {stress_opportunity_set.sensor_type_counts}")
     print()
 

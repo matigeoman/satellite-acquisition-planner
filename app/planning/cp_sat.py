@@ -6,6 +6,8 @@ from typing import Iterable, Mapping
 from ortools.sat.python import cp_model
 
 from app.models.catalog import SystemCatalog
+from app.models.downlink import DownlinkOpportunity
+from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.enums import (
     PlanningAlgorithm,
     RequestMode,
@@ -27,6 +29,7 @@ from app.planning.operational import (
     request_is_fulfilled,
     required_transition_time_s,
 )
+from app.planning.resources import evaluate_planned_downlinks
 from app.planning.scoring import (
     acquisition_score,
     calculate_objective_contributions,
@@ -42,6 +45,7 @@ class CpSatScheduler:
         catalog: SystemCatalog,
         request_set: ObservationRequestSet,
         opportunity_set: AcquisitionOpportunitySet,
+        downlink_set: DownlinkOpportunitySet | None = None,
         config: CpSatPlannerConfig | None = None,
         fixed_assignments: Iterable[
             FixedOpportunityAssignment
@@ -53,6 +57,7 @@ class CpSatScheduler:
         self.catalog = catalog
         self.request_set = request_set
         self.opportunity_set = opportunity_set
+        self.downlink_set = downlink_set
         self.config = config or CpSatPlannerConfig()
         self.frozen_until_utc = self._normalize_frozen_until(
             frozen_until_utc
@@ -118,6 +123,36 @@ class CpSatScheduler:
             in self._active_requests_by_id
         ]
 
+        active_station_ids = {
+            station.ground_station_id
+            for station in catalog.ground_stations
+            if station.is_active
+        }
+        active_satellite_ids = {
+            satellite.satellite_id
+            for satellite in catalog.satellites
+            if satellite.is_available_for_planning
+        }
+        self._candidate_downlinks: list[DownlinkOpportunity] = (
+            [
+                item
+                for item in downlink_set.feasible_opportunities
+                if item.ground_station_id in active_station_ids
+                and item.satellite_id in active_satellite_ids
+            ]
+            if downlink_set is not None
+            else []
+        )
+        self._downlinks_by_satellite: dict[
+            str, list[DownlinkOpportunity]
+        ] = defaultdict(list)
+        self._downlinks_by_station: dict[
+            str, list[DownlinkOpportunity]
+        ] = defaultdict(list)
+        for downlink in self._candidate_downlinks:
+            self._downlinks_by_satellite[downlink.satellite_id].append(downlink)
+            self._downlinks_by_station[downlink.ground_station_id].append(downlink)
+
         self._opportunities_by_request: dict[
             str,
             list[AcquisitionOpportunity],
@@ -152,7 +187,11 @@ class CpSatScheduler:
             cp_model.IntVar,
         ] = {}
 
+        self._downlink_used_variables: dict[str, cp_model.IntVar] = {}
+        self._downlink_amount_variables: dict[str, cp_model.IntVar] = {}
+
         self._validate_input_sets()
+        self._validate_downlink_configuration()
         self._validate_fixed_assignments()
         self._validate_research_constraints()
 
@@ -203,6 +242,23 @@ class CpSatScheduler:
                 "Koniec horyzontu zleceń i okazji "
                 "jest niezgodny"
             )
+
+    def _validate_downlink_configuration(self) -> None:
+        if self.config.enable_downlink_planning:
+            if self.downlink_set is None:
+                raise ValueError(
+                    "Zintegrowane planowanie downlinku wymaga downlink_set"
+                )
+            self.downlink_set.validate_against(self.catalog)
+            if (
+                self.downlink_set.horizon_start_utc
+                != self.request_set.horizon_start_utc
+                or self.downlink_set.horizon_end_utc
+                != self.request_set.horizon_end_utc
+            ):
+                raise ValueError(
+                    "Horyzont zbioru downlinków jest niezgodny ze scenariuszem"
+                )
 
     def _normalize_frozen_until(
         self,
@@ -364,6 +420,28 @@ class CpSatScheduler:
             )
         )
 
+        resource_result = None
+        if self.config.enable_downlink_planning:
+            assert self.downlink_set is not None
+            planned_amounts_mb = {
+                identifier: (
+                    solver.value(variable) / self.config.resource_scale
+                )
+                for identifier, variable in self._downlink_amount_variables.items()
+                if solver.value(variable) > 0
+            }
+            resource_result = evaluate_planned_downlinks(
+                catalog=self.catalog,
+                acquisitions=selected_opportunities,
+                downlink_set=self.downlink_set,
+                planned_amounts_mb=planned_amounts_mb,
+                memory_reserve_ratio=self.config.memory_reserve_ratio,
+                require_full_downlink=self.config.require_full_downlink,
+                downlink_capacity_reserve_ratio=(
+                    self.config.downlink_capacity_reserve_ratio
+                ),
+            )
+
         entries = [
             self._create_schedule_entry(
                 opportunity=opportunity,
@@ -415,6 +493,8 @@ class CpSatScheduler:
             schedule_status = ScheduleStatus.INFEASIBLE
         else:
             schedule_status = ScheduleStatus.FEASIBLE
+        if resource_result is not None and not resource_result.feasible:
+            schedule_status = ScheduleStatus.INFEASIBLE
 
         objective_value = round(
             sum(
@@ -437,6 +517,21 @@ class CpSatScheduler:
             algorithm=PlanningAlgorithm.CP_SAT,
             status=schedule_status,
             entries=entries,
+            downlink_entries=(
+                list(resource_result.downlink_entries)
+                if resource_result is not None
+                else []
+            ),
+            resource_summaries=(
+                list(resource_result.summaries)
+                if resource_result is not None
+                else []
+            ),
+            memory_timeline=(
+                list(resource_result.memory_timeline)
+                if resource_result is not None
+                else []
+            ),
             frozen_until_utc=self.frozen_until_utc,
             memory_reserve_ratio=(
                 self.config.memory_reserve_ratio
@@ -452,7 +547,13 @@ class CpSatScheduler:
                 "Nagroda priorytetowa jest naliczana raz "
                 "na zrealizowane zlecenie. "
                 f"Liczba stałych akwizycji: "
-                f"{len(self.fixed_assignments)}."
+                f"{len(self.fixed_assignments)}. "
+                + (
+                    "Model zawiera zmienne objętości downlinku i dynamiczne "
+                    "ograniczenia pamięci. "
+                    if self.config.enable_downlink_planning
+                    else ""
+                )
             ),
         )
 
@@ -475,6 +576,28 @@ class CpSatScheduler:
 
         self._request_fulfilled_variables = {}
         self._dual_optional_second_variables = {}
+        self._downlink_used_variables = {}
+        self._downlink_amount_variables = {}
+
+        if self.config.enable_downlink_planning:
+            for downlink in self._candidate_downlinks:
+                identifier = downlink.downlink_opportunity_id
+                used = model.new_bool_var(
+                    self._variable_name("downlink_used", identifier)
+                )
+                capacity = self._scale_resource(
+                    downlink.capacity_mb
+                    * (1.0 - self.config.downlink_capacity_reserve_ratio)
+                )
+                amount = model.new_int_var(
+                    0,
+                    max(0, capacity),
+                    self._variable_name("downlink_amount", identifier),
+                )
+                model.add(amount <= capacity * used)
+                model.add(amount >= used)
+                self._downlink_used_variables[identifier] = used
+                self._downlink_amount_variables[identifier] = amount
 
         if self.solution_hint_ids:
             for opportunity_id, variable in self._selection_variables.items():
@@ -486,6 +609,8 @@ class CpSatScheduler:
         self._add_request_constraints(model)
         self._add_fixed_opportunity_constraints(model)
         self._add_satellite_constraints(model)
+        if self.config.enable_downlink_planning:
+            self._add_downlink_constraints(model)
         self._set_objective(model)
 
         return model
@@ -729,53 +854,54 @@ class CpSatScheduler:
                 )
             )
 
-            planning_memory_limit_mb = (
-                satellite.memory_capacity_mb
-                * (
-                    1.0
-                    - self.config.memory_reserve_ratio
-                )
-            )
-
-            available_memory_mb = (
-                planning_memory_limit_mb
-                - satellite.initial_memory_usage_mb
-            )
-
-            if available_memory_mb < -1e-9:
-                contradiction = model.new_bool_var(
-                    self._variable_name(
-                        "memory_contradiction",
-                        satellite.satellite_id,
+            if not self.config.enable_downlink_planning:
+                planning_memory_limit_mb = (
+                    satellite.memory_capacity_mb
+                    * (
+                        1.0
+                        - self.config.memory_reserve_ratio
                     )
                 )
 
-                model.add(
-                    contradiction == 0
-                )
-                model.add(
-                    contradiction == 1
-                )
-            else:
-                data_expression = sum(
-                    self._scale_resource(
-                        opportunity.estimated_data_volume_mb
-                    )
-                    * self._selection_variables[
-                        opportunity.opportunity_id
-                    ]
-                    for opportunity in opportunities
+                available_memory_mb = (
+                    planning_memory_limit_mb
+                    - satellite.initial_memory_usage_mb
                 )
 
-                model.add(
-                    data_expression
-                    <= self._scale_resource(
-                        max(
-                            0.0,
-                            available_memory_mb,
+                if available_memory_mb < -1e-9:
+                    contradiction = model.new_bool_var(
+                        self._variable_name(
+                            "memory_contradiction",
+                            satellite.satellite_id,
                         )
                     )
-                )
+
+                    model.add(
+                        contradiction == 0
+                    )
+                    model.add(
+                        contradiction == 1
+                    )
+                else:
+                    data_expression = sum(
+                        self._scale_resource(
+                            opportunity.estimated_data_volume_mb
+                        )
+                        * self._selection_variables[
+                            opportunity.opportunity_id
+                        ]
+                        for opportunity in opportunities
+                    )
+
+                    model.add(
+                        data_expression
+                        <= self._scale_resource(
+                            max(
+                                0.0,
+                                available_memory_mb,
+                            )
+                        )
+                    )
 
             if self.config.use_dynamic_transition_model:
                 sar_opportunities = [
@@ -807,6 +933,198 @@ class CpSatScheduler:
                 satellite=satellite,
                 opportunities=opportunities,
             )
+
+    def _add_downlink_constraints(self, model: cp_model.CpModel) -> None:
+        assert self.downlink_set is not None
+
+        # Jedna antena satelity nie może obsługiwać nakładających się kontaktów.
+        for opportunities in self._downlinks_by_satellite.values():
+            ordered = sorted(
+                opportunities,
+                key=lambda item: (
+                    item.start_utc,
+                    item.end_utc,
+                    item.downlink_opportunity_id,
+                ),
+            )
+            for index, first in enumerate(ordered):
+                for second in ordered[index + 1 :]:
+                    if second.start_utc >= first.end_utc:
+                        break
+                    model.add(
+                        self._downlink_used_variables[
+                            first.downlink_opportunity_id
+                        ]
+                        + self._downlink_used_variables[
+                            second.downlink_opportunity_id
+                        ]
+                        <= 1
+                    )
+
+        # Stacja może posiadać więcej niż jeden równoległy kanał odbiorczy.
+        for station_id, opportunities in self._downlinks_by_station.items():
+            station = self.catalog.get_ground_station(station_id)
+            boundaries = sorted(
+                {item.start_utc for item in opportunities}
+                | {item.end_utc for item in opportunities}
+            )
+            for start, end in zip(boundaries, boundaries[1:]):
+                if start >= end:
+                    continue
+                active = [
+                    self._downlink_used_variables[item.downlink_opportunity_id]
+                    for item in opportunities
+                    if item.start_utc < end and start < item.end_utc
+                ]
+                if active:
+                    model.add(
+                        sum(active) <= station.max_simultaneous_contacts
+                    )
+
+        if not self.config.allow_simultaneous_imaging_downlink:
+            for downlink in self._candidate_downlinks:
+                used = self._downlink_used_variables[
+                    downlink.downlink_opportunity_id
+                ]
+                for acquisition in self._opportunities_by_satellite.get(
+                    downlink.satellite_id, []
+                ):
+                    if (
+                        acquisition.start_utc < downlink.end_utc
+                        and downlink.start_utc < acquisition.end_utc
+                    ):
+                        model.add(
+                            used
+                            + self._selection_variables[
+                                acquisition.opportunity_id
+                            ]
+                            <= 1
+                        )
+
+        for satellite in self.catalog.satellites:
+            acquisitions = self._opportunities_by_satellite.get(
+                satellite.satellite_id, []
+            )
+            downlinks = self._downlinks_by_satellite.get(
+                satellite.satellite_id, []
+            )
+            initial_memory = self._scale_resource(
+                satellite.initial_memory_usage_mb
+            )
+            memory_limit = self._scale_resource(
+                satellite.memory_capacity_mb
+                * (1.0 - self.config.memory_reserve_ratio)
+            )
+
+            if initial_memory > memory_limit:
+                contradiction = model.new_bool_var(
+                    self._variable_name(
+                        "initial_memory_contradiction",
+                        satellite.satellite_id,
+                    )
+                )
+                model.add(contradiction == 0)
+                model.add(contradiction == 1)
+
+            if not downlinks:
+                if self.config.require_full_downlink:
+                    for acquisition in acquisitions:
+                        model.add(
+                            self._selection_variables[
+                                acquisition.opportunity_id
+                            ]
+                            == 0
+                        )
+                    if initial_memory > 0:
+                        contradiction = model.new_bool_var(
+                            self._variable_name(
+                                "missing_downlink_contradiction",
+                                satellite.satellite_id,
+                            )
+                        )
+                        model.add(contradiction == 0)
+                        model.add(contradiction == 1)
+                else:
+                    acquired_without_downlink = [
+                        self._scale_resource(
+                            acquisition.estimated_data_volume_mb
+                        )
+                        * self._selection_variables[
+                            acquisition.opportunity_id
+                        ]
+                        for acquisition in acquisitions
+                    ]
+                    model.add(
+                        initial_memory + sum(acquired_without_downlink)
+                        <= memory_limit
+                    )
+                continue
+
+            # Ilość wysłana w danym oknie nie może obejmować danych,
+            # które pojawią się dopiero po jego rozpoczęciu.
+            for current in downlinks:
+                previous_downloads = [
+                    self._downlink_amount_variables[
+                        item.downlink_opportunity_id
+                    ]
+                    for item in downlinks
+                    if item.end_utc <= current.start_utc
+                ]
+                available_acquisitions = [
+                    self._scale_resource(item.estimated_data_volume_mb)
+                    * self._selection_variables[item.opportunity_id]
+                    for item in acquisitions
+                    if item.end_utc <= current.start_utc
+                ]
+                model.add(
+                    self._downlink_amount_variables[
+                        current.downlink_opportunity_id
+                    ]
+                    + sum(previous_downloads)
+                    <= initial_memory + sum(available_acquisitions)
+                )
+
+            checkpoints = sorted(
+                {item.end_utc for item in acquisitions}
+                | {item.end_utc for item in downlinks}
+            )
+            for checkpoint in checkpoints:
+                acquired = [
+                    self._scale_resource(item.estimated_data_volume_mb)
+                    * self._selection_variables[item.opportunity_id]
+                    for item in acquisitions
+                    if item.end_utc <= checkpoint
+                ]
+                # Dane są zwalniane dopiero po zakończeniu kontaktu.
+                # Przy wspólnym znaczniku czasu akwizycja jest księgowana
+                # przed downlinkiem, dlatego bieżący kontakt nie może ukryć
+                # chwilowego przekroczenia pamięci.
+                downloaded = [
+                    self._downlink_amount_variables[
+                        item.downlink_opportunity_id
+                    ]
+                    for item in downlinks
+                    if item.end_utc < checkpoint
+                ]
+                model.add(
+                    initial_memory + sum(acquired) - sum(downloaded)
+                    <= memory_limit
+                )
+
+            all_acquired = [
+                self._scale_resource(item.estimated_data_volume_mb)
+                * self._selection_variables[item.opportunity_id]
+                for item in acquisitions
+            ]
+            all_downloaded = [
+                self._downlink_amount_variables[item.downlink_opportunity_id]
+                for item in downlinks
+            ]
+            model.add(sum(all_downloaded) <= initial_memory + sum(all_acquired))
+            if self.config.require_full_downlink:
+                model.add(
+                    sum(all_downloaded) >= initial_memory + sum(all_acquired)
+                )
 
     def _add_transition_conflicts(
         self,
@@ -1119,6 +1437,7 @@ def build_cp_sat_schedule(
     request_set: ObservationRequestSet,
     opportunity_set: AcquisitionOpportunitySet,
     *,
+    downlink_set: DownlinkOpportunitySet | None = None,
     config: CpSatPlannerConfig | None = None,
     schedule_id: str = "SCHEDULE-CP-SAT-001",
     name: str = "Dobowy harmonogram CP-SAT",
@@ -1136,6 +1455,7 @@ def build_cp_sat_schedule(
         catalog=catalog,
         request_set=request_set,
         opportunity_set=opportunity_set,
+        downlink_set=downlink_set,
         config=config,
         fixed_assignments=fixed_assignments,
         frozen_until_utc=frozen_until_utc,

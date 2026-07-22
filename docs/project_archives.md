@@ -14,7 +14,8 @@ Zależnie od dostępnego stanu archiwum może zawierać:
 - `orbit_snapshot.json` z surowymi rekordami OMM,
 - `access_windows.json`,
 - `opportunity_builds.json`, `weather_assessments.json` i `opportunities.json`,
-- `scenario.json`, `planning_result.json` i `schedule.json`,
+- `scenario.json`, `planning_result.json`, `schedule.json` i opcjonalny
+  `downlinks.json`,
 - `schedule_history.json` oraz `replanning_history.json`,
 - `public_replanning_result.json`,
 - `benchmark_config.json` i `benchmark_results.json`.
@@ -25,7 +26,7 @@ po imporcie nie jest automatycznie zastępowany nowszym stanem źródeł publicz
 ## Odtwarzalność
 
 Archiwum przechowuje konfigurację solvera, seed CP-SAT/benchmarku, harmonogram,
-publiczne OMM, oceny zachmurzenia oraz wersję schematu. Analiza harmonogramu jest
+publiczne OMM, oceny zachmurzenia, stacje i okna downlinku oraz wersję schematu. Analiza harmonogramu jest
 po imporcie obliczana ponownie z odtworzonego katalogu, zbioru zleceń, okazji i
 harmonogramu.
 

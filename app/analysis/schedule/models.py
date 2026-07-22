@@ -36,6 +36,10 @@ class SatelliteKPI:
     imaging_time_limit_s: float
     imaging_utilization_ratio: float
     generated_data_mb: float
+    downlinked_data_mb: float
+    selected_downlink_windows: int
+    peak_memory_usage_mb: float
+    delivery_complete: bool
     initial_memory_usage_mb: float
     planning_memory_limit_mb: float
     final_memory_usage_mb: float
@@ -105,6 +109,9 @@ class ScheduleAnalysis:
 
     total_duration_s: float
     total_data_volume_mb: float
+    total_downlinked_data_mb: float
+    selected_downlink_windows: int
+    delivery_completion_ratio: float
     objective_value: float
 
     average_selected_quality: float
@@ -184,6 +191,18 @@ class ScheduleAnalysis:
             {
                 "metric": "total_data_volume_mb",
                 "value": self.total_data_volume_mb,
+            },
+            {
+                "metric": "total_downlinked_data_mb",
+                "value": self.total_downlinked_data_mb,
+            },
+            {
+                "metric": "selected_downlink_windows",
+                "value": self.selected_downlink_windows,
+            },
+            {
+                "metric": "delivery_completion_ratio",
+                "value": self.delivery_completion_ratio,
             },
             {
                 "metric": "objective_value",
