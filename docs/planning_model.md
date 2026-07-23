@@ -21,9 +21,9 @@ Podstawa naukowa i zakres adaptacji są opisane w
 
 Dla każdej wykonalnej okazji `i` tworzona jest zmienna binarna
 
-\[
+$$
 x_i \in \{0,1\}.
-\]
+$$
 
 Wartość `1` oznacza wybór okazji do harmonogramu. Jedno zlecenie może mieć
 wiele alternatywnych okazji na różnych satelitach lub w różnych terminach.
@@ -61,9 +61,9 @@ Model sprawdza między innymi:
 
 `app/planning/conflict_graph.py` buduje nieskierowany graf
 
-\[
+$$
 G=(V,E),
-\]
+$$
 
 gdzie `V` jest zbiorem wykonalnych okazji, a krawędź `(i,j)` oznacza, że para
 nie może zostać wybrana jednocześnie. Rejestrowane przyczyny to:
@@ -87,12 +87,12 @@ Graf służy do:
 Klasyczny Greedy pozostaje dostępny dla zgodności wyników historycznych. Po
 włączeniu heurystyki badawczej ranking okazji ma postać:
 
-\[
+$$
 H_i = U_i + \frac{w_s}{n_i}
       - w_d d_i
       - w_m m_i
       - w_c \overline{U(N_i)},
-\]
+$$
 
 gdzie:
 
@@ -125,25 +125,25 @@ Warstwa CP-SAT rozszerza model o:
 Po włączeniu `enable_downlink_planning` decyzje obrazowania są sprzężone z
 oknami kontaktów. Dla satelity `s` stan pamięci w punkcie czasu `t` ma postać:
 
-\[
+$$
 M_s(t)=M_s^0+\sum_{i:e_i\le t} d_i x_i
        -\sum_{w:f_w\le t} q_w,
-\]
+$$
 
 gdzie `d_i` oznacza objętość danych akwizycji, `q_w` zaplanowaną objętość
 downlinku, a `e_i` i `f_w` odpowiednio koniec akwizycji i kontaktu. W każdym
 punkcie kontrolnym obowiązuje:
 
-\[
+$$
 0 \le M_s(t) \le C_s(1-r_s).
-\]
+$$
 
 Objętość transmisji w oknie jest ograniczona przez czas efektywny, szybkość
 łącza, sprawność i rezerwę przepustowości:
 
-\[
+$$
 q_w \le \frac{v_w}{8}(T_w-T_{setup}-T_{teardown})\eta_w(1-r_d).
-\]
+$$
 
 Dodatkowe ograniczenia zapewniają jednocześnie:
 
@@ -184,9 +184,9 @@ pierwszeństwo, a przy równym statusie wymagany jest wzrost funkcji celu o co
 najmniej `minimum_improvement`. Jeżeli plan początkowy Greedy 2.0 jest
 wykonalny, zachodzi:
 
-\[
-F_{Hybrid} \geq F_{Greedy\ 2.0}.
-\]
+$$
+F_{\mathrm{Hybrid}} \geq F_{\mathrm{Greedy\,2.0}}.
+$$
 
 Nie jest to gwarancja optimum globalnego. CP-SAT optymalizuje ograniczoną grupę
 zleceń, a nie cały problem od nowa w każdej iteracji.

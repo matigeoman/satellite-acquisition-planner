@@ -42,9 +42,9 @@ Wersja 1.3.0 łączy cztery poziomy rozwiązania:
 
 Moduł `app/planning/conflict_graph.py` buduje nieskierowany graf
 
-\[
+$$
 G=(V,E),
-\]
+$$
 
 gdzie `V` jest zbiorem wykonalnych okazji, a krawędź `(i,j)` oznacza, że obie
 okazje nie mogą należeć jednocześnie do harmonogramu. W wersji 1.3.0
@@ -68,12 +68,12 @@ rozkład przyczyn i najbardziej konfliktowe okazje.
 Klasyczny Greedy pozostaje dostępny dla zgodności. Po włączeniu heurystyki
 badawczej ranking okazji przyjmuje postać:
 
-\[
+$$
 H_i = U_i + \frac{w_s}{n_i}
       - w_d d_i
       - w_m m_i
       - w_c \overline{U(N_i)}\ln(1+r_i),
-\]
+$$
 
 gdzie:
 
@@ -117,9 +117,9 @@ skonfigurowany próg.
 
 Jeżeli rozwiązanie początkowe Greedy 2.0 jest wykonalne, wynika z tego własność:
 
-\[
-F_{Hybrid} \geq F_{Greedy\ 2.0}.
-\]
+$$
+F_{\mathrm{Hybrid}} \geq F_{\mathrm{Greedy\,2.0}}.
+$$
 
 Nie jest to dowód optymalności globalnej. Jest to zachowanie najlepszego
 znanego rozwiązania początkowego przy tej samej klasie wykonalności. Podejście

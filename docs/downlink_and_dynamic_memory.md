@@ -27,10 +27,10 @@ przekazywane jako gotowe `DownlinkOpportunity`.
 
 Dla okna `w` nominalna pojemność transmisji wynosi:
 
-\[
+$$
 C_w = \frac{R_w}{8}\,\eta_w\,
 \left(t_w^{end}-t_w^{start}-t_w^{setup}-t_w^{teardown}\right),
-\]
+$$
 
 gdzie:
 
@@ -41,9 +41,9 @@ gdzie:
 
 Po wprowadzeniu rezerwy `r_dl` planer może wykorzystać najwyżej:
 
-\[
+$$
 C_w^{plan}=C_w(1-r_{dl}).
-\]
+$$
 
 Rezerwa reprezentuje niepewność przepustowości, narzut protokołu i margines
 operacyjny. Nie jest prognozą jakości radiowej.
@@ -52,11 +52,11 @@ operacyjny. Nie jest prognozą jakości radiowej.
 
 Dla satelity `s` stan pamięci po zdarzeniu `k` jest liczony jako:
 
-\[
+$$
 M_s(k)=M_s(0)
 +\sum_{a:\,t_a^{end}\leq t_k} D_a x_a
 -\sum_{w:\,t_w^{end}\leq t_k} d_w,
-\]
+$$
 
 gdzie:
 
@@ -69,16 +69,16 @@ gdzie:
 
 Dla rezerwy pamięci `r_mem` obowiązuje:
 
-\[
+$$
 0\leq M_s(k)\leq M_s^{capacity}(1-r_{mem})
 \quad \text{dla każdego punktu } k.
-\]
+$$
 
 Opcja `require_full_downlink` dodaje warunek:
 
-\[
+$$
 M_s(T)=0,
-\]
+$$
 
 czyli pełne opróżnienie pamięci do końca horyzontu. Obejmuje to również dane
 znajdujące się na pokładzie na początku scenariusza.
@@ -88,11 +88,11 @@ znajdujące się na pokładzie na początku scenariusza.
 Planer nie może wysłać danych, które powstaną dopiero po rozpoczęciu kontaktu.
 W CP-SAT dla każdego okna `w` obowiązuje konserwatywny warunek:
 
-\[
+$$
 d_w + \sum_{v:\,t_v^{end}\leq t_w^{start}} d_v
 \leq M_s(0)
 +\sum_{a:\,t_a^{end}\leq t_w^{start}}D_a x_a.
-\]
+$$
 
 Oznacza to, że akwizycja zakończona w trakcie kontaktu nie jest przesyłana w
 tym samym oknie. To świadome uproszczenie ogranicza ryzyko sztucznego

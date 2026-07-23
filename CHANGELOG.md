@@ -5,7 +5,12 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ## [Unreleased]
 
-Brak zmian po wydaniu 1.3.0.
+### Dokumentacja
+
+- poprawiono renderowanie wzorów LaTeX w dokumentacji Markdown przez użycie
+  przenośnych delimiterów `$$`;
+- dodano test regresyjny wykrywający nieobsługiwane delimitery i niezbilansowane
+  bloki matematyczne.
 
 ## [1.3.0] — 2026-07-22
 

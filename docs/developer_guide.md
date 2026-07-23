@@ -34,6 +34,21 @@ Wszystkie pliki tekstowe zapisuj jako UTF-8 bez zależności od ustawień system
 Każdy `Path.read_text` i `Path.write_text` dotyczący tekstu użytkowego powinien
 mieć jawne `encoding="utf-8"`.
 
+## Wzory matematyczne w Markdown
+
+Wzory blokowe zapisuj za pomocą delimiterów `$$` umieszczonych w osobnych
+wierszach:
+
+```markdown
+$$
+F_{\mathrm{Hybrid}} \geq F_{\mathrm{Greedy\,2.0}}
+$$
+```
+
+Nie używaj delimiterów `\[` i `\]`. Część rendererów Markdown, w tym widoki
+używane przez projekt, może potraktować je jako zwykłe nawiasy i wyświetlić
+kod LaTeX zamiast wzoru.
+
 ## Determinizm
 
 - ustawiaj jawny `random_seed`;
