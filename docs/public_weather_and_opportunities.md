@@ -4,8 +4,8 @@
 
 Moduł rozszerza geometryczne okna dostępu o prognozę zachmurzenia dla
 Pléiades Neo, a następnie konwertuje wyniki do domenowego modelu
-`AcquisitionOpportunity`, który jest bezpośrednio obsługiwany przez Greedy i
-CP-SAT.
+`AcquisitionOpportunity`, który jest bezpośrednio obsługiwany przez Greedy,
+CP-SAT i Hybrid.
 
 ## Źródło pogody
 
@@ -58,8 +58,7 @@ niewykonalności. Solvery automatycznie używają wyłącznie okazji wykonalnych
 ## Planowanie na danych publicznych
 
 Zakładka **Planowanie na danych publicznych** scala okazje utworzone dla kilku zleceń w
-jeden scenariusz sesyjny i uruchamia istniejące implementacje Greedy albo
-CP-SAT. Używany katalog zawiera 4 sloty ICEYE i 2 sloty Pléiades Neo.
+jeden scenariusz sesyjny i uruchamia Greedy, CP-SAT albo Hybrid. Używany katalog zawiera 4 sloty ICEYE i 2 sloty Pléiades Neo.
 
 Dane orbitalne i profile sensorów są publiczne, natomiast następujące
 parametry pozostają jawnymi założeniami modelowymi:

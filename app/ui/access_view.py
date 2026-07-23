@@ -307,7 +307,7 @@ def cloud_assessments_dataframe(assessments) -> pd.DataFrame:
 
 
 def public_opportunities_dataframe(build_result) -> pd.DataFrame:
-    """Tabela pełnych okazji przekazywanych do Greedy i CP-SAT."""
+    """Tabela pełnych okazji przekazywanych do Greedy, CP-SAT i Hybrid."""
 
     return pd.DataFrame(
         [

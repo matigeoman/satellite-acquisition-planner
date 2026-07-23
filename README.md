@@ -17,6 +17,14 @@ Scenariusz `POLAND_DEMO` zawiera kompletny zestaw danych offline do prezentacji
 i testów regresyjnych. Wyniki mają charakter badawczy: nie potwierdzają
 komercyjnego taskingu ani wykonania akwizycji przez operatora.
 
+| Obszar | Stan projektu |
+|---|---|
+| Runtime referencyjny | Python 3.11 |
+| Interfejs | Streamlit + Plotly + Folium |
+| Planowanie | Greedy, Greedy 2.0, CP-SAT i Hybrid |
+| Zasoby | pamięć dynamiczna, downlink i stacje naziemne |
+| Jakość | Pytest, Ruff, audyt repozytorium, healthcheck i kontrola E2E |
+
 ## Najważniejsze funkcje
 
 - profile 4 satelitów ICEYE i 2 satelitów Pléiades Neo;
@@ -92,44 +100,28 @@ programistyczne są instalowane przez `requirements-dev.txt`.
 
 ## Przepływ danych
 
-```text
-AOI i zlecenia
-    ↓
-OMM + SGP4
-    ↓
-okna dostępu i pogoda EO
-    ↓
-okazje akwizycyjne + okna downlinku
-    ↓
-graf konfliktów + profil decyzyjny
-    ↓
-Greedy / CP-SAT / Hybrid
-    ↓
-oś pamięci + transmisja do stacji naziemnych
-    ↓
-harmonogram i przeplanowanie
-    ↓
-walidacja STK, archiwum projektu i raporty
+```mermaid
+flowchart LR
+    A[AOI i zlecenia] --> B[OMM + SGP4]
+    B --> C[Okna dostępu + pogoda EO]
+    C --> D[Okazje akwizycyjne + okna downlinku]
+    D --> E[Graf konfliktów + profil decyzyjny]
+    E --> F[Greedy / CP-SAT / Hybrid]
+    F --> G[Oś pamięci + transmisja]
+    G --> H[Harmonogram + przeplanowanie]
+    H --> I[STK + archiwum + raporty]
 ```
 
 ## Struktura repozytorium
 
-```text
-app/models          modele domenowe i walidacja
-app/integrations    orbity, dostęp, pogoda i STK
-app/planning        Greedy, CP-SAT, Hybrid, graf i ograniczenia
-app/services        przypadki użycia
-app/analysis        KPI, benchmarki i eksperymenty
-app/projects        archiwa projektów
-app/reporting       generowanie raportów
-app/quality         audyt, healthcheck i kontrola E2E
-app/tracking        topocentryka i predykcja przelotów
-app/ui              interfejs Streamlit
-app/visualization   wizualizacje Plotly
-scripts             narzędzia uruchomieniowe i diagnostyczne
-tests               testy jednostkowe, integracyjne i regresyjne
-docs                dokumentacja techniczna i naukowa
-```
+| Warstwa | Pakiety i katalogi |
+|---|---|
+| Domena | `app/models`, `app/catalogs`, `app/geospatial` |
+| Planowanie | `app/planning`, `app/services`, `app/scenarios` |
+| Integracje i dane | `app/integrations`, `app/io`, `app/config` |
+| Prezentacja | `app/ui`, `app/visualization`, `app/tracking`, `app/demo` |
+| Analiza i wyniki | `app/analysis`, `app/projects`, `app/reporting`, `app/quality` |
+| Utrzymanie | `scripts`, `tests`, `docs`, `data`, `examples` |
 
 Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 
@@ -165,7 +157,8 @@ Dokładne przypisanie źródło → moduł → zakres adaptacji znajduje się w
 ## Ograniczenia interpretacyjne
 
 OMM/SGP4, geometria sensora, parametry manewrowe i budżety zasobów są jawnymi
-założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. Hybrid zachowuje własny plan początkowy Greedy 2.0 przy równym statusie
+założeniami modelu. Zachmurzenie wpływa na EO, lecz nie na SAR. Hybrid
+zachowuje własny plan początkowy Greedy 2.0 przy równym statusie
 wykonalności, ale nie gwarantuje optimum globalnego. Okna stacji naziemnych
 w scenariuszach demonstracyjnych są syntetyczne i nie potwierdzają
 operacyjnego dostępu do infrastruktury. STK

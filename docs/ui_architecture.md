@@ -1,8 +1,8 @@
 # Architektura interfejsu Streamlit
 
 `streamlit_app.py` konfiguruje stronę, ładuje wspólne style i deleguje
-renderowanie do wybranego modułu. Logika domenowa pozostaje w serwisach i
-pakietach planowania.
+renderowanie do wybranego modułu. Logika solverów i ograniczeń pozostaje w
+serwisach oraz pakietach planowania.
 
 ## Nawigacja
 
@@ -54,6 +54,8 @@ warstwy prezentacji; nie zmieniają danych orbitalnych ani wyników planowania.
 - `app/ui/pages/` — ekrany przypadków użycia.
 
 Ekrany nie implementują algorytmów optymalizacyjnych. Przygotowują dane
-wejściowe, wywołują serwisy i prezentują wyniki. Wskaźniki udziałowe są
-przechowywane jako wartości `0–1`; przeliczenie na procenty odbywa się dopiero
-w warstwie prezentacji.
+wejściowe, wywołują serwisy i prezentują wyniki. Dopuszczalne są bezpośrednie
+importy modeli domenowych, typów wynikowych oraz czystych funkcji
+wizualizacyjnych; operacje sieciowe i uruchamianie planowania powinny być
+koordynowane przez serwisy. Wskaźniki udziałowe są przechowywane jako wartości
+`0–1`; przeliczenie na procenty odbywa się dopiero w warstwie prezentacji.

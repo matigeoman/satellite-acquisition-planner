@@ -11,7 +11,7 @@ examples/             kompletne przykłady do prezentacji i walidacji
 docs/                 dokumentacja
 streamlit_app.py      punkt wejścia interfejsu
 Dockerfile            definicja obrazu
-Docker-compose.yml    lokalne uruchomienie kontenera
+docker-compose.yml    lokalne uruchomienie kontenera
 VERSION               wersja aplikacji
 ```
 
@@ -57,9 +57,11 @@ examples/poland_demo/     samowystarczalny zestaw demonstracyjny offline
 
 ## Zasady zależności
 
-Warstwa UI korzysta z `app.services`. Serwisy koordynują planowanie,
-integracje i raportowanie. Modele domenowe nie importują Streamlit ani
-konkretnych ścieżek systemu plików.
+Warstwa UI deleguje orkiestrację przypadków użycia do `app.services`.
+Może jednocześnie korzystać z modeli domenowych, typów wynikowych i czystych
+helperów prezentacyjnych. Serwisy koordynują planowanie, integracje i
+raportowanie. Modele domenowe nie importują Streamlit ani konkretnych ścieżek
+systemu plików.
 
 Publiczne interfejsy pakietów są udostępniane przez pliki `__init__.py`.
 Cienkie moduły `catalog_loader.py`, `request_loader.py`,

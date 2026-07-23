@@ -74,13 +74,13 @@ PAGE_DESCRIPTIONS: dict[ApplicationPage, str] = {
         "Mapa nieba, ślad naziemny i predykcja AOS/MAX/LOS."
     ),
     ApplicationPage.PUBLIC_PLANNING: (
-        "Budowa harmonogramu Greedy lub CP-SAT z danych publicznych."
+        "Budowa harmonogramu Greedy, CP-SAT lub Hybrid z danych publicznych."
     ),
     ApplicationPage.PUBLIC_REPLANNING: (
         "Aktualizacja harmonogramu przy zachowaniu okna zamrożonego."
     ),
     ApplicationPage.STK_VALIDATION: "Porównanie wyników publicznych z eksportem STK.",
-    ApplicationPage.BENCHMARKS: "Skalowalność, jakość i czasy Greedy oraz CP-SAT.",
+    ApplicationPage.BENCHMARKS: "Skalowalność, jakość i czasy Greedy, CP-SAT oraz Hybrid.",
     ApplicationPage.PROJECTS: "Zapis, import i wersjonowanie pełnego stanu pracy.",
     ApplicationPage.REPORTS: "Eksport wyników do HTML, DOCX, XLSX i JSON.",
     ApplicationPage.PLANNING: "Planowanie na kontrolowanych scenariuszach referencyjnych.",

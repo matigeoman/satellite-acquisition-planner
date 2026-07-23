@@ -126,7 +126,7 @@ def render_globe_page() -> None:
     st.caption(
         "Interaktywny obraz konstelacji z publicznych OMM/GP i propagacji "
         "SGP4. Warstwy obejmują ślady naziemne, AOI, okna dostępu oraz "
-        "akwizycje wybrane przez planner. Widok działa bez tokenów mapowych."
+        "akwizycje wybrane przez planer. Widok działa bez tokenów mapowych."
     )
 
     snapshot = get_public_orbit_snapshot()
