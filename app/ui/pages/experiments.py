@@ -22,14 +22,17 @@ from app.ui.app_context import (
     get_experimental_validation_service,
     load_scenario,
 )
+from app.ui.page_layout import render_page_header, render_sidebar_heading
 from app.ui.pages.planning import render_scenario_overview
 
 
 def render_experiments_page() -> None:
-    st.header("Walidacja eksperymentalna Greedy i CP-SAT")
-    st.write(
-        "Uruchamia powtarzalne warianty scenariusza stresowego i "
-        "porównuje jakość harmonogramu z czasem obliczeń."
+    render_page_header(
+        "Walidacja eksperymentalna",
+        "Uruchamia powtarzalne warianty scenariusza stresowego i porównuje "
+        "jakość harmonogramu z czasem obliczeń dla Greedy, CP-SAT i Hybrid.",
+        eyebrow="Metodyka badawcza",
+        badges=("Powtórzenia", "Profile degradacji", "Seedy", "Eksport"),
     )
 
     profile_by_id = {
@@ -38,7 +41,10 @@ def render_experiments_page() -> None:
     }
 
     with st.sidebar:
-        st.header("Parametry eksperymentu")
+        render_sidebar_heading(
+            "Eksperyment",
+            "Powtórzenia, profile i limit CP-SAT",
+        )
         selected_profile_ids = st.multiselect(
             "Profile degradacji",
             options=list(profile_by_id),

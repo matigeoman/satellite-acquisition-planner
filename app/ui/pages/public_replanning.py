@@ -12,6 +12,7 @@ from app.services.contracts.planning import PlanningOptions, PlanningResult
 from app.services.contracts.public_replanning import PublicReplanningResult
 from app.ui.app_context import get_public_replanning_service
 from app.ui.common import algorithm_display_name, combine_utc
+from app.ui.page_layout import render_page_header
 from app.ui.pages.replanning import render_replanning_result
 
 
@@ -64,11 +65,13 @@ def _weather_changes_dataframe(result: PublicReplanningResult) -> pd.DataFrame:
 def render_public_replanning_page() -> None:
     """Odświeża pogodę i przeplanowuje publiczny harmonogram."""
 
-    st.header("Przeplanowanie na danych publicznych")
-    st.info(
+    render_page_header(
+        "Przeplanowanie na danych publicznych",
         "Moduł odświeża prognozę Open-Meteo dla przyszłych okazji EO, "
         "zachowuje akwizycje wykonane i znajdujące się w oknie zamrożonym, "
-        "a pozostałą część harmonogramu przelicza Greedy, CP-SAT albo Hybrid."
+        "a pozostałą część harmonogramu przelicza Greedy, CP-SAT albo Hybrid.",
+        eyebrow="Reakcja operacyjna",
+        badges=("Frozen horizon", "Aktualizacja pogody", "Hybrid"),
     )
 
     previous_result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)

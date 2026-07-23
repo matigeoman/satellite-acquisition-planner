@@ -9,6 +9,7 @@ from app.integrations.access.models import GeometricAccessWindow
 from app.models.request import ObservationRequest
 from app.ui.app_context import get_stk_validation_service
 from app.ui.orbit_state import get_public_orbit_snapshot
+from app.ui.page_layout import render_page_header
 from app.ui.stk_validation_view import (
     access_matches_dataframe,
     aer_matches_dataframe,
@@ -297,11 +298,13 @@ def _render_aer_validation(
 def render_stk_validation_page() -> None:
     """Eksportuje przypadek i porównuje publiczny model z raportami STK."""
 
-    st.header("Walidacja względem STK")
-    st.info(
+    render_page_header(
+        "Walidacja względem STK",
         "Moduł porównuje własne okna SGP4 z raportem STK dla tego samego "
         "satelity, AOI, czasu i trybu. STK pełni rolę środowiska referencyjnego, "
-        "a nie źródła harmonogramu."
+        "a nie źródła harmonogramu.",
+        eyebrow="Walidacja zewnętrzna",
+        badges=("STK", "Access", "AER", "Eksport CSV"),
     )
 
     result = st.session_state.get(_ACCESS_RESULT_STATE_KEY)

@@ -19,7 +19,7 @@
 
 /* Czytelna skala całej aplikacji. */
 html {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 body,
@@ -43,7 +43,7 @@ body,
 }
 
 [data-testid="stAppViewContainer"] .main .block-container {
-    max-width: 1920px;
+    max-width: 1720px;
     padding-top: 1.45rem;
     padding-right: 2.2rem;
     padding-bottom: 3.5rem;
@@ -54,15 +54,15 @@ body,
 
 /* Panel boczny i identyfikacja produktu. */
 [data-testid="stSidebar"] {
-    min-width: 370px;
-    max-width: 370px;
+    min-width: 340px;
+    max-width: 340px;
     background:
         linear-gradient(180deg, rgba(20, 28, 43, 0.98), rgba(12, 18, 30, 0.98));
     border-right: 1px solid rgba(148, 163, 184, 0.16);
 }
 
 [data-testid="stSidebar"] > div:first-child {
-    width: 370px;
+    width: 340px;
     padding-top: 1.1rem;
 }
 
@@ -411,27 +411,27 @@ iframe[title="streamlit.components.v1.html"] {
 /* Monitory 4K. */
 @media (min-width: 2200px) {
     html {
-        font-size: 21px;
+        font-size: 19px;
     }
 
     [data-testid="stAppViewContainer"] .main .block-container {
-        max-width: 2160px;
+        max-width: 1920px;
     }
 
     [data-testid="stSidebar"] {
-        min-width: 410px;
-        max-width: 410px;
+        min-width: 370px;
+        max-width: 370px;
     }
 
     [data-testid="stSidebar"] > div:first-child {
-        width: 410px;
+        width: 370px;
     }
 }
 
 /* Laptopy. */
 @media (max-width: 1280px) {
     html {
-        font-size: 17px;
+        font-size: 16.5px;
     }
 
     [data-testid="stAppViewContainer"] .main .block-container {
@@ -440,12 +440,12 @@ iframe[title="streamlit.components.v1.html"] {
     }
 
     [data-testid="stSidebar"] {
-        min-width: 330px;
-        max-width: 330px;
+        min-width: 310px;
+        max-width: 310px;
     }
 
     [data-testid="stSidebar"] > div:first-child {
-        width: 330px;
+        width: 310px;
     }
 }
 
@@ -471,5 +471,167 @@ iframe[title="streamlit.components.v1.html"] {
 
     h2 {
         font-size: 1.55rem !important;
+    }
+}
+
+/* Wspólny nagłówek modułu. */
+.satplan-page-header {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 1.35rem 0;
+    padding: 1.25rem 1.35rem 1.2rem 1.35rem;
+    border: 1px solid var(--satplan-border);
+    border-radius: 1rem;
+    background:
+        radial-gradient(circle at 92% 0%, rgba(80, 169, 255, 0.14), transparent 18rem),
+        radial-gradient(circle at 4% 100%, rgba(255, 75, 85, 0.08), transparent 15rem),
+        linear-gradient(145deg, rgba(18, 29, 49, 0.90), rgba(10, 17, 29, 0.88));
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+}
+
+.satplan-page-header::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--satplan-eo), var(--satplan-accent));
+}
+
+.satplan-page-eyebrow {
+    margin-bottom: 0.38rem;
+    color: #8fc7ff;
+    font-size: 0.72rem;
+    font-weight: 760;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.satplan-page-header h1 {
+    margin: 0 !important;
+    max-width: 72rem;
+    font-size: clamp(1.75rem, 2.4vw, 2.35rem) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.025em;
+}
+
+.satplan-page-header p {
+    max-width: 78rem;
+    margin: 0.62rem 0 0 0;
+    color: var(--satplan-muted);
+    font-size: 0.95rem;
+    line-height: 1.52;
+}
+
+.satplan-page-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.42rem;
+    margin-top: 0.85rem;
+}
+
+.satplan-page-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.65rem;
+    padding: 0.22rem 0.58rem;
+    border: 1px solid rgba(143, 199, 255, 0.22);
+    border-radius: 999px;
+    background: rgba(80, 169, 255, 0.08);
+    color: #c9e4ff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+}
+
+.satplan-section-header {
+    margin: 1.45rem 0 0.7rem 0;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.satplan-section-header h2 {
+    margin: 0 !important;
+    font-size: 1.32rem !important;
+}
+
+.satplan-section-header p {
+    margin: 0.34rem 0 0 0;
+    color: var(--satplan-muted);
+    font-size: 0.86rem;
+}
+
+.satplan-sidebar-heading {
+    margin: 0.75rem 0 0.8rem 0;
+    padding: 0.72rem 0.78rem;
+    border: 1px solid var(--satplan-border);
+    border-radius: 0.72rem;
+    background: rgba(15, 23, 42, 0.54);
+}
+
+.satplan-sidebar-heading span {
+    display: block;
+    color: var(--satplan-muted);
+    font-size: 0.67rem;
+    font-weight: 750;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.satplan-sidebar-heading strong {
+    display: block;
+    margin-top: 0.16rem;
+    color: #f8fafc;
+    font-size: 0.98rem;
+}
+
+.satplan-sidebar-heading p {
+    margin: 0.3rem 0 0 0;
+    color: var(--satplan-muted);
+    font-size: 0.76rem !important;
+    line-height: 1.4;
+}
+
+/* Dostępność i zachowanie responsywne. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[role="radio"]:focus-visible,
+[role="tab"]:focus-visible {
+    outline: 2px solid rgba(80, 169, 255, 0.82) !important;
+    outline-offset: 2px;
+}
+
+[data-baseweb="tab-list"] {
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+[data-baseweb="tab"] {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 1280px) {
+    .satplan-page-header {
+        padding: 1.05rem 1.1rem;
+    }
+
+    .satplan-page-header p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 760px) {
+    .satplan-page-header {
+        margin-bottom: 1rem;
+        padding: 0.95rem 0.9rem;
+        border-radius: 0.78rem;
+    }
+
+    .satplan-page-header h1 {
+        font-size: 1.72rem !important;
+    }
+
+    .satplan-page-badges {
+        gap: 0.3rem;
     }
 }

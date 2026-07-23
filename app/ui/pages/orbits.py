@@ -17,6 +17,7 @@ from app.ui.orbit_state import (
     load_public_orbit_snapshot,
 )
 from app.ui.orbit_view import build_ground_track_figure
+from app.ui.page_layout import render_page_header
 
 
 def _snapshot_table(snapshot) -> pd.DataFrame:
@@ -78,11 +79,13 @@ def _cache_status(snapshot) -> None:
 def render_orbits_page() -> None:
     """Renderuje publiczne OMM i propagację SGP4 w czytelnym układzie."""
 
-    st.header("Orbity i dane OMM")
-    st.info(
+    render_page_header(
+        "Orbity i dane OMM",
         "Moduł pobiera publiczne elementy GP/OMM dla 4 satelitów ICEYE "
         "i 2 satelitów Pléiades Neo. Są to dane do modelowania i "
-        "orientacyjnego wyznaczania położenia, a nie efemerydy operacyjne."
+        "orientacyjnego wyznaczania położenia, a nie efemerydy operacyjne.",
+        eyebrow="Dane orbitalne",
+        badges=("CelesTrak", "OMM/GP", "SGP4", "Cache offline"),
     )
 
     with st.container(border=True):

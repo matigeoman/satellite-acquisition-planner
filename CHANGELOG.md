@@ -12,6 +12,15 @@ wersjonowanie zgodne z Semantic Versioning.
 - dodano test regresyjny wykrywający nieobsługiwane delimitery i niezbilansowane
   bloki matematyczne.
 
+### Interfejs i UX
+
+- dodano wspólny nagłówek dla wszystkich modułów Streamlit;
+- ujednolicono nagłówki paneli konfiguracyjnych w sidebarze;
+- dodano globalny motyw Plotly i wspólną paletę wykresów;
+- zmniejszono skalę typografii oraz szerokość sidebaru na ekranach Full HD;
+- dodano responsywne zakładki i widoczne stany fokusu klawiatury;
+- dodano testy integralności systemu wizualnego.
+
 ## [1.3.0] — 2026-07-22
 
 ### Pamięć i downlink

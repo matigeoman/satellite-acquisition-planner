@@ -14,6 +14,7 @@ from app.projects.service import (
 )
 from app.reporting import ScientificReportConfig, ScientificReportPackage
 from app.ui.app_context import get_scientific_report_service
+from app.ui.page_layout import render_page_header
 
 
 _REPORT_STATE_KEY = "scientific_report_package"
@@ -181,10 +182,13 @@ def _render_downloads() -> None:
 def render_reports_page() -> None:
     """Generuje raport naukowy i komplet tabel z bieżącej sesji."""
 
-    st.header("Raporty")
-    st.info(
+    render_page_header(
+        "Raporty",
         "Moduł buduje spójny pakiet do pracy dyplomowej: samodzielny HTML, "
-        "edytowalny DOCX, skoroszyt XLSX, tabele CSV, wykresy PNG oraz dane źródłowe JSON."
+        "edytowalny DOCX, skoroszyt XLSX, tabele CSV, wykresy PNG oraz dane "
+        "źródłowe JSON.",
+        eyebrow="Materiały wynikowe",
+        badges=("HTML", "DOCX", "XLSX", "JSON"),
     )
     _render_input_state()
     _render_build_form()

@@ -8,6 +8,7 @@ from app.models.enums import PlanningAlgorithm
 from app.projects.service import PLANNING_RESULT_STATE_KEY
 from app.services.contracts import PlanningResult
 from app.ui.app_context import get_demo_project_service
+from app.ui.page_layout import render_page_header
 from app.ui.pages.planning import render_planning_result, render_scenario_overview
 
 
@@ -131,11 +132,13 @@ def _render_loaded_demo() -> None:
 def render_demo_page() -> None:
     """Udostępnia gotowy, offline'owy scenariusz prezentacyjny Polski."""
 
-    st.header("Start i scenariusz demonstracyjny")
-    st.info(
+    render_page_header(
+        "Start i scenariusz demonstracyjny",
         "Scenariusz referencyjny pozwala rozpocząć pracę bez ręcznego "
         "tworzenia AOI i bez zależności od bieżącej dostępności CelesTrak "
-        "oraz Open-Meteo."
+        "oraz Open-Meteo.",
+        eyebrow="Punkt wejścia",
+        badges=("Offline", "6 satelitów", "50 zleceń", "48 h"),
     )
     _render_demo_loader()
     _render_loaded_demo()

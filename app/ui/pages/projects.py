@@ -21,6 +21,7 @@ from app.projects.service import (
     REPLANNING_RESULT_STATE_KEY,
 )
 from app.ui.app_context import get_project_archive_service
+from app.ui.page_layout import render_page_header
 
 
 _PREVIEW_STATE_KEY = "project_archive_preview"
@@ -314,11 +315,13 @@ def _render_clear_project() -> None:
 def render_projects_page() -> None:
     """Zarządza pełnym eksportem i odtworzeniem projektu SatPlan."""
 
-    st.header("Projekty")
-    st.info(
-        "Zapisuje bieżący przepływ od AOI i zleceń przez dane OMM, "
-        "okna dostępu, pogodę i okazje aż do harmonogramu, historii "
-        "przeplanowania oraz benchmarku."
+    render_page_header(
+        "Projekty",
+        "Zapisuje bieżący przepływ od AOI i zleceń przez dane OMM, okna "
+        "dostępu, pogodę i okazje aż do harmonogramu, historii przeplanowania "
+        "oraz benchmarku.",
+        eyebrow="Archiwizacja i odtwarzanie",
+        badges=(".satplan.zip", "SHA-256", "Import", "Historia"),
     )
     _render_current_state()
     export_tab, import_tab, history_tab = st.tabs(

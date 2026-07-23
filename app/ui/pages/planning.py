@@ -38,10 +38,17 @@ from app.ui.app_context import (
     load_scenario,
 )
 from app.ui.common import algorithm_display_name
+from app.ui.page_layout import render_page_header, render_sidebar_heading
 
 
 def render_planning_page() -> None:
-    st.header("Planowanie i porównanie algorytmów")
+    render_page_header(
+        "Planowanie i porównanie algorytmów",
+        "Budowa harmonogramów referencyjnych, porównanie funkcji celu oraz "
+        "diagnostyka ograniczeń, pamięci, downlinku i grafu konfliktów.",
+        eyebrow="Scenariusze referencyjne",
+        badges=("Greedy 2.0", "CP-SAT", "Hybrid", "Profile decyzyjne"),
+    )
 
     scenario_service = (
         get_scenario_service()
@@ -166,8 +173,9 @@ def render_sidebar_form(
     PlanningOptions,
 ]:
     with st.sidebar:
-        st.header(
-            "Konfiguracja planowania"
+        render_sidebar_heading(
+            "Planowanie",
+            "Scenariusz, algorytm i profil decyzyjny",
         )
 
         with st.form(

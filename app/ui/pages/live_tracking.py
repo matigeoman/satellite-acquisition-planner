@@ -29,6 +29,7 @@ from app.ui.app_context import (
     get_live_tracking_service,
     get_public_orbit_service,
 )
+from app.ui.page_layout import render_page_header
 from app.ui.orbit_state import (
     get_public_orbit_snapshot,
     load_public_orbit_snapshot,
@@ -633,11 +634,13 @@ def _render_live_fragment(
 def render_live_tracking_page() -> None:
     """Renderuje mapę nieba, pozycje SGP4 i predykcję przelotów."""
 
-    st.header("Śledzenie i przeloty")
-    st.caption(
+    render_page_header(
+        "Śledzenie i przeloty",
         "Bieżąca propagacja OMM/SGP4, lokalna mapa nieba i predykcja "
         "przelotów AOS/MAX/LOS. Tryb działa online oraz na danych offline "
-        "scenariusza demonstracyjnego."
+        "scenariusza demonstracyjnego.",
+        eyebrow="Świadomość sytuacyjna",
+        badges=("AOS/MAX/LOS", "Mapa nieba", "Topocentryka", "Tryb live"),
     )
 
     snapshot = get_public_orbit_snapshot()

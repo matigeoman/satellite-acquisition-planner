@@ -45,6 +45,7 @@ from app.ui.pages import (
     render_targets_page,
     render_stk_validation_page,
 )
+from app.ui.plotly_theme import register_plotly_theme
 from app.ui.styles import apply_application_styles
 
 
@@ -72,6 +73,7 @@ def main() -> None:
     """Uruchamia aplikację i deleguje renderowanie do wybranego modułu."""
 
     apply_application_styles()
+    register_plotly_theme()
 
     selected_page = render_navigation()
     _PAGE_RENDERERS[selected_page]()

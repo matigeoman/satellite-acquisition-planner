@@ -14,6 +14,7 @@ from app.models.enums import RequestMode, SensorType
 from app.models.geometry import TargetGeometry
 from app.models.request import ObservationRequest
 from app.ui.components import render_aoi_editor
+from app.ui.page_layout import render_page_header
 
 
 _REQUEST_STRATEGIES: tuple[str, ...] = (
@@ -329,10 +330,12 @@ def _requests_section() -> None:
 def render_targets_page() -> None:
     """Renderuje katalog publiczny i dwukierunkowy edytor AOI."""
 
-    st.header("Cele, profile sensorów i zlecenia")
-    st.info(
+    render_page_header(
+        "Cele, profile sensorów i zlecenia",
         "Zaznacz AOI, a następnie wybierz obserwację SAR, EO albo zlecenie "
-        "łączone SAR + EO. Każdy sensor może mieć osobny limit rozdzielczości."
+        "łączone SAR + EO. Każdy sensor może mieć osobny limit rozdzielczości.",
+        eyebrow="Definicja misji",
+        badges=("AOI", "SAR", "EO", "GeoJSON"),
     )
 
     _profiles_section()

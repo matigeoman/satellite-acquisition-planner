@@ -59,3 +59,17 @@ importy modeli domenowych, typów wynikowych oraz czystych funkcji
 wizualizacyjnych; operacje sieciowe i uruchamianie planowania powinny być
 koordynowane przez serwisy. Wskaźniki udziałowe są przechowywane jako wartości
 `0–1`; przeliczenie na procenty odbywa się dopiero w warstwie prezentacji.
+
+## System wizualny
+
+Warstwa prezentacji używa jednego zestawu komponentów i tokenów:
+
+- `app/ui/page_layout.py` — nagłówki stron, sekcji i paneli bocznych;
+- `app/ui/plotly_theme.py` — globalny motyw wykresów Plotly;
+- `app/ui/assets/application.css` — typografia, odstępy, karty, responsywność
+  i stany klawiaturowe.
+
+Każdy ekran główny zaczyna się od `render_page_header()`. Parametry umieszczone
+w panelu bocznym używają zwartego `render_sidebar_heading()`. Wykresy dziedziczą
+globalny motyw, chyba że wymagają specjalizowanego tła, na przykład globus 3D
+lub lokalna mapa nieba.

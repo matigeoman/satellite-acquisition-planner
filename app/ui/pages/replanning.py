@@ -21,14 +21,17 @@ from app.ui.app_context import (
     load_scenario,
 )
 from app.ui.common import algorithm_display_name, combine_utc
+from app.ui.page_layout import render_page_header, render_sidebar_heading
 from app.ui.pages.planning import render_result_tabs, render_scenario_overview
 
 
 def render_replanning_page() -> None:
-    st.header("Dynamiczne przeplanowanie")
-    st.write(
-        "Zachowuje akwizycje już wykonane i znajdujące się w "
-        "oknie zamrożonym, a pozostałą część horyzontu planuje ponownie."
+    render_page_header(
+        "Dynamiczne przeplanowanie",
+        "Zachowuje akwizycje już wykonane i znajdujące się w oknie "
+        "zamrożonym, a pozostałą część horyzontu planuje ponownie.",
+        eyebrow="Ciągłość planu",
+        badges=("Frozen horizon", "Greedy", "CP-SAT", "Hybrid"),
     )
 
     definitions = {
@@ -37,7 +40,10 @@ def render_replanning_page() -> None:
     }
 
     with st.sidebar:
-        st.header("Parametry przeplanowania")
+        render_sidebar_heading(
+            "Przeplanowanie",
+            "Scenariusz, algorytm i okno zamrożone",
+        )
         scenario_id = st.selectbox(
             "Scenariusz",
             options=list(definitions),

@@ -19,6 +19,7 @@ from app.ui.benchmark_view import (
     build_benchmark_satisfaction_figure,
     build_benchmark_summary_dataframe,
 )
+from app.ui.page_layout import render_page_header, render_sidebar_heading
 from app.ui.pages.planning import render_scenario_overview
 
 
@@ -27,15 +28,16 @@ _TIME_LIMIT_OPTIONS = [0.5, 1.0, 2.0, 5.0, 10.0, 30.0]
 
 
 def render_benchmark_page() -> None:
-    st.header("Benchmarki")
-    st.write(
-        "Porównanie skalowalności Greedy, CP-SAT i planera Hybrid dla zagnieżdżonych "
-        "scenariuszy od 20 do 500 zleceń. Każde zlecenie posiada "
-        "dziesięć okazji akwizycji."
+    render_page_header(
+        "Benchmarki algorytmów",
+        "Porównanie skalowalności Greedy, CP-SAT i planera Hybrid dla "
+        "zagnieżdżonych scenariuszy od 20 do 500 zleceń.",
+        eyebrow="Analiza wydajności",
+        badges=("Greedy", "CP-SAT", "Hybrid", "Wspólne seedy"),
     )
 
     with st.sidebar:
-        st.header("Parametry benchmarku")
+        render_sidebar_heading("Benchmark", "Zakres scenariusza i budżet solvera")
         request_counts = st.multiselect(
             "Liczba zleceń",
             options=_REQUEST_COUNT_OPTIONS,

@@ -23,14 +23,17 @@ from app.ui.app_context import (
     load_scenario,
 )
 from app.ui.common import algorithm_display_name, combine_utc
+from app.ui.page_layout import render_page_header, render_sidebar_heading
 from app.ui.pages.planning import render_result_tabs, render_scenario_overview
 
 
 def render_disruption_page() -> None:
-    st.header("Symulacja zakłóceń operacyjnych")
-    st.write(
+    render_page_header(
+        "Symulacja zakłóceń operacyjnych",
         "Konfiguruje awarię satelity, zmianę zachmurzenia i pilne "
-        "zlecenie, a następnie ponownie optymalizuje harmonogram."
+        "zlecenie, a następnie ponownie optymalizuje harmonogram.",
+        eyebrow="Odporność operacyjna",
+        badges=("Awaria", "Pogoda", "Zlecenie pilne", "Replanning"),
     )
 
     definitions = {
@@ -39,7 +42,7 @@ def render_disruption_page() -> None:
     }
 
     with st.sidebar:
-        st.header("Parametry zakłócenia")
+        render_sidebar_heading("Zakłócenie", "Zdarzenia i algorytm reakcji")
         scenario_id = st.selectbox(
             "Scenariusz",
             options=list(definitions),

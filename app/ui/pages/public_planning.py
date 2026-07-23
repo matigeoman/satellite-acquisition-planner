@@ -17,6 +17,7 @@ from app.ui.common import (
     algorithm_display_name,
     decision_profile_display_name,
 )
+from app.ui.page_layout import render_page_header
 from app.ui.pages.planning import (
     render_planning_result,
     render_scenario_overview,
@@ -48,12 +49,13 @@ def _build_scenario():
 def render_public_planning_page() -> None:
     """Uruchamia Greedy, CP-SAT albo Hybrid na danych publicznych."""
 
-    st.header("Planowanie na danych publicznych")
-    st.info(
-        "Moduł używa okazji akwizycyjnych zbudowanych z "
-        "CelesTrak GP/OMM, propagacji SGP4, publicznych profili sensorów i "
-        "prognozy Open-Meteo dla EO. Ograniczenia pamięci i limitów dobowych "
-        "pozostają jawnymi parametrami modelowymi."
+    render_page_header(
+        "Planowanie na danych publicznych",
+        "Moduł używa okazji akwizycyjnych zbudowanych z CelesTrak GP/OMM, "
+        "propagacji SGP4, publicznych profili sensorów i prognozy Open-Meteo "
+        "dla EO. Ograniczenia zasobów pozostają jawnymi parametrami modelowymi.",
+        eyebrow="Planowanie operacyjne",
+        badges=("Greedy 2.0", "CP-SAT", "Hybrid", "Downlink"),
     )
 
     try:

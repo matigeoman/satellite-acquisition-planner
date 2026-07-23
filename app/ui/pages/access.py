@@ -25,6 +25,7 @@ from app.ui.app_context import (
     get_cloud_assessment_service,
     get_public_access_service,
 )
+from app.ui.page_layout import render_page_header
 from app.ui.orbit_state import (
     get_public_orbit_snapshot,
     load_public_orbit_snapshot,
@@ -357,11 +358,13 @@ def _render_opportunity_builder(
 def render_access_page() -> None:
     """Wyznacza okna, prognozę zachmurzenia i okazje planistyczne."""
 
-    st.header("Okna dostępu")
-    st.info(
+    render_page_header(
+        "Okna dostępu i pogoda",
         "Moduł łączy zlecenie Point/Polygon, publiczne OMM, propagację "
         "SGP4 oraz profile ICEYE i Pléiades Neo. Wyniki są orientacyjnymi "
-        "oknami modelowymi, a nie potwierdzeniem komercyjnego taskingu."
+        "oknami modelowymi, a nie potwierdzeniem komercyjnego taskingu.",
+        eyebrow="Geometria obserwacji",
+        badges=("Access", "SGP4", "Open-Meteo", "SAR + EO"),
     )
 
     requests: list[ObservationRequest] = st.session_state.get(

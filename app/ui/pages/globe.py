@@ -11,6 +11,7 @@ from app.integrations.orbits import CelestrakClientError, OrbitPropagationError
 from app.services.contracts.planning import PlanningResult
 from app.ui.app_context import get_public_orbit_service
 from app.ui.orbit_state import get_public_orbit_snapshot, load_public_orbit_snapshot
+from app.ui.page_layout import render_page_header
 from app.visualization import build_plotly_globe_scene
 
 
@@ -122,11 +123,13 @@ def _render_category_legend(
 def render_globe_page() -> None:
     """Renderuje niezależny od Cesium globus operacyjny i orbity 3D."""
 
-    st.header("Globus operacyjny")
-    st.caption(
+    render_page_header(
+        "Globus operacyjny",
         "Interaktywny obraz konstelacji z publicznych OMM/GP i propagacji "
         "SGP4. Warstwy obejmują ślady naziemne, AOI, okna dostępu oraz "
-        "akwizycje wybrane przez planer. Widok działa bez tokenów mapowych."
+        "akwizycje wybrane przez planer. Widok działa bez tokenów mapowych.",
+        eyebrow="Wizualizacja 3D",
+        badges=("Plotly 3D", "Orbity", "AOI", "Akwizycje"),
     )
 
     snapshot = get_public_orbit_snapshot()

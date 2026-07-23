@@ -123,7 +123,10 @@ def render_navigation() -> ApplicationPage:
 
     with st.sidebar:
         _render_brand()
-        st.markdown('<div class="satplan-sidebar-label">Nawigacja</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="satplan-sidebar-label">Nawigacja</div>',
+            unsafe_allow_html=True,
+        )
         section = st.radio(
             "Obszar",
             options=list(NavigationSection),
@@ -149,7 +152,7 @@ def render_navigation() -> ApplicationPage:
             """,
             unsafe_allow_html=True,
         )
-        st.caption("Planowanie SAR i EO · OMM/SGP4 · Greedy/CP-SAT")
+        st.caption("SAR + EO · OMM/SGP4 · Greedy/CP-SAT/Hybrid")
 
     return selected
 

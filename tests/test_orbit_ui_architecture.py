@@ -17,12 +17,12 @@ def test_sgp4_dependency_is_declared() -> None:
     assert "sgp4" in requirements
 
 
-def test_large_interface_scale_and_map_controls_are_present() -> None:
+def test_responsive_interface_scale_and_map_controls_are_present() -> None:
     stylesheet = Path("app/ui/assets/application.css").read_text(encoding="utf-8")
     aoi_editor = Path("app/ui/components/aoi_editor.py").read_text(encoding="utf-8")
 
-    assert "font-size: 20px" in stylesheet
-    assert "min-width: 410px" in stylesheet
+    assert "font-size: 18px" in stylesheet
+    assert "min-width: 340px" in stylesheet
     assert '[data-testid="stIconMaterial"]' in stylesheet
     assert "height=700" in aoi_editor
     assert ".leaflet-draw-toolbar a" in aoi_editor
