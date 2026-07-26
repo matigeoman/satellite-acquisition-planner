@@ -12,16 +12,39 @@ from app.models.sensor import Sensor
 
 
 class OperationalPlannerConfig(Protocol):
-    """Wspólne parametry modelu operacyjnego obu planerów."""
+    """Wspólne parametry modelu operacyjnego planerów."""
 
-    use_dynamic_transition_model: bool
-    eo_stabilization_time_s: float
-    sar_stabilization_time_s: float
-    sar_side_switch_penalty_s: float
-    sar_mode_switch_penalty_s: float
-    sar_slew_rate_deg_s: float
-    sar_pass_gap_s: float
-    sar_max_acquisitions_per_pass: int
+    @property
+    def use_dynamic_transition_model(self) -> bool:
+        ...
+
+    @property
+    def eo_stabilization_time_s(self) -> float:
+        ...
+
+    @property
+    def sar_stabilization_time_s(self) -> float:
+        ...
+
+    @property
+    def sar_side_switch_penalty_s(self) -> float:
+        ...
+
+    @property
+    def sar_mode_switch_penalty_s(self) -> float:
+        ...
+
+    @property
+    def sar_slew_rate_deg_s(self) -> float:
+        ...
+
+    @property
+    def sar_pass_gap_s(self) -> float:
+        ...
+
+    @property
+    def sar_max_acquisitions_per_pass(self) -> int:
+        ...
 
 
 @dataclass(frozen=True)
