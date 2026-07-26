@@ -91,8 +91,10 @@ $$
 H_i = U_i + \frac{w_s}{n_i}
       - w_d d_i
       - w_m m_i
-      - w_c \overline{U(N_i)},
+      - w_c \overline{U_i^{\mathrm{blocked}}}\ln(1+r_i),
 $$
+
+Wartość $\overline{U_i^{\mathrm{blocked}}}$ oznacza średnią z maksymalnych użyteczności okazji blokowanych w każdym zleceniu. Wartość $r_i$ jest liczbą różnych zleceń blokowanych przez wybór okazji $i$. Dla $r_i=0$ koszt konfliktowy wynosi zero.
 
 gdzie:
 

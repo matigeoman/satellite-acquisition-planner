@@ -159,7 +159,7 @@ Pełną walidację wydania uruchamia skrypt:
 Równoważne kroki ręczne:
 
 ```powershell
-docker compose build --no-cache satplan
+docker compose build --pull --no-cache satplan
 
 docker compose run --rm --user root `
   -e PIP_NO_CACHE_DIR=1 `

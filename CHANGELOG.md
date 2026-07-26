@@ -7,28 +7,35 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Dodano
 
-- reprodukowalny tryb `PINNED` z jawnymi numerami NORAD dla sześciu slotów;
-- eksploracyjny tryb `LIVE`, wybierający rekordy ICEYE o najnowszej epoce OMM;
-- zapis trybu wyboru i pinów w snapshotach oraz archiwach projektu;
-- globalny próg coverage i podwyższony próg dla krytycznej warstwy orbitalnej;
-- Pyright, `pip-audit` i cotygodniowy Dependabot dla Python, Dockera i Actions.
+- test spójności wersji bieżącej dokumentacji z plikiem `VERSION`;
+- test zgodności wzoru Greedy 2.0 z rzeczywistą implementacją;
+- test wymagający opcji `--pull` w ręcznej weryfikacji obrazu Docker.
 
 ### Zmieniono
 
-- zakładka orbitalna jawnie pokazuje i przełącza tryb `PINNED`/`LIVE`;
-- Ruff obejmuje dodatkowe reguły Bugbear oraz wykrywanie nieużywanych `noqa`;
-- workflow jakości publikuje `coverage.json` i anuluje starszy przebieg gałęzi;
-- wymuszono `GitPython >= 3.1.55`, usuwając podatności wykryte przez `pip-audit`.
+- zaktualizowano `GitPython` z `3.1.55` do `3.1.57`;
+- zaktualizowano `Streamlit` do `1.60.0` i `streamlit-folium` do `0.27.3`;
+- obraz bazowy Docker przypięto do `python:3.11.15-slim-bookworm`;
+- bieżącą dokumentację ujednolicono z wersją aplikacji `1.4.0`;
+- wzór Greedy 2.0 uzupełniono o czynnik `ln(1 + r_i)` stosowany przez implementację;
+- ręczne budowanie obrazu wydania korzysta z `--pull --no-cache`.
 
 ### Naprawiono
 
-- tryb dynamiczny ICEYE nie traktuje już najwyższego numeru NORAD jako
-  zamiennika najnowszego rekordu orbitalnego.
+- test wymagań GitPython akceptuje bezpieczne aktualizacje zamiast jednej dokładnej wersji;
+- poprawiono interpolację `${Version}` w skrypcie PowerShell;
+- skrypt weryfikacji wydania pobiera aktualny obraz bazowy przed budowaniem;
+- usunięto nieaktualne odwołania do wersji `1.3.0` z bieżącej dokumentacji.
 
 ## [1.4.0] — 2026-07-26
 
 ### Dodano
 
+- reprodukowalny tryb `PINNED` z jawnymi numerami NORAD dla sześciu slotów;
+- eksploracyjny tryb `LIVE`, wybierający rekordy ICEYE o najnowszej epoce OMM;
+- zapis trybu wyboru i pinów w snapshotach oraz archiwach projektu;
+- globalny próg coverage i podwyższony próg dla krytycznej warstwy orbitalnej;
+- Pyright, `pip-audit` i cotygodniowy Dependabot dla Python, Dockera i Actions.
 - klient i parser CelesTrak EOP z cache oraz kontrolą wieku danych,
 - testy regresyjne TEME → ITRF2020 względem STK 13 dla ICEYE-X82 i
   Pléiades Neo 3,
@@ -36,6 +43,10 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Zmieniono
 
+- zakładka orbitalna jawnie pokazuje i przełącza tryb `PINNED`/`LIVE`;
+- Ruff obejmuje dodatkowe reguły Bugbear oraz wykrywanie nieużywanych `noqa`;
+- workflow jakości publikuje `coverage.json` i anuluje starszy przebieg gałęzi;
+- ustawiono bezpieczne minimum `GitPython >= 3.1.55`.
 - transformację Earth Fixed rozszerzono o `UT1-UTC` i ruch bieguna,
 - granice okien dostępu są doprecyzowywane bisekcją SGP4,
 - pokrycie poligonów wykorzystuje przecięcie geometrii Shapely/pyproj,
@@ -43,6 +54,7 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Naprawiono
 
+- tryb dynamiczny ICEYE wybiera rekord o najnowszej epoce orbitalnej zamiast rekordu o najwyższym numerze NORAD.
 - wybór UTC zamiast UT1 w obrocie TEME,
 - błędne centroidy poligonów przecinających południk 180°,
 - nieograniczony fallback do bardzo starego cache OMM.
