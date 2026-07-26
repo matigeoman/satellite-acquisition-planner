@@ -105,12 +105,14 @@ if ($Docker) {
     if ($LASTEXITCODE -ne 0) { throw "docker compose down failed." }
 
     if ($NoCache) {
-        docker compose build --no-cache satplan
+        docker compose build --pull --no-cache satplan
         if ($LASTEXITCODE -ne 0) { throw "Docker no-cache build failed." }
         docker compose up -d
     }
     else {
-        docker compose up --build -d
+        docker compose build --pull satplan
+        if ($LASTEXITCODE -ne 0) { throw "Docker build failed." }
+        docker compose up -d
     }
     if ($LASTEXITCODE -ne 0) { throw "docker compose up failed." }
 
@@ -139,4 +141,4 @@ if ($Docker) {
 }
 
 Write-Host ""
-Write-Host "FINAL RELEASE $Version: READY"
+Write-Host "FINAL RELEASE ${Version}: READY"
