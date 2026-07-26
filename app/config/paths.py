@@ -79,6 +79,12 @@ class ProjectPaths:
 
         return self.generated / "orbits"
 
+    @property
+    def generated_eop(self) -> Path:
+        """Cache parametrów orientacji Ziemi używanych przez ITRF."""
+
+        return self.generated / "eop"
+
     # Krótkie aliasy zachowują czytelność starszych modułów.
     @property
     def reports(self) -> Path:
@@ -176,6 +182,7 @@ class ProjectPaths:
             self.generated_reports,
             self.generated_benchmarks,
             self.generated_orbits,
+            self.generated_eop,
         )
 
         for directory in directories:

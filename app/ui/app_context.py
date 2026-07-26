@@ -10,7 +10,7 @@ from app.services.disruption_service import DisruptionReplanningService
 from app.services.planning_service import PlanningService
 from app.services.orbit_service import PublicOrbitService
 from app.services.access_service import PublicAccessService
-from app.integrations.orbits import CelestrakClient
+from app.integrations.orbits import CelestrakClient, CelestrakEopClient
 from app.integrations.weather import CloudAssessmentService, OpenMeteoClient
 from app.integrations.opportunities import PublicOpportunityWeatherRefreshService
 from app.services.replanning_service import ReplanningService
@@ -92,7 +92,10 @@ def get_public_orbit_service() -> PublicOrbitService:
     return PublicOrbitService(
         client=CelestrakClient(
             cache_directory=PROJECT_ROOT / "data" / "generated" / "orbits"
-        )
+        ),
+        eop_client=CelestrakEopClient(
+            cache_directory=PROJECT_ROOT / "data" / "generated" / "eop"
+        ),
     )
 
 

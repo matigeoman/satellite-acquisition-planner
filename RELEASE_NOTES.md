@@ -1,13 +1,39 @@
-# Satellite Acquisition Planner 1.3.0
+# Satellite Acquisition Planner 1.4.0
 
-Data wydania: **22 lipca 2026 r.**
+Data wydania: **26 lipca 2026 r.**
 
-Wersja 1.3.0 rozszerza planer o zintegrowane planowanie akwizycji, pamięci
-pokładowej i transmisji danych do stacji naziemnych. Rozszerzenie zachowuje
-model Hybrid z wersji 1.2.0, ale usuwa wcześniejsze uproszczenie, w którym
-pamięć była wyłącznie sumarycznym budżetem na cały horyzont.
+Wersja 1.4.0 porządkuje warstwę orbitalną i usuwa najważniejsze uproszczenia
+w transformacji ram odniesienia, wyznaczaniu granic okien oraz obliczaniu
+pokrycia poligonu. Zmiany nie oznaczają dostępu do efemeryd operatorskich —
+planer nadal pracuje na publicznych OMM/GP i modelu SGP4 — ale jawnie opisuje
+jakość danych i zachowuje reprodukowalny zestaw regresyjny względem STK 13.
 
-## Najważniejsza zmiana
+## Najważniejsze zmiany 1.4.0
+
+- transformacja TEME → ITRF2020 wykorzystuje interpolowane parametry EOP
+  (`UT1-UTC`, ruch bieguna `xp/yp`) i jawnie oznacza dane obserwowane,
+  predykcyjne albo tryb przybliżony;
+- dodano parser, cache i twardy limit wieku pliku EOP;
+- granice okien dostępu są doprecyzowywane bisekcją SGP4 do tolerancji 1 s;
+- pokrycie Polygon jest liczone z rzeczywistego przecięcia AOI i footprintu
+  w lokalnym odwzorowaniu WGS 84;
+- poprawiono centroidy geometrii z otworami i przecinających południk 180°;
+- cache OMM starszy niż 72 h jest odrzucany bez jawnego wymuszenia;
+- dodano cztery poziomy świeżości danych orbitalnych;
+- numer wersji obrazu Docker pochodzi z pliku `VERSION`;
+- ograniczono podwójne uruchamianie workflow i dodano anulowanie starszych
+  przebiegów dla tej samej gałęzi;
+- dodano regresję numeryczną TEME → ITRF2020 dla ICEYE-X82 i Pléiades Neo 3
+  względem efemeryd STK 13.
+
+## Walidacja techniczna
+
+Zestaw referencyjny w `tests/fixtures/stk_validation/` zawiera próbki TEME,
+ITRF2020 oraz EOP dla 19–20 lipca 2026 r. Test transformacji ma tolerancję
+2 cm. Dane służą kontroli regresji kodu; nie są deklaracją dokładności
+publicznego OMM względem rzeczywistej orbity.
+
+## Zachowany model z wersji 1.3.0
 
 Dla każdego satelity tworzona jest oś zdarzeń:
 
@@ -141,5 +167,5 @@ docker compose exec -T satplan python -m app.cli release-check --algorithm ALL -
 Oczekiwane zakończenie skryptu wydania:
 
 ```text
-FINAL RELEASE 1.3.0: READY
+FINAL RELEASE 1.4.0: READY
 ```

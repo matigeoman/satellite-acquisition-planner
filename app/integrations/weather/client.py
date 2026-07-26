@@ -10,6 +10,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from app.version import __version__
+
 from app.integrations.weather.models import (
     HourlyCloudSample,
     WeatherForecastResult,
@@ -52,7 +54,7 @@ def _default_transport(url: str, timeout_seconds: float) -> bytes:
         headers={
             "Accept": "application/json",
             "User-Agent": (
-                "SatelliteAcquisitionPlanner/1.0 "
+                f"SatelliteAcquisitionPlanner/{__version__} "
                 "(educational weather integration)"
             ),
         },

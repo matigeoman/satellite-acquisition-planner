@@ -144,3 +144,24 @@ def test_geometry_rejects_unknown_field() -> None:
             coordinates=[21.0, 52.0],
             unknown_field=123,
         )
+
+def test_polygon_centroid_handles_antimeridian() -> None:
+    from app.geospatial.aoi import geometry_centroid
+    from app.models.geometry import PolygonGeometry
+
+    geometry = PolygonGeometry(
+        coordinates=[
+            [
+                (179.0, 10.0),
+                (-179.0, 10.0),
+                (-179.0, 12.0),
+                (179.0, 12.0),
+                (179.0, 10.0),
+            ]
+        ]
+    )
+
+    longitude, latitude = geometry_centroid(geometry)
+
+    assert abs(abs(longitude) - 180.0) < 1e-6
+    assert latitude == pytest.approx(11.0)

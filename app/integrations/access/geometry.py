@@ -3,6 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from math import acos, asin, cos, degrees, pi, radians, sin, sqrt
 
+from pyproj import CRS, Transformer
+from shapely.affinity import rotate
+from shapely.geometry import Polygon, box
+from shapely.ops import transform
+
 from app.geospatial.aoi import geometry_bounds, geometry_centroid
 from app.models.geometry import PointGeometry, TargetGeometry
 
@@ -209,30 +214,89 @@ def approximate_aoi_extent_km(
     return width, height
 
 
+def _normalize_around(longitude: float, center_longitude: float) -> float:
+    shifted = longitude
+    while shifted - center_longitude > 180.0:
+        shifted -= 360.0
+    while shifted - center_longitude < -180.0:
+        shifted += 360.0
+    return shifted
+
+
+def _projected_polygon(geometry: TargetGeometry) -> Polygon:
+    if isinstance(geometry, PointGeometry):
+        raise TypeError("Point nie tworzy poligonu powierzchniowego")
+
+    center_longitude, center_latitude = geometry_centroid(geometry)
+    shell = [
+        (_normalize_around(longitude, center_longitude), latitude)
+        for longitude, latitude in geometry.coordinates[0]
+    ]
+    holes = [
+        [
+            (_normalize_around(longitude, center_longitude), latitude)
+            for longitude, latitude in ring
+        ]
+        for ring in geometry.coordinates[1:]
+    ]
+    geographic = Polygon(shell=shell, holes=holes)
+    if not geographic.is_valid:
+        geographic = geographic.buffer(0)
+    if geographic.is_empty or geographic.area <= 0.0:
+        raise ValueError("AOI Polygon ma niepoprawną geometrię")
+
+    local_crs = CRS.from_proj4(
+        "+proj=aeqd "
+        f"+lat_0={center_latitude:.12f} "
+        f"+lon_0={center_longitude:.12f} "
+        "+datum=WGS84 +units=m +no_defs"
+    )
+    projector = Transformer.from_crs(
+        "EPSG:4326",
+        local_crs,
+        always_xy=True,
+    )
+    projected = transform(projector.transform, geographic)
+    if projected.is_empty or projected.area <= 0.0:
+        raise ValueError("Nie można odwzorować AOI Polygon do układu lokalnego")
+    return projected
+
+
 def approximate_coverage_ratio(
     geometry: TargetGeometry,
     *,
     scene_width_km: float,
     scene_length_km: float,
 ) -> float:
-    """Szacuje część AOI mieszczącą się w prostokątnym footprintcie."""
+    """Oblicza pokrycie AOI przez wycentrowany prostokątny footprint.
 
+    Dla poligonu używane jest lokalne odwzorowanie azymutalne WGS84 oraz
+    rzeczywiste pole przecięcia Shapely. Sprawdzane są dwie ortogonalne
+    orientacje footprintu, aby zachować dotychczasową neutralność względem
+    kierunku along-track/cross-track.
+    """
+
+    if scene_width_km <= 0.0 or scene_length_km <= 0.0:
+        raise ValueError("Wymiary footprintu muszą być dodatnie")
     if isinstance(geometry, PointGeometry):
         return 1.0
 
-    width, height = approximate_aoi_extent_km(geometry)
-    if width <= 0.0 or height <= 0.0:
-        return 1.0
-
-    first_orientation = min(1.0, scene_width_km / width) * min(
-        1.0,
-        scene_length_km / height,
+    polygon = _projected_polygon(geometry)
+    center = polygon.centroid
+    half_width_m = scene_width_km * 500.0
+    half_length_m = scene_length_km * 500.0
+    footprint = box(
+        center.x - half_width_m,
+        center.y - half_length_m,
+        center.x + half_width_m,
+        center.y + half_length_m,
     )
-    second_orientation = min(1.0, scene_length_km / width) * min(
-        1.0,
-        scene_width_km / height,
+    rotated = rotate(footprint, 90.0, origin=(center.x, center.y))
+    covered_area = max(
+        polygon.intersection(footprint).area,
+        polygon.intersection(rotated).area,
     )
-    return _clamp(max(first_orientation, second_orientation), 0.0, 1.0)
+    return _clamp(covered_area / polygon.area, 0.0, 1.0)
 
 
 def solar_elevation_deg(

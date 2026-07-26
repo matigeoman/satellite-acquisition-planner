@@ -34,6 +34,7 @@ try {
     }
 
     $env:SATPLAN_PORT = [string]$Port
+    $env:APP_VERSION = (Get-Content (Join-Path $ProjectRoot "VERSION") -Raw).Trim()
     $ComposeArguments = @("compose", "up")
     if (-not $NoBuild) {
         $ComposeArguments += "--build"

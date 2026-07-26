@@ -7,8 +7,9 @@ from sgp4.api import SGP4_ERRORS, Satrec, jday
 
 from app.integrations.orbits.coordinates import (
     ecef_to_geodetic,
-    teme_to_ecef,
+    teme_to_earth_fixed,
 )
+from app.integrations.orbits.eop import EopTable
 from app.integrations.orbits.models import (
     PropagatedState,
     PublicOrbitRecord,
@@ -28,7 +29,21 @@ def _as_utc(value: datetime) -> datetime:
 
 
 class Sgp4OrbitPropagator:
-    """Propagator GP/OMM oparty na standardowym modelu SGP4/WGS-72."""
+    """Propagator GP/OMM oparty na SGP4/WGS-72 i opcjonalnym EOP."""
+
+    def __init__(
+        self,
+        *,
+        eop_table: EopTable | None = None,
+        strict_eop: bool = False,
+    ) -> None:
+        self.eop_table = eop_table
+        self.strict_eop = strict_eop
+
+    def set_eop_table(self, table: EopTable | None) -> None:
+        """Podmienia tabelę EOP używaną w kolejnych propagacjach."""
+
+        self.eop_table = table
 
     @staticmethod
     def build_satrec(record: PublicOrbitRecord) -> Satrec:
@@ -41,8 +56,8 @@ class Sgp4OrbitPropagator:
             ) from error
         return satellite
 
-    @staticmethod
     def _propagate_satrec(
+        self,
         *,
         satellite: Satrec,
         record: PublicOrbitRecord,
@@ -67,8 +82,15 @@ class Sgp4OrbitPropagator:
 
         teme_position = tuple(float(value) for value in position)
         teme_velocity = tuple(float(value) for value in velocity)
-        ecef = teme_to_ecef(teme_position, jd + fraction)
-        latitude, longitude, altitude = ecef_to_geodetic(ecef)
+        earth_fixed = teme_to_earth_fixed(
+            teme_position,
+            timestamp,
+            eop_table=self.eop_table,
+            strict_eop=self.strict_eop,
+        )
+        latitude, longitude, altitude = ecef_to_geodetic(
+            earth_fixed.position_km
+        )
         return PropagatedState(
             timestamp_utc=timestamp,
             latitude_deg=latitude,
@@ -76,6 +98,24 @@ class Sgp4OrbitPropagator:
             altitude_km=altitude,
             teme_position_km=teme_position,
             teme_velocity_km_s=teme_velocity,
+            earth_fixed_frame=earth_fixed.frame,
+            earth_fixed_quality=earth_fixed.quality.value,
+            eop_source=earth_fixed.eop_source,
+        )
+
+    def propagate_satrec(
+        self,
+        *,
+        satellite: Satrec,
+        record: PublicOrbitRecord,
+        timestamp_utc: datetime,
+    ) -> PropagatedState:
+        """Propaguje wcześniej zainicjalizowany obiekt ``Satrec``."""
+
+        return self._propagate_satrec(
+            satellite=satellite,
+            record=record,
+            timestamp_utc=timestamp_utc,
         )
 
     def propagate_record(
@@ -83,7 +123,7 @@ class Sgp4OrbitPropagator:
         record: PublicOrbitRecord,
         timestamp_utc: datetime,
     ) -> PropagatedState:
-        return self._propagate_satrec(
+        return self.propagate_satrec(
             satellite=self.build_satrec(record),
             record=record,
             timestamp_utc=timestamp_utc,
