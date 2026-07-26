@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from pathlib import Path
 
 
@@ -78,10 +80,31 @@ def test_development_tools_are_not_runtime_dependencies() -> None:
     assert "pytest-cov" in development.lower()
     assert "pyright" in development.lower()
     assert "pip-audit" in development.lower()
-    assert "gitpython>=3.1.55,<4" in ui.lower()
+    gitpython_constraint = re.search(
+        r"(?m)^gitpython>=([0-9]+(?:\.[0-9]+){2}),<4$",
+        ui.lower(),
+    )
+    assert gitpython_constraint is not None
+
+    minimum_version = tuple(
+        int(part)
+        for part in gitpython_constraint.group(1).split(".")
+    )
+    assert minimum_version >= (3, 1, 55)
     assert "pytest==" in lock.lower()
     assert "ruff==" in lock.lower()
     assert "pytest-cov==" in lock.lower()
     assert "pyright==" in lock.lower()
     assert "pip-audit==" in lock.lower()
-    assert "gitpython==3.1.55" in lock.lower()
+    gitpython_lock = re.search(
+        r"(?m)^gitpython==([0-9]+(?:\.[0-9]+){2})$",
+        lock.lower(),
+    )
+    assert gitpython_lock is not None
+
+    locked_version = tuple(
+        int(part)
+        for part in gitpython_lock.group(1).split(".")
+    )
+    assert locked_version >= minimum_version
+    assert locked_version < (4, 0, 0)
