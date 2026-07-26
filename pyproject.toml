@@ -55,7 +55,9 @@ include = [
     "app/planning",
     "app/quality",
     "app/services",
+    "app/integrations/access",
     "app/integrations/orbits",
+    "app/tracking",
 ]
 exclude = [
     "data",
