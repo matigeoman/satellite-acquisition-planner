@@ -11,10 +11,14 @@ from app.models.downlink import DownlinkOpportunity
 from app.models.downlink_set import DownlinkOpportunitySet
 from app.models.enums import (
     ObservationSide,
+    OpportunitySourceType,
     RequestMode,
+    RequestStatus,
     SensorType,
 )
+from app.models.geometry import PointGeometry, PolygonGeometry, TargetGeometry
 from app.models.imaging import ImagingMode
+from app.models.opportunity import AcquisitionOpportunity
 from app.models.opportunity_set import AcquisitionOpportunitySet
 from app.models.request import ObservationRequest
 from app.models.request_set import ObservationRequestSet
@@ -363,7 +367,7 @@ def build_stress_opportunity_set(
 ) -> AcquisitionOpportunitySet:
     """Buduje 800 wykonalnych okazji akwizycyjnych."""
 
-    opportunities: list[dict[str, Any]] = []
+    opportunities: list[AcquisitionOpportunity] = []
     global_counter = 1
 
     for request_index, request in enumerate(
@@ -641,7 +645,7 @@ def _create_request(
             else None
         ),
         max_off_nadir_deg=45.0,
-        status="ACTIVE",
+        status=RequestStatus.ACTIVE,
         is_mandatory=is_mandatory,
         external_reference=(
             f"STRESS-{request_id}"
@@ -652,49 +656,43 @@ def _create_request(
 
 def _geometry_for_index(
     index: int,
-) -> dict[str, Any]:
+) -> TargetGeometry:
     longitude, latitude = TARGETS[
         index % len(TARGETS)
     ]
 
     if index % 2 == 0:
-        return {
-            "type": "Point",
-            "coordinates": [
-                longitude,
-                latitude,
-            ],
-        }
+        return PointGeometry(
+            coordinates=(longitude, latitude),
+        )
 
     offset = 0.08
-
-    return {
-        "type": "Polygon",
-        "coordinates": [
+    return PolygonGeometry(
+        coordinates=[
             [
-                [
+                (
                     longitude - offset,
                     latitude - offset,
-                ],
-                [
+                ),
+                (
                     longitude + offset,
                     latitude - offset,
-                ],
-                [
+                ),
+                (
                     longitude + offset,
                     latitude + offset,
-                ],
-                [
+                ),
+                (
                     longitude - offset,
                     latitude + offset,
-                ],
-                [
+                ),
+                (
                     longitude - offset,
                     latitude - offset,
-                ],
+                ),
             ]
         ],
-    }
+    )
 
 
 def _generate_trap_opportunities(
@@ -703,7 +701,7 @@ def _generate_trap_opportunities(
     request: ObservationRequest,
     match: re.Match[str],
     global_counter: int,
-) -> tuple[list[dict[str, Any]], int]:
+) -> tuple[list[AcquisitionOpportunity], int]:
     sensor_label = match.group(1)
     local_group_index = int(
         match.group(2)
@@ -789,9 +787,7 @@ def _generate_trap_opportunities(
         + timedelta(minutes=3)
     )
 
-    opportunities: list[
-        dict[str, Any]
-    ] = []
+    opportunities: list[AcquisitionOpportunity] = []
 
     for variant in range(10):
         if role == "A":
@@ -883,10 +879,8 @@ def _generate_generic_opportunities(
     request: ObservationRequest,
     request_index: int,
     global_counter: int,
-) -> tuple[list[dict[str, Any]], int]:
-    opportunities: list[
-        dict[str, Any]
-    ] = []
+) -> tuple[list[AcquisitionOpportunity], int]:
+    opportunities: list[AcquisitionOpportunity] = []
 
     if len(request.requested_sensor_types) == 1:
         generation_plan = [
@@ -1028,7 +1022,7 @@ def _create_opportunity(
     coverage_ratio: float,
     variant: int,
     notes: str,
-) -> dict[str, Any]:
+) -> AcquisitionOpportunity:
     end_utc = (
         start_utc
         + timedelta(seconds=duration_s)
@@ -1062,33 +1056,33 @@ def _create_opportunity(
         6,
     )
 
-    return {
-        "opportunity_id": (
+    return AcquisitionOpportunity(
+        opportunity_id=(
             f"OPP-{sensor_label}-{global_counter:04d}"
         ),
-        "request_id": request.request_id,
-        "satellite_id": satellite_id,
-        "sensor_id": sensor.sensor_id,
-        "mode_id": mode.mode_id,
-        "sensor_type": sensor.sensor_type.value,
-        "start_utc": start_utc,
-        "end_utc": end_utc,
-        "observation_side": observation_side.value,
-        "off_nadir_angle_deg": off_nadir_angle_deg,
-        "incidence_angle_deg": incidence_angle_deg,
-        "cloud_cover": cloud_cover,
-        "sun_elevation_deg": sun_elevation_deg,
-        "coverage_ratio": coverage_ratio,
-        "quality_score": quality_score,
-        "estimated_data_volume_mb": (
+        request_id=request.request_id,
+        satellite_id=satellite_id,
+        sensor_id=sensor.sensor_id,
+        mode_id=mode.mode_id,
+        sensor_type=sensor.sensor_type,
+        start_utc=start_utc,
+        end_utc=end_utc,
+        observation_side=observation_side,
+        off_nadir_angle_deg=off_nadir_angle_deg,
+        incidence_angle_deg=incidence_angle_deg,
+        cloud_cover=cloud_cover,
+        sun_elevation_deg=sun_elevation_deg,
+        coverage_ratio=coverage_ratio,
+        quality_score=quality_score,
+        estimated_data_volume_mb=(
             estimated_data_volume_mb
         ),
-        "is_feasible": True,
-        "infeasibility_reasons": [],
-        "source_type": "SYNTHETIC",
-        "source_reference": None,
-        "notes": notes,
-    }
+        is_feasible=True,
+        infeasibility_reasons=[],
+        source_type=OpportunitySourceType.SYNTHETIC,
+        source_reference=None,
+        notes=notes,
+    )
 
 
 def _satellites_for_type(

@@ -57,6 +57,7 @@ include = [
     "app/projects",
     "app/quality",
     "app/reporting/collector.py",
+    "app/scenarios",
     "app/services",
     "app/integrations/access",
     "app/integrations/orbits",
