@@ -1,0 +1,93 @@
+name: windows-smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        shell: pwsh
+
+    env:
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: "utf-8"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-ui.txt
+            requirements-dev.txt
+            requirements-lock.txt
+
+      - name: Verify Python runtime
+        run: |
+          python --version
+          python -c "import sys; assert sys.version_info[:2] == (3, 11), sys.version"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt -c requirements-lock.txt
+
+      - name: Dependency consistency
+        run: python -m pip check
+
+      - name: Parse PowerShell scripts
+        run: |
+          $files = Get-ChildItem scripts -Filter *.ps1 -Recurse
+
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $file.FullName,
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+
+            if ($errors.Count -gt 0) {
+              foreach ($errorItem in $errors) {
+                $message = "{0}:{1}: {2}" -f `
+                  $file.FullName, `
+                  $errorItem.Extent.StartLineNumber, `
+                  $errorItem.Message
+
+                Write-Error $message
+              }
+
+              exit 1
+            }
+          }
+
+          Write-Host "Parsed $($files.Count) PowerShell scripts."
+
+      - name: Data and scenario check
+        run: python -m app.cli check
+
+      - name: Repository audit
+        run: python -m app.cli audit --strict
+
+      - name: Windows test suite
+        run: python -m pytest -q --no-cov
