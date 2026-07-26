@@ -13,11 +13,25 @@ from app.planning.operational import dual_pair_is_compatible
 class ObjectiveScoringConfig(Protocol):
     """Minimalny zestaw wag wymagany przez wspólną funkcję celu."""
 
-    priority_weight: float
-    quality_weight: float
-    coverage_weight: float
-    mandatory_bonus: float
-    dual_optional_second_bonus: float
+    @property
+    def priority_weight(self) -> float:
+        ...
+
+    @property
+    def quality_weight(self) -> float:
+        ...
+
+    @property
+    def coverage_weight(self) -> float:
+        ...
+
+    @property
+    def mandatory_bonus(self) -> float:
+        ...
+
+    @property
+    def dual_optional_second_bonus(self) -> float:
+        ...
 
 
 def request_reward(

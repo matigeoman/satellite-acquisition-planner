@@ -51,6 +51,8 @@ ignore = ["E501"]
 pythonVersion = "3.11"
 typeCheckingMode = "basic"
 include = [
+    "app/models",
+    "app/planning",
     "app/integrations/orbits",
     "app/services/orbit_service.py",
 ]
