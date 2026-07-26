@@ -54,7 +54,7 @@ def _object_dict(value: Any) -> dict[str, Any]:
         return value.to_dict()
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="json")
-    if is_dataclass(value):
+    if is_dataclass(value) and not isinstance(value, type):
         return asdict(value)
     if isinstance(value, Mapping):
         return dict(value)
@@ -373,8 +373,11 @@ def collect_report_snapshot(
     if not isinstance(metadata, ProjectMetadata):
         metadata = None
 
-    requests = list(state.get(CUSTOM_REQUESTS_STATE_KEY, ()))
-    requests = [item for item in requests if isinstance(item, ObservationRequest)]
+    requests: list[ObservationRequest] = [
+        item
+        for item in list(state.get(CUSTOM_REQUESTS_STATE_KEY, ()))
+        if isinstance(item, ObservationRequest)
+    ]
     snapshot = state.get(ORBIT_SNAPSHOT_STATE_KEY)
     if not isinstance(snapshot, PublicConstellationSnapshot):
         snapshot = None

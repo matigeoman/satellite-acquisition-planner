@@ -81,7 +81,7 @@ def jsonable(value: Any) -> Any:
         return value.value
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="json")
-    if is_dataclass(value):
+    if is_dataclass(value) and not isinstance(value, type):
         return jsonable(asdict(value))
     if isinstance(value, Mapping):
         return {str(key): jsonable(item) for key, item in value.items()}

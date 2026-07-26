@@ -769,7 +769,12 @@ def _sample_std(values: list[float]) -> float:
 def _write_dataclass_csv(
     path: Path,
     fieldnames: list[str],
-    records: tuple[object, ...],
+    records: tuple[
+        ExperimentRunRecord
+        | ExperimentPairRecord
+        | ExperimentSummaryRecord,
+        ...,
+    ],
 ) -> None:
     with path.open(
         "w",
