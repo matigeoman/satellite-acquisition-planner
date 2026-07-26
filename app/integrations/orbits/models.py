@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from enum import StrEnum
 from typing import Any, Mapping
 
@@ -11,6 +11,15 @@ class SatelliteFamily(StrEnum):
 
     ICEYE = "ICEYE"
     PLEIADES_NEO = "PLEIADES_NEO"
+
+
+class OrbitFreshness(StrEnum):
+    """Ocena wieku elementów orbitalnych względem chwili obliczeń."""
+
+    FRESH = "FRESH"
+    STALE = "STALE"
+    DEGRADED = "DEGRADED"
+    EXPIRED = "EXPIRED"
 
 
 class OrbitDataFormat(StrEnum):
@@ -112,6 +121,22 @@ class PublicOrbitRecord:
     def orbital_period_minutes(self) -> float:
         return 1440.0 / self.mean_motion_rev_per_day
 
+    def age_at(self, reference_utc: datetime) -> timedelta:
+        if reference_utc.tzinfo is None or reference_utc.utcoffset() is None:
+            raise ValueError("reference_utc musi zawierać strefę czasową")
+        reference = reference_utc.astimezone(timezone.utc)
+        return abs(reference - self.epoch_utc)
+
+    def freshness_at(self, reference_utc: datetime) -> OrbitFreshness:
+        age = self.age_at(reference_utc)
+        if age <= timedelta(hours=6):
+            return OrbitFreshness.FRESH
+        if age <= timedelta(hours=24):
+            return OrbitFreshness.STALE
+        if age <= timedelta(hours=72):
+            return OrbitFreshness.DEGRADED
+        return OrbitFreshness.EXPIRED
+
     def to_omm_fields(self) -> dict[str, Any]:
         """Zwraca kompletny słownik wejściowy dla ``sgp4.omm.initialize``."""
 
@@ -193,6 +218,9 @@ class PropagatedState:
     altitude_km: float
     teme_position_km: tuple[float, float, float]
     teme_velocity_km_s: tuple[float, float, float]
+    earth_fixed_frame: str = "PEF_APPROX"
+    earth_fixed_quality: str = "UTC_GMST_APPROX"
+    eop_source: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -202,6 +230,9 @@ class PropagatedState:
             "altitude_km": self.altitude_km,
             "teme_position_km": list(self.teme_position_km),
             "teme_velocity_km_s": list(self.teme_velocity_km_s),
+            "earth_fixed_frame": self.earth_fixed_frame,
+            "earth_fixed_quality": self.earth_fixed_quality,
+            "eop_source": self.eop_source,
         }
 
 

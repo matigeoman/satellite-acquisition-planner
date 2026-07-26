@@ -230,3 +230,61 @@ def test_force_refresh_failure_uses_fresh_cache_without_marking_it_stale(
     assert result.from_cache is True
     assert result.is_stale is False
     assert "ostatniego cache" in (result.warning or "")
+
+
+def test_celestrak_rejects_cache_older_than_hard_limit(tmp_path: Path) -> None:
+    current = [datetime(2026, 7, 16, 12, tzinfo=timezone.utc)]
+
+    def working(_url: str, _timeout: float) -> bytes:
+        return json.dumps([_omm("ICEYE-X99", 65001)]).encode()
+
+    client = CelestrakClient(
+        cache_directory=tmp_path,
+        transport=working,
+        now_provider=lambda: current[0],
+    )
+    client.fetch_by_name("ICEYE")
+    current[0] += timedelta(hours=73)
+
+    def failing(_url: str, _timeout: float) -> bytes:
+        raise TimeoutError("test timeout")
+
+    client.transport = failing
+    with pytest.raises(CelestrakClientError, match="maksymalny wiek"):
+        client.fetch_by_name("ICEYE")
+
+
+def test_celestrak_expired_cache_requires_explicit_override(tmp_path: Path) -> None:
+    current = [datetime(2026, 7, 16, 12, tzinfo=timezone.utc)]
+
+    def working(_url: str, _timeout: float) -> bytes:
+        return json.dumps([_omm("ICEYE-X99", 65001)]).encode()
+
+    client = CelestrakClient(
+        cache_directory=tmp_path,
+        transport=working,
+        now_provider=lambda: current[0],
+    )
+    client.fetch_by_name("ICEYE")
+    current[0] += timedelta(hours=73)
+
+    result = client.fetch_by_name(
+        "ICEYE",
+        allow_network=False,
+        allow_expired_cache=True,
+    )
+
+    assert result.from_cache is True
+    assert result.is_stale is True
+
+
+def test_orbit_record_reports_four_freshness_levels() -> None:
+    from app.integrations.orbits import OrbitFreshness
+
+    record = PublicOrbitRecord.from_omm(_omm("ICEYE-X99", 65001))
+    epoch = record.epoch_utc
+
+    assert record.freshness_at(epoch + timedelta(hours=6)) == OrbitFreshness.FRESH
+    assert record.freshness_at(epoch + timedelta(hours=12)) == OrbitFreshness.STALE
+    assert record.freshness_at(epoch + timedelta(hours=48)) == OrbitFreshness.DEGRADED
+    assert record.freshness_at(epoch + timedelta(hours=73)) == OrbitFreshness.EXPIRED

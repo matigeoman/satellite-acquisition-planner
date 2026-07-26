@@ -5,6 +5,30 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ## [Unreleased]
 
+Brak zmian po wydaniu 1.4.0.
+
+## [1.4.0] — 2026-07-26
+
+### Dodano
+
+- klient i parser CelesTrak EOP z cache oraz kontrolą wieku danych,
+- testy regresyjne TEME → ITRF2020 względem STK 13 dla ICEYE-X82 i
+  Pléiades Neo 3,
+- jawne poziomy świeżości elementów orbitalnych.
+
+### Zmieniono
+
+- transformację Earth Fixed rozszerzono o `UT1-UTC` i ruch bieguna,
+- granice okien dostępu są doprecyzowywane bisekcją SGP4,
+- pokrycie poligonów wykorzystuje przecięcie geometrii Shapely/pyproj,
+- wersja obrazu Docker jest pobierana z `VERSION` przez workflow lub skrypt.
+
+### Naprawiono
+
+- wybór UTC zamiast UT1 w obrocie TEME,
+- błędne centroidy poligonów przecinających południk 180°,
+- nieograniczony fallback do bardzo starego cache OMM.
+
 ### Dokumentacja
 
 - dodano kompletny opis profili satelitów, fazowania, geometrii akwizycji i przepływu OMM/SGP4;

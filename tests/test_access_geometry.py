@@ -90,3 +90,38 @@ def test_solar_elevation_distinguishes_noon_and_midnight() -> None:
 
     assert noon > 85.0
     assert midnight < -85.0
+
+
+def test_polygon_coverage_uses_real_area_and_respects_hole() -> None:
+    geometry = PolygonGeometry(
+        coordinates=[
+            [
+                (-1.0, -1.0),
+                (1.0, -1.0),
+                (1.0, 1.0),
+                (-1.0, 1.0),
+                (-1.0, -1.0),
+            ],
+            [
+                (-0.4, -0.4),
+                (-0.4, 0.4),
+                (0.4, 0.4),
+                (0.4, -0.4),
+                (-0.4, -0.4),
+            ],
+        ]
+    )
+
+    small = approximate_coverage_ratio(
+        geometry,
+        scene_width_km=20.0,
+        scene_length_km=20.0,
+    )
+    large = approximate_coverage_ratio(
+        geometry,
+        scene_width_km=300.0,
+        scene_length_km=300.0,
+    )
+
+    assert small == pytest.approx(0.0, abs=1e-9)
+    assert large == pytest.approx(1.0)

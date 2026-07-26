@@ -2,3 +2,5 @@ pydantic>=2,<3
 ortools>=9.10,<10
 matplotlib>=3.8,<4
 sgp4>=2.25,<3
+shapely>=2,<3
+pyproj>=3.6,<4

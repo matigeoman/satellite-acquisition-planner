@@ -122,6 +122,8 @@ _REQUIRED_MODULES = (
     ("folium", "folium"),
     ("python-docx", "docx"),
     ("XlsxWriter", "xlsxwriter"),
+    ("Shapely", "shapely"),
+    ("pyproj", "pyproj"),
 )
 
 _SMOKE_IMPORTS = (
@@ -428,6 +430,7 @@ def _check_output_layout(paths: ProjectPaths) -> AuditCheck:
         paths.generated_reports,
         paths.generated_benchmarks,
         paths.generated_orbits,
+        paths.generated_eop,
         paths.stk_imports,
     )
     missing = [

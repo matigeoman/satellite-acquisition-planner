@@ -27,7 +27,10 @@ class PublicAccessService:
         calculator: GeometricAccessCalculator | None = None,
     ) -> None:
         self.orbit_service = orbit_service
-        self.calculator = calculator or GeometricAccessCalculator()
+        self.calculator = calculator or GeometricAccessCalculator(
+            propagator=orbit_service.propagator,
+            boundary_tolerance_s=1.0,
+        )
 
     def calculate_for_request(
         self,

@@ -13,3 +13,5 @@ python-docx==1.2.0
 XlsxWriter==3.2.9
 pytest==9.1.1
 ruff==0.12.12
+shapely==2.1.2
+pyproj==3.7.2

@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from shapely.geometry import Polygon
+
 from app.models.geometry import PointGeometry, PolygonGeometry, TargetGeometry
 
 
@@ -79,16 +81,48 @@ def target_geometry_to_feature(geometry: TargetGeometry) -> dict[str, Any]:
     }
 
 
+def _unwrap_longitudes(
+    ring: Sequence[tuple[float, float]],
+    *,
+    reference_longitude: float,
+) -> list[tuple[float, float]]:
+    unwrapped: list[tuple[float, float]] = []
+    for longitude, latitude in ring:
+        shifted = longitude
+        while shifted - reference_longitude > 180.0:
+            shifted -= 360.0
+        while shifted - reference_longitude < -180.0:
+            shifted += 360.0
+        unwrapped.append((shifted, latitude))
+    return unwrapped
+
+
+def _normalize_longitude(longitude: float) -> float:
+    return ((longitude + 180.0) % 360.0) - 180.0
+
+
 def geometry_centroid(geometry: TargetGeometry) -> tuple[float, float]:
-    """Wyznacza środek mapy; dla poligonu używa średniej wierzchołków."""
+    """Wyznacza centroid Point/Polygon z obsługą otworów i dateline."""
 
     if isinstance(geometry, PointGeometry):
         return geometry.coordinates
 
-    ring = geometry.coordinates[0][:-1]
-    longitude = sum(position[0] for position in ring) / len(ring)
-    latitude = sum(position[1] for position in ring) / len(ring)
-    return longitude, latitude
+    reference = geometry.coordinates[0][0][0]
+    shell = _unwrap_longitudes(
+        geometry.coordinates[0],
+        reference_longitude=reference,
+    )
+    holes = [
+        _unwrap_longitudes(ring, reference_longitude=reference)
+        for ring in geometry.coordinates[1:]
+    ]
+    polygon = Polygon(shell=shell, holes=holes)
+    if not polygon.is_valid:
+        polygon = polygon.buffer(0)
+    if polygon.is_empty or polygon.area <= 0.0:
+        raise ValueError("Nie można wyznaczyć centroidu niepoprawnego Polygon")
+    centroid = polygon.centroid
+    return _normalize_longitude(centroid.x), centroid.y
 
 
 def geometry_bounds(

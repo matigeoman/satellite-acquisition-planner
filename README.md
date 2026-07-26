@@ -1,17 +1,19 @@
 # Satellite Acquisition Planner
 
-**Wersja:** `1.3.0`
+**Wersja:** `1.4.0`
 
 Satellite Acquisition Planner służy do planowania akwizycji zobrazowań
 satelitarnych SAR i EO. Aplikacja łączy publiczne dane orbitalne OMM,
 propagację SGP4, okna dostępu, prognozę zachmurzenia, planowanie Greedy,
 CP-SAT i Hybrid, przeplanowanie oraz walidację względem STK.
 
-Wersja 1.3.0 rozszerza badawczy model planowania o stacje naziemne, jawne
-okna downlinku i pamięć zmienną w czasie. Akwizycje zwiększają zajętość
-pamięci, a zaplanowane transmisje zwalniają ją zgodnie z przepustowością
-kontaktu. Zakres adaptacji oraz elementy autorskie opisano w
-[`docs/research_foundations.md`](docs/research_foundations.md).
+Wersja 1.4.0 zwiększa dokładność warstwy orbitalnej i geometrii dostępu.
+Transformacja TEME → ITRF2020 korzysta z interpolowanych parametrów EOP,
+granice AOS/LOS są doprecyzowywane bisekcją SGP4 do około jednej sekundy,
+a pokrycie poligonu wynika z rzeczywistego przecięcia AOI z nominalnym
+footprintem. Cache OMM i EOP ma jawne limity wieku, a implementację
+transformacji sprawdzają próbki referencyjne z STK 13. Model dynamicznej
+pamięci i downlinku wprowadzony w 1.3.0 pozostaje częścią planera.
 
 Scenariusz `POLAND_DEMO` zawiera kompletny zestaw danych offline do prezentacji
 i testów regresyjnych. Wyniki mają charakter badawczy: nie potwierdzają
@@ -30,8 +32,8 @@ komercyjnego taskingu ani wykonania akwizycji przez operatora.
 - profile 4 satelitów ICEYE i 2 satelitów Pléiades Neo;
 - techniczna strona „System i satelity” z parametrami, fazowaniem i schematami;
 - AOI typu Point, Polygon i Rectangle oraz import/eksport GeoJSON;
-- OMM z CelesTrak, lokalny cache i propagacja SGP4;
-- okna dostępu, ślady naziemne, globus operacyjny i mapa nieba;
+- OMM i EOP z CelesTrak, kontrolowany cache oraz propagacja SGP4;
+- okna dostępu z doprecyzowaniem AOS/LOS, ślady naziemne, globus i mapa nieba;
 - prognoza zachmurzenia Open-Meteo dla okazji EO;
 - Greedy, Greedy 2.0, OR-Tools CP-SAT i planer Hybrid;
 - stacje naziemne, okna downlinku, przepustowość i dynamiczna pamięć;

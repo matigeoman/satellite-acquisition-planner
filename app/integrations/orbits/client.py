@@ -10,6 +10,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from app.version import __version__
+
 from app.integrations.orbits.models import (
     CelestrakQueryResult,
     PublicOrbitRecord,
@@ -18,6 +20,7 @@ from app.integrations.orbits.models import (
 
 CELESTRAK_GP_ENDPOINT = "https://celestrak.org/NORAD/elements/gp.php"
 DEFAULT_CACHE_TTL = timedelta(hours=2)
+DEFAULT_MAX_STALE_AGE = timedelta(hours=72)
 _CACHE_SCHEMA_VERSION = 1
 
 
@@ -38,7 +41,7 @@ def _default_transport(url: str, timeout_seconds: float) -> bytes:
         headers={
             "Accept": "application/json",
             "User-Agent": (
-                "SatelliteAcquisitionPlanner/1.0 "
+                f"SatelliteAcquisitionPlanner/{__version__} "
                 "(educational public-orbit integration)"
             ),
         },
@@ -60,17 +63,21 @@ class CelestrakClient:
         *,
         cache_directory: Path,
         cache_ttl: timedelta = DEFAULT_CACHE_TTL,
+        max_stale_age: timedelta = DEFAULT_MAX_STALE_AGE,
         timeout_seconds: float = 20.0,
         transport: Transport | None = None,
         now_provider: Callable[[], datetime] = _utc_now,
     ) -> None:
         if cache_ttl.total_seconds() < 0:
             raise ValueError("cache_ttl nie może być ujemne")
+        if max_stale_age < cache_ttl:
+            raise ValueError("max_stale_age nie może być krótsze niż cache_ttl")
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds musi być dodatnie")
 
         self.cache_directory = Path(cache_directory)
         self.cache_ttl = cache_ttl
+        self.max_stale_age = max_stale_age
         self.timeout_seconds = timeout_seconds
         self.transport = transport or _default_transport
         self.now_provider = now_provider
@@ -182,6 +189,7 @@ class CelestrakClient:
         *,
         allow_network: bool = True,
         force_refresh: bool = False,
+        allow_expired_cache: bool = False,
     ) -> CelestrakQueryResult:
         """Pobiera rekordy OMM, korzystając z cache lub wymuszając sieć.
 
@@ -212,6 +220,12 @@ class CelestrakClient:
                 raise CelestrakClientError(
                     f"Brak lokalnego cache dla zapytania {normalized!r}"
                 )
+            cache_age = now - cached[0]
+            if cache_age > self.max_stale_age and not allow_expired_cache:
+                raise CelestrakClientError(
+                    "Lokalny cache OMM przekroczył maksymalny wiek "
+                    f"{self.max_stale_age}."
+                )
             return self._result_from_cache(
                 name=normalized,
                 cached=cached,
@@ -235,7 +249,13 @@ class CelestrakClient:
             OSError,
         ) as error:
             if cached is not None:
-                cache_is_stale = now - cached[0] >= self.cache_ttl
+                cache_age = now - cached[0]
+                if cache_age > self.max_stale_age and not allow_expired_cache:
+                    raise CelestrakClientError(
+                        "Nie udało się odświeżyć CelesTrak, a cache OMM "
+                        f"przekroczył maksymalny wiek {self.max_stale_age}: {error}"
+                    ) from error
+                cache_is_stale = cache_age >= self.cache_ttl
                 return self._result_from_cache(
                     name=normalized,
                     cached=cached,

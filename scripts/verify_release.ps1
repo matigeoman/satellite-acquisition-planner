@@ -54,9 +54,10 @@ function Wait-ContainerHealthy {
 }
 
 $Version = (Get-Content .\VERSION -Raw).Trim()
-if ($Version -ne "1.3.0") {
-    throw "Expected VERSION=1.3.0, found '$Version'."
+if ($Version -notmatch '^\d+\.\d+\.\d+$') {
+    throw "VERSION is not valid Semantic Versioning: '$Version'."
 }
+$env:APP_VERSION = $Version
 
 Write-Host "Project: $ProjectRoot"
 Write-Host "Python:  $Python"
@@ -129,4 +130,4 @@ if ($Docker) {
 }
 
 Write-Host ""
-Write-Host "FINAL RELEASE 1.3.0: READY"
+Write-Host "FINAL RELEASE $Version: READY"
