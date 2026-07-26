@@ -6,7 +6,7 @@ matplotlib==3.11.1
 sgp4==2.27
 pandas==2.3.3
 plotly==6.9.0
-streamlit==1.59.2
+streamlit==1.60.0
 folium==0.20.0
 streamlit-folium==0.27.3
 python-docx==1.2.0
