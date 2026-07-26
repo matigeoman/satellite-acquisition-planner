@@ -53,8 +53,9 @@ typeCheckingMode = "basic"
 include = [
     "app/models",
     "app/planning",
+    "app/quality",
+    "app/services",
     "app/integrations/orbits",
-    "app/services/orbit_service.py",
 ]
 exclude = [
     "data",
