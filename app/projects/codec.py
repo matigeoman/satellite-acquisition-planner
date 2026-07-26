@@ -29,8 +29,10 @@ from app.integrations.opportunities import (
 )
 from app.integrations.orbits import (
     CelestrakQueryResult,
+    ConstellationSelectionMode,
     PublicOrbitRecord,
     SatelliteFamily,
+    SatellitePin,
     TrackedSatellite,
 )
 from app.integrations.weather import (
@@ -91,6 +93,8 @@ def jsonable(value: Any) -> Any:
 def encode_orbit_snapshot(snapshot: PublicConstellationSnapshot) -> dict[str, Any]:
     return {
         "generated_at_utc": snapshot.generated_at_utc.isoformat(),
+        "selection_mode": snapshot.selection_mode.value,
+        "pins": [pin.to_dict() for pin in snapshot.pins],
         "satellites": [
             {
                 "slot_id": item.slot_id,
@@ -145,11 +149,25 @@ def decode_orbit_snapshot(payload: Mapping[str, Any]) -> PublicConstellationSnap
     )
     if not satellites:
         raise ValueError("Snapshot orbitalny nie zawiera satelitów")
+    selection_mode = ConstellationSelectionMode(
+        str(payload.get("selection_mode", ConstellationSelectionMode.LIVE.value))
+    )
+    pins = tuple(
+        SatellitePin(
+            slot_id=str(item["slot_id"]),
+            family=SatelliteFamily(str(item["family"])),
+            norad_cat_id=int(item["norad_cat_id"]),
+            expected_name_token=str(item["expected_name_token"]),
+        )
+        for item in payload.get("pins", ())
+    )
     return PublicConstellationSnapshot(
         generated_at_utc=parse_utc(payload["generated_at_utc"]),
         satellites=satellites,
         queries=queries,
         warnings=tuple(str(item) for item in payload.get("warnings", ())),
+        selection_mode=selection_mode,
+        pins=pins,
     )
 
 

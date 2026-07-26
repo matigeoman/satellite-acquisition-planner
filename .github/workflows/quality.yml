@@ -4,15 +4,19 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -29,11 +33,23 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt -c requirements-lock.txt
 
-      - name: Unit and integration tests
-        run: pytest -q
+      - name: Dependency consistency
+        run: python -m pip check
+
+      - name: Unit, integration, and coverage tests
+        run: python -m pytest -q
+
+      - name: Enforce critical coverage
+        run: python -m scripts.check_coverage coverage.json
+
+      - name: Pyright
+        run: pyright
 
       - name: Ruff
         run: ruff check app tests streamlit_app.py scripts
+
+      - name: Dependency vulnerability audit
+        run: python -m pip_audit --strict --progress-spinner off
 
       - name: Data and scenario check
         run: python -m app.cli check
@@ -43,3 +59,11 @@ jobs:
 
       - name: End-to-end release check
         run: python -m app.cli release-check --algorithm ALL --cp-sat-time-limit 2
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-json
+          path: coverage.json
+          if-no-files-found: ignore

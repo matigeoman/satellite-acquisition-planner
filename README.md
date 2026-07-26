@@ -25,14 +25,14 @@ komercyjnego taskingu ani wykonania akwizycji przez operatora.
 | Interfejs | Streamlit + Plotly + Folium |
 | Planowanie | Greedy, Greedy 2.0, CP-SAT i Hybrid |
 | Zasoby | pamięć dynamiczna, downlink i stacje naziemne |
-| Jakość | Pytest, Ruff, audyt repozytorium, healthcheck i kontrola E2E |
+| Jakość | Pytest + coverage, Pyright, Ruff, pip-audit, audyt i E2E |
 
 ## Najważniejsze funkcje
 
 - profile 4 satelitów ICEYE i 2 satelitów Pléiades Neo;
 - techniczna strona „System i satelity” z parametrami, fazowaniem i schematami;
 - AOI typu Point, Polygon i Rectangle oraz import/eksport GeoJSON;
-- OMM i EOP z CelesTrak, kontrolowany cache oraz propagacja SGP4;
+- OMM i EOP z CelesTrak, tryby satelitów `PINNED`/`LIVE`, cache i SGP4;
 - okna dostępu z doprecyzowaniem AOS/LOS, ślady naziemne, globus i mapa nieba;
 - prognoza zachmurzenia Open-Meteo dla okazji EO;
 - Greedy, Greedy 2.0, OR-Tools CP-SAT i planer Hybrid;
@@ -97,9 +97,10 @@ Pełna kontrola z czystym buildem obrazu:
 .\scripts\verify_release.ps1 -Docker -NoCache
 ```
 
-Skrypt uruchamia testy, Ruff, audyt repozytorium, healthcheck oraz scenariusz
-E2E. Produkcyjny obraz Docker nie zawiera Pytest ani Ruff; narzędzia
-programistyczne są instalowane przez `requirements-dev.txt`.
+Skrypt uruchamia testy z coverage, próg krytycznej warstwy orbitalnej,
+Pyright, Ruff, `pip-audit`, audyt repozytorium, healthcheck oraz scenariusz
+E2E. Produkcyjny obraz Docker nie zawiera narzędzi deweloperskich; są one
+instalowane przez `requirements-dev.txt`.
 
 ## Przepływ danych
 

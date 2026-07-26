@@ -7,12 +7,16 @@ from pathlib import Path
 import pytest
 
 from app.integrations.orbits import (
+    DEFAULT_CONSTELLATION_PINS,
     CelestrakClient,
     CelestrakClientError,
+    PinnedSatelliteSelectionError,
     PublicOrbitRecord,
     SatelliteFamily,
+    SatellitePin,
     Sgp4OrbitPropagator,
     select_iceye_records,
+    select_pinned_records,
     select_pleiades_neo_records,
 )
 
@@ -288,3 +292,50 @@ def test_orbit_record_reports_four_freshness_levels() -> None:
     assert record.freshness_at(epoch + timedelta(hours=12)) == OrbitFreshness.STALE
     assert record.freshness_at(epoch + timedelta(hours=48)) == OrbitFreshness.DEGRADED
     assert record.freshness_at(epoch + timedelta(hours=73)) == OrbitFreshness.EXPIRED
+
+
+def test_default_pinned_constellation_is_deterministic() -> None:
+    records = [
+        PublicOrbitRecord.from_omm(
+            _omm(pin.expected_name_token, pin.norad_cat_id, epoch_hour=10 + index)
+        )
+        for index, pin in enumerate(DEFAULT_CONSTELLATION_PINS)
+    ]
+
+    selected = select_pinned_records(reversed(records))
+
+    assert [satellite.slot_id for satellite in selected] == [
+        pin.slot_id for pin in DEFAULT_CONSTELLATION_PINS
+    ]
+    assert [satellite.record.norad_cat_id for satellite in selected] == [
+        pin.norad_cat_id for pin in DEFAULT_CONSTELLATION_PINS
+    ]
+
+
+def test_pinned_selection_rejects_missing_or_mismatched_object() -> None:
+    pin = SatellitePin(
+        slot_id="SAR-01",
+        family=SatelliteFamily.ICEYE,
+        norad_cat_id=68996,
+        expected_name_token="ICEYE-X82",
+    )
+    wrong = PublicOrbitRecord.from_omm(_omm("ICEYE-X81", 68996))
+
+    with pytest.raises(PinnedSatelliteSelectionError, match="niezgodna nazwa"):
+        select_pinned_records((wrong,), pins=(pin,))
+
+    with pytest.raises(PinnedSatelliteSelectionError, match="brak NORAD"):
+        select_pinned_records((), pins=(pin,))
+
+
+def test_live_iceye_selection_prefers_newer_epoch_not_highest_norad() -> None:
+    older_high_id = PublicOrbitRecord.from_omm(
+        _omm("ICEYE-X90", 69990, epoch_hour=8)
+    )
+    newer_lower_id = PublicOrbitRecord.from_omm(
+        _omm("ICEYE-X82", 68996, epoch_hour=18)
+    )
+
+    selected = select_iceye_records((older_high_id, newer_lower_id), count=1)
+
+    assert selected[0].record.norad_cat_id == 68996

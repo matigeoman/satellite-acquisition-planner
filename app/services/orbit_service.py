@@ -1,37 +1,47 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from app.integrations.orbits import (
+    DEFAULT_CONSTELLATION_PINS,
     CelestrakClient,
     CelestrakEopClient,
     CelestrakQueryResult,
+    ConstellationSelectionMode,
     EopClientError,
     EopQueryResult,
     OrbitFreshness,
     SatelliteGroundTrack,
+    SatellitePin,
     Sgp4OrbitPropagator,
     TrackedSatellite,
     select_iceye_records,
+    select_pinned_records,
     select_pleiades_neo_records,
+    validate_pins,
 )
 
 
 @dataclass(frozen=True, slots=True)
 class PublicConstellationSnapshot:
-    """Sześć publicznie śledzonych satelitów używanych przez planer."""
+    """Publiczna konstelacja przypisana do slotów planera."""
 
     generated_at_utc: datetime
     satellites: tuple[TrackedSatellite, ...]
     queries: tuple[CelestrakQueryResult, ...]
     warnings: tuple[str, ...]
+    selection_mode: ConstellationSelectionMode = ConstellationSelectionMode.LIVE
+    pins: tuple[SatellitePin, ...] = ()
     eop_query: EopQueryResult | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "generated_at_utc": self.generated_at_utc.isoformat(),
+            "selection_mode": self.selection_mode.value,
+            "pins": [pin.to_dict() for pin in self.pins],
             "satellites": [satellite.to_dict() for satellite in self.satellites],
             "queries": [
                 {
@@ -68,7 +78,7 @@ class ExpiredOrbitDataError(RuntimeError):
 
 
 class PublicOrbitService:
-    """Łączy CelesTrak, selekcję 4+2 i propagację SGP4."""
+    """Łączy CelesTrak, wybór PINNED/LIVE oraz propagację SGP4."""
 
     def __init__(
         self,
@@ -76,17 +86,54 @@ class PublicOrbitService:
         client: CelestrakClient,
         propagator: Sgp4OrbitPropagator | None = None,
         eop_client: CelestrakEopClient | None = None,
+        selection_mode: ConstellationSelectionMode = (
+            ConstellationSelectionMode.PINNED
+        ),
+        pins: Sequence[SatellitePin] = DEFAULT_CONSTELLATION_PINS,
+        strict_pins: bool = True,
     ) -> None:
         self.client = client
         self.propagator = propagator or Sgp4OrbitPropagator()
         self.eop_client = eop_client
+        self.selection_mode = ConstellationSelectionMode(selection_mode)
+        self.pins = tuple(pins)
+        self.strict_pins = strict_pins
+        if self.pins:
+            validate_pins(self.pins)
+        elif self.selection_mode is ConstellationSelectionMode.PINNED:
+            raise ValueError("Tryb PINNED wymaga co najmniej jednego przypiętego satelity")
+
+    def _select_constellation(
+        self,
+        *,
+        iceye_query: CelestrakQueryResult,
+        pleiades_query: CelestrakQueryResult,
+        mode: ConstellationSelectionMode,
+    ) -> tuple[TrackedSatellite, ...]:
+        if mode is ConstellationSelectionMode.PINNED:
+            return select_pinned_records(
+                (*iceye_query.records, *pleiades_query.records),
+                pins=self.pins,
+                strict=self.strict_pins,
+            )
+
+        iceye = select_iceye_records(iceye_query.records, count=4)
+        pleiades = select_pleiades_neo_records(
+            pleiades_query.records,
+            count=2,
+        )
+        return tuple((*iceye, *pleiades))
 
     def load_default_constellation(
         self,
         *,
         allow_network: bool = True,
         force_refresh: bool = False,
+        selection_mode: ConstellationSelectionMode | None = None,
     ) -> PublicConstellationSnapshot:
+        mode = self.selection_mode if selection_mode is None else selection_mode
+        mode = ConstellationSelectionMode(mode)
+
         iceye_query = self.client.fetch_by_name(
             "ICEYE",
             allow_network=allow_network,
@@ -97,12 +144,12 @@ class PublicOrbitService:
             allow_network=allow_network,
             force_refresh=force_refresh,
         )
-
-        iceye = select_iceye_records(iceye_query.records, count=4)
-        pleiades = select_pleiades_neo_records(
-            pleiades_query.records,
-            count=2,
+        satellites = self._select_constellation(
+            iceye_query=iceye_query,
+            pleiades_query=pleiades_query,
+            mode=mode,
         )
+
         warnings: list[str] = []
         eop_query: EopQueryResult | None = None
         if self.eop_client is not None:
@@ -117,27 +164,32 @@ class PublicOrbitService:
             except EopClientError as error:
                 self.propagator.set_eop_table(None)
                 warnings.append(
-                    "Nie udało się załadować EOP; transformacja Earth Fixed "
-                    f"działa w trybie przybliżonym: {error}"
+                    "Nie udało się wczytać EOP; transformacja Earth Fixed "
+                    f"korzysta z trybu przybliżonego: {error}"
                 )
 
         for query in (iceye_query, pleiades_query):
             if query.warning:
                 warnings.append(query.warning)
-        if len(iceye) < 4:
+
+        expected_count = (
+            len(self.pins)
+            if mode is ConstellationSelectionMode.PINNED
+            else 6
+        )
+        if len(satellites) < expected_count:
             warnings.append(
-                f"CelesTrak zwrócił tylko {len(iceye)} użyteczne obiekty ICEYE."
-            )
-        if len(pleiades) < 2:
-            warnings.append(
-                "Nie odnaleziono obu publicznych obiektów Pléiades Neo 3/4."
+                f"Tryb {mode.value} zwrócił {len(satellites)} z "
+                f"{expected_count} oczekiwanych obiektów publicznych."
             )
 
         return PublicConstellationSnapshot(
             generated_at_utc=datetime.now(timezone.utc),
-            satellites=tuple((*iceye, *pleiades)),
+            satellites=satellites,
             queries=(iceye_query, pleiades_query),
             warnings=tuple(warnings),
+            selection_mode=mode,
+            pins=self.pins if mode is ConstellationSelectionMode.PINNED else (),
             eop_query=eop_query,
         )
 

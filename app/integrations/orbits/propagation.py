@@ -80,8 +80,16 @@ class Sgp4OrbitPropagator:
                 f"SGP4 {record.object_name}: {message} (kod {error_code})"
             )
 
-        teme_position = tuple(float(value) for value in position)
-        teme_velocity = tuple(float(value) for value in velocity)
+        teme_position = (
+            float(position[0]),
+            float(position[1]),
+            float(position[2]),
+        )
+        teme_velocity = (
+            float(velocity[0]),
+            float(velocity[1]),
+            float(velocity[2]),
+        )
         earth_fixed = teme_to_earth_fixed(
             teme_position,
             timestamp,

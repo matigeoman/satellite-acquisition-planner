@@ -19,6 +19,7 @@ services:
       STREAMLIT_SERVER_PORT: "8501"
       STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
       TZ: "UTC"
+      SATPLAN_ORBIT_SELECTION_MODE: "${SATPLAN_ORBIT_SELECTION_MODE:-PINNED}"
     volumes:
       - satplan_generated:/opt/satplan/data/generated
       - satplan_imports:/opt/satplan/data/imports

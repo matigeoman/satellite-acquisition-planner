@@ -20,6 +20,12 @@ jakość danych i zachowuje reprodukowalny zestaw regresyjny względem STK 13.
 - poprawiono centroidy geometrii z otworami i przecinających południk 180°;
 - cache OMM starszy niż 72 h jest odrzucany bez jawnego wymuszenia;
 - dodano cztery poziomy świeżości danych orbitalnych;
+- dodano domyślny, reprodukowalny tryb `PINNED` oraz eksploracyjny tryb
+  `LIVE`;
+- snapshoty i archiwa zapisują tryb wyboru oraz przypięte numery NORAD;
+- CI egzekwuje coverage, Pyright, rozszerzony Ruff i `pip-audit`;
+- zależność `GitPython` ma minimalną bezpieczną wersję 3.1.55;
+- Dependabot sprawdza zależności Python, Docker i GitHub Actions;
 - numer wersji obrazu Docker pochodzi z pliku `VERSION`;
 - ograniczono podwójne uruchamianie workflow i dodano anulowanie starszych
   przebiegów dla tej samej gałęzi;

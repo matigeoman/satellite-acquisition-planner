@@ -72,7 +72,7 @@ def _check_cp_sat() -> RuntimeHealthCheck:
         solver.parameters.max_time_in_seconds = 1.0
         solver.parameters.num_search_workers = 1
         status = solver.solve(model)
-    except Exception as error:  # noqa: BLE001 - health check must report runtime errors
+    except Exception as error:
         return _failure("cp-sat", f"Błąd uruchomienia solvera: {error}")
 
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
@@ -85,7 +85,7 @@ def _check_cp_sat() -> RuntimeHealthCheck:
 def _check_scenario(paths: ProjectPaths) -> RuntimeHealthCheck:
     try:
         scenario = ScenarioService(project_root=paths.root).load("EXAMPLE")
-    except Exception as error:  # noqa: BLE001 - health check reports full failures
+    except Exception as error:
         return _failure("example-scenario", f"Nie można wczytać EXAMPLE: {error}")
 
     return _success(

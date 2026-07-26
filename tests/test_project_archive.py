@@ -10,8 +10,10 @@ import pytest
 from app.integrations.opportunities import PublicOpportunityBuildResult
 from app.integrations.orbits import (
     CelestrakQueryResult,
+    ConstellationSelectionMode,
     PublicOrbitRecord,
     SatelliteFamily,
+    SatellitePin,
     TrackedSatellite,
 )
 from app.models.enums import PlanningAlgorithm
@@ -75,6 +77,15 @@ def _snapshot() -> PublicConstellationSnapshot:
         satellites=(tracked,),
         queries=(query,),
         warnings=(),
+        selection_mode=ConstellationSelectionMode.PINNED,
+        pins=(
+            SatellitePin(
+                slot_id="SAR-01",
+                family=SatelliteFamily.ICEYE,
+                norad_cat_id=65001,
+                expected_name_token="ICEYE-X1",
+            ),
+        ),
     )
 
 
@@ -96,6 +107,8 @@ def test_orbit_snapshot_codec_preserves_raw_omm() -> None:
     assert restored.satellites[0].record.norad_cat_id == 65001
     assert restored.satellites[0].record.raw_omm["OBJECT_NAME"] == "ICEYE-X1"
     assert restored.queries[0].from_cache is True
+    assert restored.selection_mode is ConstellationSelectionMode.PINNED
+    assert restored.pins[0].norad_cat_id == 65001
 
 
 def test_project_archive_roundtrip_restores_core_session_state() -> None:

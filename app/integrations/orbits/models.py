@@ -22,6 +22,13 @@ class OrbitFreshness(StrEnum):
     EXPIRED = "EXPIRED"
 
 
+class ConstellationSelectionMode(StrEnum):
+    """Sposób przypisania publicznych obiektów do slotów planera."""
+
+    PINNED = "PINNED"
+    LIVE = "LIVE"
+
+
 class OrbitDataFormat(StrEnum):
     """Format danych pobieranych z serwisu CelesTrak."""
 
@@ -51,6 +58,32 @@ def _parse_epoch(value: Any) -> datetime:
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
     return parsed.astimezone(timezone.utc)
+
+
+@dataclass(frozen=True, slots=True)
+class SatellitePin:
+    """Stałe przypisanie slotu planera do publicznego numeru NORAD."""
+
+    slot_id: str
+    family: SatelliteFamily
+    norad_cat_id: int
+    expected_name_token: str
+
+    def __post_init__(self) -> None:
+        if not self.slot_id.strip():
+            raise ValueError("slot_id nie może być pusty")
+        if self.norad_cat_id <= 0:
+            raise ValueError("norad_cat_id musi być dodatni")
+        if not self.expected_name_token.strip():
+            raise ValueError("expected_name_token nie może być pusty")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "slot_id": self.slot_id,
+            "family": self.family.value,
+            "norad_cat_id": self.norad_cat_id,
+            "expected_name_token": self.expected_name_token,
+        }
 
 
 @dataclass(frozen=True, slots=True)

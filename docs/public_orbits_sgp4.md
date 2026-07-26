@@ -15,6 +15,41 @@ Rekordy są mapowane na sloty planera `SAR-01`–`SAR-04` oraz `EO-01`–`EO-02`
 Rozdzielenie nominalnego profilu misji od dynamicznych elementów OMM opisuje
 [System satelitarny, parametry i geometria](satellite_system.md).
 
+## Tryby przypisania satelitów
+
+Aplikacja rozdziela **pobieranie OMM** od **przypisania rekordów do slotów**.
+Dostępne są dwa jawne tryby:
+
+- `PINNED` — tryb domyślny i reprodukowalny. Każdy slot ma przypisany
+  konkretny numer NORAD oraz kontrolny fragment nazwy. Brak obiektu albo
+  niezgodność nazwy zatrzymuje budowę snapshotu zamiast cicho podmieniać
+  satelitę;
+- `LIVE` — tryb eksploracyjny. Dla ICEYE wybierane są użyteczne rekordy o
+  najnowszej epoce OMM, natomiast dla Pléiades preferowane są Neo 3 i Neo 4.
+  Skład slotów może zmieniać się wraz z odpowiedzią źródła.
+
+Domyślna konfiguracja `PINNED`:
+
+| Slot | Rodzina | NORAD | Oczekiwana nazwa |
+|---|---|---:|---|
+| `SAR-01` | ICEYE | 68996 | `ICEYE-X82` |
+| `SAR-02` | ICEYE | 60539 | `ICEYE-X43` |
+| `SAR-03` | ICEYE | 60546 | `ICEYE-X39` |
+| `SAR-04` | ICEYE | 60549 | `ICEYE-X40` |
+| `EO-01` | Pléiades Neo | 48268 | `PLEIADES NEO 3` |
+| `EO-02` | Pléiades Neo | 49070 | `PLEIADES NEO 4` |
+
+Tryb można zmienić w zakładce **Orbity i dane OMM** albo ustawić dla
+środowiska procesu/kontenera:
+
+```text
+SATPLAN_ORBIT_SELECTION_MODE=PINNED
+```
+
+Snapshoty i archiwa projektu zapisują użyty tryb oraz konfigurację pinów,
+dzięki czemu wynik można odtworzyć bez zgadywania, które obiekty zajmowały
+sloty.
+
 ## Cache OMM i kontrola wieku
 
 Klient zapisuje odpowiedzi w:
@@ -89,6 +124,7 @@ została porównana z efemerydami STK 13; próbki referencyjne znajdują się w
 
 Zakładka **Orbity i dane OMM** pozwala:
 
+- wybrać tryb `PINNED` albo `LIVE`,
 - pobrać lub odświeżyć OMM i EOP,
 - pracować z lokalnym cache,
 - ustawić horyzont propagacji 1–12 godzin,

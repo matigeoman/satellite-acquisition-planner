@@ -36,7 +36,8 @@ python -m pip install -r .\requirements-dev.txt -c .\requirements-lock.txt
 ```
 
 `uv` i Conda nie są wymagane. `requirements-dev.txt` instaluje aplikację,
-interfejs, raportowanie, testy i Ruff. Plik `requirements-lock.txt` ogranicza
+interfejs, raportowanie, Pytest/coverage, Pyright, Ruff i `pip-audit`.
+Plik `requirements-lock.txt` ogranicza
 bezpośrednie zależności do wersji użytych w referencyjnej walidacji.
 
 ## Kontrola instalacji
@@ -45,7 +46,10 @@ bezpośrednie zależności do wersji użytych w referencyjnej walidacji.
 python -m app.cli check
 python -m app.cli audit
 python -m pytest -q
+python -m scripts.check_coverage .\coverage.json
+python -m pyright
 python -m ruff check app tests streamlit_app.py scripts
+python -m pip_audit --strict --progress-spinner off
 ```
 
 ## Uruchomienie lokalne

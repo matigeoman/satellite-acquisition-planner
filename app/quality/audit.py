@@ -104,6 +104,8 @@ _REQUIRED_PATHS = (
     "scripts/stop_satplan.bat",
     ".github/workflows/quality.yml",
     ".github/workflows/docker.yml",
+    ".github/dependabot.yml",
+    "scripts/check_coverage.py",
     ".gitignore",
     "app/demo/service.py",
     "app/quality/release_check.py",
@@ -389,7 +391,7 @@ def _check_scenarios(paths: ProjectPaths) -> AuditCheck:
                 f"{scenario.active_request_count} zleceń, "
                 f"{scenario.opportunity_count} okazji"
             )
-    except Exception as error:  # noqa: BLE001 - audit must report full failures
+    except Exception as error:
         return _fail(
             "scenario-integrity", "Nie udało się zwalidować scenariuszy.", repr(error)
         )
@@ -403,7 +405,7 @@ def _check_imports(_: ProjectPaths) -> AuditCheck:
     for module_name in _SMOKE_IMPORTS:
         try:
             importlib.import_module(module_name)
-        except Exception as error:  # noqa: BLE001 - smoke audit records import errors
+        except Exception as error:
             errors.append(f"{module_name}: {type(error).__name__}: {error}")
     if errors:
         return _fail(

@@ -14,10 +14,26 @@ python -m pip install -r .\requirements-dev.txt -c .\requirements-lock.txt
 
 ```powershell
 python -m pytest -q
+python -m scripts.check_coverage .\coverage.json
+python -m pyright
 python -m ruff check app tests streamlit_app.py scripts
+python -m pip_audit --strict --progress-spinner off
 python -m app.cli check
 python -m app.cli audit --strict
 ```
+
+
+## Progi jakości
+
+- globalne coverage aplikacji: co najmniej 60%;
+- łączne coverage `app/integrations/orbits/` i
+  `app/services/orbit_service.py`: co najmniej 65%;
+- Pyright działa w trybie `basic` dla krytycznej warstwy orbitalnej;
+- Ruff obejmuje błędy wykonania oraz wybrane reguły Bugbear i `RUF100`;
+- `pip-audit` blokuje CI przy podatnościach lub błędzie zebrania zależności.
+
+Obniżenie progów wymaga uzasadnienia w Pull Request. Nowy kod krytyczny powinien
+zwiększać lub co najmniej utrzymywać pokrycie.
 
 ## Dodawanie funkcji
 

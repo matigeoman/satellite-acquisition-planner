@@ -187,7 +187,7 @@ def run_release_check(
 
     try:
         scenario = scenario_service.load(RELEASE_SCENARIO_ID)
-    except Exception as error:  # noqa: BLE001 - report must preserve failure
+    except Exception as error:
         steps.append(
             _step(
                 "scenario-load",
@@ -241,7 +241,7 @@ def run_release_check(
             and access_result.request_id
             in {request.request_id for request in scenario.request_set.requests}
         )
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:
         steps.append(
             _step(
                 "demo-orbit-access",
@@ -291,7 +291,7 @@ def run_release_check(
                 and all(0.0 <= item.quality_score <= 100.0 for item in tracking_passes)
                 and all(item.time_above_10_deg_s >= 0.0 for item in tracking_passes)
             )
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             steps.append(
                 _step(
                     "live-tracking-sky-map",
@@ -345,7 +345,7 @@ def run_release_check(
                 algorithm=algorithm,
                 cp_sat_time_limit_s=cp_sat_time_limit_s,
             )
-        except Exception as error:  # noqa: BLE001 - report all solver failures
+        except Exception as error:
             steps.append(
                 _step(
                     f"planning-{algorithm.value.lower()}",
@@ -425,7 +425,7 @@ def run_release_check(
             and replanning_result.schedule.horizon_end_utc
             == preferred.schedule.horizon_end_utc
         )
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:
         steps.append(
             _step(
                 "replanning",
@@ -465,7 +465,7 @@ def run_release_check(
             and preview.file_count >= 4
             and len(exported.archive_bytes) > 0
         )
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:
         steps.append(
             _step(
                 "project-archive-roundtrip",
@@ -504,7 +504,7 @@ def run_release_check(
             "report.json",
         }
         report_ok = required_report_files.issubset(report.included_files)
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:
         steps.append(
             _step(
                 "scientific-report",

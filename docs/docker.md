@@ -23,7 +23,7 @@ Najprostsza metoda:
 Skrypt:
 
 1. sprawdza obecność Docker i Compose,
-2. buduje obraz `satplan:1.3.0`,
+2. odczytuje `VERSION` i buduje obraz `satplan:<wersja>`,
 3. uruchamia usługę w tle,
 4. czeka na stan `healthy`,
 5. wyświetla adres aplikacji.
@@ -131,6 +131,25 @@ docker compose cp `
     .\satplan-import-export
 ```
 
+
+## Tryb przypisania satelitów
+
+Compose domyślnie uruchamia reprodukowalny tryb:
+
+```text
+SATPLAN_ORBIT_SELECTION_MODE=PINNED
+```
+
+Jednorazowe uruchomienie trybu dynamicznego w PowerShellu:
+
+```powershell
+$env:SATPLAN_ORBIT_SELECTION_MODE = "LIVE"
+docker compose up --build --detach
+```
+
+Tryb `PINNED` przerywa budowę snapshotu, gdy przypiętego numeru NORAD nie ma w
+odpowiedzi lub nazwa obiektu jest niezgodna. `LIVE` może zmieniać skład slotów.
+
 ## Healthcheck
 
 Polecenie:
@@ -162,9 +181,10 @@ python -m app.cli release-check --algorithm GREEDY
 ## Budowa obrazu bez Compose
 
 ```powershell
+$version = (Get-Content .\VERSION -Raw).Trim()
 docker build `
-    --build-arg APP_VERSION=1.3.0 `
-    --tag satplan:1.3.0 `
+    --build-arg APP_VERSION=$version `
+    --tag "satplan:$version" `
     .
 ```
 
@@ -173,8 +193,9 @@ Uruchomienie:
 ```powershell
 docker run --rm `
     --publish 8501:8501 `
+    --env SATPLAN_ORBIT_SELECTION_MODE=PINNED `
     --name satplan `
-    satplan:1.3.0
+    "satplan:$version"
 ```
 
 W tym wariancie bez dodatkowych wolumenów dane z warstwy zapisywalnej kontenera
@@ -187,7 +208,7 @@ znikną po jego usunięciu.
 - katalog tymczasowy jest osobnym `tmpfs`,
 - obraz bazuje na `python:3.11-slim`,
 - zależności runtime są instalowane z `requirements-ui.txt` z ograniczeniami z `requirements-lock.txt`,
-- Pytest i Ruff pozostają poza obrazem produkcyjnym,
+- Pytest, coverage, Pyright, Ruff i `pip-audit` pozostają poza obrazem produkcyjnym,
 - podczas budowy uruchamiane są `check`, `audit --strict` i kontrola runtime,
 - obraz nie zawiera cache testów, środowisk lokalnych ani wygenerowanych danych.
 
