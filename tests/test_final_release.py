@@ -52,4 +52,4 @@ def test_release_notes_define_validation_and_compatibility() -> None:
     assert "verify_release.ps1 -Docker -NoCache" in notes
     assert "Nie jest wymagana migracja danych" in notes
     assert "release-check --algorithm ALL" in script
-    assert 'FINAL RELEASE $Version: READY' in script
+    assert 'FINAL RELEASE ${Version}: READY' in script

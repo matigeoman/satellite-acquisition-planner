@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM python:3.11-slim AS dependencies
+FROM python:3.11.15-slim-bookworm AS dependencies
 
 ENV VIRTUAL_ENV=/opt/venv \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -16,7 +16,7 @@ RUN python -m pip install --upgrade pip \
     && python -m pip check
 
 
-FROM python:3.11-slim AS runtime
+FROM python:3.11.15-slim-bookworm AS runtime
 
 ARG APP_VERSION=dev
 

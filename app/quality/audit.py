@@ -455,7 +455,7 @@ def _check_docker_assets(paths: ProjectPaths) -> AuditCheck:
         )
 
     required_docker_tokens = (
-        "FROM python:3.11-slim",
+        "FROM python:3.11.15-slim-bookworm",
         "USER satplan",
         "HEALTHCHECK",
         "python -m app.cli health",

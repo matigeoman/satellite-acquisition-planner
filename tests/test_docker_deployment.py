@@ -15,7 +15,7 @@ def _read(relative: str) -> str:
 def test_dockerfile_uses_python_311_non_root_and_healthcheck() -> None:
     dockerfile = _read("Dockerfile")
 
-    assert "FROM python:3.11-slim" in dockerfile
+    assert dockerfile.count("FROM python:3.11.15-slim-bookworm") == 2
     assert "USER satplan" in dockerfile
     assert "HEALTHCHECK" in dockerfile
     assert '"python", "-m", "app.cli", "health", "--quiet"' in dockerfile
@@ -108,3 +108,11 @@ def test_development_tools_are_not_runtime_dependencies() -> None:
     )
     assert locked_version >= minimum_version
     assert locked_version < (4, 0, 0)
+
+
+def test_release_script_pulls_fresh_base_image() -> None:
+    release_script = _read("scripts/verify_release.ps1")
+
+    assert "docker compose build --pull --no-cache satplan" in release_script
+    assert "docker compose build --pull satplan" in release_script
+    assert 'Write-Host "FINAL RELEASE ${Version}: READY"' in release_script
