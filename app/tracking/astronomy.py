@@ -61,7 +61,11 @@ def sun_unit_vector_eci(timestamp_utc: datetime) -> tuple[float, float, float]:
         sin(obliquity) * sin(ecliptic_longitude),
     )
     norm = sqrt(sum(component * component for component in vector))
-    return tuple(component / norm for component in vector)
+    return (
+        vector[0] / norm,
+        vector[1] / norm,
+        vector[2] / norm,
+    )
 
 
 def satellite_is_illuminated(state: PropagatedState) -> bool:

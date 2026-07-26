@@ -29,7 +29,28 @@ def _unit(vector: tuple[float, float, float]) -> tuple[float, float, float]:
     magnitude = _norm(vector)
     if magnitude <= 0.0:
         raise ValueError("Nie można znormalizować wektora zerowego")
-    return tuple(component / magnitude for component in vector)
+    return (
+        vector[0] / magnitude,
+        vector[1] / magnitude,
+        vector[2] / magnitude,
+    )
+
+
+def _subtract(
+    first: tuple[float, float, float],
+    second: tuple[float, float, float],
+) -> tuple[float, float, float]:
+    return (
+        first[0] - second[0],
+        first[1] - second[1],
+        first[2] - second[2],
+    )
+
+
+def _negate(
+    vector: tuple[float, float, float],
+) -> tuple[float, float, float]:
+    return (-vector[0], -vector[1], -vector[2])
 
 
 def _dot(
@@ -89,12 +110,9 @@ def target_look_angles(
         target_longitude_deg,
         0.0,
     )
-    satellite_to_target = tuple(
-        target_component - satellite_component
-        for target_component, satellite_component in zip(target, satellite)
-    )
-    target_to_satellite = tuple(-component for component in satellite_to_target)
-    nadir = tuple(-component for component in satellite)
+    satellite_to_target = _subtract(target, satellite)
+    target_to_satellite = _negate(satellite_to_target)
+    nadir = _negate(satellite)
 
     off_nadir = degrees(
         acos(
@@ -135,14 +153,8 @@ def observation_side(
 ) -> str:
     """Określa stronę obserwacji względem przybliżonego kierunku lotu."""
 
-    target_direction = tuple(
-        target_component - satellite_component
-        for target_component, satellite_component in zip(
-            target_ecef,
-            satellite_ecef,
-        )
-    )
-    nadir = tuple(-component for component in satellite_ecef)
+    target_direction = _subtract(target_ecef, satellite_ecef)
+    nadir = _negate(satellite_ecef)
     off_nadir = degrees(
         acos(
             _clamp(
@@ -155,12 +167,9 @@ def observation_side(
     if off_nadir <= nadir_threshold_deg:
         return "NADIR"
 
-    along_track = tuple(
-        next_component - previous_component
-        for next_component, previous_component in zip(
-            next_satellite_ecef,
-            previous_satellite_ecef,
-        )
+    along_track = _subtract(
+        next_satellite_ecef,
+        previous_satellite_ecef,
     )
     if _norm(along_track) <= 1e-12:
         return "RIGHT"
