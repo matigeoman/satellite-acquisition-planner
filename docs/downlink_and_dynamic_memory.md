@@ -2,7 +2,7 @@
 
 ## Zakres
 
-Wersja 1.3.0 rozszerza model planowania o jawne kontakty satelita–stacja oraz
+Model planowania obejmuje jawne kontakty satelita–stacja oraz
 zmienny w czasie stan pamięci. Funkcja jest przeznaczona do eksperymentów
 badawczych i demonstracyjnych. Nie modeluje protokołu radiowego, kodowania,
 zakłóceń, widma, kolejkowania pakietów ani rzeczywistego przydziału pasma.

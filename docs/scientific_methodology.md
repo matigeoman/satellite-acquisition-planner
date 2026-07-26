@@ -7,7 +7,7 @@ heurystykę konstrukcyjną, globalny model Constraint Programming oraz metodę
 hybrydową wykorzystującą rozwiązanie początkowe i lokalną poprawę [R6], [R18],
 [R19]. Model opportunity-based i graf konfliktów wynikają z prac Eddy’ego
 [R17], [R26]. Profile preferencji są uproszczoną adaptacją podejścia MCDM
-[R21]. Wersja 1.3.0 dodaje zintegrowane ograniczenia pamięci, kontaktów i
+[R21]. Bieżąca implementacja obejmuje zintegrowane ograniczenia pamięci, kontaktów i
 downlinku zgodne z nurtem integrated scheduling [R18], [R22], [R28].
 
 Projekt nie odtwarza jednego eksperymentu ani operacyjnego systemu operatora.

@@ -13,7 +13,7 @@ granice AOS/LOS są doprecyzowywane bisekcją SGP4 do około jednej sekundy,
 a pokrycie poligonu wynika z rzeczywistego przecięcia AOI z nominalnym
 footprintem. Cache OMM i EOP ma jawne limity wieku, a implementację
 transformacji sprawdzają próbki referencyjne z STK 13. Model dynamicznej
-pamięci i downlinku wprowadzony w 1.3.0 pozostaje częścią planera.
+pamięci i downlinku pozostaje częścią planera.
 
 Scenariusz `POLAND_DEMO` zawiera kompletny zestaw danych offline do prezentacji
 i testów regresyjnych. Wyniki mają charakter badawczy: nie potwierdzają
@@ -135,7 +135,7 @@ Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 - [instrukcja użytkownika](docs/user_guide.md),
 - [model planowania](docs/planning_model.md),
 - [system satelitarny, parametry i geometria](docs/satellite_system.md),
-- [podstawy badawcze wersji 1.3.0](docs/research_foundations.md),
+- [podstawy badawcze projektu](docs/research_foundations.md),
 - [downlink i pamięć dynamiczna](docs/downlink_and_dynamic_memory.md),
 - [bibliografia i repozytoria referencyjne](docs/references.md),
 - [metodyka naukowa](docs/scientific_methodology.md),
@@ -146,7 +146,7 @@ Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 
 ## Podstawy naukowe
 
-Wersja 1.3.0 jest autorską adaptacją metod opisanych w literaturze. Nie stanowi
+Satellite Acquisition Planner jest autorską adaptacją metod opisanych w literaturze. Nie stanowi
 kopii jednego artykułu ani repozytorium. Najważniejsze podstawy to:
 
 - opportunity-based model i graf niewykonalności;

@@ -12,7 +12,7 @@ Dokument rozdziela cztery rodzaje podstaw projektu:
    implementacji pokrewnych modeli.
 
 Satellite Acquisition Planner jest implementacją autorską. Kod analizowanych
-repozytoriów nie został skopiowany. Wersja 1.3.0 rozwija wcześniejszą warstwę badawczą o zintegrowane
+repozytoriów nie został skopiowany. Projekt rozwija warstwę badawczą o zintegrowane
 planowanie pamięci i downlinku: akwizycje generują dane, kontakty ze stacjami
 zwalniają pamięć, a planery respektują przepustowość i liczbę kanałów stacji.
 Pozostałe adaptowane koncepcje obejmują graf niewykonalności, heurystykę kosztu
@@ -54,7 +54,7 @@ CP-SAT oraz jawne profile preferencji. Dokładne mapowanie znajduje się w
 - Greedy 2.0 nie jest przepisaniem wzorów PSB/POC. Jest ich adaptacją do
   istniejącego scoringu, okazji SAR/EO i grafu projektu.
 - Planer Hybrid nie odtwarza całego solvera Antuoriego i in. Nie implementuje
-  pełnego LNS ani ich dokładnego rozkładu na komponenty TSPTW. W wersji 1.3.0
+  pełnego LNS ani ich dokładnego rozkładu na komponenty TSPTW. W bieżącej implementacji
   przekazuje jednak model pamięci i downlinku zarówno do Greedy, jak i lokalnego
   CP-SAT. Zachowuje ogólny schemat: szybki incumbent, ograniczone podproblemy CP
   oraz akceptacja poprawy.
