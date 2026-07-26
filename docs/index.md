@@ -1,6 +1,6 @@
 # Dokumentacja Satellite Acquisition Planner
 
-Wersja dokumentacji: `1.3.0`.
+Wersja dokumentacji: `1.4.0`.
 
 ## Pierwsze kroki
 
@@ -38,7 +38,7 @@ Wersja dokumentacji: `1.3.0`.
 - [Ograniczenia operacyjne](operational_constraints.md)
 - [Benchmarking Greedy, CP-SAT i Hybrid](benchmarking.md)
 - [Metodyka naukowa](scientific_methodology.md)
-- [Podstawy badawcze wersji 1.3.0](research_foundations.md)
+- [Podstawy badawcze projektu](research_foundations.md)
 - [Bibliografia i repozytoria referencyjne](references.md)
 - [Raporty naukowe](scientific_reports.md)
 - [Archiwa projektów](project_archives.md)

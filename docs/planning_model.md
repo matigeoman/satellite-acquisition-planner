@@ -7,7 +7,7 @@ wielosatelitarny wariant AEOSSP dla heterogenicznej konstelacji SAR/EO.
 Kandydatem decyzyjnym jest gotowa okazja akwizycyjna zawierająca satelitę,
 sensor, tryb, przedział czasu, geometrię i ocenę jakości.
 
-Wersja 1.3.0 udostępnia trzy warianty planowania:
+Bieżąca implementacja udostępnia trzy warianty planowania:
 
 - **Greedy** — deterministyczna heurystyka konstrukcyjna;
 - **CP-SAT** — globalny model wyboru okazji;

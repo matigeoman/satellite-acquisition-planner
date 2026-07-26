@@ -1,6 +1,6 @@
-# Podstawy badawcze wersji 1.3.0
+# Podstawy badawcze projektu
 
-Ten dokument wskazuje, które elementy Satellite Acquisition Planner 1.3.0 są
+Ten dokument wskazuje, które elementy Satellite Acquisition Planner są
 adaptacją koncepcji opisanych w literaturze, które są rozwiązaniami własnymi,
 a które pozostają jedynie kierunkiem dalszych prac. Celem jest umożliwienie
 rzetelnego opisu projektu jako pracy studenckiej opartej na istniejącym dorobku,
@@ -14,7 +14,7 @@ konkretnej okazji akwizycyjnej, a model uwzględnia okna czasowe, przejścia
 między orientacjami, ograniczenia zasobów, priorytety i heterogeniczne sensory.
 Planowanie statyczne jest rozszerzone o reaktywne przeplanowanie.
 
-Wersja 1.3.0 łączy cztery poziomy rozwiązania:
+Bieżąca implementacja łączy cztery poziomy rozwiązania:
 
 1. **model opportunity-based** — jedna jawna okazja jest jednym kandydatem do
    wyboru;
@@ -26,7 +26,7 @@ Wersja 1.3.0 łączy cztery poziomy rozwiązania:
 
 ## Mapa źródło → implementacja
 
-| Element 1.3.0 | Podstawa | Zakres rzeczywistej adaptacji |
+| Element projektu | Podstawa | Zakres rzeczywistej adaptacji |
 |---|---|---|
 | dyskretne okazje akwizycyjne | Eddy [R17], Wang i in. [R6] | każda wykonalna okazja jest osobnym kandydatem binarnym |
 | graf niewykonalności | Eddy [R17], EOSS_GECCO25 [G3] | parowe konflikty tego samego zlecenia, par SAR–EO i przejść satelity |
@@ -47,7 +47,7 @@ G=(V,E),
 $$
 
 gdzie `V` jest zbiorem wykonalnych okazji, a krawędź `(i,j)` oznacza, że obie
-okazje nie mogą należeć jednocześnie do harmonogramu. W wersji 1.3.0
+okazje nie mogą należeć jednocześnie do harmonogramu. W bieżącej implementacji
 rejestrowane są trzy przyczyny:
 
 - `SAME_REQUEST_ALTERNATIVE` — konkurujące alternatywy jednego zlecenia;
@@ -124,7 +124,7 @@ $$
 Nie jest to dowód optymalności globalnej. Jest to zachowanie najlepszego
 znanego rozwiązania początkowego przy tej samej klasie wykonalności. Podejście
 jest autorską adaptacją schematu Greedy–CP–Local Search Antuoriego, Wojtowicza i Hebrarda [R18]; ich
-solver rozwiązuje inne podproblemy; wersja 1.3.0 adaptuje również ideę
+solver rozwiązuje inne podproblemy; projekt adaptuje również ideę
 zintegrowanego planowania pamięci i downlinku.
 
 ## Profile preferencji
@@ -146,7 +146,7 @@ użyteczności, bez progów obojętności, preferencji i weta.
 
 ## Dynamiczna pamięć i downlink
 
-Wersja 1.3.0 dodaje jawne stacje naziemne, okna kontaktu i ilość danych
+Model zasobów danych obejmuje jawne stacje naziemne, okna kontaktu i ilość danych
 przesyłaną w każdym oknie. Pamięć jest liczona na osi zdarzeń, a nie jako
 wyłącznie sumaryczny budżet dobowy. Model CP-SAT łączy binarne decyzje
 akwizycji z całkowitą ilością danych wysyłaną w kontaktach. Greedy stosuje
@@ -173,7 +173,7 @@ połączenie jest specyficzne dla Satellite Acquisition Planner:
 
 ## Repozytoria referencyjne i licencje
 
-Kod wersji 1.3.0 został napisany w obrębie tego projektu. Nie skopiowano kodu
+Kod projektu został napisany w obrębie tego projektu. Nie skopiowano kodu
 z analizowanych repozytoriów.
 
 | Repozytorium | Wykorzystana koncepcja | Stan licencji i decyzja |
@@ -184,7 +184,7 @@ z analizowanych repozytoriów.
 | `Issam-KEBIRI/Optimization-of-the-satellite-image-acquisition-plan` [G4] | niezawodność instrumentów jako przyszłe rozszerzenie | MIT — brak kopiowania modelu OPL |
 | `carlosfab/satellite_scheduling_ga` [G5] | GA jako przyszły algorytm porównawczy | GPL-3.0 — brak kopiowania kodu |
 
-## Czego wersja 1.3.0 nie implementuje
+## Czego bieżąca implementacja nie obejmuje
 
 - pełnego LNS z wieloma operatorami destroy/repair;
 - energii, temperatury i cyklu pracy instrumentu;
@@ -199,7 +199,7 @@ funkcjami bieżącego wydania.
 
 ## Zalecany zapis w pracy lub prezentacji
 
-> Satellite Acquisition Planner 1.3.0 jest autorską implementacją
+> Satellite Acquisition Planner jest autorską implementacją
 > opportunity-based problemu planowania akwizycji dla heterogenicznej
 > konstelacji SAR/EO. Model grafu niewykonalności oparto na interpretacji
 > grafowej Eddy’ego, heurystykę Greedy 2.0 na koncepcjach korzyści i kosztu

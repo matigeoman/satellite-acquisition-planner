@@ -15,7 +15,7 @@ może realizować więcej zleceń obowiązkowych albo uzyskać wyższą jakość
 
 Hybrid jest opcjonalny w kontrakcie programistycznym
 `AlgorithmBenchmarkConfig(include_hybrid=True)` i domyślnie włączony w
-interfejsie wersji 1.3.0.
+bieżącym interfejsie.
 
 ## Scenariusze
 
