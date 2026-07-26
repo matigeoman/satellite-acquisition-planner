@@ -335,6 +335,26 @@ textarea {
     background: rgba(15, 23, 42, 0.42);
 }
 
+
+/* Diagramy techniczne osadzane z dokumentacji projektu. */
+.satplan-diagram {
+    width: 100%;
+    margin: 0.65rem 0 0.25rem 0;
+    padding: 0.55rem;
+    overflow-x: auto;
+    border: 1px solid var(--satplan-border);
+    border-radius: 0.8rem;
+    background: rgba(5, 9, 17, 0.78);
+    box-shadow: var(--satplan-shadow);
+}
+
+.satplan-diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 760px;
+}
+
 /* Tabele i wykresy. */
 [data-testid="stDataFrame"] {
     font-size: 0.92rem;
@@ -400,7 +420,8 @@ button svg,
     font-size: 0.86rem !important;
 }
 
-iframe[title="streamlit.components.v1.html"] {
+[data-testid="stIFrame"] iframe,
+iframe[title="st.iframe"] {
     width: 100% !important;
     border: 1px solid var(--satplan-border) !important;
     border-radius: 0.82rem !important;

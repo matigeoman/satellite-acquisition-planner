@@ -11,7 +11,7 @@ Każda grupa parametrów ma oznaczone pochodzenie:
 
 - `PUBLIC_DATA` — wartość bezpośrednio z publicznej dokumentacji,
 - `MODEL_DERIVED` — jawne założenie lub wartość wyprowadzona do modelu,
-- `TLE_PENDING` — parametr orbitalny zostanie zastąpiony aktualnym OMM/TLE.
+- `PUBLIC_ORBIT_DATA` — bieżące elementy orbitalne są pobierane jako OMM i propagowane modelem SGP4.
 
 ## Edytor AOI
 
@@ -27,11 +27,15 @@ Prostokąt Leaflet jest zapisywany jako `Polygon`. Wszystkie współrzędne
 są przechowywane w WGS 84 w kolejności GeoJSON `[longitude, latitude]`,
 zgodnej z RFC 7946 [R16].
 
-## Ograniczenia etapu
+## Integracja z orbitami publicznymi
 
-Profile nie są jeszcze przypisane do bieżących numerów NORAD. Szablony
-orbit służą wyłącznie interfejsowi. Kolejny etap pobierze aktualne GP/OMM,
-wykona propagację SGP4 i wygeneruje `AcquisitionOpportunitySet`.
+Profile opisują nominalne właściwości misji i sensorów. Bieżące rekordy OMM są
+przypisywane do slotów planera, propagowane przez SGP4 i wykorzystywane do
+śledzenia, okien dostępu oraz budowy `AcquisitionOpportunitySet`. RAAN, epoka i
+mimośród zapisane w szablonie profilu nie są traktowane jako aktualna orbita.
+
+Pełne zestawienie parametrów, fazowania i geometrii znajduje się w dokumencie
+[System satelitarny, parametry i geometria](satellite_system.md).
 
 ## Zlecenia łączone SAR + EO
 

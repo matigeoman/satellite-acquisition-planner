@@ -1,0 +1,87 @@
+<svg class="satplan-svg" xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Przepływ danych planera akwizycji</title>
+<desc id="desc">Diagram procesu od AOI i zlecenia przez dane orbitalne i filtrowanie do planowania oraz raportów.</desc>
+
+<style>
+  .satplan-svg .bg { fill:#070b12; }
+  .satplan-svg .panel { fill:#101a2b; stroke:#2a3c56; stroke-width:2; }
+  .satplan-svg .panel2 { fill:#0d1625; stroke:#22334c; stroke-width:2; }
+  .satplan-svg .title { fill:#f8fafc; font:700 40px Arial, sans-serif; }
+  .satplan-svg .subtitle { fill:#9baabd; font:400 22px Arial, sans-serif; }
+  .satplan-svg .h2 { fill:#f8fafc; font:700 28px Arial, sans-serif; }
+  .satplan-svg .label { fill:#dbe6f4; font:600 20px Arial, sans-serif; }
+  .satplan-svg .small { fill:#9baabd; font:400 17px Arial, sans-serif; }
+  .satplan-svg .tiny { fill:#8292a8; font:400 15px Arial, sans-serif; }
+  .satplan-svg .sar { fill:#ff636a; stroke:#ff8c91; stroke-width:2; }
+  .satplan-svg .eo { fill:#50a9ff; stroke:#8bc8ff; stroke-width:2; }
+  .satplan-svg .accent { fill:#ff4b55; }
+  .satplan-svg .good { fill:#34d399; }
+  .satplan-svg .warn { fill:#f59e0b; }
+  .satplan-svg .line { stroke:#91a4bd; stroke-width:3; fill:none; }
+  .satplan-svg .line2 { stroke:#536982; stroke-width:2; fill:none; }
+  .satplan-svg .dash { stroke-dasharray:10 10; }
+  .satplan-svg .orbit { stroke:#627a98; stroke-width:3; fill:none; }
+  .satplan-svg .orbit-soft { stroke:#344a66; stroke-width:2; fill:none; stroke-dasharray:8 10; }
+  .satplan-svg .chip { fill:#18263b; stroke:#314760; stroke-width:1.5; }
+  .satplan-svg .arrow { stroke:#91a4bd; stroke-width:3; fill:none; marker-end:url(#arrow); }
+  .satplan-svg .arrow-sar { stroke:#ff636a; stroke-width:3; fill:none; marker-end:url(#arrowSar); }
+  .satplan-svg .arrow-eo { stroke:#50a9ff; stroke-width:3; fill:none; marker-end:url(#arrowEo); }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#91a4bd"/></marker>
+  <marker id="arrowSar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ff636a"/></marker>
+  <marker id="arrowEo" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#50a9ff"/></marker>
+  <radialGradient id="earth" cx="40%" cy="35%"><stop offset="0%" stop-color="#2f6fa9"/><stop offset="75%" stop-color="#173c63"/><stop offset="100%" stop-color="#0d253f"/></radialGradient>
+  <linearGradient id="spaceGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#182a45"/><stop offset="1" stop-color="#0a111d"/></linearGradient>
+</defs>
+
+<rect class="bg" width="1600" height="900" rx="28"/>
+<text class="title" x="70" y="78">Przepływ danych i decyzji planera</text>
+<text class="subtitle" x="70" y="116">Od celu na Ziemi do wykonalnego harmonogramu z pamięcią, downlinkiem i możliwością przeplanowania</text>
+
+<!-- row 1 -->
+<g>
+<rect class="panel" x="55" y="175" width="245" height="150" rx="22"/><text class="h2" x="90" y="225">AOI i zlecenie</text><text class="small" x="90" y="265">geometria · priorytet</text><text class="small" x="90" y="295">termin · typ sensora</text>
+<rect class="panel" x="365" y="175" width="245" height="150" rx="22"/><text class="h2" x="400" y="225">OMM + SGP4</text><text class="small" x="400" y="265">aktualne elementy</text><text class="small" x="400" y="295">pozycja i ground track</text>
+<rect class="panel" x="675" y="175" width="245" height="150" rx="22"/><text class="h2" x="710" y="225">Dostęp</text><text class="small" x="710" y="265">widoczność celu</text><text class="small" x="710" y="295">off-nadir i czas</text>
+<rect class="panel" x="985" y="175" width="245" height="150" rx="22"/><text class="h2" x="1020" y="225">Filtry EO/SAR</text><text class="small" x="1020" y="265">Słońce · chmury</text><text class="small" x="1020" y="295">tryb i jakość</text>
+<rect class="panel" x="1295" y="175" width="245" height="150" rx="22"/><text class="h2" x="1330" y="225">Okazje</text><text class="small" x="1330" y="265">wykonalne okna</text><text class="small" x="1330" y="295">ocena korzyści</text>
+<path class="arrow" d="M305 250 L355 250"/><path class="arrow" d="M615 250 L665 250"/><path class="arrow" d="M925 250 L975 250"/><path class="arrow" d="M1235 250 L1285 250"/>
+</g>
+
+<!-- middle constraints -->
+<path class="arrow" d="M1418 335 C1418 390,1260 410,1170 440"/>
+<rect class="panel2" x="925" y="405" width="615" height="185" rx="22"/>
+<text class="h2" x="965" y="458">Ograniczenia operacyjne</text>
+<text class="small" x="965" y="500">• konflikty czasowe i przejścia</text>
+<text class="small" x="965" y="535">• pojemność pamięci zmienna w czasie</text>
+<text class="small" x="1260" y="500">• stacje i okna downlinku</text>
+<text class="small" x="1260" y="535">• limity dzienne i rezerwy</text>
+
+<!-- planners -->
+<rect class="panel" x="365" y="405" width="480" height="185" rx="22"/>
+<text class="h2" x="405" y="458">Silnik planowania</text>
+<rect x="405" y="495" width="120" height="50" rx="14" fill="#ff636a" opacity=".18" stroke="#ff636a" stroke-width="2"/><text class="label" x="430" y="527">Greedy</text>
+<rect x="545" y="495" width="120" height="50" rx="14" fill="#50a9ff" opacity=".18" stroke="#50a9ff" stroke-width="2"/><text class="label" x="566" y="527">CP-SAT</text>
+<rect x="685" y="495" width="120" height="50" rx="14" fill="#34d399" opacity=".16" stroke="#34d399" stroke-width="2"/><text class="label" x="707" y="527">Hybrid</text>
+<text class="small" x="405" y="575">profil wielokryterialny + graf konfliktów</text>
+<path class="arrow" d="M915 495 L855 495"/>
+
+<!-- outputs -->
+<path class="arrow" d="M605 600 L605 675"/>
+<rect class="panel" x="180" y="690" width="850" height="150" rx="22"/>
+<text class="h2" x="220" y="742">Wynik operacyjny</text>
+<text class="small" x="220" y="785">harmonogram · wykorzystanie pamięci · downlink · niezrealizowane zlecenia · diagnostyka</text>
+<path class="arrow" d="M1035 765 L1120 765"/>
+<rect class="panel" x="1135" y="690" width="405" height="150" rx="22"/>
+<text class="h2" x="1175" y="742">Dalsze użycie</text>
+<text class="small" x="1175" y="782">raporty · STK · benchmarki</text>
+<text class="small" x="1175" y="814">replanning · archiwum projektu</text>
+
+<rect class="chip" x="55" y="405" width="245" height="185" rx="22"/>
+<text class="label" x="90" y="455">Źródła pomocnicze</text>
+<text class="small" x="90" y="497">• profile sensorów</text>
+<text class="small" x="90" y="532">• prognoza Open-Meteo</text>
+<text class="small" x="90" y="567">• parametry scenariusza</text>
+<path class="arrow" d="M305 495 L355 495"/>
+</svg>

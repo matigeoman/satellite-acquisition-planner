@@ -75,3 +75,15 @@ sum SHA-256, wersji schematu i referencji między obiektami.
 
 Wygeneruj pakiet HTML, DOCX, XLSX, JSON, CSV i PNG. Zakres raportu zależy od
 tego, które komponenty zostały wcześniej wyliczone w bieżącej sesji.
+
+
+## 11. System i satelity
+
+Strona porządkuje nominalne parametry orbit i sensorów, fazowanie scenariusza
+`POLAND_DEMO`, geometrię off-nadir, mapę nieba oraz przepływ OMM/SGP4 do
+planera. Tabele są generowane bezpośrednio z `app/catalogs`, dzięki czemu nie
+stanowią niezależnej, ręcznie utrzymywanej kopii parametrów.
+
+Aktualne elementy orbitalne każdej jednostki nadal należy sprawdzać w module
+**Orbity i dane OMM**. Rozdział nie zastępuje dynamicznych danych — wyjaśnia
+ich rolę względem nominalnego profilu misji.

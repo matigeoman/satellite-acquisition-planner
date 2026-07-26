@@ -13,6 +13,10 @@ przez CelesTrak dokumentują źródła [R1] i [R2] z
 
 Rekordy są mapowane na sloty planera `SAR-01`–`SAR-04` oraz `EO-01`–`EO-02`.
 
+Rozdzielenie nominalnego profilu misji od dynamicznych elementów OMM oraz
+schemat przepływu danych opisuje dokument
+[System satelitarny, parametry i geometria](satellite_system.md).
+
 ## Cache i ograniczenie liczby zapytań
 
 CelesTrak aktualizuje dane GP cyklicznie i wymaga ograniczenia częstotliwości

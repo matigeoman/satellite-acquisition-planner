@@ -1,0 +1,97 @@
+<svg class="satplan-svg" xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Geometria akwizycji satelitarnej</title>
+<desc id="desc">Przekrój Ziemi z satelitą, kierunkiem nadiru, linią obserwacji, kątem off-nadir i obszarem AOI.</desc>
+
+<style>
+  .satplan-svg .bg { fill:#070b12; }
+  .satplan-svg .panel { fill:#101a2b; stroke:#2a3c56; stroke-width:2; }
+  .satplan-svg .panel2 { fill:#0d1625; stroke:#22334c; stroke-width:2; }
+  .satplan-svg .title { fill:#f8fafc; font:700 40px Arial, sans-serif; }
+  .satplan-svg .subtitle { fill:#9baabd; font:400 22px Arial, sans-serif; }
+  .satplan-svg .h2 { fill:#f8fafc; font:700 28px Arial, sans-serif; }
+  .satplan-svg .label { fill:#dbe6f4; font:600 20px Arial, sans-serif; }
+  .satplan-svg .small { fill:#9baabd; font:400 17px Arial, sans-serif; }
+  .satplan-svg .tiny { fill:#8292a8; font:400 15px Arial, sans-serif; }
+  .satplan-svg .sar { fill:#ff636a; stroke:#ff8c91; stroke-width:2; }
+  .satplan-svg .eo { fill:#50a9ff; stroke:#8bc8ff; stroke-width:2; }
+  .satplan-svg .accent { fill:#ff4b55; }
+  .satplan-svg .good { fill:#34d399; }
+  .satplan-svg .warn { fill:#f59e0b; }
+  .satplan-svg .line { stroke:#91a4bd; stroke-width:3; fill:none; }
+  .satplan-svg .line2 { stroke:#536982; stroke-width:2; fill:none; }
+  .satplan-svg .dash { stroke-dasharray:10 10; }
+  .satplan-svg .orbit { stroke:#627a98; stroke-width:3; fill:none; }
+  .satplan-svg .orbit-soft { stroke:#344a66; stroke-width:2; fill:none; stroke-dasharray:8 10; }
+  .satplan-svg .chip { fill:#18263b; stroke:#314760; stroke-width:1.5; }
+  .satplan-svg .arrow { stroke:#91a4bd; stroke-width:3; fill:none; marker-end:url(#arrow); }
+  .satplan-svg .arrow-sar { stroke:#ff636a; stroke-width:3; fill:none; marker-end:url(#arrowSar); }
+  .satplan-svg .arrow-eo { stroke:#50a9ff; stroke-width:3; fill:none; marker-end:url(#arrowEo); }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#91a4bd"/></marker>
+  <marker id="arrowSar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ff636a"/></marker>
+  <marker id="arrowEo" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#50a9ff"/></marker>
+  <radialGradient id="earth" cx="40%" cy="35%"><stop offset="0%" stop-color="#2f6fa9"/><stop offset="75%" stop-color="#173c63"/><stop offset="100%" stop-color="#0d253f"/></radialGradient>
+  <linearGradient id="spaceGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#182a45"/><stop offset="1" stop-color="#0a111d"/></linearGradient>
+</defs>
+
+<rect class="bg" width="1600" height="900" rx="28"/>
+<text class="title" x="70" y="78">Geometria akwizycji SAR i EO</text>
+<text class="subtitle" x="70" y="116">Dostęp geometryczny jest dopiero kandydatem — później stosowane są ograniczenia sensora, pogody i harmonogramu</text>
+
+<rect class="panel" x="55" y="155" width="990" height="650" rx="24"/>
+<path d="M80 790 Q520 400 1020 790 Z" fill="url(#earth)" stroke="#5686b0" stroke-width="3"/>
+<path d="M120 790 Q520 455 980 790" fill="none" stroke="#3d8b68" stroke-width="16" opacity=".55"/>
+<text class="small" x="470" y="770">powierzchnia Ziemi</text>
+
+<!-- satellite -->
+<g transform="translate(520 215)">
+  <rect x="-42" y="-22" width="84" height="44" rx="8" fill="#dbe6f4" stroke="#7791ad" stroke-width="2"/>
+  <rect x="-118" y="-16" width="68" height="32" rx="5" fill="#244f7c" stroke="#50a9ff" stroke-width="2"/>
+  <rect x="50" y="-16" width="68" height="32" rx="5" fill="#244f7c" stroke="#50a9ff" stroke-width="2"/>
+  <line x1="-50" y1="0" x2="-42" y2="0" class="line2"/><line x1="42" y1="0" x2="50" y2="0" class="line2"/>
+</g>
+<text class="label" x="460" y="175">Satelita</text>
+
+<!-- geometry -->
+<line x1="520" y1="240" x2="520" y2="610" stroke="#9baabd" stroke-width="3" stroke-dasharray="10 10"/>
+<text class="small" x="536" y="430">kierunek nadiru</text>
+<line x1="520" y1="240" x2="790" y2="665" stroke="#ff636a" stroke-width="5"/>
+<line x1="520" y1="240" x2="865" y2="690" stroke="#50a9ff" stroke-width="3" stroke-dasharray="10 8"/>
+<path d="M520 340 A100 100 0 0 1 575 324" fill="none" stroke="#f59e0b" stroke-width="4"/>
+<text class="label" x="570" y="350">off-nadir θ</text>
+<circle cx="790" cy="665" r="12" class="accent"/>
+<rect x="745" y="648" width="135" height="45" rx="10" fill="#ff4b55" opacity=".22" stroke="#ff636a" stroke-width="2"/>
+<text class="label" x="757" y="722">AOI / cel</text>
+<path d="M715 690 Q810 725 900 688" fill="none" stroke="#ff636a" stroke-width="8" opacity=".45"/>
+<text class="small" x="735" y="758">footprint / scena</text>
+
+<rect class="chip" x="85" y="205" width="315" height="154" rx="18"/>
+<text class="label" x="115" y="245">Warunki geometryczne</text>
+<text class="small" x="115" y="279">• cel w zasięgu sensora</text>
+<text class="small" x="115" y="311">• kąt off-nadir w limicie</text>
+<text class="small" x="115" y="343">• brak konfliktu czasowego</text>
+
+<rect class="panel2" x="1080" y="155" width="465" height="303" rx="24"/>
+<text class="h2" x="1120" y="210">SAR · ICEYE-like</text>
+<text class="label" x="1120" y="255">Maks. off-nadir: 45°</text>
+<text class="small" x="1120" y="292">• pasmo X</text>
+<text class="small" x="1120" y="326">• dzień i noc</text>
+<text class="small" x="1120" y="360">• chmury nie blokują obserwacji</text>
+<text class="small" x="1120" y="394">• lewo- i prawostronne patrzenie</text>
+<rect x="1390" y="245" width="92" height="92" rx="18" fill="#ff636a" opacity=".16" stroke="#ff636a" stroke-width="2"/>
+<path d="M1410 318 L1432 265 L1454 318 Z" fill="none" stroke="#ff636a" stroke-width="5"/>
+
+<rect class="panel2" x="1080" y="480" width="465" height="325" rx="24"/>
+<text class="h2" x="1120" y="535">EO · Pléiades Neo-like</text>
+<text class="label" x="1120" y="580">Maks. off-nadir: 52°</text>
+<text class="small" x="1120" y="617">• wymagane oświetlenie dzienne</text>
+<text class="small" x="1120" y="651">• filtr zachmurzenia</text>
+<text class="small" x="1120" y="685">• minimalna elewacja Słońca: 10°</text>
+<text class="small" x="1120" y="719">• wysoka rozdzielczość optyczna</text>
+<circle cx="1435" cy="590" r="37" fill="#f59e0b" opacity=".9"/>
+<g fill="#dbe6f4" opacity=".7"><circle cx="1380" cy="670" r="22"/><circle cx="1410" cy="655" r="30"/><circle cx="1445" cy="670" r="24"/><rect x="1370" y="670" width="100" height="30" rx="15"/></g>
+
+<rect class="chip" x="55" y="825" width="1490" height="50" rx="16"/>
+<text class="small" x="85" y="856">Dostęp = geometria + reguły sensora. Okazja planistyczna = dostęp po filtrach środowiskowych i operacyjnych.</text>
+</svg>

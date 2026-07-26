@@ -44,6 +44,7 @@ from app.ui.pages import (
     render_replanning_page,
     render_targets_page,
     render_stk_validation_page,
+    render_system_overview_page,
 )
 from app.ui.plotly_theme import register_plotly_theme
 from app.ui.styles import apply_application_styles
@@ -62,6 +63,7 @@ _PAGE_RENDERERS = {
     ApplicationPage.BENCHMARKS: render_benchmark_page,
     ApplicationPage.PROJECTS: render_projects_page,
     ApplicationPage.REPORTS: render_reports_page,
+    ApplicationPage.SYSTEM_OVERVIEW: render_system_overview_page,
     ApplicationPage.PLANNING: render_planning_page,
     ApplicationPage.REPLANNING: render_replanning_page,
     ApplicationPage.DISRUPTIONS: render_disruption_page,
