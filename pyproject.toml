@@ -60,6 +60,7 @@ include = [
     "app/services",
     "app/integrations/access",
     "app/integrations/orbits",
+    "app/integrations/stk_validation",
     "app/tracking",
 ]
 exclude = [

@@ -228,7 +228,7 @@ def parse_stk_access_report(payload: bytes | str) -> ParsedStkAccessReport:
             )
             continue
         duration = (end - start).total_seconds()
-        if duration_column is not None and pd.notna(row[duration_column]):
+        if duration_column is not None and pd.notna(row.at[duration_column]):
             try:
                 reported_duration = _parse_float(row[duration_column])
                 if abs(reported_duration - duration) > 1.0:
@@ -249,12 +249,12 @@ def parse_stk_access_report(payload: bytes | str) -> ParsedStkAccessReport:
                 duration_s=duration,
                 satellite_name=(
                     str(row[satellite_column]).strip()
-                    if satellite_column is not None and pd.notna(row[satellite_column])
+                    if satellite_column is not None and pd.notna(row.at[satellite_column])
                     else None
                 ),
                 target_name=(
                     str(row[target_column]).strip()
-                    if target_column is not None and pd.notna(row[target_column])
+                    if target_column is not None and pd.notna(row.at[target_column])
                     else None
                 ),
                 source_row=row_number,
