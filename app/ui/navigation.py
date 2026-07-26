@@ -22,6 +22,7 @@ class ApplicationPage(StrEnum):
     BENCHMARKS = "Benchmarki"
     PROJECTS = "Projekty"
     REPORTS = "Raporty"
+    SYSTEM_OVERVIEW = "System i satelity"
     PLANNING = "Planowanie scenariuszy referencyjnych"
     REPLANNING = "Przeplanowanie scenariuszy referencyjnych"
     DISRUPTIONS = "Analiza zakłóceń"
@@ -56,6 +57,7 @@ PAGE_GROUPS: dict[NavigationSection, tuple[ApplicationPage, ...]] = {
         ApplicationPage.EXPERIMENTS,
     ),
     NavigationSection.PROJECT: (
+        ApplicationPage.SYSTEM_OVERVIEW,
         ApplicationPage.PROJECTS,
         ApplicationPage.REPORTS,
     ),
@@ -83,6 +85,9 @@ PAGE_DESCRIPTIONS: dict[ApplicationPage, str] = {
     ApplicationPage.BENCHMARKS: "Skalowalność, jakość i czasy Greedy, CP-SAT oraz Hybrid.",
     ApplicationPage.PROJECTS: "Zapis, import i wersjonowanie pełnego stanu pracy.",
     ApplicationPage.REPORTS: "Eksport wyników do HTML, DOCX, XLSX i JSON.",
+    ApplicationPage.SYSTEM_OVERVIEW: (
+        "Profile satelitów, fazowanie, geometria i źródła parametrów."
+    ),
     ApplicationPage.PLANNING: "Planowanie na kontrolowanych scenariuszach referencyjnych.",
     ApplicationPage.REPLANNING: "Regresyjne testy przeplanowania scenariuszy.",
     ApplicationPage.DISRUPTIONS: "Wpływ awarii, pogody i blokad zasobów.",

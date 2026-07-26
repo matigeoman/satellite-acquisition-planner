@@ -1,0 +1,77 @@
+<svg class="satplan-svg" xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Geometria przelotu na mapie nieba</title>
+<desc id="desc">Schemat półkuli nieba z punktami AOS, maksimum elewacji i LOS oraz azymutem i elewacją.</desc>
+
+<style>
+  .satplan-svg .bg { fill:#070b12; }
+  .satplan-svg .panel { fill:#101a2b; stroke:#2a3c56; stroke-width:2; }
+  .satplan-svg .panel2 { fill:#0d1625; stroke:#22334c; stroke-width:2; }
+  .satplan-svg .title { fill:#f8fafc; font:700 40px Arial, sans-serif; }
+  .satplan-svg .subtitle { fill:#9baabd; font:400 22px Arial, sans-serif; }
+  .satplan-svg .h2 { fill:#f8fafc; font:700 28px Arial, sans-serif; }
+  .satplan-svg .label { fill:#dbe6f4; font:600 20px Arial, sans-serif; }
+  .satplan-svg .small { fill:#9baabd; font:400 17px Arial, sans-serif; }
+  .satplan-svg .tiny { fill:#8292a8; font:400 15px Arial, sans-serif; }
+  .satplan-svg .sar { fill:#ff636a; stroke:#ff8c91; stroke-width:2; }
+  .satplan-svg .eo { fill:#50a9ff; stroke:#8bc8ff; stroke-width:2; }
+  .satplan-svg .accent { fill:#ff4b55; }
+  .satplan-svg .good { fill:#34d399; }
+  .satplan-svg .warn { fill:#f59e0b; }
+  .satplan-svg .line { stroke:#91a4bd; stroke-width:3; fill:none; }
+  .satplan-svg .line2 { stroke:#536982; stroke-width:2; fill:none; }
+  .satplan-svg .dash { stroke-dasharray:10 10; }
+  .satplan-svg .orbit { stroke:#627a98; stroke-width:3; fill:none; }
+  .satplan-svg .orbit-soft { stroke:#344a66; stroke-width:2; fill:none; stroke-dasharray:8 10; }
+  .satplan-svg .chip { fill:#18263b; stroke:#314760; stroke-width:1.5; }
+  .satplan-svg .arrow { stroke:#91a4bd; stroke-width:3; fill:none; marker-end:url(#arrow); }
+  .satplan-svg .arrow-sar { stroke:#ff636a; stroke-width:3; fill:none; marker-end:url(#arrowSar); }
+  .satplan-svg .arrow-eo { stroke:#50a9ff; stroke-width:3; fill:none; marker-end:url(#arrowEo); }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#91a4bd"/></marker>
+  <marker id="arrowSar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ff636a"/></marker>
+  <marker id="arrowEo" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#50a9ff"/></marker>
+  <radialGradient id="earth" cx="40%" cy="35%"><stop offset="0%" stop-color="#2f6fa9"/><stop offset="75%" stop-color="#173c63"/><stop offset="100%" stop-color="#0d253f"/></radialGradient>
+  <linearGradient id="spaceGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#182a45"/><stop offset="1" stop-color="#0a111d"/></linearGradient>
+</defs>
+
+<rect class="bg" width="1600" height="900" rx="28"/>
+<text class="title" x="70" y="78">Mapa nieba i parametry przelotu</text>
+<text class="subtitle" x="70" y="116">Widok topocentryczny obserwatora: azymut określa kierunek, elewacja wysokość nad horyzontem</text>
+
+<rect class="panel" x="55" y="155" width="980" height="650" rx="24"/>
+<ellipse cx="535" cy="520" rx="390" ry="235" fill="url(#spaceGlow)" stroke="#405978" stroke-width="3"/>
+<ellipse cx="535" cy="520" rx="300" ry="180" class="orbit-soft"/>
+<ellipse cx="535" cy="520" rx="200" ry="120" class="orbit-soft"/>
+<ellipse cx="535" cy="520" rx="100" ry="60" class="orbit-soft"/>
+<line x1="145" y1="520" x2="925" y2="520" class="line2"/><line x1="535" y1="285" x2="535" y2="755" class="line2"/>
+<text class="label" x="520" y="273">N</text><text class="label" x="520" y="785">S</text><text class="label" x="112" y="528">W</text><text class="label" x="945" y="528">E</text>
+<circle cx="535" cy="520" r="18" fill="#dbe6f4"/><text class="small" x="560" y="527">zenit · 90°</text>
+<text class="small" x="760" y="705">horyzont · 0°</text>
+
+<path d="M225 635 C355 520,435 330,610 365 C755 395,820 515,885 605" fill="none" stroke="#50a9ff" stroke-width="7"/>
+<circle class="eo" cx="225" cy="635" r="18"/><text class="label" x="178" y="680">AOS</text><text class="small" x="145" y="708">wejście nad horyzont</text>
+<circle class="good" cx="610" cy="365" r="20"/><text class="label" x="640" y="348">MAX</text><text class="small" x="640" y="378">maks. elewacja</text>
+<circle class="sar" cx="885" cy="605" r="18"/><text class="label" x="905" y="650">LOS</text><text class="small" x="905" y="678">zejście pod horyzont</text>
+<path d="M535 520 L610 365" stroke="#f59e0b" stroke-width="4"/><path d="M535 520 A95 95 0 0 1 575 438" fill="none" stroke="#f59e0b" stroke-width="4"/>
+<text class="label" x="585" y="470">elewacja</text>
+<path d="M535 520 L225 635" stroke="#91a4bd" stroke-width="3" stroke-dasharray="10 8"/>
+<path d="M535 585 A70 42 0 0 1 470 555" fill="none" stroke="#91a4bd" stroke-width="3"/>
+<text class="label" x="385" y="606">azymut</text>
+
+<rect class="panel2" x="1070" y="155" width="475" height="650" rx="24"/>
+<text class="h2" x="1110" y="210">Wartości prezentowane</text>
+<rect class="chip" x="1110" y="250" width="395" height="200" rx="18"/>
+<text class="label" x="1140" y="292">AOS / MAX / LOS</text>
+<text class="small" x="1140" y="330">AOS — początek widoczności</text>
+<text class="small" x="1140" y="366">MAX — największa elewacja</text>
+<text class="small" x="1140" y="402">LOS — koniec widoczności</text>
+
+<rect class="chip" x="1110" y="475" width="395" height="245" rx="18"/>
+<text class="label" x="1140" y="517">Po co plannerowi ten widok?</text>
+<text class="small" x="1140" y="556">• weryfikacja przelotu lokalnego</text>
+<text class="small" x="1140" y="592">• ocena maksymalnej elewacji</text>
+<text class="small" x="1140" y="628">• wybór lokalizacji obserwatora</text>
+<text class="small" x="1140" y="664">• powiązanie z oknami dostępu</text>
+<text class="tiny" x="1110" y="765">Moduł: Śledzenie i przeloty</text>
+</svg>

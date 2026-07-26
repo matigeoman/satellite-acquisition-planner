@@ -23,6 +23,7 @@ _PAGE_MODULES = (
     "replanning.py",
     "reports.py",
     "stk_validation.py",
+    "system_overview.py",
     "targets.py",
 )
 

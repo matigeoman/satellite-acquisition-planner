@@ -1,0 +1,122 @@
+<svg class="satplan-svg" xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+<title id="title">Fazowanie konstelacji demonstracyjnej</title>
+<desc id="desc">Czytelny schemat czterech slotów SAR rozłożonych co 90 stopni oraz dwóch slotów EO rozłożonych co 180 stopni.</desc>
+
+<style>
+  .bg { fill:#070b12; }
+  .panel { fill:#0f1929; stroke:#2b3e58; stroke-width:2; }
+  .panel-soft { fill:#142238; stroke:#304762; stroke-width:1.5; }
+  .title { fill:#f8fafc; font:700 39px Arial, sans-serif; }
+  .subtitle { fill:#a3b3c7; font:400 20px Arial, sans-serif; }
+  .kicker { fill:#50a9ff; font:700 14px Arial, sans-serif; letter-spacing:2px; }
+  .h2 { fill:#f8fafc; font:700 26px Arial, sans-serif; }
+  .body { fill:#a3b3c7; font:400 16px Arial, sans-serif; }
+  .small { fill:#8fa2ba; font:400 14px Arial, sans-serif; }
+  .metric { fill:#dce7f5; font:700 14px Arial, sans-serif; }
+  .orbit-sar { fill:none; stroke:#ff636a; stroke-width:3; opacity:.78; }
+  .orbit-eo { fill:none; stroke:#50a9ff; stroke-width:3; opacity:.82; }
+  .orbit-soft { fill:none; stroke:#526a87; stroke-width:2; stroke-dasharray:9 11; opacity:.5; }
+  .sar { fill:#ff636a; stroke:#ffb0b4; stroke-width:2; }
+  .eo { fill:#50a9ff; stroke:#b8ddff; stroke-width:2; }
+  .node-number { fill:#07101c; font:900 13px Arial, sans-serif; text-anchor:middle; dominant-baseline:middle; }
+  .phase-name { fill:#f4f7fb; font:700 14px Arial, sans-serif; }
+  .phase-value { fill:#8fa2ba; font:400 13px Arial, sans-serif; }
+  .badge-sar { fill:#3a1d27; stroke:#6a303c; stroke-width:1.5; }
+  .badge-eo { fill:#122d49; stroke:#285680; stroke-width:1.5; }
+  .badge-text-sar { fill:#ff9da2; font:800 13px Arial, sans-serif; letter-spacing:1px; text-anchor:middle; }
+  .badge-text-eo { fill:#a8d7ff; font:800 13px Arial, sans-serif; letter-spacing:1px; text-anchor:middle; }
+  .note-title { fill:#f3f7fc; font:700 15px Arial, sans-serif; }
+  .note-body { fill:#9fb0c6; font:400 14px Arial, sans-serif; }
+</style>
+
+<defs>
+  <radialGradient id="earth" cx="38%" cy="32%">
+    <stop offset="0" stop-color="#3c86bd"/>
+    <stop offset="70%" stop-color="#18466f"/>
+    <stop offset="100%" stop-color="#0b2743"/>
+  </radialGradient>
+  <linearGradient id="panelGlow" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#14243a"/>
+    <stop offset="1" stop-color="#0c1523"/>
+  </linearGradient>
+  <marker id="arrowSar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L0 6 L9 3Z" fill="#ff636a"/></marker>
+  <marker id="arrowEo" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L0 6 L9 3Z" fill="#50a9ff"/></marker>
+</defs>
+
+<rect class="bg" width="1600" height="980" rx="28"/>
+<text class="kicker" x="64" y="52">POLAND_DEMO · MODEL REFERENCYJNY</text>
+<text class="title" x="64" y="96">Konstelacja demonstracyjna i fazowanie</text>
+<text class="subtitle" x="64" y="132">Fazy opisują kontrolowaną konfigurację początkową; aktualny stan publicznych obiektów pochodzi z OMM + SGP4.</text>
+
+<!-- SAR -->
+<rect class="panel" x="54" y="164" width="940" height="640" rx="24" fill="url(#panelGlow)"/>
+<rect class="badge-sar" x="84" y="192" width="58" height="28" rx="14"/>
+<text class="badge-text-sar" x="113" y="211">SAR</text>
+<text class="h2" x="158" y="214">4 sloty · separacja fazowa 90°</text>
+<text class="body" x="84" y="246">Równomierny rozkład kandydatów do akwizycji w modelu testowym.</text>
+<rect class="panel-soft" x="766" y="190" width="92" height="38" rx="10"/>
+<text class="metric" x="786" y="214">550 km</text>
+<rect class="panel-soft" x="868" y="190" width="96" height="38" rx="10"/>
+<text class="metric" x="885" y="214">i = 97,6°</text>
+
+<ellipse class="orbit-soft" cx="524" cy="470" rx="350" ry="165"/>
+<ellipse class="orbit-sar" cx="524" cy="470" rx="385" ry="188"/>
+<path d="M760 324 C850 365 898 414 904 470" fill="none" stroke="#ff636a" stroke-width="3" marker-end="url(#arrowSar)"/>
+<circle cx="524" cy="470" r="96" fill="#162d49" stroke="#4f7ba2" stroke-width="3"/>
+<circle cx="524" cy="470" r="76" fill="url(#earth)"/>
+<path d="M480 442 C500 413 544 410 572 431 C599 452 594 497 568 522 C539 548 494 535 476 505 C463 484 465 460 480 442Z" fill="#3d9a75" opacity=".7"/>
+
+<!-- nodes only; labels are outside the orbit -->
+<circle class="sar" cx="524" cy="282" r="25"/><text class="node-number" x="524" y="282">01</text>
+<circle class="sar" cx="909" cy="470" r="25"/><text class="node-number" x="909" y="470">02</text>
+<circle class="sar" cx="524" cy="658" r="25"/><text class="node-number" x="524" y="658">03</text>
+<circle class="sar" cx="139" cy="470" r="25"/><text class="node-number" x="139" y="470">04</text>
+
+<!-- SAR phase cards -->
+<rect class="panel-soft" x="84" y="704" width="205" height="70" rx="14"/>
+<circle class="sar" cx="112" cy="739" r="16"/><text class="node-number" x="112" y="739" style="font-size:10px">01</text>
+<text class="phase-name" x="139" y="735">SAR-01</text><text class="phase-value" x="139" y="755">faza 0°</text>
+<rect class="panel-soft" x="303" y="704" width="205" height="70" rx="14"/>
+<circle class="sar" cx="331" cy="739" r="16"/><text class="node-number" x="331" y="739" style="font-size:10px">02</text>
+<text class="phase-name" x="358" y="735">SAR-02</text><text class="phase-value" x="358" y="755">faza 90°</text>
+<rect class="panel-soft" x="522" y="704" width="205" height="70" rx="14"/>
+<circle class="sar" cx="550" cy="739" r="16"/><text class="node-number" x="550" y="739" style="font-size:10px">03</text>
+<text class="phase-name" x="577" y="735">SAR-03</text><text class="phase-value" x="577" y="755">faza 180°</text>
+<rect class="panel-soft" x="741" y="704" width="223" height="70" rx="14"/>
+<circle class="sar" cx="769" cy="739" r="16"/><text class="node-number" x="769" y="739" style="font-size:10px">04</text>
+<text class="phase-name" x="796" y="735">SAR-04</text><text class="phase-value" x="796" y="755">faza 270°</text>
+
+<!-- EO -->
+<rect class="panel" x="1016" y="164" width="530" height="640" rx="24" fill="url(#panelGlow)"/>
+<rect class="badge-eo" x="1046" y="192" width="52" height="28" rx="14"/>
+<text class="badge-text-eo" x="1072" y="211">EO</text>
+<text class="h2" x="1114" y="214">2 sloty · separacja 180°</text>
+<text class="body" x="1046" y="246">Jednostki pozostają po przeciwnych stronach orbity.</text>
+<rect class="panel-soft" x="1046" y="268" width="104" height="38" rx="10"/>
+<text class="metric" x="1064" y="292">620 km</text>
+<rect class="panel-soft" x="1160" y="268" width="108" height="38" rx="10"/>
+<text class="metric" x="1178" y="292">i = 97,9°</text>
+
+<ellipse class="orbit-soft" cx="1281" cy="478" rx="125" ry="184"/>
+<ellipse class="orbit-eo" cx="1281" cy="478" rx="153" ry="214"/>
+<path d="M1372 308 C1413 351 1432 409 1428 470" fill="none" stroke="#50a9ff" stroke-width="3" marker-end="url(#arrowEo)"/>
+<circle cx="1281" cy="478" r="79" fill="#162d49" stroke="#4f7ba2" stroke-width="3"/>
+<circle cx="1281" cy="478" r="61" fill="url(#earth)"/>
+<circle class="eo" cx="1281" cy="264" r="25"/><text class="node-number" x="1281" y="264">01</text>
+<circle class="eo" cx="1281" cy="692" r="25"/><text class="node-number" x="1281" y="692">02</text>
+
+<rect class="panel-soft" x="1046" y="720" width="220" height="56" rx="14"/>
+<circle class="eo" cx="1074" cy="748" r="15"/><text class="node-number" x="1074" y="748" style="font-size:10px">01</text>
+<text class="phase-name" x="1100" y="745">EO-01</text><text class="phase-value" x="1170" y="745">faza 0°</text>
+<rect class="panel-soft" x="1280" y="720" width="236" height="56" rx="14"/>
+<circle class="eo" cx="1308" cy="748" r="15"/><text class="node-number" x="1308" y="748" style="font-size:10px">02</text>
+<text class="phase-name" x="1334" y="745">EO-02</text><text class="phase-value" x="1404" y="745">faza 180°</text>
+
+<!-- explanatory footer -->
+<rect class="panel" x="54" y="826" width="1492" height="104" rx="20"/>
+<circle cx="94" cy="878" r="18" fill="#15372f" stroke="#2d705b" stroke-width="1.5"/>
+<text x="94" y="884" text-anchor="middle" fill="#4de0aa" font="700 18px Arial, sans-serif">i</text>
+<text class="note-title" x="126" y="864">Model scenariusza ≠ bieżąca pozycja satelity</text>
+<text class="note-body" x="126" y="889">Fazowanie równomiernie rozkłada okazje w środowisku testowym i zwiększa wybór schedulera.</text>
+<text class="note-body" x="126" y="912">Aktualne położenie, RAAN, epoka i pozostałe elementy dynamiczne są wyznaczane z OMM oraz propagacji SGP4.</text>
+</svg>

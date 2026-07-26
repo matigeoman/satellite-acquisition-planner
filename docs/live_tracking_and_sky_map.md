@@ -4,6 +4,9 @@ Moduł **Śledzenie i przeloty** prezentuje pozycje obiektów orbitalnych
 propagowane z publicznych elementów GP/OMM przez SGP4. Nie jest to telemetria
 pokładowa ani potwierdzenie stanu operatora satelity.
 
+Schemat azymutu, elewacji oraz punktów AOS/MAX/LOS znajduje się w dokumencie
+[System satelitarny, parametry i geometria](satellite_system.md#6-mapa-nieba-i-przelot-lokalny).
+
 ## Zakres funkcjonalny
 
 Moduł udostępnia cztery widoki:

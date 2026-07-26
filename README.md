@@ -28,6 +28,7 @@ komercyjnego taskingu ani wykonania akwizycji przez operatora.
 ## Najważniejsze funkcje
 
 - profile 4 satelitów ICEYE i 2 satelitów Pléiades Neo;
+- techniczna strona „System i satelity” z parametrami, fazowaniem i schematami;
 - AOI typu Point, Polygon i Rectangle oraz import/eksport GeoJSON;
 - OMM z CelesTrak, lokalny cache i propagacja SGP4;
 - okna dostępu, ślady naziemne, globus operacyjny i mapa nieba;
@@ -130,6 +131,7 @@ Szczegółowy opis: [`docs/project_structure.md`](docs/project_structure.md).
 - [indeks dokumentacji](docs/index.md),
 - [instrukcja użytkownika](docs/user_guide.md),
 - [model planowania](docs/planning_model.md),
+- [system satelitarny, parametry i geometria](docs/satellite_system.md),
 - [podstawy badawcze wersji 1.3.0](docs/research_foundations.md),
 - [downlink i pamięć dynamiczna](docs/downlink_and_dynamic_memory.md),
 - [bibliografia i repozytoria referencyjne](docs/references.md),

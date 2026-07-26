@@ -1,0 +1,86 @@
+<svg class="satplan-svg" xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Warstwy danych orbitalnych</title>
+<desc id="desc">Schemat rozdzielający nominalny profil misji, dynamiczne elementy OMM i propagację SGP4.</desc>
+
+<style>
+  .satplan-svg .bg { fill:#070b12; }
+  .satplan-svg .panel { fill:#101a2b; stroke:#2a3c56; stroke-width:2; }
+  .satplan-svg .panel2 { fill:#0d1625; stroke:#22334c; stroke-width:2; }
+  .satplan-svg .title { fill:#f8fafc; font:700 40px Arial, sans-serif; }
+  .satplan-svg .subtitle { fill:#9baabd; font:400 22px Arial, sans-serif; }
+  .satplan-svg .h2 { fill:#f8fafc; font:700 28px Arial, sans-serif; }
+  .satplan-svg .label { fill:#dbe6f4; font:600 20px Arial, sans-serif; }
+  .satplan-svg .small { fill:#9baabd; font:400 17px Arial, sans-serif; }
+  .satplan-svg .tiny { fill:#8292a8; font:400 15px Arial, sans-serif; }
+  .satplan-svg .sar { fill:#ff636a; stroke:#ff8c91; stroke-width:2; }
+  .satplan-svg .eo { fill:#50a9ff; stroke:#8bc8ff; stroke-width:2; }
+  .satplan-svg .accent { fill:#ff4b55; }
+  .satplan-svg .good { fill:#34d399; }
+  .satplan-svg .warn { fill:#f59e0b; }
+  .satplan-svg .line { stroke:#91a4bd; stroke-width:3; fill:none; }
+  .satplan-svg .line2 { stroke:#536982; stroke-width:2; fill:none; }
+  .satplan-svg .dash { stroke-dasharray:10 10; }
+  .satplan-svg .orbit { stroke:#627a98; stroke-width:3; fill:none; }
+  .satplan-svg .orbit-soft { stroke:#344a66; stroke-width:2; fill:none; stroke-dasharray:8 10; }
+  .satplan-svg .chip { fill:#18263b; stroke:#314760; stroke-width:1.5; }
+  .satplan-svg .arrow { stroke:#91a4bd; stroke-width:3; fill:none; marker-end:url(#arrow); }
+  .satplan-svg .arrow-sar { stroke:#ff636a; stroke-width:3; fill:none; marker-end:url(#arrowSar); }
+  .satplan-svg .arrow-eo { stroke:#50a9ff; stroke-width:3; fill:none; marker-end:url(#arrowEo); }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#91a4bd"/></marker>
+  <marker id="arrowSar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#ff636a"/></marker>
+  <marker id="arrowEo" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#50a9ff"/></marker>
+  <radialGradient id="earth" cx="40%" cy="35%"><stop offset="0%" stop-color="#2f6fa9"/><stop offset="75%" stop-color="#173c63"/><stop offset="100%" stop-color="#0d253f"/></radialGradient>
+  <linearGradient id="spaceGlow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#182a45"/><stop offset="1" stop-color="#0a111d"/></linearGradient>
+</defs>
+
+<rect class="bg" width="1600" height="900" rx="28"/>
+<text class="title" x="70" y="78">Skąd planner zna orbitę satelity?</text>
+<text class="subtitle" x="70" y="116">Profil nominalny opisuje misję; OMM i SGP4 wyznaczają aktualny stan geometryczny</text>
+
+<rect class="panel" x="65" y="180" width="385" height="500" rx="24"/>
+<text class="h2" x="105" y="235">1. Profil nominalny</text>
+<rect class="chip" x="105" y="275" width="305" height="310" rx="18"/>
+<text class="label" x="135" y="320">Stałe założenia</text>
+<text class="small" x="135" y="360">• typ orbity: LEO / SSO</text>
+<text class="small" x="135" y="396">• wysokość nominalna</text>
+<text class="small" x="135" y="432">• inklinacja nominalna</text>
+<text class="small" x="135" y="468">• tryby i geometria sensora</text>
+<text class="small" x="135" y="504">• limity off-nadir</text>
+<text class="small" x="135" y="540">• wpływ chmur i światła</text>
+<text class="tiny" x="105" y="625">Kod: app/catalogs/iceye.py</text>
+<text class="tiny" x="105" y="650">Kod: app/catalogs/pleiades_neo.py</text>
+
+<path class="arrow" d="M465 430 L590 430"/>
+
+<rect class="panel" x="605" y="180" width="385" height="500" rx="24"/>
+<text class="h2" x="645" y="235">2. Aktualne OMM</text>
+<rect class="chip" x="645" y="275" width="305" height="310" rx="18"/>
+<text class="label" x="675" y="320">Elementy każdej jednostki</text>
+<text class="small" x="675" y="360">• epoka UTC</text>
+<text class="small" x="675" y="396">• inklinacja</text>
+<text class="small" x="675" y="432">• RAAN</text>
+<text class="small" x="675" y="468">• mimośród</text>
+<text class="small" x="675" y="504">• argument perygeum</text>
+<text class="small" x="675" y="540">• anomalia i ruch średni</text>
+<text class="tiny" x="645" y="625">Źródło: CelesTrak GP/OMM</text>
+<text class="tiny" x="645" y="650">Cache lokalny umożliwia pracę offline</text>
+
+<path class="arrow" d="M1005 430 L1130 430"/>
+
+<rect class="panel" x="1145" y="180" width="390" height="500" rx="24"/>
+<text class="h2" x="1185" y="235">3. Propagacja SGP4</text>
+<circle cx="1340" cy="390" r="88" fill="url(#earth)" stroke="#5686b0" stroke-width="3"/>
+<ellipse class="orbit" cx="1340" cy="390" rx="155" ry="110" transform="rotate(-20 1340 390)"/>
+<circle class="eo" cx="1460" cy="318" r="18"/>
+<path class="arrow-eo" d="M1420 300 C1445 300,1460 302,1470 315"/>
+<text class="small" x="1195" y="555">Wynik w dowolnym czasie:</text>
+<text class="small" x="1195" y="590">• pozycja i prędkość</text>
+<text class="small" x="1195" y="625">• szerokość, długość, wysokość</text>
+<text class="small" x="1195" y="660">• ground track i przeloty</text>
+
+<rect class="panel2" x="160" y="730" width="1280" height="115" rx="22"/>
+<text class="label" x="205" y="775">Te same stany SGP4 zasilają:</text>
+<text class="small" x="205" y="813">mapę orbit  ·  mapę nieba  ·  AOS/MAX/LOS  ·  okna dostępu  ·  okazje akwizycyjne  ·  harmonogram</text>
+</svg>

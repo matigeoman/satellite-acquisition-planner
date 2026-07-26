@@ -7,6 +7,8 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Dokumentacja
 
+- dodano kompletny opis profili satelitów, fazowania, geometrii akwizycji i przepływu OMM/SGP4;
+- dodano pięć spójnych diagramów SVG używanych równocześnie w dokumentacji i aplikacji;
 - poprawiono renderowanie wzorów LaTeX w dokumentacji Markdown przez użycie
   przenośnych delimiterów `$$`;
 - dodano test regresyjny wykrywający nieobsługiwane delimitery i niezbilansowane
@@ -14,6 +16,11 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Interfejs i UX
 
+- ujednolicono typ danych w tabeli parametrów sensorów, eliminując ostrzeżenie serializacji Apache Arrow dla kolumny minimalnej elewacji Słońca;
+- przebudowano wizualizację fazowania: dodano responsywny komponent HTML/SVG, animację zachowującą separację 90°/180°, pauzę, wybór prędkości, hover, obsługę klawiatury i tryb ograniczonego ruchu;
+- usunięto kolizje etykiet z orbitami oraz przeniesiono identyfikatory i fazy do osobnych kart;
+- odświeżono statyczny diagram fazowania używany w dokumentacji GitHub;
+- dodano stronę **System i satelity** z tabelami generowanymi bezpośrednio z katalogów publicznych i scenariusza `POLAND_DEMO`;
 - dodano wspólny nagłówek dla wszystkich modułów Streamlit;
 - ujednolicono nagłówki paneli konfiguracyjnych w sidebarze;
 - dodano globalny motyw Plotly i wspólną paletę wykresów;
@@ -76,6 +83,8 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Dokumentacja
 
+- dodano kompletny opis profili satelitów, fazowania, geometrii akwizycji i przepływu OMM/SGP4;
+- dodano pięć spójnych diagramów SVG używanych równocześnie w dokumentacji i aplikacji;
 - dodano mapowanie metod na konkretne publikacje i repozytoria referencyjne;
 - rozdzielono adaptacje naukowe, elementy autorskie i przyszłe kierunki;
 - rozszerzono bibliografię oraz opis metodyki eksperymentalnej;
