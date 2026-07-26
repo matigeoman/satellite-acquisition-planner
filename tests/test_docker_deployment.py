@@ -48,7 +48,8 @@ def test_windows_launchers_and_docker_workflow_are_present() -> None:
     assert "docker inspect" in start
     assert "healthy" in start
     assert "--volumes" in stop
-    assert "docker/build-push-action@v6" in workflow
+    assert "docker/setup-buildx-action@v4" in workflow
+    assert "docker/build-push-action@v7" in workflow
     assert "Wait for container health" in workflow
     assert "python -m app.cli health --quiet" in workflow
 
