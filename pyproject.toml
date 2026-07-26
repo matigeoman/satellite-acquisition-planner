@@ -1,6 +1,30 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = [
+    "-ra",
+    "--cov=app",
+    "--cov-branch",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=json:coverage.json",
+    "--cov-fail-under=60",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+omit = [
+    "app/ui/pages/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
 
 [tool.ruff]
 target-version = "py311"
@@ -15,11 +39,26 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# Reguły skoncentrowane na błędach wykonania, niezdefiniowanych nazwach
-# i zbędnych importach. Długość wierszy pozostaje obsługiwana przez formatter.
-select = ["E4", "E7", "E9", "F"]
+# Runtime errors plus selected bugbear and stale-noqa checks.
+select = ["E4", "E7", "E9", "F", "B006", "RUF100"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "streamlit_app.py" = ["E402"]
 "app/**/__init__.py" = ["F401"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+include = [
+    "app/integrations/orbits",
+    "app/services/orbit_service.py",
+]
+exclude = [
+    "data",
+    "tests",
+]
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false

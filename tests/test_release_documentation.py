@@ -51,6 +51,8 @@ def test_release_files_and_documentation_index_exist() -> None:
         "docker-compose.yml",
         ".dockerignore",
         ".github/workflows/docker.yml",
+        ".github/dependabot.yml",
+        "scripts/check_coverage.py",
     )
 
     assert all((PROJECT_ROOT / relative).is_file() for relative in required)
@@ -63,7 +65,11 @@ def test_quality_workflow_runs_all_project_checks() -> None:
 
     assert 'python-version: "3.11"' in workflow
     assert "pytest -q" in workflow
+    assert "-m scripts.check_coverage coverage.json" in workflow
+    assert "pyright" in workflow
     assert "ruff check app tests streamlit_app.py scripts" in workflow
+    assert "pip_audit --strict --progress-spinner off" in workflow
+    assert "actions/upload-artifact@v4" in workflow
     assert "python -m app.cli check" in workflow
     assert "python -m app.cli audit --strict" in workflow
     assert (

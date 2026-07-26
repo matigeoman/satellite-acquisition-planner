@@ -21,8 +21,10 @@ wymagany typ sensora oraz — dla zleceń podwójnych — maksymalny odstęp SAR
 
 ## 2. Orbity i dane OMM
 
-Pobierz aktualny snapshot GP/OMM. Aplikacja przypisuje publiczne obiekty do
-czterech pozycji ICEYE i dwóch pozycji Pléiades Neo oraz przechowuje cache.
+Wybierz tryb `PINNED` dla stałych numerów NORAD albo `LIVE` dla dynamicznego
+wyboru rekordów o najnowszej epoce. Następnie pobierz snapshot GP/OMM.
+`PINNED` jest domyślny i zatrzymuje operację, gdy obiektu brakuje lub jego
+nazwa nie zgadza się z konfiguracją slotu. Snapshot zachowuje tryb i piny.
 
 ## 3. Okna dostępu
 

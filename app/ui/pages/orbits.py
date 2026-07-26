@@ -8,7 +8,9 @@ import streamlit as st
 
 from app.integrations.orbits import (
     CelestrakClientError,
+    ConstellationSelectionMode,
     OrbitPropagationError,
+    PinnedSatelliteSelectionError,
     SatelliteFamily,
 )
 from app.ui.app_context import get_public_orbit_service
@@ -88,9 +90,12 @@ def render_orbits_page() -> None:
         badges=("CelesTrak", "OMM/GP", "SGP4", "Cache offline"),
     )
 
+    orbit_service = get_public_orbit_service()
+    selection_modes = list(ConstellationSelectionMode)
+
     with st.container(border=True):
         st.markdown("### Parametry propagacji")
-        controls = st.columns([1.2, 1.2, 1.3, 2.0])
+        controls = st.columns([1.1, 1.1, 1.2, 1.4, 1.8])
         horizon_hours = controls[0].slider(
             "Horyzont śladu [h]",
             min_value=1,
@@ -107,18 +112,39 @@ def render_orbits_page() -> None:
             value=False,
             help="Nie łączy się z CelesTrak. Wymaga wcześniej zapisanych danych.",
         )
-        refresh_clicked = controls[3].button(
+        selection_mode = controls[3].selectbox(
+            "Tryb wyboru",
+            options=selection_modes,
+            index=selection_modes.index(orbit_service.selection_mode),
+            format_func=lambda value: (
+                "PINNED — stałe NORAD"
+                if value is ConstellationSelectionMode.PINNED
+                else "LIVE — aktualne obiekty"
+            ),
+            help=(
+                "PINNED zachowuje stałe przypisania slotów. LIVE wybiera "
+                "najnowsze użyteczne rekordy z bieżącej odpowiedzi CelesTrak."
+            ),
+        )
+        refresh_clicked = controls[4].button(
             "Pobierz lub odśwież OMM",
             type="primary",
             width="stretch",
         )
 
     snapshot = get_public_orbit_snapshot()
-    if snapshot is None or refresh_clicked:
+    if (
+        snapshot is None
+        or refresh_clicked
+        or snapshot.selection_mode is not selection_mode
+    ):
         try:
             with st.spinner("Pobieranie i walidacja danych CelesTrak..."):
-                snapshot = load_public_orbit_snapshot(allow_network=not offline)
-        except CelestrakClientError as error:
+                snapshot = load_public_orbit_snapshot(
+                    allow_network=not offline,
+                    selection_mode=selection_mode,
+                )
+        except (CelestrakClientError, PinnedSatelliteSelectionError) as error:
             st.error(str(error))
             st.stop()
 
@@ -129,11 +155,12 @@ def render_orbits_page() -> None:
         satellite.family == SatelliteFamily.PLEIADES_NEO
         for satellite in snapshot.satellites
     )
-    summary = st.columns(4)
+    summary = st.columns(5)
     summary[0].metric("Satelity łącznie", len(snapshot.satellites))
     summary[1].metric("ICEYE SAR", sar_count)
     summary[2].metric("Pléiades Neo EO", eo_count)
-    summary[3].metric(
+    summary[3].metric("Tryb wyboru", snapshot.selection_mode.value)
+    summary[4].metric(
         "Czas zestawu UTC",
         snapshot.generated_at_utc.strftime("%H:%M:%S"),
     )
@@ -149,7 +176,7 @@ def render_orbits_page() -> None:
     start_utc = datetime.now(timezone.utc).replace(microsecond=0)
     try:
         with st.spinner("Propagacja SGP4 i budowanie śladów naziemnych..."):
-            tracks = get_public_orbit_service().propagate_snapshot(
+            tracks = orbit_service.propagate_snapshot(
                 snapshot,
                 start_utc=start_utc,
                 duration=timedelta(hours=horizon_hours),

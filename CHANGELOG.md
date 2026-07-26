@@ -5,7 +5,25 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ## [Unreleased]
 
-Brak zmian po wydaniu 1.4.0.
+### Dodano
+
+- reprodukowalny tryb `PINNED` z jawnymi numerami NORAD dla sześciu slotów;
+- eksploracyjny tryb `LIVE`, wybierający rekordy ICEYE o najnowszej epoce OMM;
+- zapis trybu wyboru i pinów w snapshotach oraz archiwach projektu;
+- globalny próg coverage i podwyższony próg dla krytycznej warstwy orbitalnej;
+- Pyright, `pip-audit` i cotygodniowy Dependabot dla Python, Dockera i Actions.
+
+### Zmieniono
+
+- zakładka orbitalna jawnie pokazuje i przełącza tryb `PINNED`/`LIVE`;
+- Ruff obejmuje dodatkowe reguły Bugbear oraz wykrywanie nieużywanych `noqa`;
+- workflow jakości publikuje `coverage.json` i anuluje starszy przebieg gałęzi;
+- wymuszono `GitPython >= 3.1.55`, usuwając podatności wykryte przez `pip-audit`.
+
+### Naprawiono
+
+- tryb dynamiczny ICEYE nie traktuje już najwyższego numeru NORAD jako
+  zamiennika najnowszego rekordu orbitalnego.
 
 ## [1.4.0] — 2026-07-26
 

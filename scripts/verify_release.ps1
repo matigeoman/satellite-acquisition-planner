@@ -1,4 +1,4 @@
-param(
+﻿param(
     [switch]$Docker,
     [switch]$NoCache,
     [switch]$KeepContainer
@@ -69,8 +69,17 @@ Invoke-CheckedCommand "Dependency consistency" {
 Invoke-CheckedCommand "Pytest" {
     & $Python -m pytest -q
 }
+Invoke-CheckedCommand "Coverage gates" {
+    & $Python -m scripts.check_coverage .\coverage.json
+}
+Invoke-CheckedCommand "Pyright" {
+    & $Python -m pyright
+}
 Invoke-CheckedCommand "Ruff" {
     & $Python -m ruff check app tests streamlit_app.py scripts
+}
+Invoke-CheckedCommand "Dependency vulnerability audit" {
+    & $Python -m pip_audit --strict --progress-spinner off
 }
 Invoke-CheckedCommand "Scenario check" {
     & $Python -m app.cli check

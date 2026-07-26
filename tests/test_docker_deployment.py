@@ -32,6 +32,8 @@ def test_compose_has_persistent_volumes_configurable_port_and_security() -> None
     assert "no-new-privileges:true" in compose
     assert "healthcheck:" in compose
     assert "restart: unless-stopped" in compose
+    assert "SATPLAN_ORBIT_SELECTION_MODE" in compose
+    assert "${SATPLAN_ORBIT_SELECTION_MODE:-PINNED}" in compose
 
 
 def test_windows_launchers_and_docker_workflow_are_present() -> None:
@@ -65,6 +67,7 @@ def test_release_version_is_consistent_in_container_assets() -> None:
 
 def test_development_tools_are_not_runtime_dependencies() -> None:
     runtime = _read("requirements.txt")
+    ui = _read("requirements-ui.txt")
     development = _read("requirements-dev.txt")
     lock = _read("requirements-lock.txt")
 
@@ -72,5 +75,13 @@ def test_development_tools_are_not_runtime_dependencies() -> None:
     assert "ruff" not in runtime.lower()
     assert "pytest" in development.lower()
     assert "ruff" in development.lower()
+    assert "pytest-cov" in development.lower()
+    assert "pyright" in development.lower()
+    assert "pip-audit" in development.lower()
+    assert "gitpython>=3.1.55,<4" in ui.lower()
     assert "pytest==" in lock.lower()
     assert "ruff==" in lock.lower()
+    assert "pytest-cov==" in lock.lower()
+    assert "pyright==" in lock.lower()
+    assert "pip-audit==" in lock.lower()
+    assert "gitpython==3.1.55" in lock.lower()

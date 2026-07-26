@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import streamlit as st
 
 from app.analysis.experimental_validation import ExperimentalValidationService
@@ -10,7 +12,11 @@ from app.services.disruption_service import DisruptionReplanningService
 from app.services.planning_service import PlanningService
 from app.services.orbit_service import PublicOrbitService
 from app.services.access_service import PublicAccessService
-from app.integrations.orbits import CelestrakClient, CelestrakEopClient
+from app.integrations.orbits import (
+    CelestrakClient,
+    CelestrakEopClient,
+    ConstellationSelectionMode,
+)
 from app.integrations.weather import CloudAssessmentService, OpenMeteoClient
 from app.integrations.opportunities import PublicOpportunityWeatherRefreshService
 from app.services.replanning_service import ReplanningService
@@ -85,6 +91,17 @@ def get_algorithm_benchmark_service() -> AlgorithmBenchmarkService:
     )
 
 
+def _orbit_selection_mode() -> ConstellationSelectionMode:
+    raw = os.getenv("SATPLAN_ORBIT_SELECTION_MODE", "PINNED").strip().upper()
+    try:
+        return ConstellationSelectionMode(raw)
+    except ValueError as error:
+        allowed = ", ".join(mode.value for mode in ConstellationSelectionMode)
+        raise RuntimeError(
+            "SATPLAN_ORBIT_SELECTION_MODE musi mieć jedną z wartości: " + allowed
+        ) from error
+
+
 @st.cache_resource(scope="session", show_spinner=False)
 def get_public_orbit_service() -> PublicOrbitService:
     """Zwraca klienta CelesTrak i propagator SGP4 z cache dyskowym."""
@@ -96,6 +113,7 @@ def get_public_orbit_service() -> PublicOrbitService:
         eop_client=CelestrakEopClient(
             cache_directory=PROJECT_ROOT / "data" / "generated" / "eop"
         ),
+        selection_mode=_orbit_selection_mode(),
     )
 
 
