@@ -20,6 +20,7 @@ from app.projects.service import (
 from app.reporting.models import ScientificReportConfig, ScientificReportSnapshot
 from app.services.contracts import PlanningResult
 from app.services.orbit_service import PublicConstellationSnapshot
+from app.state_contracts import StateReader
 
 
 _STK_ACCESS_STATE_KEY = "stk_access_validation_result"
@@ -365,7 +366,7 @@ def _narrative(
 
 
 def collect_report_snapshot(
-    state: Mapping[str, Any],
+    state: StateReader,
     *,
     config: ScientificReportConfig,
 ) -> ScientificReportSnapshot:

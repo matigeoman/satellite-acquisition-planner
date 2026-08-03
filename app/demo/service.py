@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping, MutableMapping
+from typing import Any, Mapping
 
 from app.integrations.access import AccessCalculationResult
 from app.models.enums import PlanningAlgorithm
@@ -30,6 +30,7 @@ from app.services.contracts import PlanningOptions, PlanningResult
 from app.services.orbit_service import PublicConstellationSnapshot
 from app.services.planning_service import PlanningService
 from app.services.scenario_service import LoadedScenario, ScenarioService
+from app.state_contracts import StateStore
 
 
 DEMO_STATE_KEY = "satplan_demo_active"
@@ -156,7 +157,7 @@ class DemoProjectService:
 
     def apply_to_state(
         self,
-        state: MutableMapping[str, Any],
+        state: StateStore,
         result: DemoProjectResult,
     ) -> None:
         for key in (

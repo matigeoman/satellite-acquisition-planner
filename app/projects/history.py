@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, MutableMapping
+from typing import Any
 
 from app.models.schedule import Schedule
 from app.services.contracts import PlanningResult
+from app.state_contracts import StateStore
 
 
 SCHEDULE_HISTORY_STATE_KEY = "project_schedule_history"
@@ -66,7 +67,7 @@ def build_schedule_history_entry(
 
 
 def record_schedule_history(
-    state: MutableMapping[str, Any],
+    state: StateStore,
     result: PlanningResult,
     *,
     event_type: str,
