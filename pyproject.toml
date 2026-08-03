@@ -74,6 +74,7 @@ include = [
     "app/ui/comparison.py",
     "app/ui/dataframes.py",
     "app/ui/operations.py",
+    "app/ui/components/system_visuals.py",
     "app/reporting/docx_renderer.py",
     "app/services",
     "app/integrations/access",

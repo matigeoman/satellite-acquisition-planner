@@ -6,10 +6,19 @@ from collections.abc import Mapping, Sequence
 from html import escape
 import json
 from textwrap import dedent
-from typing import Any
+from typing import TypedDict
 
 
-_DEFAULT_SLOTS: tuple[dict[str, object], ...] = (
+class ConstellationSlot(TypedDict):
+    slot: str
+    group: str
+    phase_deg: float
+    altitude_km: float
+    inclination_deg: float
+    raan_deg: float
+
+
+_DEFAULT_SLOTS: tuple[Mapping[str, object], ...] = (
     {
         "slot": "SAR-01",
         "group": "SAR",
@@ -61,39 +70,77 @@ _DEFAULT_SLOTS: tuple[dict[str, object], ...] = (
 )
 
 
-def _coalesce(row: Mapping[str, object], *keys: str, default: object = None) -> object:
+def _coalesce(
+    row: Mapping[str, object],
+    *keys: str,
+    default: object = None,
+) -> object:
     for key in keys:
         if key in row and row[key] is not None:
             return row[key]
+
     return default
+
+
+def _as_float(value: object) -> float:
+    if isinstance(value, (int, float, str)):
+        return float(value)
+
+    raise TypeError(
+        "Expected a numeric constellation slot value, "
+        f"received {type(value).__name__}."
+    )
 
 
 def _normalise_slots(
     rows: Sequence[Mapping[str, object]] | None,
-) -> list[dict[str, object]]:
-    source = rows or _DEFAULT_SLOTS
-    normalised: list[dict[str, object]] = []
+) -> list[ConstellationSlot]:
+    source: Sequence[Mapping[str, object]] = (
+        rows or _DEFAULT_SLOTS
+    )
+    normalised: list[ConstellationSlot] = []
 
     for row in source:
-        slot = str(_coalesce(row, "slot", "Slot", "satellite_id", default=""))
+        slot = str(
+            _coalesce(
+                row,
+                "slot",
+                "Slot",
+                "satellite_id",
+                default="",
+            )
+        )
+
         if not slot:
             continue
+
         group = str(
             _coalesce(
                 row,
                 "group",
                 "Grupa",
-                default="SAR" if slot.upper().startswith("SAR") else "EO",
+                default=(
+                    "SAR"
+                    if slot.upper().startswith("SAR")
+                    else "EO"
+                ),
             )
         ).upper()
+
         normalised.append(
             {
                 "slot": slot,
                 "group": group,
-                "phase_deg": float(
-                    _coalesce(row, "phase_deg", "Faza [°]", "phase_angle_deg", default=0.0)
+                "phase_deg": _as_float(
+                    _coalesce(
+                        row,
+                        "phase_deg",
+                        "Faza [°]",
+                        "phase_angle_deg",
+                        default=0.0,
+                    )
                 ),
-                "altitude_km": float(
+                "altitude_km": _as_float(
                     _coalesce(
                         row,
                         "altitude_km",
@@ -101,7 +148,7 @@ def _normalise_slots(
                         default=0.0,
                     )
                 ),
-                "inclination_deg": float(
+                "inclination_deg": _as_float(
                     _coalesce(
                         row,
                         "inclination_deg",
@@ -109,7 +156,7 @@ def _normalise_slots(
                         default=0.0,
                     )
                 ),
-                "raan_deg": float(
+                "raan_deg": _as_float(
                     _coalesce(
                         row,
                         "raan_deg",
@@ -120,17 +167,31 @@ def _normalise_slots(
             }
         )
 
-    return sorted(normalised, key=lambda item: (str(item["group"]), float(item["phase_deg"])))
+    return sorted(
+        normalised,
+        key=lambda item: (
+            item["group"],
+            item["phase_deg"],
+        ),
+    )
 
 
-def _phase_cards(slots: Sequence[Mapping[str, object]], group: str) -> str:
+def _phase_cards(
+    slots: Sequence[ConstellationSlot],
+    group: str,
+) -> str:
     cards: list[str] = []
+
     for slot in slots:
-        if str(slot["group"]) != group:
+        if slot["group"] != group:
             continue
-        slot_name = escape(str(slot["slot"]))
-        phase = float(slot["phase_deg"])
-        short_id = escape(slot_name.split("-")[-1])
+
+        slot_name = escape(slot["slot"])
+        phase = slot["phase_deg"]
+        short_id = escape(
+            slot_name.split("-")[-1]
+        )
+
         cards.append(
             f"""
             <button class="phase-card {group.lower()}" type="button"
@@ -140,20 +201,29 @@ def _phase_cards(slots: Sequence[Mapping[str, object]], group: str) -> str:
             </button>
             """
         )
+
     return "".join(cards)
 
 
-def _satellite_nodes(slots: Sequence[Mapping[str, object]], group: str) -> str:
+def _satellite_nodes(
+    slots: Sequence[ConstellationSlot],
+    group: str,
+) -> str:
     nodes: list[str] = []
+
     for slot in slots:
-        if str(slot["group"]) != group:
+        if slot["group"] != group:
             continue
-        slot_name = escape(str(slot["slot"]))
-        short_id = escape(slot_name.split("-")[-1])
-        phase = float(slot["phase_deg"])
-        altitude = float(slot["altitude_km"])
-        inclination = float(slot["inclination_deg"])
-        raan = float(slot["raan_deg"])
+
+        slot_name = escape(slot["slot"])
+        short_id = escape(
+            slot_name.split("-")[-1]
+        )
+        phase = slot["phase_deg"]
+        altitude = slot["altitude_km"]
+        inclination = slot["inclination_deg"]
+        raan = slot["raan_deg"]
+
         nodes.append(
             f"""
             <g class="sat-node {group.lower()}" data-satellite="{slot_name}"
@@ -168,6 +238,7 @@ def _satellite_nodes(slots: Sequence[Mapping[str, object]], group: str) -> str:
             </g>
             """
         )
+
     return "".join(nodes)
 
 
@@ -181,10 +252,26 @@ def build_constellation_phasing_html(
 
     sar_slots = [slot for slot in slots if slot["group"] == "SAR"]
     eo_slots = [slot for slot in slots if slot["group"] == "EO"]
-    sar_altitude = float(sar_slots[0]["altitude_km"]) if sar_slots else 0.0
-    sar_inclination = float(sar_slots[0]["inclination_deg"]) if sar_slots else 0.0
-    eo_altitude = float(eo_slots[0]["altitude_km"]) if eo_slots else 0.0
-    eo_inclination = float(eo_slots[0]["inclination_deg"]) if eo_slots else 0.0
+    sar_altitude = (
+        sar_slots[0]["altitude_km"]
+        if sar_slots
+        else 0.0
+    )
+    sar_inclination = (
+        sar_slots[0]["inclination_deg"]
+        if sar_slots
+        else 0.0
+    )
+    eo_altitude = (
+        eo_slots[0]["altitude_km"]
+        if eo_slots
+        else 0.0
+    )
+    eo_inclination = (
+        eo_slots[0]["inclination_deg"]
+        if eo_slots
+        else 0.0
+    )
 
     return dedent(
         f"""
@@ -661,7 +748,7 @@ def build_constellation_phasing_html(
 
 
 def render_constellation_phasing_visual(
-    rows: Sequence[Mapping[str, Any]] | None = None,
+    rows: Sequence[Mapping[str, object]] | None = None,
     *,
     height: int = 900,
 ) -> None:
