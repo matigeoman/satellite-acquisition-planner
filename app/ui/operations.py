@@ -196,7 +196,12 @@ def build_replanning_changes_dataframe(
                 }
             )
 
-    return pd.DataFrame(rows, columns=REPLANNING_CHANGE_COLUMNS)
+    return pd.DataFrame(
+        rows,
+        columns=pd.Index(
+            REPLANNING_CHANGE_COLUMNS
+        ),
+    )
 
 
 def build_disruption_metrics(
@@ -275,7 +280,12 @@ def build_disruption_events_dataframe(
             }
         )
 
-    return pd.DataFrame(rows, columns=DISRUPTION_EVENT_COLUMNS)
+    return pd.DataFrame(
+        rows,
+        columns=pd.Index(
+            DISRUPTION_EVENT_COLUMNS
+        ),
+    )
 
 
 def build_disruption_changes_dataframe(
@@ -288,14 +298,24 @@ def build_experiment_summary_dataframe(
     result: ExperimentalValidationResult,
 ) -> pd.DataFrame:
     rows = [asdict(record) for record in result.summary_records]
-    return pd.DataFrame(rows, columns=EXPERIMENT_SUMMARY_COLUMNS)
+    return pd.DataFrame(
+        rows,
+        columns=pd.Index(
+            EXPERIMENT_SUMMARY_COLUMNS
+        ),
+    )
 
 
 def build_experiment_pairs_dataframe(
     result: ExperimentalValidationResult,
 ) -> pd.DataFrame:
     rows = [asdict(record) for record in result.pair_records]
-    return pd.DataFrame(rows, columns=EXPERIMENT_PAIR_COLUMNS)
+    return pd.DataFrame(
+        rows,
+        columns=pd.Index(
+            EXPERIMENT_PAIR_COLUMNS
+        ),
+    )
 
 
 def build_experiment_runs_dataframe(
@@ -326,6 +346,11 @@ def build_experiment_profile_dataframe(
             comparison_count=("objective_difference", "size"),
         )
     )
+
+    if not isinstance(improvement, pd.DataFrame):
+        raise TypeError(
+            "Expected experiment improvement data to be a DataFrame."
+        )
 
     pivot = summary.pivot(
         index=["profile_id", "profile_name"],
@@ -424,7 +449,15 @@ def build_experiment_improvement_figure(
             "objective_improvement_pct"
         ]
         .mean()
-        .sort_values("profile_id")
+    )
+
+    if not isinstance(averages, pd.DataFrame):
+        raise TypeError(
+            "Expected experiment averages to be a DataFrame."
+        )
+
+    averages = averages.sort_values(
+        by="profile_id"
     )
 
     figure = px.bar(
@@ -436,7 +469,10 @@ def build_experiment_improvement_figure(
             "objective_improvement_pct": "Poprawa CP-SAT [%]",
         },
         title="Średnia przewaga CP-SAT nad Greedy",
-        text_auto=".2f",
+        text="objective_improvement_pct",
+    )
+    figure.update_traces(
+        texttemplate="%{text:.2f}"
     )
     return figure
 
