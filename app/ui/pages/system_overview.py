@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import TypedDict
 import pandas as pd
 import streamlit as st
 
@@ -85,7 +86,12 @@ def _mode_table(profile: PublicMissionProfile) -> pd.DataFrame:
     return pd.DataFrame(profile.mode_rows())
 
 
-def _load_demo_system() -> dict[str, object] | None:
+class _DemoSystem(TypedDict):
+    orbits: list[dict[str, object]]
+    satellites: list[dict[str, object]]
+
+
+def _load_demo_system() -> _DemoSystem | None:
     if not _DEMO_SYSTEM_PATH.is_file():
         return None
     return json.loads(_DEMO_SYSTEM_PATH.read_text(encoding="utf-8"))
