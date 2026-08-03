@@ -12,7 +12,7 @@ streamlit-folium==0.27.3
 python-docx==1.2.0
 XlsxWriter==3.2.9
 pytest==9.1.1
-ruff==0.12.12
+ruff==0.16.1
 shapely==2.1.2
 pyproj==3.7.2
 pytest-cov==7.1.0
