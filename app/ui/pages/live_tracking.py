@@ -603,18 +603,26 @@ def _render_live_fragment(
                 hide_index=True,
                 height=520,
             )
-            st.download_button(
-                "Pobierz predykcję przelotów JSON",
-                data=pd.Series([item.to_dict() for item in filtered_passes]).to_json(
-                    force_ascii=False,
-                    orient="values",
-                    date_format="iso",
-                    indent=2,
-                ),
-                file_name="satplan-pass-predictions.json",
-                mime="application/json",
-                width="stretch",
+            predictions_json = pd.Series(
+                [item.to_dict() for item in filtered_passes]
+            ).to_json(
+                force_ascii=False,
+                orient="values",
+                date_format="iso",
+                indent=2,
             )
+            if predictions_json is None:
+                st.error(
+                    "Nie udało się wygenerować predykcji w formacie JSON."
+                )
+            else:
+                st.download_button(
+                    "Pobierz predykcję przelotów JSON",
+                    data=predictions_json,
+                    file_name="satplan-pass-predictions.json",
+                    mime="application/json",
+                    width="stretch",
+                )
 
     with context_tab:
         context = _operational_context_dataframe(

@@ -220,6 +220,10 @@ def _request_form(geometry: TargetGeometry | None) -> ObservationRequest | None:
     if not submitted:
         return None
 
+    if geometry is None:
+        st.error("Najpierw zdefiniuj geometrię obszaru zainteresowania.")
+        return None
+
     earliest = datetime.combine(
         earliest_date,
         earliest_time if isinstance(earliest_time, time) else time(0, 0),
