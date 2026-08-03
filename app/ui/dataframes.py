@@ -129,12 +129,18 @@ def build_percentage_display_dataframe(
     display_dataframe = dataframe.copy()
 
     for column in ratio_columns:
-        display_dataframe[column] = (
-            pd.to_numeric(
-                display_dataframe[column],
-                errors="coerce",
+        numeric_values = pd.to_numeric(
+            display_dataframe[column],
+            errors="coerce",
+        )
+
+        if not isinstance(numeric_values, pd.Series):
+            raise TypeError(
+                "Expected a pandas Series after numeric conversion."
             )
-            * 100.0
+
+        display_dataframe[column] = (
+            numeric_values * 100.0
         )
 
     return display_dataframe
@@ -211,7 +217,9 @@ def build_schedule_entries_dataframe(
 
     dataframe = pd.DataFrame(
         rows,
-        columns=SCHEDULE_ENTRY_COLUMNS,
+        columns=pd.Index(
+            SCHEDULE_ENTRY_COLUMNS
+        ),
     )
 
     if dataframe.empty:
@@ -266,7 +274,12 @@ def build_downlink_entries_dataframe(
         }
         for entry in result.schedule.downlink_entries
     ]
-    return pd.DataFrame(rows, columns=DOWNLINK_ENTRY_COLUMNS)
+    return pd.DataFrame(
+        rows,
+        columns=pd.Index(
+            DOWNLINK_ENTRY_COLUMNS
+        ),
+    )
 
 
 def build_memory_timeline_dataframe(
@@ -294,7 +307,12 @@ def build_memory_timeline_dataframe(
         }
         for point in result.schedule.memory_timeline
     ]
-    return pd.DataFrame(rows, columns=MEMORY_TIMELINE_COLUMNS)
+    return pd.DataFrame(
+        rows,
+        columns=pd.Index(
+            MEMORY_TIMELINE_COLUMNS
+        ),
+    )
 
 
 def build_request_status_dataframe(
@@ -404,7 +422,9 @@ def build_request_status_dataframe(
 
     return pd.DataFrame(
         rows,
-        columns=REQUEST_STATUS_COLUMNS,
+        columns=pd.Index(
+            REQUEST_STATUS_COLUMNS
+        ),
     )
 
 
@@ -609,7 +629,9 @@ def build_satellite_usage_dataframe(
 
     return pd.DataFrame(
         rows,
-        columns=SATELLITE_USAGE_COLUMNS,
+        columns=pd.Index(
+            SATELLITE_USAGE_COLUMNS
+        ),
     )
 
 
