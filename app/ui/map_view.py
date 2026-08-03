@@ -129,7 +129,7 @@ def build_request_map_dataframe(
 
     return pd.DataFrame(
         rows,
-        columns=MAP_COLUMNS,
+        columns=pd.Index(MAP_COLUMNS),
     )
 
 
@@ -160,7 +160,7 @@ def build_request_map_figure(
 
         dataframe = dataframe.loc[
             dataframe["fulfillment_status"].isin(
-                selected_statuses
+                tuple(selected_statuses)
             )
         ]
 
@@ -172,7 +172,7 @@ def build_request_map_figure(
 
         dataframe = dataframe.loc[
             dataframe["geometry_type"].isin(
-                selected_geometry_types
+                tuple(selected_geometry_types)
             )
         ]
 

@@ -68,6 +68,8 @@ include = [
     "app/ui/pages/reports.py",
     "app/ui/pages/live_tracking.py",
     "app/ui/pages/targets.py",
+    "app/ui/gantt.py",
+    "app/ui/map_view.py",
     "app/services",
     "app/integrations/access",
     "app/integrations/orbits",
