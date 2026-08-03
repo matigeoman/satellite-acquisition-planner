@@ -4,7 +4,7 @@ pydantic==2.13.4
 ortools==9.15.6755
 matplotlib==3.11.1
 sgp4==2.27
-pandas==2.3.3
+pandas==3.0.5
 plotly==6.9.0
 streamlit==1.60.0
 folium==0.20.0
