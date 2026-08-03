@@ -118,7 +118,7 @@ def build_gantt_dataframe(
 
     dataframe = pd.DataFrame(
         rows,
-        columns=GANTT_COLUMNS,
+        columns=pd.Index(GANTT_COLUMNS),
     )
 
     if dataframe.empty:
@@ -184,14 +184,14 @@ def build_gantt_figure(
     if selected_satellites is not None:
         dataframe = dataframe.loc[
             dataframe["satellite_id"].isin(
-                selected_satellites
+                tuple(selected_satellites)
             )
         ]
 
     if selected_sensor_types is not None:
         dataframe = dataframe.loc[
             dataframe["sensor_type"].isin(
-                selected_sensor_types
+                tuple(selected_sensor_types)
             )
         ]
 
