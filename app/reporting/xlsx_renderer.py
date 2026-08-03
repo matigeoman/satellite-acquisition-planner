@@ -77,26 +77,26 @@ def render_xlsx(snapshot: ScientificReportSnapshot) -> bytes:
 
     overview = workbook.add_worksheet("Podsumowanie")
     overview.hide_gridlines(2)
-    overview.write("A1", snapshot.title, title)
-    overview.write("A2", snapshot.project_name, subtitle)
-    overview.write("A4", "ID projektu", metric_label)
-    overview.write("B4", snapshot.project_id, metric_value)
-    overview.write("A5", "Autor", metric_label)
-    overview.write("B5", snapshot.author or "nie podano", metric_value)
-    overview.write("A6", "Instytucja", metric_label)
-    overview.write("B6", snapshot.institution or "nie podano", metric_value)
-    overview.write("A7", "Wygenerowano UTC", metric_label)
-    overview.write("B7", snapshot.generated_at_utc.isoformat(), metric_value)
-    overview.write("A9", "Metryka", header)
-    overview.write("B9", "Wartość", header)
-    overview.write("C9", "Jednostka", header)
+    overview.write(0, 0, snapshot.title, title)
+    overview.write(1, 0, snapshot.project_name, subtitle)
+    overview.write(3, 0, "ID projektu", metric_label)
+    overview.write(3, 1, snapshot.project_id, metric_value)
+    overview.write(4, 0, "Autor", metric_label)
+    overview.write(4, 1, snapshot.author or "nie podano", metric_value)
+    overview.write(5, 0, "Instytucja", metric_label)
+    overview.write(5, 1, snapshot.institution or "nie podano", metric_value)
+    overview.write(6, 0, "Wygenerowano UTC", metric_label)
+    overview.write(6, 1, snapshot.generated_at_utc.isoformat(), metric_value)
+    overview.write(8, 0, "Metryka", header)
+    overview.write(8, 1, "Wartość", header)
+    overview.write(8, 2, "Jednostka", header)
     for index, item in enumerate(snapshot.overview_metrics, start=10):
         overview.write(index - 1, 0, item["metric"], metric_label)
         overview.write(index - 1, 1, item["value"], metric_value)
         overview.write(index - 1, 2, item.get("unit", ""), metric_value)
-    overview.set_column("A:A", 34)
-    overview.set_column("B:B", 24)
-    overview.set_column("C:C", 12)
+    overview.set_column(0, 0, 34)
+    overview.set_column(1, 1, 24)
+    overview.set_column(2, 2, 12)
 
     for key, rows in snapshot.table_map().items():
         worksheet = workbook.add_worksheet(_SHEET_NAMES[key])
@@ -104,11 +104,21 @@ def render_xlsx(snapshot: ScientificReportSnapshot) -> bytes:
 
     if snapshot.benchmark_summary_rows:
         sheet = workbook.get_worksheet_by_name("Benchmark_summary")
+        if sheet is None:
+            raise RuntimeError(
+                "Benchmark summary worksheet was not created."
+            )
+
         columns = list(snapshot.benchmark_summary_rows[0])
         if "request_count" in columns and "objective_mean" in columns:
             request_col = columns.index("request_count")
             objective_col = columns.index("objective_mean")
             chart = workbook.add_chart({"type": "line"})
+            if chart is None:
+                raise RuntimeError(
+                    "Benchmark chart could not be created."
+                )
+
             chart.add_series(
                 {
                     "name": "Średnia funkcja celu",
@@ -132,7 +142,15 @@ def render_xlsx(snapshot: ScientificReportSnapshot) -> bytes:
             chart.set_title({"name": "Funkcja celu w benchmarku"})
             chart.set_x_axis({"name": "Liczba zleceń"})
             chart.set_y_axis({"name": "Wartość celu"})
-            sheet.insert_chart("Q2", chart, {"x_scale": 1.25, "y_scale": 1.1})
+            sheet.insert_chart(
+                1,
+                16,
+                chart,
+                {
+                    "x_scale": 1.25,
+                    "y_scale": 1.1,
+                },
+            )
 
     workbook.close()
     return buffer.getvalue()

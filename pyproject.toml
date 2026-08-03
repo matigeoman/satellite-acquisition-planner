@@ -77,6 +77,7 @@ include = [
     "app/ui/components/system_visuals.py",
     "app/ui/benchmark_view.py",
     "app/reporting/docx_renderer.py",
+    "app/reporting/xlsx_renderer.py",
     "app/services",
     "app/integrations/access",
     "app/integrations/orbits",
