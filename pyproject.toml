@@ -66,6 +66,8 @@ include = [
     "app/ui/pages/public_planning.py",
     "app/ui/pages/public_replanning.py",
     "app/ui/pages/reports.py",
+    "app/ui/pages/live_tracking.py",
+    "app/ui/pages/targets.py",
     "app/services",
     "app/integrations/access",
     "app/integrations/orbits",
