@@ -163,7 +163,9 @@ def build_comparison_summary_dataframe(
 
     return pd.DataFrame(
         rows,
-        columns=COMPARISON_SUMMARY_COLUMNS,
+        columns=pd.Index(
+            COMPARISON_SUMMARY_COLUMNS
+        ),
     )
 
 
@@ -302,7 +304,9 @@ def build_request_comparison_dataframe(
 
     return pd.DataFrame(
         rows,
-        columns=REQUEST_COMPARISON_COLUMNS,
+        columns=pd.Index(
+            REQUEST_COMPARISON_COLUMNS
+        ),
     )
 
 
@@ -378,7 +382,7 @@ def build_request_counts_comparison_figure(
 
     long_dataframe["metric"] = (
         long_dataframe["metric"].map(
-            labels
+            lambda metric: labels[str(metric)]
         )
     )
 
