@@ -216,6 +216,9 @@ def _render_import() -> None:
         disabled=uploaded is None,
         width="stretch",
     ):
+        if uploaded is None:
+            st.error("Nie wybrano archiwum projektu.")
+            return
         try:
             preview = service.preview_archive(uploaded.getvalue())
         except Exception as error:

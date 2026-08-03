@@ -6,7 +6,7 @@ import json
 import re
 import zipfile
 from dataclasses import asdict
-from typing import Any, Mapping
+from typing import Any
 
 from app.projects.codec import jsonable
 from app.reporting.collector import collect_report_snapshot
@@ -19,6 +19,7 @@ from app.reporting.models import (
     ScientificReportSnapshot,
 )
 from app.reporting.xlsx_renderer import render_xlsx
+from app.state_contracts import StateReader
 
 
 def _safe_name(value: str) -> str:
@@ -55,7 +56,7 @@ class ScientificReportService:
 
     def build(
         self,
-        state: Mapping[str, Any],
+        state: StateReader,
         *,
         config: ScientificReportConfig,
     ) -> ScientificReportPackage:

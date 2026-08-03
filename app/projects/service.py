@@ -6,7 +6,7 @@ import json
 import re
 import zipfile
 from datetime import datetime, timezone
-from typing import Any, Mapping, MutableMapping
+from typing import Any, Mapping
 
 from app.analysis.algorithm_benchmark import AlgorithmBenchmarkResult
 from app.integrations.access import AccessCalculationResult
@@ -15,6 +15,7 @@ from app.models.request import ObservationRequest
 from app.models.schedule import Schedule
 from app.services.contracts import PlanningResult, PublicReplanningResult
 from app.services.orbit_service import PublicConstellationSnapshot
+from app.state_contracts import StateReader, StateStore
 from app.projects.codec import (
     decode_access_result,
     decode_aoi,
@@ -111,7 +112,7 @@ def _archive_filename(name: str) -> str:
     return f"{normalized or 'projekt-satplan'}.satplan.zip"
 
 
-def _component_counts(state: Mapping[str, Any]) -> dict[str, int]:
+def _component_counts(state: StateReader) -> dict[str, int]:
     requests = state.get(CUSTOM_REQUESTS_STATE_KEY, ())
     builds = state.get(OPPORTUNITY_BUILDS_STATE_KEY, {})
     planning = state.get(PLANNING_RESULT_STATE_KEY)
@@ -155,7 +156,7 @@ def _component_counts(state: Mapping[str, Any]) -> dict[str, int]:
     }
 
 
-def _current_schedule_history(state: Mapping[str, Any]) -> list[dict[str, Any]]:
+def _current_schedule_history(state: StateReader) -> list[dict[str, Any]]:
     history = [dict(item) for item in state.get(SCHEDULE_HISTORY_STATE_KEY, ())]
     planning = state.get(PLANNING_RESULT_STATE_KEY)
     if isinstance(planning, PlanningResult):
@@ -178,7 +179,7 @@ class ProjectArchiveService:
 
     def export_project(
         self,
-        state: Mapping[str, Any],
+        state: StateReader,
         *,
         project_name: str,
         description: str = "",
@@ -537,7 +538,7 @@ class ProjectArchiveService:
 
     def apply_preview(
         self,
-        state: MutableMapping[str, Any],
+        state: StateStore,
         preview: ProjectArchivePreview,
     ) -> None:
         """Podmienia stan dopiero po pełnej walidacji archiwum."""
@@ -547,7 +548,7 @@ class ProjectArchiveService:
         for key, value in preview.restored_state.items():
             state[key] = value
 
-    def clear_project(self, state: MutableMapping[str, Any]) -> None:
+    def clear_project(self, state: StateStore) -> None:
         for key in PROJECT_SESSION_STATE_KEYS:
             state.pop(key, None)
 
