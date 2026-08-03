@@ -439,6 +439,11 @@ def render_sidebar_form(
             selected_definition.description
         )
 
+    if scenario_id is None:
+        raise RuntimeError(
+            "No planning scenario is available."
+        )
+
     algorithm = PlanningAlgorithm(
         algorithm_value
     )
@@ -1394,10 +1399,22 @@ def render_result_tabs(
                 },
             )
 
+            map_figure_data = map_figure.to_dict()
+            layout_data = map_figure_data.get(
+                "layout",
+            )
+            metadata = (
+                layout_data.get("meta")
+                if isinstance(layout_data, dict)
+                else None
+            )
             visible_request_count = (
-                map_figure.layout.meta[
-                    "request_count"
-                ]
+                metadata.get(
+                    "request_count",
+                    0,
+                )
+                if isinstance(metadata, dict)
+                else 0
             )
 
             st.caption(
@@ -1710,16 +1727,25 @@ def render_result_tabs(
             else:
                 st.info("W tym scenariuszu nie wykryto konfliktów parowych.")
 
-            degree_rows = sorted(
-                (
-                    {
-                        "opportunity_id": opportunity_id,
-                        "stopień": graph.degree(opportunity_id),
-                    }
-                    for opportunity_id in graph.opportunity_ids
-                ),
-                key=lambda row: (-row["stopień"], row["opportunity_id"]),
-            )[:25]
+            degree_rows = [
+                {
+                    "opportunity_id": opportunity_id,
+                    "stopień": degree,
+                }
+                for opportunity_id, degree in sorted(
+                    (
+                        (
+                            opportunity_id,
+                            graph.degree(opportunity_id),
+                        )
+                        for opportunity_id in graph.opportunity_ids
+                    ),
+                    key=lambda item: (
+                        -item[1],
+                        item[0],
+                    ),
+                )[:25]
+            ]
             st.markdown("#### Najbardziej konfliktowe okazje")
             st.dataframe(
                 degree_rows,
