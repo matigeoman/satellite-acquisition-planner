@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Hashable
 import json
 from dataclasses import asdict
 from io import BytesIO
@@ -46,24 +47,50 @@ def build_benchmark_algorithm_comparisons_dataframe(
     runs = build_benchmark_runs_dataframe(result)
     if runs.empty:
         return pd.DataFrame()
-    successful = runs[runs["successful"]].copy()
-    greedy = successful[successful["algorithm"] == "GREEDY"][
-        [
-            "request_count",
-            "repetition",
-            "objective_value",
-            "fully_satisfied_requests",
-            "runtime_s",
-        ]
-    ].rename(
+    successful_values = runs["successful"]
+    if not isinstance(successful_values, pd.Series):
+        raise TypeError(
+            "Expected benchmark success values to be a Series."
+        )
+
+    successful = runs.loc[
+        successful_values.astype(bool)
+    ].copy()
+
+    algorithm_values = successful["algorithm"]
+    if not isinstance(algorithm_values, pd.Series):
+        raise TypeError(
+            "Expected benchmark algorithm values to be a Series."
+        )
+
+    greedy = successful.loc[
+        algorithm_values == "GREEDY",
+        pd.Index(
+            [
+                "request_count",
+                "repetition",
+                "objective_value",
+                "fully_satisfied_requests",
+                "runtime_s",
+            ]
+        ),
+    ].copy()
+    greedy.rename(
         columns={
             "objective_value": "greedy_objective_value",
-            "fully_satisfied_requests": "greedy_fully_satisfied_requests",
+            "fully_satisfied_requests": (
+                "greedy_fully_satisfied_requests"
+            ),
             "runtime_s": "greedy_runtime_s",
-        }
+        },
+        inplace=True,
     )
-    challengers = successful[
-        successful["algorithm"].isin(["CP_SAT", "HYBRID"])
+
+    challenger_mask = algorithm_values.isin(
+        ["CP_SAT", "HYBRID"]
+    )
+    challengers = successful.loc[
+        challenger_mask
     ].copy()
     if challengers.empty or greedy.empty:
         return pd.DataFrame()
@@ -98,33 +125,41 @@ def build_benchmark_algorithm_comparisons_dataframe(
         ),
         axis=1,
     )
-    return comparisons[
-        [
-            "request_count",
-            "repetition",
-            "algorithm",
-            "time_limit_s",
-            "random_seed",
-            "greedy_objective_value",
-            "objective_value",
-            "objective_difference",
-            "objective_improvement_pct",
-            "greedy_fully_satisfied_requests",
-            "fully_satisfied_requests",
-            "fully_satisfied_difference",
-            "greedy_runtime_s",
-            "runtime_s",
-            "runtime_ratio",
-            "solver_status",
-        ]
-    ].rename(
+    selected = comparisons.loc[
+        :,
+        pd.Index(
+            [
+                "request_count",
+                "repetition",
+                "algorithm",
+                "time_limit_s",
+                "random_seed",
+                "greedy_objective_value",
+                "objective_value",
+                "objective_difference",
+                "objective_improvement_pct",
+                "greedy_fully_satisfied_requests",
+                "fully_satisfied_requests",
+                "fully_satisfied_difference",
+                "greedy_runtime_s",
+                "runtime_s",
+                "runtime_ratio",
+                "solver_status",
+            ]
+        ),
+    ].copy()
+    selected.rename(
         columns={
             "objective_value": "challenger_objective_value",
-            "fully_satisfied_requests": "challenger_fully_satisfied_requests",
+            "fully_satisfied_requests": (
+                "challenger_fully_satisfied_requests"
+            ),
             "runtime_s": "challenger_runtime_s",
             "solver_status": "challenger_solver_status",
-        }
+        },
+        inplace=True,
     )
+    return selected
 
 
 def build_benchmark_summary_dataframe(
@@ -145,7 +180,14 @@ def build_benchmark_rejections_dataframe(
     successful = runs[runs["successful"]]
     if successful.empty:
         return pd.DataFrame(
-            columns=["request_count", "algorithm_variant", "reason", "count"]
+            columns=pd.Index(
+                [
+                    "request_count",
+                    "algorithm_variant",
+                    "reason",
+                    "count",
+                ]
+            )
         )
     grouped = (
         successful.groupby(
@@ -304,7 +346,20 @@ def build_benchmark_improvement_figure(
             as_index=False,
         )["objective_improvement_pct"]
         .mean()
-        .sort_values(["request_count", "algorithm", "time_limit_s"])
+    )
+
+    if not isinstance(grouped, pd.DataFrame):
+        raise TypeError(
+            "Expected benchmark improvement data to be a DataFrame."
+        )
+
+    sort_columns: list[Hashable] = [
+        "request_count",
+        "algorithm",
+        "time_limit_s",
+    ]
+    grouped = grouped.sort_values(
+        by=sort_columns
     )
     grouped["variant"] = grouped.apply(
         lambda row: (
@@ -368,9 +423,31 @@ def build_benchmark_rejections_figure(
         return Figure().update_layout(
             title="Brak odrzuceń operacyjnych w poprawnych przebiegach"
         )
-    frame["reason_label"] = frame["reason"].map(labels)
-    frame["request_count_label"] = frame["request_count"].map(str)
-    unique_counts = frame["request_count_label"].nunique()
+    reason_values = frame["reason"]
+    if not isinstance(reason_values, pd.Series):
+        raise TypeError(
+            "Expected benchmark rejection reasons to be a Series."
+        )
+
+    request_count_values = frame["request_count"]
+    if not isinstance(request_count_values, pd.Series):
+        raise TypeError(
+            "Expected benchmark request counts to be a Series."
+        )
+
+    frame["reason_label"] = reason_values.map(
+        lambda value: labels.get(
+            str(value),
+            str(value),
+        )
+    )
+    request_count_labels = request_count_values.map(
+        lambda value: str(value)
+    )
+    frame["request_count_label"] = request_count_labels
+    unique_counts = int(
+        request_count_labels.nunique()
+    )
     figure = px.bar(
         frame,
         x="algorithm_variant",
@@ -401,14 +478,25 @@ def build_benchmark_rejections_figure(
 def build_benchmark_results_json(
     result: AlgorithmBenchmarkResult,
 ) -> str:
+    comparisons_json = (
+        build_benchmark_algorithm_comparisons_dataframe(
+            result
+        ).to_json(
+            orient="records"
+        )
+    )
+
+    if comparisons_json is None:
+        raise TypeError(
+            "Expected benchmark comparisons JSON text."
+        )
+
     payload = {
         "metadata": result.metadata_dict(),
         "runs": [asdict(record) for record in result.run_records],
         "pairs": [asdict(record) for record in result.pair_records],
         "algorithm_comparisons": json.loads(
-            build_benchmark_algorithm_comparisons_dataframe(result).to_json(
-                orient="records"
-            )
+            comparisons_json
         ),
         "summary": [asdict(record) for record in result.summary_records],
     }
