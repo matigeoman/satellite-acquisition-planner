@@ -3,10 +3,12 @@ from __future__ import annotations
 import io
 from typing import Any
 
-from docx import Document
+from docx import Document as create_document
+from docx.document import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.styles.style import ParagraphStyle
 from docx.shared import Cm, Inches, Pt
 
 from app.reporting.models import ScientificReportSnapshot
@@ -44,7 +46,7 @@ def _add_table(
 ) -> None:
     if not rows:
         paragraph = document.add_paragraph("Brak danych.")
-        paragraph.style = document.styles["Intense Quote"]
+        paragraph.style = "Intense Quote"
         return
     selected_columns = list(columns or tuple(rows[0]))
     table = document.add_table(rows=1, cols=len(selected_columns))
@@ -80,7 +82,21 @@ def _add_picture(
     run.add_picture(io.BytesIO(raw), width=Inches(6.4))
     caption_paragraph = document.add_paragraph(caption)
     caption_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    caption_paragraph.style = document.styles["Caption"]
+    caption_paragraph.style = "Caption"
+
+
+def _paragraph_style(
+    document: Document,
+    name: str,
+) -> ParagraphStyle:
+    style = document.styles[name]
+
+    if not isinstance(style, ParagraphStyle):
+        raise TypeError(
+            f"Style {name!r} is not a paragraph style."
+        )
+
+    return style
 
 
 def _configure_document(document: Document) -> None:
@@ -90,12 +106,24 @@ def _configure_document(document: Document) -> None:
     section.left_margin = Cm(2.1)
     section.right_margin = Cm(2.1)
 
-    styles = document.styles
-    styles["Normal"].font.name = "Calibri"
-    styles["Normal"].font.size = Pt(10.5)
-    for name, size in (("Title", 24), ("Heading 1", 16), ("Heading 2", 13)):
-        styles[name].font.name = "Calibri"
-        styles[name].font.size = Pt(size)
+    normal_style = _paragraph_style(
+        document,
+        "Normal",
+    )
+    normal_style.font.name = "Calibri"
+    normal_style.font.size = Pt(10.5)
+
+    for name, size in (
+        ("Title", 24),
+        ("Heading 1", 16),
+        ("Heading 2", 13),
+    ):
+        heading_style = _paragraph_style(
+            document,
+            name,
+        )
+        heading_style.font.name = "Calibri"
+        heading_style.font.size = Pt(size)
 
     footer = section.footer.paragraphs[0]
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -106,7 +134,7 @@ def render_docx(
     snapshot: ScientificReportSnapshot,
     figures: dict[str, bytes],
 ) -> bytes:
-    document = Document()
+    document = create_document()
     _configure_document(document)
 
     title = document.add_paragraph(style="Title")
