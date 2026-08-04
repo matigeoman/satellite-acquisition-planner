@@ -295,3 +295,33 @@ def test_rejection_chart_uses_stacked_variant_bars_without_zero_series() -> None
         all(float(value) > 0.0 for value in trace.y)
         for trace in figure.data
     )
+
+
+def test_hybrid_uses_matching_greedy_2_baseline() -> None:
+    scenario = ScenarioService(project_root=PROJECT_ROOT).load("STRESS")
+    result = AlgorithmBenchmarkService().run(
+        base_scenario=scenario,
+        config=AlgorithmBenchmarkConfig(
+            request_counts=(20,),
+            repetitions=1,
+            cp_sat_time_limits_s=(0.2,),
+            use_dynamic_transition_model=False,
+            include_hybrid=True,
+        ),
+    )
+
+    assert len(result.run_records) == 3
+
+    greedy = next(
+        record
+        for record in result.run_records
+        if record.algorithm == "GREEDY"
+    )
+    hybrid = next(
+        record
+        for record in result.run_records
+        if record.algorithm == "HYBRID"
+    )
+
+    assert hybrid.objective_value >= greedy.objective_value - 1e-9
+    assert result.hybrid_not_worse_count == 1

@@ -132,8 +132,8 @@ def render_benchmark_page() -> None:
             """
 - Scenariusze są zagnieżdżone: większy wariant zawiera wszystkie zlecenia mniejszego.
 - Każde zlecenie ma 10 okazji, dlatego 500 zleceń oznacza 5000 okazji.
-- Greedy jest uruchamiany raz dla każdego powtórzenia, a CP-SAT i opcjonalny Hybrid osobno dla każdego limitu czasu.
-- Hybrid wykorzystuje Greedy 2.0 jako rozwiązanie początkowe i akceptuje wyłącznie lokalne poprawy CP-SAT, dlatego nie powinien kończyć z celem gorszym od własnego incumbenta Greedy.
+- Greedy 2.0 jest uruchamiany raz dla każdego powtórzenia, a CP-SAT i opcjonalny Hybrid osobno dla każdego limitu czasu.
+- Hybrid wykorzystuje ten sam wariant Greedy 2.0 jako rozwiązanie początkowe i akceptuje wyłącznie lokalne poprawy CP-SAT, dlatego nie powinien kończyć z celem gorszym od własnego incumbenta Greedy.
 - Każde powtórzenie używa jednego wspólnego `random_seed` dla wszystkich limitów i algorytmów, aby porównanie nie było zaburzone zmianą ziarna.
 - Błąd lub status `UNKNOWN` nie zatrzymuje całej serii; zostaje zapisany jako nieudany przebieg.
             """

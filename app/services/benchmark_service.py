@@ -194,6 +194,7 @@ class AlgorithmBenchmarkService:
             use_dynamic_transition_model=(
                 config.use_dynamic_transition_model
             ),
+            use_opportunity_cost_heuristic=True,
             cp_sat_time_limit_s=time_limit_s or 1.0,
             cp_sat_num_search_workers=config.cp_sat_num_search_workers,
             cp_sat_random_seed=random_seed,
