@@ -87,6 +87,43 @@ def test_transform_falls_back_explicitly_without_eop() -> None:
     assert result.eop_applied is False
 
 
+def test_eop_client_uses_current_celestrak_endpoint(
+    tmp_path: Path,
+) -> None:
+    from app.integrations.orbits import (
+        CELESTRAK_EOP_ENDPOINT,
+        CelestrakEopClient,
+    )
+
+    payload = (FIXTURES / "eop_2026_07_19_20.txt").read_bytes()
+    requested_urls: list[str] = []
+
+    def transport(url: str, _timeout: float) -> bytes:
+        requested_urls.append(url)
+        return payload
+
+    client = CelestrakEopClient(
+        cache_directory=tmp_path,
+        transport=transport,
+        now_provider=lambda: datetime(
+            2026,
+            7,
+            26,
+            14,
+            tzinfo=timezone.utc,
+        ),
+    )
+
+    result = client.fetch()
+
+    assert CELESTRAK_EOP_ENDPOINT == (
+        "https://celestrak.org/SpaceData/EOP-Last5Years.txt"
+    )
+    assert requested_urls == [CELESTRAK_EOP_ENDPOINT]
+    assert result.request_url == CELESTRAK_EOP_ENDPOINT
+    assert result.from_cache is False
+
+
 def test_eop_client_uses_cache_and_rejects_expired_fallback(tmp_path: Path) -> None:
     from app.integrations.orbits import CelestrakEopClient, EopClientError
 
