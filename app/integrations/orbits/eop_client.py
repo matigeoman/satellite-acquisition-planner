@@ -11,7 +11,7 @@ from app.version import __version__
 from app.integrations.orbits.eop import EopParseError, EopTable
 
 
-CELESTRAK_EOP_ENDPOINT = "https://celestrak.org/SpaceData/EOP-All-v1.1.txt"
+CELESTRAK_EOP_ENDPOINT = "https://celestrak.org/SpaceData/EOP-Last5Years.txt"
 DEFAULT_EOP_CACHE_TTL = timedelta(hours=12)
 DEFAULT_EOP_MAX_STALE_AGE = timedelta(days=7)
 
