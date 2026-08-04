@@ -105,7 +105,7 @@ def render_public_replanning_page() -> None:
         replan_time = second.time_input(
             "Godzina przeplanowania UTC",
             value=default_replan.time().replace(tzinfo=None),
-            step=timedelta(minutes=5),
+            step=timedelta(minutes=1),
         )
         freeze_hours = third.select_slider(
             "Okno zamrożone",
