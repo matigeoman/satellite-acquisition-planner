@@ -30,7 +30,7 @@ def render_experiments_page() -> None:
     render_page_header(
         "Walidacja eksperymentalna",
         "Uruchamia powtarzalne warianty scenariusza stresowego i porównuje "
-        "jakość harmonogramu z czasem obliczeń dla Greedy, CP-SAT i Hybrid.",
+        "jakość harmonogramu z czasem obliczeń dla Greedy i CP-SAT.",
         eyebrow="Metodyka badawcza",
         badges=("Powtórzenia", "Profile degradacji", "Seedy", "Eksport"),
     )
