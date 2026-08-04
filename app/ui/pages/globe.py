@@ -7,7 +7,15 @@ from datetime import datetime, timedelta, timezone
 import plotly
 import streamlit as st
 
-from app.integrations.orbits import CelestrakClientError, OrbitPropagationError
+from app.integrations.orbits import (
+    CelestrakClientError,
+    OrbitFreshness,
+    OrbitPropagationError,
+)
+from app.services.orbit_service import (
+    ExpiredOrbitDataError,
+    PublicConstellationSnapshot,
+)
 from app.services.contracts.planning import PlanningResult
 from app.ui.app_context import get_public_orbit_service
 from app.ui.orbit_state import get_public_orbit_snapshot, load_public_orbit_snapshot
@@ -20,21 +28,72 @@ _PUBLIC_PLANNING_RESULT_KEY = "public_planning_result"
 _CUSTOM_REQUESTS_STATE_KEY = "custom_observation_requests"
 
 
-def _default_scene_start() -> datetime:
-    planning_result = st.session_state.get(_PUBLIC_PLANNING_RESULT_KEY)
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        return value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(timezone.utc)
+
+
+def _resolve_scene_start(
+    *,
+    snapshot: PublicConstellationSnapshot,
+    candidates: tuple[datetime, ...],
+    fallback_utc: datetime,
+) -> datetime:
+    for candidate in candidates:
+        candidate_utc = _as_utc(candidate)
+
+        if all(
+            satellite.record.freshness_at(candidate_utc)
+            is not OrbitFreshness.EXPIRED
+            for satellite in snapshot.satellites
+        ):
+            return candidate_utc
+
+    return _as_utc(fallback_utc)
+
+
+def _default_scene_start(
+    snapshot: PublicConstellationSnapshot,
+) -> datetime:
+    candidates: list[datetime] = []
+
+    planning_result = st.session_state.get(
+        _PUBLIC_PLANNING_RESULT_KEY
+    )
     if isinstance(planning_result, PlanningResult):
-        return planning_result.schedule.horizon_start_utc
+        candidates.append(
+            planning_result.schedule.horizon_start_utc
+        )
 
-    access_result = st.session_state.get(_ACCESS_RESULT_STATE_KEY)
+    access_result = st.session_state.get(
+        _ACCESS_RESULT_STATE_KEY
+    )
     if access_result is not None:
-        return access_result.calculation_start_utc
+        candidates.append(
+            access_result.calculation_start_utc
+        )
 
-    requests = st.session_state.get(_CUSTOM_REQUESTS_STATE_KEY, [])
+    requests = st.session_state.get(
+        _CUSTOM_REQUESTS_STATE_KEY,
+        [],
+    )
     if requests:
-        return min(request.earliest_start_utc for request in requests)
+        candidates.append(
+            min(
+                request.earliest_start_utc
+                for request in requests
+            )
+        )
 
-    return datetime.now(timezone.utc).replace(microsecond=0)
-
+    return _resolve_scene_start(
+        snapshot=snapshot,
+        candidates=tuple(candidates),
+        fallback_utc=datetime.now(
+            timezone.utc
+        ).replace(microsecond=0),
+    )
 
 def _default_horizon_hours() -> int:
     """Dopasowuje horyzont widoku do aktywnego demo lub danych sesji."""
@@ -177,7 +236,7 @@ def render_globe_page() -> None:
         ),
     )
 
-    default_start = _default_scene_start().astimezone(timezone.utc)
+    default_start = _default_scene_start(snapshot)
     with st.container(border=True):
         st.markdown("### Konfiguracja sceny")
         time_columns = st.columns([1.0, 1.0, 1.0])
@@ -300,6 +359,24 @@ def render_globe_page() -> None:
                 duration=timedelta(hours=horizon_hours),
                 step=timedelta(seconds=step_seconds),
             )
+    except ExpiredOrbitDataError as error:
+        st.error(
+            "Nie można przygotować globusa dla wybranej chwili, "
+            "ponieważ dane OMM przekroczyły dopuszczalny wiek 72 h."
+        )
+        st.info(
+            "Odśwież dane w module „Orbity i dane OMM” "
+            "albo wybierz datę bliższą epoce elementów OMM."
+        )
+        with st.expander(
+            "Szczegóły danych orbitalnych",
+            expanded=False,
+        ):
+            st.code(
+                str(error),
+                language=None,
+            )
+        return
     except (OrbitPropagationError, ValueError) as error:
         st.error(f"Nie udało się przygotować danych wizualizacji: {error}")
         return
