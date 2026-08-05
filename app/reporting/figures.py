@@ -27,6 +27,16 @@ def _float(value: Any, default: float = 0.0) -> float:
         return default
 
 
+def _label_vertical_bars(ax) -> None:
+    for container in ax.containers:
+        ax.bar_label(container, fmt="%.0f", padding=3)
+
+
+def _label_horizontal_bars(ax) -> None:
+    for container in ax.containers:
+        ax.bar_label(container, fmt="%.0f", padding=3)
+
+
 def build_report_figures(snapshot: ScientificReportSnapshot) -> dict[str, bytes]:
     """Buduje statyczne wykresy PNG do HTML, DOCX i pakietu ZIP."""
 
@@ -38,13 +48,15 @@ def build_report_figures(snapshot: ScientificReportSnapshot) -> dict[str, bytes]
             for row in snapshot.schedule_rows
         )
         fig, ax = plt.subplots(figsize=(7.2, 4.1))
-        labels = list(sensor_counts)
+        labels = sorted(sensor_counts)
         values = [sensor_counts[label] for label in labels]
         ax.bar(labels, values)
-        ax.set_title("Liczba zaplanowanych akwizycji według typu sensora")
+        ax.set_title("Zaplanowane akwizycje według typu sensora")
         ax.set_xlabel("Typ sensora")
-        ax.set_ylabel("Liczba akwizycji")
+        ax.set_ylabel("Liczba wpisów akwizycji")
         ax.grid(axis="y", alpha=0.25)
+        ax.set_axisbelow(True)
+        _label_vertical_bars(ax)
         figures["schedule_sensor_mix.png"] = _save_figure(fig)
 
         satellites = Counter(
@@ -52,13 +64,20 @@ def build_report_figures(snapshot: ScientificReportSnapshot) -> dict[str, bytes]
             for row in snapshot.schedule_rows
         )
         fig, ax = plt.subplots(figsize=(8.0, 4.3))
-        labels = list(satellites)
-        values = [satellites[label] for label in labels]
+        ordered_satellites = sorted(
+            satellites.items(),
+            key=lambda item: (-item[1], item[0]),
+        )
+        labels = [item[0] for item in ordered_satellites]
+        values = [item[1] for item in ordered_satellites]
         ax.bar(labels, values)
-        ax.set_title("Obciążenie satelitów w harmonogramie")
-        ax.set_xlabel("Satelita")
-        ax.set_ylabel("Liczba akwizycji")
+        ax.set_title("Liczba akwizycji przypisana do satelitów")
+        ax.set_xlabel("Identyfikator satelity")
+        ax.set_ylabel("Liczba wpisów akwizycji")
         ax.grid(axis="y", alpha=0.25)
+        ax.set_axisbelow(True)
+        ax.tick_params(axis="x", labelrotation=30)
+        _label_vertical_bars(ax)
         figures["schedule_satellite_load.png"] = _save_figure(fig)
 
     if snapshot.request_diagnostic_rows:
@@ -72,12 +91,15 @@ def build_report_figures(snapshot: ScientificReportSnapshot) -> dict[str, bytes]
                     reasons[reason] += 1
         if reasons:
             fig, ax = plt.subplots(figsize=(8.5, 4.8))
-            labels = [item[0] for item in reasons.most_common()]
-            values = [item[1] for item in reasons.most_common()]
+            ordered_reasons = reasons.most_common()
+            labels = [item[0] for item in ordered_reasons]
+            values = [item[1] for item in ordered_reasons]
             ax.barh(labels[::-1], values[::-1])
-            ax.set_title("Przyczyny braku pełnej realizacji zleceń")
-            ax.set_xlabel("Liczba wskazań")
+            ax.set_title("Kody przyczyn niepełnej realizacji zleceń")
+            ax.set_xlabel("Liczba zleceń ze wskazanym kodem")
             ax.grid(axis="x", alpha=0.25)
+            ax.set_axisbelow(True)
+            _label_horizontal_bars(ax)
             figures["unassigned_reasons.png"] = _save_figure(fig)
 
     if snapshot.benchmark_summary_rows:
@@ -104,11 +126,12 @@ def build_report_figures(snapshot: ScientificReportSnapshot) -> dict[str, bytes]
                     marker="o",
                     label=label,
                 )
-            ax.set_title("Wartość funkcji celu w benchmarku")
-            ax.set_xlabel("Liczba zleceń")
-            ax.set_ylabel("Średnia wartość funkcji celu")
+            ax.set_title("Średnia wartość funkcji celu w benchmarku")
+            ax.set_xlabel("Liczba zleceń w instancji")
+            ax.set_ylabel("Funkcja celu [jednostki modelu]")
             ax.grid(alpha=0.25)
-            ax.legend()
+            ax.set_axisbelow(True)
+            ax.legend(title="Algorytm / limit")
             figures["benchmark_objective.png"] = _save_figure(fig)
 
         runtime_grouped: dict[str, list[tuple[int, float]]] = defaultdict(list)
@@ -134,28 +157,36 @@ def build_report_figures(snapshot: ScientificReportSnapshot) -> dict[str, bytes]
                     marker="o",
                     label=label,
                 )
-            ax.set_title("Czas obliczeń w benchmarku")
-            ax.set_xlabel("Liczba zleceń")
-            ax.set_ylabel("Średni czas [s]")
+            ax.set_title("Średni czas obliczeń w benchmarku")
+            ax.set_xlabel("Liczba zleceń w instancji")
+            ax.set_ylabel("Czas ścienny [s]")
             ax.grid(alpha=0.25)
-            ax.legend()
+            ax.set_axisbelow(True)
+            ax.legend(title="Algorytm / limit")
             figures["benchmark_runtime.png"] = _save_figure(fig)
 
     if snapshot.stk_access_rows:
-        categories = ["Start", "Koniec", "Długość"]
+        sample_count = len(snapshot.stk_access_rows)
+        categories = ["Początek okna", "Koniec okna", "Czas trwania"]
         errors = [
             sum(abs(_float(row.get("start_error_s"))) for row in snapshot.stk_access_rows)
-            / len(snapshot.stk_access_rows),
+            / sample_count,
             sum(abs(_float(row.get("end_error_s"))) for row in snapshot.stk_access_rows)
-            / len(snapshot.stk_access_rows),
+            / sample_count,
             sum(abs(_float(row.get("duration_error_s"))) for row in snapshot.stk_access_rows)
-            / len(snapshot.stk_access_rows),
+            / sample_count,
         ]
         fig, ax = plt.subplots(figsize=(7.0, 4.2))
         ax.bar(categories, errors)
-        ax.set_title("Średnie błędy bezwzględne względem STK")
-        ax.set_ylabel("Błąd [s]")
+        ax.set_title(
+            "Średni błąd bezwzględny względem STK "
+            f"(n={sample_count} okien)"
+        )
+        ax.set_ylabel("MAE [s]")
         ax.grid(axis="y", alpha=0.25)
+        ax.set_axisbelow(True)
+        for container in ax.containers:
+            ax.bar_label(container, fmt="%.3f", padding=3)
         figures["stk_access_errors.png"] = _save_figure(fig)
 
     return figures
