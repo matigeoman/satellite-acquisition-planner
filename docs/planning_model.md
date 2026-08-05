@@ -11,7 +11,8 @@ Bieżąca implementacja udostępnia trzy warianty planowania:
 
 - **Greedy** — deterministyczna heurystyka konstrukcyjna;
 - **CP-SAT** — globalny model wyboru okazji;
-- **Hybrid** — Greedy 2.0 jako incumbent i lokalna poprawa CP-SAT.
+- **Hybrid** — Greedy 2.0 jako rozwiązanie bazowe (`incumbent`) i lokalna
+  poprawa CP-SAT.
 
 Podstawa naukowa i zakres adaptacji są opisane w
 [`research_foundations.md`](research_foundations.md) oraz
@@ -30,7 +31,7 @@ wiele alternatywnych okazji na różnych satelitach lub w różnych terminach.
 
 ## Wspólna funkcja celu
 
-Greedy, CP-SAT i Hybrid korzystają ze wspólnego scoringu z
+Greedy, CP-SAT i Hybrid korzystają ze wspólnej funkcji punktacji (`scoring`) z
 `app/planning/scoring.py`. Funkcja uwzględnia:
 
 - priorytet zlecenia;
@@ -73,8 +74,9 @@ nie może zostać wybrana jednocześnie. Rejestrowane przyczyny to:
 - `SATELLITE_TRANSITION`.
 
 Reprezentacja jest adaptacją perspektywy grafu niewykonalności Eddy’ego
-[R17], [R26]. Ograniczenia globalne, takie jak dynamiczna pamięć, przepustowość downlinku
-i limity kanałów stacji, nie są sprowadzane do sztucznych konfliktów parowych.
+[R17], [R26]. Ograniczenia globalne, takie jak dynamiczna pamięć, przepustowość
+downlinku i limity kanałów stacji, nie są sprowadzane do sztucznych konfliktów
+parowych.
 
 Graf służy do:
 
@@ -89,20 +91,40 @@ włączeniu heurystyki badawczej ranking okazji ma postać:
 
 $$
 H_i = U_i + \frac{w_s}{n_i}
-      - w_d d_i
-      - w_m m_i
-      - w_c \overline{U_i^{\mathrm{blocked}}}\ln(1+r_i),
+      - w_d \tau_i
+      - w_m D_i
+      - w_c \overline{U_i^{\mathrm{blocked}}}\ln(1+|B_i|),
 $$
 
-Wartość $\overline{U_i^{\mathrm{blocked}}}$ oznacza średnią z maksymalnych użyteczności okazji blokowanych w każdym zleceniu. Wartość $r_i$ jest liczbą różnych zleceń blokowanych przez wybór okazji $i$. Dla $r_i=0$ koszt konfliktowy wynosi zero.
+gdzie zbiór zleceń blokowanych przez wybór okazji `i` jest określony jako:
 
-gdzie:
+$$
+B_i = \left\{
+\operatorname{req}(j):
+ j\in N_i,
+ \operatorname{req}(j)\neq\operatorname{req}(i)
+\right\},
+$$
+
+a średnia wartość blokowanych zleceń wynosi:
+
+$$
+\overline{U_i^{\mathrm{blocked}}}
+= \frac{1}{|B_i|}
+  \sum_{b\in B_i}
+  \max_{\substack{j\in N_i\\\operatorname{req}(j)=b}} U_j.
+$$
+
+Dla `B_i=∅` koszt konfliktowy jest z definicji równy zero.
+
+Znaczenie symboli:
 
 - `U_i` — wspólna użyteczność okazji;
 - `n_i` — liczba alternatywnych okazji zlecenia;
-- `d_i` — czas akwizycji;
-- `m_i` — objętość danych;
+- `τ_i` — czas trwania akwizycji;
+- `D_i` — objętość danych akwizycji;
 - `N_i` — konfliktujące okazje innych zleceń;
+- `B_i` — różne zlecenia blokowane przez wybór okazji `i`;
 - `w_s`, `w_d`, `w_m`, `w_c` — jawne współczynniki profilu.
 
 Zlecenia z mniejszą liczbą alternatyw są rozpatrywane wcześniej. Jest to
@@ -128,11 +150,11 @@ Po włączeniu `enable_downlink_planning` decyzje obrazowania są sprzężone z
 oknami kontaktów. Dla satelity `s` stan pamięci w punkcie czasu `t` ma postać:
 
 $$
-M_s(t)=M_s^0+\sum_{i:e_i\le t} d_i x_i
+M_s(t)=M_s^0+\sum_{i:e_i\le t} D_i x_i
        -\sum_{w:f_w\le t} q_w,
 $$
 
-gdzie `d_i` oznacza objętość danych akwizycji, `q_w` zaplanowaną objętość
+gdzie `D_i` oznacza objętość danych akwizycji, `q_w` zaplanowaną objętość
 downlinku, a `e_i` i `f_w` odpowiednio koniec akwizycji i kontaktu. W każdym
 punkcie kontrolnym obowiązuje:
 
@@ -144,7 +166,7 @@ Objętość transmisji w oknie jest ograniczona przez czas efektywny, szybkość
 łącza, sprawność i rezerwę przepustowości:
 
 $$
-q_w \le \frac{v_w}{8}(T_w-T_{setup}-T_{teardown})\eta_w(1-r_d).
+q_w \le \frac{R_w}{8}(T_w-T_{setup}-T_{teardown})\eta_w(1-r_d).
 $$
 
 Dodatkowe ograniczenia zapewniają jednocześnie:
@@ -163,9 +185,9 @@ założenia znajdują się w
 
 ## Planer Hybrid
 
-Hybrid realizuje procedurę inspirowaną połączeniem Greedy, Constraint
-Programming i local search opisanym przez Antuoriego, Wojtowicza i Hebrarda
-[R18]:
+Hybrid realizuje procedurę inspirowaną połączeniem Greedy, programowania z
+ograniczeniami i wyszukiwania lokalnego (`local search`) opisanym przez
+Antuoriego, Wojtowicza i Hebrarda [R18]:
 
 ```mermaid
 flowchart TD
@@ -226,7 +248,7 @@ flowchart LR
 
 Wpisy wykonane i zamrożone są zachowywane, a pozostała część horyzontu może
 zostać ponownie zoptymalizowana. Podejście odpowiada reaktywnemu planowaniu i
-trybom perturbation opisanym w [R20], [R22].
+trybom zakłóceń (`perturbation`) opisanym w [R20], [R22].
 
 ## Implementacja
 

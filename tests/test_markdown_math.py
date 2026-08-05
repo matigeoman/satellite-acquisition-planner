@@ -11,6 +11,28 @@ TEX_COMMAND = re.compile(
     r"\\(?:frac|sum|leq|leqslant|geq|geqslant|in|overline|ln|eta|quad|"
     r"text|left|right|forall|cdot|times|sqrt|mathrm|mathbf|mathbb)\b"
 )
+CANONICAL_GREEDY_TERMS = (
+    r"\frac{w_s}{n_i}",
+    r"- w_d \tau_i",
+    r"- w_m D_i",
+    r"\overline{U_i^{\mathrm{blocked}}}",
+    r"\ln(1+|B_i|)",
+)
+GREEDY_DOCUMENTS = (
+    PROJECT_ROOT / "docs" / "planning_model.md",
+    PROJECT_ROOT / "docs" / "research_foundations.md",
+)
+DOWNLINK_DOCUMENTS = (
+    PROJECT_ROOT / "docs" / "planning_model.md",
+    PROJECT_ROOT / "docs" / "downlink_and_dynamic_memory.md",
+)
+CANONICAL_DOWNLINK_TERMS = (
+    r"M_s(t)=M_s^0",
+    r"D_i x_i",
+    r"q_w",
+    r"e_i",
+    r"f_w",
+)
 
 
 def _lines_outside_fenced_code(text: str) -> list[tuple[int, str]]:
@@ -87,3 +109,65 @@ def test_tex_commands_are_inside_math_blocks_or_inline_math() -> None:
     assert not failures, (
         "TeX command outside a math block or inline math: " + ", ".join(failures)
     )
+
+
+def test_greedy_heuristic_uses_canonical_notation() -> None:
+    failures: list[str] = []
+
+    for path in GREEDY_DOCUMENTS:
+        text = path.read_text(encoding="utf-8")
+        missing = [term for term in CANONICAL_GREEDY_TERMS if term not in text]
+        if missing:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: missing {', '.join(missing)}"
+            )
+
+        forbidden = (
+            r"\overline{U(N_i)}",
+            r"- w_d d_i",
+            r"- w_m m_i",
+        )
+        present = [term for term in forbidden if term in text]
+        if present:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: forbidden {', '.join(present)}"
+            )
+
+    assert not failures, "; ".join(failures)
+
+
+def test_downlink_model_uses_canonical_notation() -> None:
+    failures: list[str] = []
+
+    for path in DOWNLINK_DOCUMENTS:
+        text = path.read_text(encoding="utf-8")
+        missing = [term for term in CANONICAL_DOWNLINK_TERMS if term not in text]
+        if missing:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: missing {', '.join(missing)}"
+            )
+
+        forbidden = (
+            r"D_a x_a",
+            r"d_w",
+            r"t_a^{end}",
+            r"t_w^{end}",
+            "`d_i` oznacza objętość danych akwizycji",
+        )
+        present = [term for term in forbidden if term in text]
+        if present:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: forbidden {', '.join(present)}"
+            )
+
+    assert not failures, "; ".join(failures)
+
+
+def test_planning_model_does_not_reuse_duration_symbol_for_data_volume() -> None:
+    path = PROJECT_ROOT / "docs" / "planning_model.md"
+    text = path.read_text(encoding="utf-8")
+
+    assert "`d_i` — czas akwizycji" not in text
+    assert "`d_i` oznacza objętość danych akwizycji" not in text
+    assert "`τ_i` — czas trwania akwizycji" in text
+    assert "`D_i` — objętość danych akwizycji" in text

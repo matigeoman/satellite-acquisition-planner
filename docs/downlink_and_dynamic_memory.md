@@ -25,24 +25,29 @@ przekazywane jako gotowe `DownlinkOpportunity`.
 
 ### Okno downlinku
 
-Dla okna `w` nominalna pojemność transmisji wynosi:
+Dla okna kontaktu `w` przyjmujemy:
 
-$$
-C_w = \frac{R_w}{8}\,\eta_w\,
-\left(t_w^{end}-t_w^{start}-t_w^{setup}-t_w^{teardown}\right),
-$$
-
-gdzie:
-
-- `R_w` — przepustowość w Mb/s;
+- `b_w` — początek kontaktu;
+- `f_w` — koniec kontaktu;
+- `R_w` — szybkość transmisji w Mb/s;
 - `η_w` — sprawność łącza w zakresie `(0,1]`;
-- czasy są wyrażone w sekundach;
-- dzielenie przez 8 przelicza megabity na megabajty.
+- `T_w^{setup}` i `T_w^{teardown}` — czas przygotowania i zakończenia kontaktu.
 
-Po wprowadzeniu rezerwy `r_dl` planer może wykorzystać najwyżej:
+Nominalna pojemność transmisji wynosi:
 
 $$
-C_w^{plan}=C_w(1-r_{dl}).
+C_w = \frac{R_w}{8}\,\eta_w
+\left(f_w-b_w-T_w^{setup}-T_w^{teardown}\right),
+$$
+
+gdzie wszystkie czasy są wyrażone w sekundach, a dzielenie przez 8 przelicza
+megabity na megabajty.
+
+Po wprowadzeniu rezerwy przepustowości `r_d` zaplanowana objętość transmisji
+`q_w` spełnia:
+
+$$
+0\leq q_w\leq C_w(1-r_d).
 $$
 
 Rezerwa reprezentuje niepewność przepustowości, narzut protokołu i margines
@@ -50,28 +55,29 @@ operacyjny. Nie jest prognozą jakości radiowej.
 
 ## Oś pamięci
 
-Dla satelity `s` stan pamięci po zdarzeniu `k` jest liczony jako:
+Dla satelity `s` stan pamięci w punkcie czasu `t` jest liczony jako:
 
 $$
-M_s(k)=M_s(0)
-+\sum_{a:\,t_a^{end}\leq t_k} D_a x_a
--\sum_{w:\,t_w^{end}\leq t_k} d_w,
+M_s(t)=M_s^0+\sum_{i:e_i\leq t}D_i x_i
+-\sum_{w:f_w\leq t}q_w,
 $$
 
 gdzie:
 
-- `M_s(0)` — początkowe zajęcie pamięci;
-- `D_a` — objętość danych akwizycji;
-- `x_a` — binarna decyzja wyboru akwizycji;
-- `d_w` — ilość danych wysłana w oknie;
+- `M_s^0` — początkowe zajęcie pamięci;
+- `D_i` — objętość danych akwizycji `i`;
+- `x_i` — binarna decyzja wyboru akwizycji;
+- `e_i` — koniec akwizycji;
+- `q_w` — objętość danych wysłana w oknie kontaktu `w`;
+- `f_w` — koniec kontaktu;
 - dane z akwizycji pojawiają się w pamięci po zakończeniu obrazowania;
 - pamięć jest zwalniana po zakończeniu downlinku.
 
-Dla rezerwy pamięci `r_mem` obowiązuje:
+Dla pojemności pamięci `C_s` i rezerwy `r_s` obowiązuje:
 
 $$
-0\leq M_s(k)\leq M_s^{capacity}(1-r_{mem})
-\quad \text{dla każdego punktu } k.
+0\leq M_s(t)\leq C_s(1-r_s)
+\quad \text{dla każdego punktu kontrolnego } t.
 $$
 
 Opcja `require_full_downlink` dodaje warunek:
@@ -89,9 +95,8 @@ Planer nie może wysłać danych, które powstaną dopiero po rozpoczęciu konta
 W CP-SAT dla każdego okna `w` obowiązuje konserwatywny warunek:
 
 $$
-d_w + \sum_{v:\,t_v^{end}\leq t_w^{start}} d_v
-\leq M_s(0)
-+\sum_{a:\,t_a^{end}\leq t_w^{start}}D_a x_a.
+q_w+\sum_{v:f_v\leq b_w}q_v
+\leq M_s^0+\sum_{i:e_i\leq b_w}D_i x_i.
 $$
 
 Oznacza to, że akwizycja zakończona w trakcie kontaktu nie jest przesyłana w
@@ -130,8 +135,9 @@ szybki.
 
 Dla każdego okna tworzone są:
 
-- zmienna binarna `y_w`, czy kontakt został użyty;
-- zmienna całkowita `d_w`, ile danych przesłano po skalowaniu jednostek.
+- zmienna binarna `y_w`, określająca, czy kontakt został użyty;
+- zmienna całkowita `q_w`, określająca objętość przesłanych danych po
+  skalowaniu jednostek.
 
 Model łączy te zmienne z decyzjami akwizycji, ograniczeniami pamięci i
 konfliktami kontaktów. W trybie bez wymogu pełnej dostawy solver może użyć tylko
