@@ -37,6 +37,19 @@ Wynik jest stosunkiem pola przecięcia do pola AOI. Model nadal używa
 nominalnego prostokątnego footprintu, a nie pełnej chwilowej projekcji granic
 sensora wynikającej z orientacji statku i modelu wysokościowego.
 
+## Wiek OMM i scenariusze historyczne
+
+Domyślnie propagacja jest blokowana, gdy epoka któregokolwiek elementu OMM
+jest oddalona od początku analizowanego zlecenia o więcej niż 72 godziny.
+Interfejs pokazuje wtedy kontrolowany komunikat i szczegóły danych orbitalnych,
+zamiast surowego tracebacku Streamlit.
+
+Dla zapisanych scenariuszy demonstracyjnych można jawnie włączyć przełącznik
+**Tryb demonstracyjny: dopuść OMM starsze niż 72 h**. Obliczenie zostanie
+wykonane, ale wynik otrzyma ostrzeżenie, że okna są wyłącznie orientacyjne i
+nie mogą być używane do walidacji STK ani zastosowań operacyjnych. W trybie
+standardowym limit 72 godzin pozostaje bezwzględnie aktywny.
+
 ## Ograniczenia
 
 Wynik nie jest potwierdzeniem dostępności komercyjnego taskingu. Publiczne OMM
