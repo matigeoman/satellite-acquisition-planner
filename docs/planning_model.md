@@ -99,11 +99,7 @@ $$
 gdzie zbiór zleceń blokowanych przez wybór okazji `i` jest określony jako:
 
 $$
-B_i = \left\{
-\mathrm{req}(j):
- j\in N_i,
- \mathrm{req}(j)\neq\mathrm{req}(i)
-\right\},
+B_i = \{\mathrm{req}(j) \mid j\in N_i,\; \mathrm{req}(j)\neq\mathrm{req}(i)\},
 $$
 
 a średnia wartość blokowanych zleceń wynosi:
