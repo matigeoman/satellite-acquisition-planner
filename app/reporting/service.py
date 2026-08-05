@@ -9,6 +9,7 @@ from dataclasses import asdict
 from typing import Any
 
 from app.projects.codec import jsonable
+from app.projects.service import PLANNING_RESULT_STATE_KEY
 from app.reporting.collector import collect_report_snapshot
 from app.reporting.docx_renderer import render_docx
 from app.reporting.figures import build_report_figures
@@ -20,6 +21,7 @@ from app.reporting.models import (
 )
 from app.reporting.normalization import normalize_report_snapshot
 from app.reporting.xlsx_renderer import render_xlsx
+from app.services.contracts import PlanningResult
 from app.state_contracts import StateReader
 
 
@@ -61,8 +63,15 @@ class ScientificReportService:
         *,
         config: ScientificReportConfig,
     ) -> ScientificReportPackage:
+        planning_value = state.get(PLANNING_RESULT_STATE_KEY)
+        planning = (
+            planning_value
+            if isinstance(planning_value, PlanningResult)
+            else None
+        )
         snapshot = normalize_report_snapshot(
-            collect_report_snapshot(state, config=config)
+            collect_report_snapshot(state, config=config),
+            planning=planning,
         )
         figures = build_report_figures(snapshot)
         html_bytes = render_html(snapshot, figures)
