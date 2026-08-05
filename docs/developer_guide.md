@@ -17,7 +17,6 @@ python -m pytest -q
 python -m scripts.check_coverage .\coverage.json
 python -m pyright
 python -m ruff check app tests streamlit_app.py scripts
-python -m ruff format --check app tests streamlit_app.py scripts
 python -m pip_audit --strict --progress-spinner off
 python -m app.cli check
 python -m app.cli audit --strict
@@ -29,9 +28,15 @@ python -m app.cli audit --strict
 - łączne coverage `app/integrations/orbits/` i
   `app/services/orbit_service.py`: co najmniej 65%;
 - Pyright działa w trybie `basic` dla krytycznej warstwy orbitalnej;
-- Ruff obejmuje błędy wykonania, wybrane reguły Bugbear, `RUF100` oraz kontrolę
-  formatowania;
+- Ruff obejmuje błędy wykonania, wybrane reguły Bugbear i `RUF100`;
+- testy dokumentacji sprawdzają linki wewnętrzne, zapis wzorów, wspólną notację
+  i zgodność podstawowych odwołań bibliograficznych;
 - `pip-audit` blokuje CI przy podatnościach lub błędzie zebrania zależności.
+
+Globalna kontrola `ruff format --check` nie jest obecnie włączona, ponieważ
+historyczna baza kodu nie została jeszcze jednolicie sformatowana przez Ruff.
+Jej wprowadzenie powinno nastąpić w osobnym PR-ze obejmującym wyłącznie
+formatowanie, bez zmian merytorycznych.
 
 Obniżenie progów wymaga uzasadnienia w Pull Request. Nowy kod krytyczny powinien
 zwiększać lub co najmniej utrzymywać pokrycie.
@@ -77,7 +82,7 @@ planowania obowiązuje wspólna konwencja:
 
 Powtórzony wzór powinien mieć identyczną notację we wszystkich dokumentach.
 Testy w `tests/test_markdown_math.py` sprawdzają delimitery oraz kanoniczny
-zapis heurystyki Greedy 2.0.
+zapis heurystyki Greedy 2.0 i modelu pamięci dynamicznej.
 
 ## Terminologia
 
@@ -92,6 +97,21 @@ podawaj przy pierwszym użyciu, na przykład:
 - pamięć podręczna (`cache`).
 
 Nazw klas, pól, statusów i parametrów konfiguracyjnych nie tłumacz.
+
+## Bibliografia
+
+Każda metoda opisana jako adaptacja literatury powinna wskazywać identyfikator
+źródła z `docs/references.md`. Nie przypisuj publikacji funkcji, której projekt
+nie implementuje. W szczególności należy odróżniać:
+
+- inspirację metodologiczną od implementacji algorytmu jeden do jednego;
+- publiczne dane operatora od parametrów `MODEL_DERIVED`;
+- dokumentację standardu od walidacji dokładności;
+- repozytorium referencyjne od kodu wykorzystanego bezpośrednio.
+
+Nowe źródło powinno zawierać autora lub instytucję, pełny tytuł, rok,
+wydawnictwo lub nazwę wydarzenia oraz DOI albo stabilny adres dokumentu, jeżeli
+jest dostępny.
 
 ## Determinizm
 
