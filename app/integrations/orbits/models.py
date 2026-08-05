@@ -60,6 +60,17 @@ def _parse_epoch(value: Any) -> datetime:
     return parsed.astimezone(timezone.utc)
 
 
+def _public_source_label(value: str | None) -> str | None:
+    """Usuwa lokalne katalogi, pozostawiając bezpieczną nazwę źródła."""
+
+    if value is None:
+        return None
+    normalized = value.strip().replace("\\", "/").rstrip("/")
+    if not normalized:
+        return None
+    return normalized.rsplit("/", 1)[-1]
+
+
 @dataclass(frozen=True, slots=True)
 class SatellitePin:
     """Stałe przypisanie slotu planera do publicznego numeru NORAD."""
@@ -265,7 +276,7 @@ class PropagatedState:
             "teme_velocity_km_s": list(self.teme_velocity_km_s),
             "earth_fixed_frame": self.earth_fixed_frame,
             "earth_fixed_quality": self.earth_fixed_quality,
-            "eop_source": self.eop_source,
+            "eop_source": _public_source_label(self.eop_source),
         }
 
 
