@@ -157,7 +157,7 @@ def render_public_replanning_page() -> None:
                 "Rezerwa pamięci",
                 min_value=0,
                 max_value=50,
-                value=15,
+                value=round(previous_result.options.memory_reserve_ratio * 100),
                 step=1,
                 format="%d%%",
             )
@@ -177,6 +177,10 @@ def render_public_replanning_page() -> None:
             force_mandatory = solver_columns[3].checkbox(
                 "Wymuś obowiązkowe",
                 value=True,
+            )
+            st.caption(
+                "Ustawienia downlinku są dziedziczone z poprzedniego "
+                "harmonogramu, aby przeplanowanie nie traciło modelu zasobów."
             )
 
         submitted = st.button(
@@ -202,6 +206,16 @@ def render_public_replanning_page() -> None:
             algorithm=PlanningAlgorithm(algorithm_value),
             decision_profile=previous_result.options.decision_profile,
             memory_reserve_ratio=memory_reserve_percent / 100.0,
+            enable_downlink_planning=(
+                previous_result.options.enable_downlink_planning
+            ),
+            require_full_downlink=previous_result.options.require_full_downlink,
+            allow_simultaneous_imaging_downlink=(
+                previous_result.options.allow_simultaneous_imaging_downlink
+            ),
+            downlink_capacity_reserve_ratio=(
+                previous_result.options.downlink_capacity_reserve_ratio
+            ),
             use_dynamic_transition_model=(
                 previous_result.options.use_dynamic_transition_model
             ),
