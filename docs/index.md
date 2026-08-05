@@ -28,6 +28,7 @@ Wersja dokumentacji: `1.4.0`.
 - [System satelitarny, parametry i geometria](satellite_system.md)
 - [Orbity OMM i SGP4](public_orbits_sgp4.md)
 - [Śledzenie satelitów i mapa nieba](live_tracking_and_sky_map.md)
+- [Semantyka i ograniczenia wizualizacji](visualization_semantics.md)
 - [Okna dostępu](public_access_windows.md)
 - [Pogoda i okazje akwizycyjne](public_weather_and_opportunities.md)
 - [Stacje naziemne, downlink i pamięć dynamiczna](downlink_and_dynamic_memory.md)
