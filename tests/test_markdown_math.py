@@ -111,6 +111,20 @@ def test_tex_commands_are_inside_math_blocks_or_inline_math() -> None:
     )
 
 
+def test_markdown_does_not_use_unsupported_katex_macros() -> None:
+    failures: list[str] = []
+
+    for path in MARKDOWN_FILES:
+        text = path.read_text(encoding="utf-8")
+        if r"\operatorname" in text:
+            failures.append(str(path.relative_to(PROJECT_ROOT)))
+
+    assert not failures, (
+        r"Use KaTeX-safe notation such as \mathrm instead of \operatorname: "
+        + ", ".join(failures)
+    )
+
+
 def test_greedy_heuristic_uses_canonical_notation() -> None:
     failures: list[str] = []
 

@@ -100,9 +100,9 @@ gdzie zbiór zleceń blokowanych przez wybór okazji `i` jest określony jako:
 
 $$
 B_i = \left\{
-\operatorname{req}(j):
+\mathrm{req}(j):
  j\in N_i,
- \operatorname{req}(j)\neq\operatorname{req}(i)
+ \mathrm{req}(j)\neq\mathrm{req}(i)
 \right\},
 $$
 
@@ -112,7 +112,7 @@ $$
 \overline{U_i^{\mathrm{blocked}}}
 = \frac{1}{|B_i|}
   \sum_{b\in B_i}
-  \max_{\substack{j\in N_i\\\operatorname{req}(j)=b}} U_j.
+  \max_{\substack{j\in N_i\\\mathrm{req}(j)=b}} U_j.
 $$
 
 Dla `B_i=∅` koszt konfliktowy jest z definicji równy zero.
