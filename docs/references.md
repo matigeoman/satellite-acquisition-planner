@@ -12,13 +12,13 @@ Dokument rozdziela cztery rodzaje podstaw projektu:
    implementacji pokrewnych modeli.
 
 Satellite Acquisition Planner jest implementacją autorską. Kod analizowanych
-repozytoriów nie został skopiowany. Projekt rozwija warstwę badawczą o zintegrowane
-planowanie pamięci i downlinku: akwizycje generują dane, kontakty ze stacjami
-zwalniają pamięć, a planery respektują przepustowość i liczbę kanałów stacji.
-Pozostałe adaptowane koncepcje obejmują graf niewykonalności, heurystykę kosztu
-utraconych okazji, Greedy jako rozwiązanie początkowe i lokalną poprawę
-CP-SAT oraz jawne profile preferencji. Dokładne mapowanie znajduje się w
-[`research_foundations.md`](research_foundations.md).
+repozytoriów nie został skopiowany. Projekt rozwija warstwę badawczą o
+zintegrowane planowanie pamięci i downlinku: akwizycje generują dane, kontakty
+ze stacjami zwalniają pamięć, a planery respektują przepustowość i liczbę
+kanałów stacji. Pozostałe adaptowane koncepcje obejmują graf niewykonalności,
+heurystykę kosztu utraconych okazji, Greedy jako rozwiązanie bazowe i lokalną
+poprawę CP-SAT oraz jawne profile preferencji. Dokładne mapowanie znajduje się
+w [`research_foundations.md`](research_foundations.md).
 
 ## Powiązanie źródeł z elementami aplikacji
 
@@ -30,16 +30,16 @@ CP-SAT oraz jawne profile preferencji. Dokładne mapowanie znajduje się w
 | klasyfikacja AEOSSP | [R6]–[R9] | definicja klasy problemu, typowe ograniczenia i rodziny metod |
 | dyskretne okazje i graf konfliktów | [R17], [R26] | węzły jako okazje oraz krawędzie jako parowe konflikty niewykonalności |
 | Greedy 2.0 | [R19] | adaptacja idei korzyści systemowej i kosztu utraconych okazji |
-| Hybrid Greedy–CP-SAT | [R18] | rozwiązanie początkowe Greedy i lokalna poprawa wybranych sąsiedztw |
+| Hybrid Greedy–CP-SAT | [R18] | rozwiązanie bazowe Greedy i lokalna poprawa wybranych sąsiedztw |
 | profile preferencji | [R21], [G2] | jawne profile wag; bez deklarowania pełnej implementacji ELECTRE III |
 | reaktywne przeplanowanie | [R20], [R22] | zachowanie wpisów wykonanych i zamrożonych oraz ponowna optymalizacja |
 | dynamiczna pamięć i downlink | [R18], [R22], [R28], [G1] | agregatowa objętość danych, okna kontaktów, przepustowość i limity kanałów |
 | metodyka benchmarków | [R23] | wspólne instancje, wiele ziaren i raportowanie rozkładu wyników |
-| solver CP-SAT | [R10] | zmienne całkowite, limity czasu, hints i interpretacja statusów |
+| solver CP-SAT | [R10] | zmienne całkowite, limity czasu, podpowiedzi rozwiązania i interpretacja statusów |
 | profil SAR ICEYE | [R11] | publiczne tryby i parametry produktów; wartości modelowe są oznaczone osobno |
 | profil EO Pléiades Neo | [R12] | publiczne parametry produktów optycznych i systemu |
 | zachmurzenie EO | [R13] | godzinowa prognoza `cloud_cover` jako jawny wskaźnik warunków |
-| walidacja i eksport STK | [R14], [R15], [R24] | raporty Access/AER oraz podstawa przyszłego TLE/OEM exportu |
+| walidacja i eksport STK | [R14], [R15], [R24] | raporty Access/AER oraz podstawa przyszłego eksportu TLE/OEM |
 | geometrie AOI | [R16] | kolejność współrzędnych i struktura GeoJSON |
 | przyszłe ML | [R25], [R27] | klasyfikacja wykonalności i GNN pozostają kierunkami dalszych prac |
 
@@ -47,26 +47,31 @@ CP-SAT oraz jawne profile preferencji. Dokładne mapowanie znajduje się w
 
 - Publiczny rekord OMM jest wejściem do modelu, a nie precyzyjną efemerydą
   operatora.
-- Transformacja TEME → ECEF jest uproszczona. Pełny model EOP, precesji,
-  nutacji i ruchu bieguna nie został zaimplementowany.
+- Transformacja TEME → ITRF uwzględnia interpolowane `UT1-UTC` oraz ruch
+  bieguna `xp` i `yp` z publicznych danych EOP. Nie implementuje kompletnego
+  modelu precesji, nutacji i precyzyjnej astrometrii IERS ani nie zastępuje
+  precyzyjnej efemerydy lub estymacji orbity operatora.
 - Graf konfliktów opisuje ograniczenia parowe. Pamięć, czas pracy sensora i
   limity akwizycji pozostają osobnymi ograniczeniami planerów.
 - Greedy 2.0 nie jest przepisaniem wzorów PSB/POC. Jest ich adaptacją do
-  istniejącego scoringu, okazji SAR/EO i grafu projektu.
+  istniejącej funkcji punktacji, okazji SAR/EO i grafu projektu.
 - Planer Hybrid nie odtwarza całego solvera Antuoriego i in. Nie implementuje
-  pełnego LNS ani ich dokładnego rozkładu na komponenty TSPTW. W bieżącej implementacji
-  przekazuje jednak model pamięci i downlinku zarówno do Greedy, jak i lokalnego
-  CP-SAT. Zachowuje ogólny schemat: szybki incumbent, ograniczone podproblemy CP
-  oraz akceptacja poprawy.
+  pełnego LNS ani ich dokładnego rozkładu na komponenty TSPTW. W bieżącej
+  implementacji przekazuje jednak model pamięci i downlinku zarówno do Greedy,
+  jak i lokalnego CP-SAT. Zachowuje ogólny schemat: szybkie rozwiązanie bazowe,
+  ograniczone podproblemy CP oraz akceptacja poprawy.
 - Profile preferencji są ważoną funkcją użyteczności. Nie są implementacją
   ELECTRE III, TOPSIS ani pełnej analizy przestrzeni wag.
 - Parametry ICEYE i Pléiades Neo pochodzą z materiałów publicznych albo są
   oznaczone jako `MODEL_DERIVED`; nie należy ich interpretować jako niepubliczne
-  ograniczenia taskingu.
+  ograniczenia zlecania akwizycji (`tasking`).
 - STK jest zewnętrznym środowiskiem referencyjnym. Zgodność raportów nie oznacza
   zgodności z operacyjnym systemem operatora.
 
 ## Bibliografia i dokumentacja
+
+Identyfikatory źródeł są stabilne i grupowane tematycznie. Dlatego kolejność
+sekcji nie musi odpowiadać kolejności numerów R1–R28.
 
 ### Orbity, SGP4 i układy odniesienia
 
