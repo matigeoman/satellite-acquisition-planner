@@ -9,14 +9,17 @@ MARKDOWN_FILES = tuple(sorted(PROJECT_ROOT.rglob("*.md")))
 INLINE_CODE = re.compile(r"`[^`]*`")
 TEX_COMMAND = re.compile(
     r"\\(?:frac|sum|leq|leqslant|geq|geqslant|in|overline|ln|eta|quad|"
-    r"text|left|right|forall|cdot|times|sqrt|mathrm|mathbf|mathbb)\b"
+    r"text|left|right|forall|cdot|times|sqrt|mathrm|mathbf|mathbb|bigl|bigr|"
+    r"mid|max)\b"
 )
 CANONICAL_GREEDY_TERMS = (
     r"\frac{w_s}{n_i}",
-    r"- w_d \tau_i",
-    r"- w_m D_i",
-    r"\overline{U_i^{\mathrm{blocked}}}",
-    r"\ln(1+|B_i|)",
+    r"- w_d\tau_i",
+    r"- w_mD_i",
+    r"\overline{U}_{i}^{\,\mathrm{blocked}}",
+    r"\ln\!\bigl(1+|B_i|\bigr)",
+    r"\bigl\{\mathrm{req}(j)\;\big|\;j\in N_i",
+    r"\max_{\,j\in N_i,\;\mathrm{req}(j)=b} U_j",
 )
 GREEDY_DOCUMENTS = (
     PROJECT_ROOT / "docs" / "planning_model.md",
@@ -138,6 +141,8 @@ def test_greedy_heuristic_uses_canonical_notation() -> None:
 
         forbidden = (
             r"\overline{U(N_i)}",
+            r"\overline{U_i^{\mathrm{blocked}}}",
+            r"\max_{\substack",
             r"- w_d d_i",
             r"- w_m m_i",
         )
