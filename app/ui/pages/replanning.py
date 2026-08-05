@@ -113,6 +113,41 @@ def render_replanning_page() -> None:
             format="%d%%",
             key="replanning_memory_reserve",
         )
+        with st.expander("Pamięć dynamiczna i downlink", expanded=True):
+            has_downlink_windows = scenario.downlink_set is not None
+            enable_downlink_planning = st.checkbox(
+                "Planuj transmisję do stacji naziemnych",
+                value=has_downlink_windows,
+                disabled=not has_downlink_windows,
+                key="replanning_enable_downlink",
+            )
+            require_full_downlink = st.checkbox(
+                "Opróżnij pamięć do końca horyzontu",
+                value=has_downlink_windows,
+                disabled=not enable_downlink_planning,
+                key="replanning_require_full_downlink",
+            )
+            allow_simultaneous_imaging_downlink = st.checkbox(
+                "Pozwól na jednoczesne obrazowanie i downlink",
+                value=False,
+                disabled=not enable_downlink_planning,
+                key="replanning_simultaneous_downlink",
+            )
+            downlink_capacity_reserve_percent = st.slider(
+                "Rezerwa przepustowości downlinku",
+                min_value=0,
+                max_value=50,
+                value=10,
+                step=1,
+                format="%d%%",
+                disabled=not enable_downlink_planning,
+                key="replanning_downlink_reserve",
+            )
+            if not has_downlink_windows:
+                st.caption(
+                    "Wybrany scenariusz nie zawiera okien downlinku. "
+                    "Przeplanowanie zachowa wyłącznie profil pamięci."
+                )
         cp_sat_time_limit = st.select_slider(
             "Limit CP-SAT",
             options=[1.0, 2.0, 5.0, 10.0, 30.0],
@@ -146,6 +181,14 @@ def render_replanning_page() -> None:
                     else DecisionProfile.CUSTOM
                 ),
                 memory_reserve_ratio=memory_reserve_percent / 100.0,
+                enable_downlink_planning=enable_downlink_planning,
+                require_full_downlink=require_full_downlink,
+                allow_simultaneous_imaging_downlink=(
+                    allow_simultaneous_imaging_downlink
+                ),
+                downlink_capacity_reserve_ratio=(
+                    downlink_capacity_reserve_percent / 100.0
+                ),
                 cp_sat_time_limit_s=float(cp_sat_time_limit),
                 cp_sat_num_search_workers=1,
                 cp_sat_force_mandatory_requests=True,
