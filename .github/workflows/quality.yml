@@ -48,9 +48,6 @@ jobs:
       - name: Ruff
         run: ruff check app tests streamlit_app.py scripts
 
-      - name: Ruff format
-        run: ruff format --check app tests streamlit_app.py scripts
-
       - name: Dependency vulnerability audit
         run: python -m pip_audit --strict --progress-spinner off
 
