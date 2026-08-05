@@ -17,9 +17,9 @@ CANONICAL_GREEDY_TERMS = (
     r"- w_d\tau_i",
     r"- w_mD_i",
     r"\overline{U}_{i}^{\,\mathrm{blocked}}",
-    r"\ln\!\bigl(1+|B_i|\bigr)",
-    r"\bigl\{\mathrm{req}(j)\;\big|\;j\in N_i",
-    r"\max_{\,j\in N_i,\;\mathrm{req}(j)=b} U_j",
+    r"\ln(1+|B_i|)",
+    r"\{\mathrm{req}(j)\mid j\in N_i",
+    r"\max_{j\in N_i,\;\mathrm{req}(j)=b} U_j",
 )
 GREEDY_DOCUMENTS = (
     PROJECT_ROOT / "docs" / "planning_model.md",
@@ -93,6 +93,44 @@ def test_markdown_display_math_blocks_are_balanced_and_standalone() -> None:
             )
 
     assert not failures, "; ".join(failures)
+
+
+def test_display_math_lines_do_not_look_like_markdown_lists() -> None:
+    failures: list[str] = []
+
+    for path in MARKDOWN_FILES:
+        in_math = False
+        for line_number, line in _lines_outside_fenced_code(
+            path.read_text(encoding="utf-8")
+        ):
+            if line.strip() == "$$":
+                in_math = not in_math
+                continue
+            if in_math and re.match(r"^\s*[+-]\s", line):
+                failures.append(f"{path.relative_to(PROJECT_ROOT)}:{line_number}")
+
+    assert not failures, (
+        "Keep display equations on renderer-safe lines; leading + or - is parsed "
+        "as a Markdown list item: "
+        + ", ".join(failures)
+    )
+
+
+def test_greedy_math_avoids_renderer_sensitive_sizing_commands() -> None:
+    failures: list[str] = []
+
+    for path in GREEDY_DOCUMENTS:
+        text = path.read_text(encoding="utf-8")
+        present = [command for command in (r"\bigl", r"\bigr", r"\big|") if command in text]
+        if present:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: {', '.join(present)}"
+            )
+
+    assert not failures, (
+        "Use plain KaTeX delimiters in Streamlit-rendered Greedy formulas: "
+        + "; ".join(failures)
+    )
 
 
 def test_tex_commands_are_inside_math_blocks_or_inline_math() -> None:
