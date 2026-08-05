@@ -76,7 +76,6 @@ def render_html(
         f"<li>{html.escape(item)}</li>" for item in snapshot.limitations
     )
 
-
     methodology_section = ""
     if snapshot.include_methodology:
         methodology_section = (
@@ -104,7 +103,9 @@ def render_html(
     benchmark_section = ""
     if snapshot.include_benchmarks:
         benchmark_section = (
-            "<h2>8. Benchmark Greedy i CP-SAT</h2><p>"
+            "<h2>8. "
+            + html.escape(snapshot.narrative["benchmark_heading"])
+            + "</h2><p>"
             + html.escape(snapshot.narrative["benchmark"])
             + "</p>"
             + _figure(
@@ -152,8 +153,9 @@ h3 {{ margin-top:28px; }}
 .metric-value {{ display:block; font-size:21px; margin-top:4px; }}
 .table-scroll {{ overflow:auto; border:1px solid var(--line); border-radius:7px; }}
 table {{ border-collapse:collapse; width:100%; font-size:12px; }}
-th,td {{ padding:8px 9px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left; white-space:nowrap; }}
-th {{ background:#eaf0f6; position:sticky; top:0; }}
+th,td {{ padding:8px 9px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left; }}
+th {{ background:#eaf0f6; position:sticky; top:0; white-space:nowrap; }}
+td {{ white-space:normal; overflow-wrap:anywhere; max-width:34rem; }}
 figure {{ margin:26px auto; text-align:center; }}
 figure img {{ max-width:100%; height:auto; }}
 figcaption {{ color:var(--muted); font-size:13px; margin-top:8px; }}
@@ -198,7 +200,7 @@ Autor: {html.escape(snapshot.author or "nie podano")} · {html.escape(snapshot.i
 {stk_section}
 {benchmark_section}
 <h2>9. Historia harmonogramów</h2>
-{_table(snapshot.schedule_history_rows)}
+{_table(snapshot.schedule_history_summary_rows)}
 {limitations_section}
 <footer>Raport wygenerowany automatycznie przez Satellite Acquisition Planner. Tabele pełne znajdują się w plikach CSV i results.xlsx.</footer>
 </main></body></html>"""

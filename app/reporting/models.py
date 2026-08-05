@@ -58,6 +58,7 @@ class ScientificReportSnapshot:
     satellite_kpi_rows: tuple[dict[str, Any], ...]
     benchmark_rows: tuple[dict[str, Any], ...]
     benchmark_summary_rows: tuple[dict[str, Any], ...]
+    schedule_history_summary_rows: tuple[dict[str, Any], ...]
     schedule_history_rows: tuple[dict[str, Any], ...]
     stk_access_rows: tuple[dict[str, Any], ...]
     stk_aer_rows: tuple[dict[str, Any], ...]
@@ -76,6 +77,7 @@ class ScientificReportSnapshot:
             "satellite_kpis": self.satellite_kpi_rows,
             "benchmark_runs": self.benchmark_rows,
             "benchmark_summary": self.benchmark_summary_rows,
+            "schedule_history_summary": self.schedule_history_summary_rows,
             "schedule_history": self.schedule_history_rows,
             "stk_access_matches": self.stk_access_rows,
             "stk_aer_matches": self.stk_aer_rows,

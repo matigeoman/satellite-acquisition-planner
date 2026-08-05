@@ -22,6 +22,10 @@ wersjonowanie zgodne z Semantic Versioning.
 
 ### Naprawiono
 
+- raport używa danych bieżącego harmonogramu jako źródła nadrzędnego i ostrzega o mieszanym stanie sesji;
+- nazwa sekcji benchmarku odzwierciedla faktycznie obecne metody, w tym Hybrid;
+- tabele DOCX powtarzają nagłówki i nie dzielą wierszy pomiędzy stronami;
+- historia harmonogramów w HTML, DOCX i XLSX ma skróconą postać, a pełne dane techniczne pozostają w eksportach surowych.
 - test wymagań GitPython akceptuje bezpieczne aktualizacje zamiast jednej dokładnej wersji;
 - poprawiono interpolację `${Version}` w skrypcie PowerShell;
 - skrypt weryfikacji wydania pobiera aktualny obraz bazowy przed budowaniem;
