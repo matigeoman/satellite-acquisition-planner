@@ -69,25 +69,29 @@ Klasyczny Greedy pozostaje dostępny dla zgodności. Po włączeniu heurystyki
 badawczej ranking okazji przyjmuje postać:
 
 $$
-H_i = U_i + \frac{w_s}{n_i}
-      - w_d \tau_i
-      - w_m D_i
-      - w_c \overline{U_i^{\mathrm{blocked}}}\ln(1+|B_i|),
+H_i
+= U_i
++ \frac{w_s}{n_i}
+- w_d\tau_i
+- w_mD_i
+- w_c\,\overline{U}_{i}^{\,\mathrm{blocked}}
+  \ln\!\bigl(1+|B_i|\bigr),
 $$
 
 gdzie:
 
 $$
-B_i = \{\mathrm{req}(j) \mid j\in N_i,\; \mathrm{req}(j)\neq\mathrm{req}(i)\},
+B_i = \bigl\{\mathrm{req}(j)\;\big|\;j\in N_i,\;
+\mathrm{req}(j)\neq\mathrm{req}(i)\bigr\},
 $$
 
 oraz
 
 $$
-\overline{U_i^{\mathrm{blocked}}}
+\overline{U}_{i}^{\,\mathrm{blocked}}
 = \frac{1}{|B_i|}
   \sum_{b\in B_i}
-  \max_{\substack{j\in N_i\\\mathrm{req}(j)=b}} U_j.
+  \max_{\,j\in N_i,\;\mathrm{req}(j)=b} U_j.
 $$
 
 Dla `B_i=∅` koszt konfliktowy jest równy zero.
