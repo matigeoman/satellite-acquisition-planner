@@ -69,7 +69,7 @@ def test_quality_workflow_runs_all_project_checks() -> None:
     assert "pyright" in workflow
     assert "ruff check app tests streamlit_app.py scripts" in workflow
     assert "pip_audit --strict --progress-spinner off" in workflow
-    assert "actions/upload-artifact@v6" in workflow
+    assert "actions/upload-artifact@v7" in workflow
     assert "python -m app.cli check" in workflow
     assert "python -m app.cli audit --strict" in workflow
     assert (
