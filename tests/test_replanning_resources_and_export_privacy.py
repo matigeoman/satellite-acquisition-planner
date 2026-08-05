@@ -49,6 +49,16 @@ def _planning_options_keyword_sets(path: Path) -> list[set[str]]:
     return keyword_sets
 
 
+def _method_calls(path: Path) -> set[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    return {
+        node.func.attr
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+    }
+
+
 def test_replanning_preserves_dynamic_memory_and_downlink_outputs() -> None:
     scenario = ScenarioService(project_root=PROJECT_ROOT).load("EXAMPLE")
     previous_schedule = load_schedule(PREVIOUS_SCHEDULE_PATH)
@@ -83,12 +93,11 @@ def test_reference_replanning_ui_passes_resource_options() -> None:
     assert any(RESOURCE_OPTION_NAMES <= keywords for keywords in calls)
 
 
-def test_public_replanning_ui_inherits_resource_options() -> None:
+def test_public_replanning_ui_derives_previous_options() -> None:
     path = PROJECT_ROOT / "app" / "ui" / "pages" / "public_replanning.py"
-    calls = _planning_options_keyword_sets(path)
 
-    assert calls
-    assert any(RESOURCE_OPTION_NAMES <= keywords for keywords in calls)
+    assert "derive_for_replanning" in _method_calls(path)
+    assert not _planning_options_keyword_sets(path)
 
 
 def test_orbit_export_removes_windows_local_path() -> None:
@@ -98,7 +107,8 @@ def test_orbit_export_removes_windows_local_path() -> None:
         longitude_deg=21.0,
         altitude_km=600.0,
         teme_position_km=(1.0, 2.0, 3.0),
-        teme_velocity_km_s=(4.0, 5.0, 6.0),
+        tempi_position_km=(1.0, 2.0, 3.0),
+        tempi_velocity_km_s=(4.0, 5.0, 6.0),
         eop_source=(
             r"C:\Users\Example\Desktop\satplan\data\EOP-All-v1.1.txt"
         ),
@@ -117,8 +127,8 @@ def test_orbit_export_removes_posix_local_path() -> None:
         latitude_deg=52.0,
         longitude_deg=21.0,
         altitude_km=600.0,
-        teme_position_km=(1.0, 2.0, 3.0),
-        teme_velocity_km_s=(4.0, 5.0, 6.0),
+        tempi_position_km=(1.0, 2.0, 3.0),
+        tempi_velocity_km_s=(4.0, 5.0, 6.0),
         eop_source="/home/example/satplan/data/EOP-All-v1.1.txt",
     )
 
