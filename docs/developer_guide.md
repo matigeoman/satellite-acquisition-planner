@@ -17,11 +17,11 @@ python -m pytest -q
 python -m scripts.check_coverage .\coverage.json
 python -m pyright
 python -m ruff check app tests streamlit_app.py scripts
+python -m ruff format --check app tests streamlit_app.py scripts
 python -m pip_audit --strict --progress-spinner off
 python -m app.cli check
 python -m app.cli audit --strict
 ```
-
 
 ## Progi jakości
 
@@ -29,7 +29,8 @@ python -m app.cli audit --strict
 - łączne coverage `app/integrations/orbits/` i
   `app/services/orbit_service.py`: co najmniej 65%;
 - Pyright działa w trybie `basic` dla krytycznej warstwy orbitalnej;
-- Ruff obejmuje błędy wykonania oraz wybrane reguły Bugbear i `RUF100`;
+- Ruff obejmuje błędy wykonania, wybrane reguły Bugbear, `RUF100` oraz kontrolę
+  formatowania;
 - `pip-audit` blokuje CI przy podatnościach lub błędzie zebrania zależności.
 
 Obniżenie progów wymaga uzasadnienia w Pull Request. Nowy kod krytyczny powinien
@@ -64,6 +65,33 @@ $$
 Nie używaj delimiterów `\[` i `\]`. Część rendererów Markdown, w tym widoki
 używane przez projekt, może potraktować je jako zwykłe nawiasy i wyświetlić
 kod LaTeX zamiast wzoru.
+
+Symbole powinny mieć jedno znaczenie w obrębie dokumentu. Dla modelu
+planowania obowiązuje wspólna konwencja:
+
+- `τ_i` — czas trwania akwizycji;
+- `D_i` — objętość danych akwizycji;
+- `q_w` — objętość danych wysłana w oknie kontaktu;
+- `R_w` — szybkość transmisji;
+- `M_s(t)` — zajętość pamięci satelity.
+
+Powtórzony wzór powinien mieć identyczną notację we wszystkich dokumentach.
+Testy w `tests/test_markdown_math.py` sprawdzają delimitery oraz kanoniczny
+zapis heurystyki Greedy 2.0.
+
+## Terminologia
+
+W tekście opisowym preferuj polski termin, a angielską nazwę lub nazwę kodową
+podawaj przy pierwszym użyciu, na przykład:
+
+- rozwiązanie bazowe (`incumbent`);
+- wyszukiwanie lokalne (`local search`);
+- model oparty na okazjach (`opportunity-based`);
+- funkcja punktacji (`scoring`);
+- ślad sensora (`footprint`);
+- pamięć podręczna (`cache`).
+
+Nazw klas, pól, statusów i parametrów konfiguracyjnych nie tłumacz.
 
 ## Determinizm
 
