@@ -33,10 +33,12 @@ w [`research_foundations.md`](research_foundations.md).
 | Hybrid Greedy–CP-SAT | [R18] | rozwiązanie bazowe Greedy i lokalna poprawa wybranych sąsiedztw |
 | profile preferencji | [R21], [G2] | jawne profile wag; bez deklarowania pełnej implementacji ELECTRE III |
 | reaktywne przeplanowanie | [R20], [R22] | zachowanie wpisów wykonanych i zamrożonych oraz ponowna optymalizacja |
-| dynamiczna pamięć i downlink | [R18], [R22], [R28], [G1] | agregatowa objętość danych, okna kontaktów, przepustowość i limity kanałów |
+| dynamiczna pamięć i downlink | [R18], [R22], [R28]–[R30], [R32], [G1] | agregatowa objętość danych, okna kontaktów, przepustowość i limity kanałów |
+| planowanie heterogenicznych konstelacji | [R30], [R32], [R34] | kontekst planowania wielu satelitów, zasobów i okazji dostępu |
+| metody dokładne i przyszłe kierunki | [R31], [R33] | branch and bound oraz algorytmy kwantowe jako literatura porównawcza, nie jako bieżąca implementacja |
 | metodyka benchmarków | [R23] | wspólne instancje, wiele ziaren i raportowanie rozkładu wyników |
 | solver CP-SAT | [R10] | zmienne całkowite, limity czasu, podpowiedzi rozwiązania i interpretacja statusów |
-| profil SAR ICEYE | [R11] | publiczne tryby i parametry produktów; wartości modelowe są oznaczone osobno |
+| profil SAR ICEYE | [R11] | wyłącznie publiczne tryby i parametry produktów; wartości modelowe są oznaczone osobno |
 | profil EO Pléiades Neo | [R12] | publiczne parametry produktów optycznych i systemu |
 | zachmurzenie EO | [R13] | godzinowa prognoza `cloud_cover` jako jawny wskaźnik warunków |
 | walidacja i eksport STK | [R14], [R15], [R24] | raporty Access/AER oraz podstawa przyszłego eksportu TLE/OEM |
@@ -62,16 +64,20 @@ w [`research_foundations.md`](research_foundations.md).
   ograniczone podproblemy CP oraz akceptacja poprawy.
 - Profile preferencji są ważoną funkcją użyteczności. Nie są implementacją
   ELECTRE III, TOPSIS ani pełnej analizy przestrzeni wag.
-- Parametry ICEYE i Pléiades Neo pochodzą z materiałów publicznych albo są
-  oznaczone jako `MODEL_DERIVED`; nie należy ich interpretować jako niepubliczne
-  ograniczenia zlecania akwizycji (`tasking`).
+- Parametry ICEYE i Pléiades Neo pochodzą wyłącznie z materiałów publicznych
+  albo są oznaczone jako `MODEL_DERIVED`; nie należy ich interpretować jako
+  niepubliczne ograniczenia zlecania akwizycji (`tasking`).
+- Do publicznej bibliografii nie włącza się dokumentów oznaczonych jako
+  poufne, zastrzeżone, wewnętrzne, proprietary lub confidential. Samo posiadanie
+  takiego pliku lokalnie nie stanowi podstawy do jego publikacji ani cytowania
+  w publicznym repozytorium.
 - STK jest zewnętrznym środowiskiem referencyjnym. Zgodność raportów nie oznacza
   zgodności z operacyjnym systemem operatora.
 
 ## Bibliografia i dokumentacja
 
 Identyfikatory źródeł są stabilne i grupowane tematycznie. Dlatego kolejność
-sekcji nie musi odpowiadać kolejności numerów R1–R28.
+sekcji nie musi odpowiadać kolejności numerów R1–R34.
 
 ### Orbity, SGP4 i układy odniesienia
 
@@ -177,6 +183,40 @@ Neural Networks,” *17th European Workshop on Reinforcement Learning*, 2024.
 **[R28]** A. J. Vázquez Álvarez, R. S. Erwin,
 *An Introduction to Optimal Satellite Range Scheduling*, Springer, 2015.
 DOI: <https://doi.org/10.1007/978-3-319-25498-3>
+
+**[R29]** A. Maillard, *Flexible Scheduling for Agile Earth-Observing
+Satellites*, rozprawa doktorska, Institut Supérieur de l’Aéronautique et de
+l’Espace, Toulouse, 2015.
+<http://www.theses.fr/2015ESAE0024/document>
+
+**[R30]** J. Boerkoel, J. Mason, D. Wang, S. Chien, A. Maillard,
+“An Efficient Approach for Scheduling Imaging Tasks Across a Fleet of
+Satellites,” *International Workshop on Planning and Scheduling for Space*,
+2021. NASA NTRS 20230005642.
+<https://ntrs.nasa.gov/citations/20230005642>
+
+**[R31]** X. Chu, Y. Chen, L. Xing,
+“A Branch and Bound Algorithm for Agile Earth Observation Satellite
+Scheduling,” *Discrete Dynamics in Nature and Society*, 2017, art. 7345941.
+DOI: <https://doi.org/10.1155/2017/7345941>
+
+**[R32]** F. Strasser, V. Messina, A. Golkar, V. Dornauer,
+“Schedule Optimization for a Heterogeneous Earth Observation Satellite
+Constellation,” *74th International Astronautical Congress*, IAC-23-B1.4.4,
+2023.
+<https://dl.iafastro.directory/event/IAC-2023/paper/79143/>
+
+**[R33]** S. Rainjonneau i in.,
+“Quantum Algorithms Applied to Satellite Mission Planning for Earth
+Observation,” *IEEE Journal of Selected Topics in Applied Earth Observations
+and Remote Sensing*, 16, 7062–7075, 2023.
+DOI: <https://doi.org/10.1109/JSTARS.2023.3287154>
+
+**[R34]** J. Lee, Y. Lee, I. Lee, Y. Jeong, D. Lee,
+“Research on Integrated Satellite Imaging Planning Systems and Analysis of
+Opportunities for Satellite Visits to the Korean Peninsula,” *Journal of Space
+Security*, 2(1), 19–35, 2025.
+DOI: <https://doi.org/10.23386/joss.2025.2.1.003>
 
 ### Systemy obrazowania i publiczne źródła danych
 
