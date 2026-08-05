@@ -3,12 +3,14 @@
 ## Kontekst badawczy
 
 Projekt porównuje trzy rodziny metod występujące w literaturze AEOSSP:
-heurystykę konstrukcyjną, globalny model Constraint Programming oraz metodę
-hybrydową wykorzystującą rozwiązanie początkowe i lokalną poprawę [R6], [R18],
-[R19]. Model opportunity-based i graf konfliktów wynikają z prac Eddy’ego
-[R17], [R26]. Profile preferencji są uproszczoną adaptacją podejścia MCDM
-[R21]. Bieżąca implementacja obejmuje zintegrowane ograniczenia pamięci, kontaktów i
-downlinku zgodne z nurtem integrated scheduling [R18], [R22], [R28].
+heurystykę konstrukcyjną, globalny model programowania z ograniczeniami
+(Constraint Programming) oraz metodę hybrydową wykorzystującą rozwiązanie
+bazowe i lokalną poprawę [R6], [R18], [R19]. Model oparty na okazjach
+(`opportunity-based`) i graf konfliktów wynikają z prac Eddy’ego [R17], [R26].
+Profile preferencji są uproszczoną adaptacją podejścia MCDM [R21]. Bieżąca
+implementacja obejmuje zintegrowane ograniczenia pamięci, kontaktów i downlinku,
+zgodne z nurtem zintegrowanego harmonogramowania (`integrated scheduling`)
+[R18], [R22], [R28].
 
 Projekt nie odtwarza jednego eksperymentu ani operacyjnego systemu operatora.
 Scenariusze SAR/EO, sposób parowania sensorów i integracja orbitalna są
@@ -23,7 +25,7 @@ zmieniają się przy zastosowaniu:
 1. Greedy 2.0 z kosztem utraconych okazji;
 2. globalnego CP-SAT;
 3. Hybrid, w którym CP-SAT poprawia lokalne sąsiedztwa planu Greedy;
-4. planowanie bez i ze zintegrowaną pamięcią oraz downlinkiem?
+4. planowania bez zintegrowanej pamięci i downlinku oraz z ich uwzględnieniem?
 
 ## Hipotezy robocze
 
@@ -31,7 +33,7 @@ zmieniają się przy zastosowaniu:
   scenariuszach przeciążonych, zwłaszcza gdy zlecenia mają różną liczbę
   alternatywnych okien.
 - **H2:** Hybrid nie zwraca planu o funkcji celu mniejszej od własnego
-  incumbenta Greedy 2.0, ponieważ akceptuje wyłącznie poprawy.
+  rozwiązania bazowego Greedy 2.0, ponieważ akceptuje wyłącznie poprawy.
 - **H3:** globalny CP-SAT może znaleźć rozwiązanie lepsze od Greedy, ale przy
   krótkim limicie czasu może zakończyć ze statusem `FEASIBLE` i wynikiem
   słabszym od szybko uzyskanego planu zachłannego.
@@ -54,7 +56,7 @@ wersja aplikacji
 + zbiór okien downlinku i stacji
 + algorytm
 + limit czasu
-+ random seed
++ ziarno losowe (random_seed)
 ```
 
 ## Zmienne niezależne
@@ -91,8 +93,8 @@ wersja aplikacji
 
 - stałe snapshoty OMM i pogody;
 - identyczne zlecenia i okazje dla wszystkich algorytmów;
-- wspólny scoring i profil decyzyjny;
-- jawne random seed;
+- wspólna funkcja punktacji (`scoring`) i profil decyzyjny;
+- jawne ziarno losowe (`random_seed`);
 - jeden wątek solvera w benchmarku referencyjnym;
 - co najmniej 5 powtórzeń dla wyników statystycznych;
 - jedna wersja Pythona, OR-Tools i aplikacji;
@@ -119,16 +121,16 @@ metodyką porównań algorytmów harmonogramowania [R23].
 ## Walidacja
 
 Walidacja wewnętrzna obejmuje testy modeli, grafu, ograniczeń i gwarancji
-zachowania incumbenta. Walidacja zewnętrzna porównuje Access/AER z STK.
-Różnice należy raportować jako MAE, RMSE, błąd ze znakiem, maksimum oraz stopień
-nakładania przedziałów.
+zachowania rozwiązania bazowego. Walidacja zewnętrzna porównuje Access/AER z
+STK. Różnice należy raportować jako MAE, RMSE, błąd ze znakiem, maksimum oraz
+stopień nakładania przedziałów.
 
 ## Raportowanie źródeł i założeń
 
 Raport powinien podawać wersję aplikacji, commit, snapshot OMM z epoką, źródło
-pogody, konfigurację solvera, profil decyzyjny i seed. Parametry
+pogody, konfigurację solvera, profil decyzyjny i ziarno. Parametry
 `MODEL_DERIVED` należy przedstawiać jako założenia modelu, a nie dane operatora.
 Cytowania metod należy dobierać do faktycznie analizowanego modułu: [R17],
-[R26] dla grafu, [R19] dla Greedy 2.0, [R18] dla Hybrid i integrated
-scheduling, [R21] dla profili, [R22] dla cyklu planowania oraz [R28] dla
+[R26] dla grafu, [R19] dla Greedy 2.0, [R18] dla Hybrid i zintegrowanego
+harmonogramowania, [R21] dla profili, [R22] dla cyklu planowania oraz [R28] dla
 harmonogramowania kontaktów stacja–satelita.
