@@ -47,7 +47,7 @@ def test_greedy_2_formula_matches_implementation() -> None:
         PROJECT_ROOT / "docs/planning_model.md"
     ).read_text(encoding="utf-8")
 
-    assert r"\ln\!\bigl(1+|B_i|\bigr)" in planning_model
+    assert r"\ln(1+|B_i|)" in planning_model
     assert r"\ln(1+r_i)" not in planning_model
     assert (
         r"\overline{U}_{i}^{\,\mathrm{blocked}}"

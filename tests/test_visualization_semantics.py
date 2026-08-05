@@ -89,12 +89,25 @@ def test_ui_and_documentation_describe_footprint_as_reference_only() -> None:
     assert "nie rzeczywisty footprint konkretnego trybu obrazowania" in semantics
 
 
-def test_visualization_document_rejects_attitude_and_phasing_overclaims() -> None:
+def test_visualization_document_rejects_attitude_overclaims() -> None:
     semantics = (
         PROJECT_ROOT / "docs" / "visualization_semantics.md"
     ).read_text(encoding="utf-8")
 
     assert "Aplikacja nie wyznacza" in semantics
     assert "orientacji attitude" in semantics
-    assert "nie ma osobnego modelu wizualizacji fazowania" in semantics
+
+
+def test_visualization_document_distinguishes_demo_phasing_from_live_omm() -> None:
+    semantics = (
+        PROJECT_ROOT / "docs" / "visualization_semantics.md"
+    ).read_text(encoding="utf-8")
+
+    assert "model fazowania scenariusza demonstracyjnego" in semantics
+    assert "Cztery sloty SAR są w nim rozłożone co 90°" in semantics
+    assert "dwa sloty EO co" in semantics
+    assert "180°" in semantics
+    assert "nie jest rekonstrukcją rzeczywistego fazowania" in semantics
     assert "chwilowe rozmieszczenie propagowanych obiektów" in semantics
+    assert "na podstawie OMM/SGP4" in semantics
+    assert "nie ma osobnego modelu wizualizacji fazowania" not in semantics

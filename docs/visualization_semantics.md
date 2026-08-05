@@ -117,20 +117,29 @@ przez operatora ani realizacji zobrazowania.
 
 ## Fazowanie konstelacji
 
-W obecnej implementacji nie ma osobnego modelu wizualizacji fazowania
-konstelacji w znaczeniu konfiguracji Walker, różnic anomalii średniej albo
-kontrolowanego odstępu fazowego w jednej płaszczyźnie orbitalnej.
+Aplikacja rozdziela dwa różne rodzaje wizualizacji rozmieszczenia satelitów.
 
-Rozmieszczenie znaczników na globusie wynika z propagowanych publicznych
-rekordów OMM. Może ilustrować chwilowe rozmieszczenie obiektów, ale nie powinno
-być podpisywane jako zaprojektowane fazowanie konstelacji bez dodatkowego
+Pierwszym jest jawny model fazowania scenariusza demonstracyjnego
+`POLAND_DEMO`. Cztery sloty SAR są w nim rozłożone co 90°, a dwa sloty EO co
+180°. Animacja zachowuje te odstępy i przedstawia nominalną konfigurację
+scenariusza zdefiniowaną w `data/scenarios/poland_demo/system.json`.
+
+Model demonstracyjny nie jest rekonstrukcją rzeczywistego fazowania
+komercyjnych konstelacji ICEYE lub Pléiades Neo, konfiguracją Walker ani
+wynikiem estymacji fazy z publicznych rekordów OMM.
+
+Drugim rodzajem wizualizacji jest globus operacyjny i moduł śledzenia. Pozycje
+znaczników w tych widokach wynikają z propagowanych rekordów OMM/SGP4 i
+przedstawiają chwilowe rozmieszczenie obiektów dla wybranej chwili UTC. Nie
+należy podpisywać ich jako zaprojektowanego fazowania konstelacji bez osobnego
 obliczenia i jawnej definicji miary fazy.
 
-Poprawne określenie obecnej grafiki:
+Poprawne określenia:
 
-- chwilowe rozmieszczenie propagowanych obiektów;
-- pozycje konstelacji dla chwili UTC;
-- względne rozmieszczenie na podstawie OMM/SGP4.
+- model fazowania scenariusza demonstracyjnego `POLAND_DEMO`;
+- nominalne rozmieszczenie slotów SAR i EO w scenariuszu;
+- chwilowe rozmieszczenie propagowanych obiektów na podstawie OMM/SGP4;
+- pozycje konstelacji dla chwili UTC.
 
 ## Wykresy raportowe
 
