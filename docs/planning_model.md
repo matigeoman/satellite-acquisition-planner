@@ -90,25 +90,29 @@ Klasyczny Greedy pozostaje dostępny dla zgodności wyników historycznych. Po
 włączeniu heurystyki badawczej ranking okazji ma postać:
 
 $$
-H_i = U_i + \frac{w_s}{n_i}
-      - w_d \tau_i
-      - w_m D_i
-      - w_c \overline{U_i^{\mathrm{blocked}}}\ln(1+|B_i|),
+H_i
+= U_i
++ \frac{w_s}{n_i}
+- w_d\tau_i
+- w_mD_i
+- w_c\,\overline{U}_{i}^{\,\mathrm{blocked}}
+  \ln\!\bigl(1+|B_i|\bigr),
 $$
 
 gdzie zbiór zleceń blokowanych przez wybór okazji `i` jest określony jako:
 
 $$
-B_i = \{\mathrm{req}(j) \mid j\in N_i,\; \mathrm{req}(j)\neq\mathrm{req}(i)\},
+B_i = \bigl\{\mathrm{req}(j)\;\big|\;j\in N_i,\;
+\mathrm{req}(j)\neq\mathrm{req}(i)\bigr\},
 $$
 
 a średnia wartość blokowanych zleceń wynosi:
 
 $$
-\overline{U_i^{\mathrm{blocked}}}
+\overline{U}_{i}^{\,\mathrm{blocked}}
 = \frac{1}{|B_i|}
   \sum_{b\in B_i}
-  \max_{\substack{j\in N_i\\\mathrm{req}(j)=b}} U_j.
+  \max_{\,j\in N_i,\;\mathrm{req}(j)=b} U_j.
 $$
 
 Dla `B_i=∅` koszt konfliktowy jest z definicji równy zero.
