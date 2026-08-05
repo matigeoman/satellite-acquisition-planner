@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 
 from app.analysis.schedule import ScheduleAnalysis
@@ -57,6 +57,28 @@ class PlanningOptions:
     hybrid_neighborhood_request_limit: int = 12
     hybrid_max_neighborhoods: int = 6
     hybrid_minimum_improvement: float = 1e-6
+
+    def derive_for_replanning(
+        self,
+        *,
+        algorithm: PlanningAlgorithm,
+        memory_reserve_ratio: float,
+        cp_sat_time_limit_s: float,
+        cp_sat_num_search_workers: int,
+        cp_sat_force_mandatory_requests: bool,
+    ) -> PlanningOptions:
+        """Tworzy opcje przeplanowania bez utraty pozostałej konfiguracji."""
+
+        return replace(
+            self,
+            algorithm=algorithm,
+            memory_reserve_ratio=memory_reserve_ratio,
+            cp_sat_time_limit_s=cp_sat_time_limit_s,
+            cp_sat_num_search_workers=cp_sat_num_search_workers,
+            cp_sat_force_mandatory_requests=(
+                cp_sat_force_mandatory_requests
+            ),
+        )
 
     def __post_init__(self) -> None:
         algorithm = self.algorithm
