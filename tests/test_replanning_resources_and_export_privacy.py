@@ -1,3 +1,4 @@
+import ast
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,6 +19,34 @@ PREVIOUS_SCHEDULE_PATH = (
     / "cp_sat.json"
 )
 REPLAN_AT = datetime(2026, 7, 15, 6, 0, tzinfo=timezone.utc)
+RESOURCE_OPTION_NAMES = {
+    "enable_downlink_planning",
+    "require_full_downlink",
+    "allow_simultaneous_imaging_downlink",
+    "downlink_capacity_reserve_ratio",
+}
+
+
+def _planning_options_keyword_sets(path: Path) -> list[set[str]]:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    keyword_sets: list[set[str]] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        function = node.func
+        function_name = (
+            function.id
+            if isinstance(function, ast.Name)
+            else function.attr
+            if isinstance(function, ast.Attribute)
+            else None
+        )
+        if function_name != "PlanningOptions":
+            continue
+        keyword_sets.append(
+            {keyword.arg for keyword in node.keywords if keyword.arg is not None}
+        )
+    return keyword_sets
 
 
 def test_replanning_preserves_dynamic_memory_and_downlink_outputs() -> None:
@@ -44,6 +73,22 @@ def test_replanning_preserves_dynamic_memory_and_downlink_outputs() -> None:
     assert result.schedule.downlink_entries
     assert result.schedule.resource_summaries
     assert result.schedule.memory_timeline
+
+
+def test_reference_replanning_ui_passes_resource_options() -> None:
+    path = PROJECT_ROOT / "app" / "ui" / "pages" / "replanning.py"
+    calls = _planning_options_keyword_sets(path)
+
+    assert calls
+    assert any(RESOURCE_OPTION_NAMES <= keywords for keywords in calls)
+
+
+def test_public_replanning_ui_inherits_resource_options() -> None:
+    path = PROJECT_ROOT / "app" / "ui" / "pages" / "public_replanning.py"
+    calls = _planning_options_keyword_sets(path)
+
+    assert calls
+    assert any(RESOURCE_OPTION_NAMES <= keywords for keywords in calls)
 
 
 def test_orbit_export_removes_windows_local_path() -> None:
