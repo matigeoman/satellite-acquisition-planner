@@ -37,6 +37,13 @@ def _set_cell_text(cell, text: str, *, bold: bool = False) -> None:
     run.font.size = Pt(8.5)
 
 
+def _set_row_property(row, property_name: str) -> None:
+    properties = row._tr.get_or_add_trPr()
+    tag = qn(f"w:{property_name}")
+    if properties.find(tag) is None:
+        properties.append(OxmlElement(f"w:{property_name}"))
+
+
 def _add_table(
     document: Document,
     rows: tuple[dict[str, Any], ...],
@@ -52,12 +59,17 @@ def _add_table(
     table = document.add_table(rows=1, cols=len(selected_columns))
     table.style = "Table Grid"
     table.autofit = True
-    header = table.rows[0].cells
+    header_row = table.rows[0]
+    _set_row_property(header_row, "tblHeader")
+    _set_row_property(header_row, "cantSplit")
+    header = header_row.cells
     for index, column in enumerate(selected_columns):
         _set_cell_text(header[index], str(column), bold=True)
         _shade_cell(header[index], "D9E6F2")
     for row in rows[:max_rows]:
-        cells = table.add_row().cells
+        table_row = table.add_row()
+        _set_row_property(table_row, "cantSplit")
+        cells = table_row.cells
         for index, column in enumerate(selected_columns):
             _set_cell_text(cells[index], _display(row.get(column)))
     if len(rows) > max_rows:
@@ -337,7 +349,10 @@ def render_docx(
         )
 
     if snapshot.include_benchmarks:
-        document.add_heading("8. Benchmark Greedy i CP-SAT", level=1)
+        document.add_heading(
+            f"8. {snapshot.narrative['benchmark_heading']}",
+            level=1,
+        )
         document.add_paragraph(snapshot.narrative["benchmark"])
         _add_picture(
             document,
@@ -370,10 +385,12 @@ def render_docx(
     document.add_heading("9. Historia harmonogramów", level=1)
     _add_table(
         document,
-        snapshot.schedule_history_rows,
+        snapshot.schedule_history_summary_rows,
         max_rows=40,
         columns=(
             "event_type",
+            "schedule_id",
+            "previous_schedule_id",
             "algorithm",
             "solver_status",
             "objective_value",

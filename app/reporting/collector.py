@@ -146,7 +146,16 @@ def _access_rows(access: Any) -> tuple[dict[str, Any], ...]:
     return tuple(_row(window.to_dict()) for window in access.windows)
 
 
-def _opportunity_rows(builds: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+def _opportunity_rows(
+    builds: Mapping[str, Any],
+    planning: PlanningResult | None,
+) -> tuple[dict[str, Any], ...]:
+    if planning is not None:
+        return tuple(
+            _row(opportunity.model_dump(mode="json"))
+            for opportunity in planning.scenario.opportunity_set.opportunities
+        )
+
     rows: list[dict[str, Any]] = []
     for request_id in sorted(builds):
         build = builds[request_id]
@@ -196,6 +205,79 @@ def _history_rows(history: Any) -> tuple[dict[str, Any], ...]:
     return tuple(_row(item) for item in history or ())
 
 
+def _history_summary_rows(history: Any) -> tuple[dict[str, Any], ...]:
+    rows: list[dict[str, Any]] = []
+    for item in history or ():
+        if not isinstance(item, Mapping):
+            continue
+        schedule_payload = item.get("schedule", {})
+        if hasattr(schedule_payload, "model_dump"):
+            schedule_payload = schedule_payload.model_dump(mode="json")
+        if not isinstance(schedule_payload, Mapping):
+            schedule_payload = {}
+        added = item.get("added_opportunity_ids", ())
+        removed = item.get("removed_opportunity_ids", ())
+        rows.append(
+            _row(
+                {
+                    "history_id": item.get("history_id"),
+                    "event_type": item.get("event_type"),
+                    "schedule_id": schedule_payload.get("schedule_id"),
+                    "previous_schedule_id": item.get("previous_schedule_id"),
+                    "algorithm": item.get("algorithm"),
+                    "solver_status": item.get("solver_status"),
+                    "objective_value": item.get("objective_value"),
+                    "fully_satisfied_requests": item.get(
+                        "fully_satisfied_requests"
+                    ),
+                    "total_acquisitions": item.get("total_acquisitions"),
+                    "added_opportunities": len(added or ()),
+                    "removed_opportunities": len(removed or ()),
+                    "recorded_at_utc": item.get("recorded_at_utc"),
+                }
+            )
+        )
+    return tuple(rows)
+
+
+def _benchmark_algorithm_names(
+    benchmark: AlgorithmBenchmarkResult | None,
+) -> tuple[str, ...]:
+    if benchmark is None:
+        return ()
+    order = ("GREEDY", "CP_SAT", "HYBRID")
+    labels = {
+        "GREEDY": "Greedy",
+        "CP_SAT": "CP-SAT",
+        "HYBRID": "Hybrid",
+    }
+    present = {record.algorithm for record in benchmark.run_records}
+    return tuple(labels[name] for name in order if name in present)
+
+
+def _join_polish(items: tuple[str, ...]) -> str:
+    if not items:
+        return "algorytmów"
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + f" i {items[-1]}"
+
+
+def _benchmark_heading(benchmark: AlgorithmBenchmarkResult | None) -> str:
+    names = _benchmark_algorithm_names(benchmark)
+    return f"Benchmark {_join_polish(names)}" if names else "Benchmark algorytmów"
+
+
+def _algorithm_name(value: Any) -> str:
+    normalized = str(_enum_value(value) or "").strip().upper()
+    return {
+        "GREEDY": "Greedy",
+        "GREEDY_2": "Greedy 2.0",
+        "CP_SAT": "CP-SAT",
+        "HYBRID": "Hybrid",
+    }.get(normalized, normalized or "nieokreślonym")
+
+
 def _stk_rows(value: Any) -> tuple[dict[str, Any], ...]:
     if value is None:
         return ()
@@ -241,6 +323,11 @@ def _overview_metrics(
         metrics.extend(
             [
                 {
+                    "metric": "Scenariusz harmonogramu",
+                    "value": planning.scenario.scenario_id,
+                    "unit": "",
+                },
+                {
                     "metric": "Algorytm",
                     "value": planning.algorithm.value,
                     "unit": "",
@@ -270,6 +357,11 @@ def _overview_metrics(
     if benchmark is not None:
         metrics.extend(
             [
+                {
+                    "metric": "Scenariusz benchmarku",
+                    "value": benchmark.base_scenario_id,
+                    "unit": "",
+                },
                 {
                     "metric": "Przebiegi benchmarku",
                     "value": len(benchmark.run_records),
@@ -312,30 +404,53 @@ def _narrative(
     methodology = (
         "Dostępność geometryczną wyznaczono na podstawie publicznych elementów "
         "orbitalnych OMM/GP i propagacji SGP4. Okazje optyczne oceniono z użyciem "
-        "prognozy zachmurzenia Open-Meteo, natomiast harmonogram zbudowano "
-        "algorytmem Greedy lub CP-SAT z uwzględnieniem zasobów i przeorientowań."
+        "prognozy zachmurzenia Open-Meteo."
     )
+    if planning is not None:
+        methodology += (
+            f" Bieżący harmonogram scenariusza {planning.scenario.scenario_id} "
+            f"zbudowano algorytmem {_algorithm_name(planning.algorithm)} z "
+            "uwzględnieniem zasobów, downlinku i przeorientowań."
+        )
+    if benchmark is not None:
+        methodology += (
+            f" Benchmark porównawczy scenariusza {benchmark.base_scenario_id} "
+            f"obejmował metody {_join_polish(_benchmark_algorithm_names(benchmark))}."
+        )
+
     results = "Brak harmonogramu w bieżącej sesji."
     if planning is not None:
         analysis = planning.analysis
         results = (
-            f"Algorytm {planning.algorithm.value} wybrał "
+            f"Bieżący harmonogram scenariusza {planning.scenario.scenario_id}, "
+            f"zbudowany algorytmem {_algorithm_name(planning.algorithm)}, wybrał "
             f"{analysis.total_acquisitions} akwizycji i w pełni zrealizował "
             f"{analysis.fully_satisfied_requests} z "
-            f"{analysis.total_active_requests} aktywnych zleceń. "
+            f"{analysis.total_active_requests} aktywnych zleceń tego scenariusza. "
             f"Stopień realizacji wyniósł {analysis.satisfaction_ratio:.1%}, "
             f"a wartość funkcji celu {analysis.objective_value:.3f}."
         )
+
     benchmark_text = "Brak wyników benchmarku w bieżącej sesji."
     if benchmark is not None:
+        algorithm_names = _benchmark_algorithm_names(benchmark)
         benchmark_text = (
-            f"Benchmark obejmował {len(benchmark.run_records)} przebiegów. "
-            f"CP-SAT uzyskał wyższą wartość funkcji celu w "
-            f"{benchmark.cp_sat_better_count} porównaniach i nie był gorszy w "
-            f"{benchmark.cp_sat_not_worse_count} porównaniach. Średnia zmiana "
-            f"wartości celu wyniosła "
+            f"Benchmark scenariusza {benchmark.base_scenario_id} obejmował "
+            f"{len(benchmark.run_records)} przebiegów metod "
+            f"{_join_polish(algorithm_names)}. CP-SAT uzyskał wyższą wartość "
+            f"funkcji celu w {benchmark.cp_sat_better_count} porównaniach i nie "
+            f"był gorszy w {benchmark.cp_sat_not_worse_count} porównaniach. "
+            f"Średnia zmiana wartości celu dla CP-SAT wyniosła "
             f"{benchmark.mean_objective_improvement_pct:.2f}%."
         )
+        if "Hybrid" in algorithm_names:
+            benchmark_text += (
+                f" Hybrid był lepszy od Greedy w "
+                f"{benchmark.hybrid_better_count} porównaniach i nie był gorszy "
+                f"w {benchmark.hybrid_not_worse_count} porównaniach; średnia "
+                f"zmiana wyniosła {benchmark.mean_hybrid_improvement_pct:.2f}%."
+            )
+
     validation_text = "Brak zaimportowanych wyników walidacji STK."
     if access_validation is not None:
         validation_text = (
@@ -356,6 +471,7 @@ def _narrative(
         "methodology": methodology,
         "results": results,
         "benchmark": benchmark_text,
+        "benchmark_heading": _benchmark_heading(benchmark),
         "validation": validation_text,
         "interpretation": (
             "Wyniki należy interpretować jako ocenę modelu planistycznego "
@@ -374,7 +490,7 @@ def collect_report_snapshot(
     if not isinstance(metadata, ProjectMetadata):
         metadata = None
 
-    requests: list[ObservationRequest] = [
+    session_requests: list[ObservationRequest] = [
         item
         for item in list(state.get(CUSTOM_REQUESTS_STATE_KEY, ()))
         if isinstance(item, ObservationRequest)
@@ -401,20 +517,42 @@ def collect_report_snapshot(
     if not isinstance(aer_validation, AerValidationResult):
         aer_validation = None
 
+    planning_request_ids = (
+        {item.request_id for item in planning.scenario.request_set.requests}
+        if planning is not None
+        else set()
+    )
+    report_requests = (
+        list(planning.scenario.request_set.requests)
+        if planning is not None
+        else session_requests
+    )
     satellite_rows = _satellite_rows(snapshot, planning)
-    request_rows = _request_rows(requests)
-    access_rows = _access_rows(access)
-    opportunity_rows = _opportunity_rows(builds)
+    request_rows = _request_rows(report_requests)
+    raw_access_rows = _access_rows(access)
+    access_rows = (
+        tuple(
+            row
+            for row in raw_access_rows
+            if row.get("request_id") is None
+            or str(row.get("request_id")) in planning_request_ids
+        )
+        if planning is not None
+        else raw_access_rows
+    )
+    opportunity_rows = _opportunity_rows(builds, planning)
     schedule_rows = _schedule_rows(planning)
     diagnostic_rows = _diagnostic_rows(planning)
     satellite_kpi_rows = _satellite_kpi_rows(planning)
-    benchmark_rows = _benchmark_rows(benchmark) if config.include_benchmarks else ()
-    benchmark_summary_rows = (
-        _benchmark_summary_rows(benchmark) if config.include_benchmarks else ()
+    included_benchmark = benchmark if config.include_benchmarks else None
+    included_access_validation = (
+        access_validation if config.include_stk_validation else None
     )
-    stk_access_rows = (
-        _stk_rows(access_validation) if config.include_stk_validation else ()
-    )
+    benchmark_rows = _benchmark_rows(included_benchmark)
+    benchmark_summary_rows = _benchmark_summary_rows(included_benchmark)
+    history_summary_rows = _history_summary_rows(history)
+    history_rows = _history_rows(history)
+    stk_access_rows = _stk_rows(included_access_validation)
     stk_aer_rows = _stk_rows(aer_validation) if config.include_stk_validation else ()
 
     warnings: list[str] = []
@@ -424,8 +562,86 @@ def collect_report_snapshot(
         warnings.append("Bieżąca sesja nie zawiera benchmarku algorytmów.")
     if access_validation is None and config.include_stk_validation:
         warnings.append("Bieżąca sesja nie zawiera walidacji okien względem STK.")
-    if not requests:
+    if not report_requests:
         warnings.append("Bieżąca sesja nie zawiera zleceń użytkownika.")
+
+    if planning is not None:
+        session_request_ids = {item.request_id for item in session_requests}
+        if session_request_ids != planning_request_ids:
+            warnings.append(
+                "Wykryto mieszany stan sesji: lista zleceń w interfejsie "
+                f"zawiera {len(session_request_ids)} pozycji, natomiast bieżący "
+                f"harmonogram scenariusza {planning.scenario.scenario_id} używa "
+                f"{len(planning_request_ids)} zleceń. Raport przyjął dane "
+                "wejściowe bieżącego harmonogramu jako źródło nadrzędne."
+            )
+
+        access_request_ids = {
+            str(row.get("request_id"))
+            for row in raw_access_rows
+            if row.get("request_id") is not None
+        }
+        unrelated_access_ids = access_request_ids - planning_request_ids
+        if unrelated_access_ids:
+            warnings.append(
+                "Pominięto okna dostępu nienależące do zleceń bieżącego "
+                "harmonogramu: " + ", ".join(sorted(unrelated_access_ids)) + "."
+            )
+
+        if metadata is not None and metadata.component_counts:
+            expected_requests = metadata.component_counts.get("requests")
+            expected_opportunities = metadata.component_counts.get("opportunities")
+            mismatches: list[str] = []
+            if (
+                isinstance(expected_requests, int)
+                and expected_requests != len(report_requests)
+            ):
+                mismatches.append(
+                    f"zlecenia {expected_requests} → {len(report_requests)}"
+                )
+            if (
+                isinstance(expected_opportunities, int)
+                and expected_opportunities != len(opportunity_rows)
+            ):
+                mismatches.append(
+                    "okazje "
+                    f"{expected_opportunities} → {len(opportunity_rows)}"
+                )
+            if mismatches:
+                warnings.append(
+                    "Stan projektu zmienił się po zapisaniu metadanych "
+                    f"({'; '.join(mismatches)}). Metadane opisują wcześniejszy "
+                    "snapshot, a tabele główne opisują bieżący harmonogram."
+                )
+
+        if (
+            included_benchmark is not None
+            and included_benchmark.base_scenario_id
+            != planning.scenario.scenario_id
+        ):
+            warnings.append(
+                f"Benchmark dotyczy scenariusza "
+                f"{included_benchmark.base_scenario_id}, "
+                f"natomiast bieżący harmonogram dotyczy scenariusza "
+                f"{planning.scenario.scenario_id}. Wyniki benchmarku pozostawiono "
+                "w osobnej, jawnie opisanej sekcji."
+            )
+
+    repeated_replan_ids = [
+        str(row.get("schedule_id"))
+        for row in history_summary_rows
+        if row.get("schedule_id")
+        and row.get("schedule_id") == row.get("previous_schedule_id")
+    ]
+    if repeated_replan_ids:
+        warnings.append(
+            "Historia zawiera przeplanowanie z takim samym identyfikatorem "
+            "harmonogramu bieżącego i poprzedniego: "
+            + ", ".join(sorted(set(repeated_replan_ids)))
+            + ". Zwykle oznacza to ponowne uruchomienie przeplanowania dla "
+            "tego samego momentu UTC; wyniki zachowano, ale wersje nie mają "
+            "unikalnych identyfikatorów."
+        )
 
     limitations = (
         "Publiczne OMM/GP oraz propagacja SGP4 nie są precyzyjnymi efemerydami operatora.",
@@ -451,14 +667,14 @@ def collect_report_snapshot(
             metadata.application_version if metadata else APPLICATION_VERSION
         ),
         overview_metrics=_overview_metrics(
-            requests=requests,
+            requests=report_requests,
             satellites=satellite_rows,
             access_rows=access_rows,
             opportunity_rows=opportunity_rows,
             planning=planning,
-            benchmark=benchmark,
+            benchmark=included_benchmark,
             history=history,
-            access_validation=access_validation,
+            access_validation=included_access_validation,
         ),
         satellite_rows=satellite_rows,
         request_rows=request_rows,
@@ -469,13 +685,14 @@ def collect_report_snapshot(
         satellite_kpi_rows=satellite_kpi_rows,
         benchmark_rows=benchmark_rows,
         benchmark_summary_rows=benchmark_summary_rows,
-        schedule_history_rows=_history_rows(history),
+        schedule_history_summary_rows=history_summary_rows,
+        schedule_history_rows=history_rows,
         stk_access_rows=stk_access_rows,
         stk_aer_rows=stk_aer_rows,
         narrative=_narrative(
             planning,
-            benchmark if config.include_benchmarks else None,
-            access_validation if config.include_stk_validation else None,
+            included_benchmark,
+            included_access_validation,
             aer_validation if config.include_stk_validation else None,
         ),
         limitations=limitations if config.include_limitations else (),
