@@ -18,6 +18,7 @@ from app.reporting.models import (
     ScientificReportPackage,
     ScientificReportSnapshot,
 )
+from app.reporting.normalization import normalize_report_snapshot
 from app.reporting.xlsx_renderer import render_xlsx
 from app.state_contracts import StateReader
 
@@ -60,7 +61,9 @@ class ScientificReportService:
         *,
         config: ScientificReportConfig,
     ) -> ScientificReportPackage:
-        snapshot = collect_report_snapshot(state, config=config)
+        snapshot = normalize_report_snapshot(
+            collect_report_snapshot(state, config=config)
+        )
         figures = build_report_figures(snapshot)
         html_bytes = render_html(snapshot, figures)
         docx_bytes = render_docx(snapshot, figures)
