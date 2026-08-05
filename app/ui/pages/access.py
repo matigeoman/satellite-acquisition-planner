@@ -1,19 +1,25 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import timedelta
 
 import streamlit as st
 
 from app.catalogs import ICEYE_PUBLIC_PROFILE, PLEIADES_NEO_PUBLIC_PROFILE
 from app.integrations.opportunities import build_public_opportunities
-from app.integrations.orbits import CelestrakClientError, OrbitPropagationError
+from app.integrations.orbits import (
+    CelestrakClientError,
+    OrbitFreshness,
+    OrbitPropagationError,
+)
 from app.integrations.weather import (
     CloudAggregation,
     OpenMeteoClientError,
 )
 from app.models.enums import SensorType
 from app.models.request import ObservationRequest
+from app.services.orbit_service import ExpiredOrbitDataError
 from app.ui.access_view import (
     access_windows_dataframe,
     build_access_map_figure,
@@ -417,6 +423,16 @@ def render_access_page() -> None:
             value=False,
             help="Nie pobiera OMM z sieci. Wymaga wcześniej zapisanych danych.",
         )
+        allow_expired_orbits = st.toggle(
+            "Tryb demonstracyjny: dopuść OMM starsze niż 72 h",
+            value=False,
+            help=(
+                "Pozwala wykonać propagację dla historycznego scenariusza, "
+                "mimo dużej odległości czasu od epoki OMM. Wynik jest wyłącznie "
+                "orientacyjny i nie nadaje się do walidacji STK ani zastosowań "
+                "operacyjnych."
+            ),
+        )
 
         horizon_hours = (
             request.latest_end_utc - request.earliest_start_utc
@@ -459,7 +475,43 @@ def render_access_page() -> None:
                     end_utc=request.latest_end_utc,
                     step=timedelta(seconds=step_seconds),
                     selected_mode_ids=set(selected_mode_ids),
+                    allow_expired_orbits=allow_expired_orbits,
                 )
+            expired = tuple(
+                satellite
+                for satellite in snapshot.satellites
+                if satellite.record.freshness_at(request.earliest_start_utc)
+                is OrbitFreshness.EXPIRED
+            )
+            if allow_expired_orbits and expired:
+                maximum_age_h = max(
+                    satellite.record.age_at(request.earliest_start_utc).total_seconds()
+                    / 3600.0
+                    for satellite in expired
+                )
+                result = replace(
+                    result,
+                    warnings=(
+                        "Wynik demonstracyjny: użyto elementów OMM starszych niż "
+                        f"72 h (maksymalna różnica {maximum_age_h:.1f} h). "
+                        "Okna są orientacyjne i nie mogą służyć do walidacji STK "
+                        "ani zastosowań operacyjnych.",
+                        *result.warnings,
+                    ),
+                )
+        except ExpiredOrbitDataError as error:
+            st.error(
+                "Nie można wyznaczyć okien dla wybranego terminu, ponieważ "
+                "elementy OMM są oddalone od daty zlecenia o więcej niż 72 h."
+            )
+            st.info(
+                "Zaimportowany projekt zawiera już zapisane okna dostępu. "
+                "Aby wykonać nowe obliczenie historyczne, włącz wyżej tryb "
+                "demonstracyjny albo użyj OMM z epoką bliższą terminowi zlecenia."
+            )
+            with st.expander("Szczegóły danych orbitalnych", expanded=False):
+                st.code(str(error), language=None)
+            return
         except (OrbitPropagationError, ValueError) as error:
             st.error(f"Nie udało się wyznaczyć okien dostępu: {error}")
             return

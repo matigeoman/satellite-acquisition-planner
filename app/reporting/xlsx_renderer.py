@@ -17,13 +17,22 @@ _SHEET_NAMES = {
     "satellite_kpis": "KPI_satelitow",
     "benchmark_runs": "Benchmark_runs",
     "benchmark_summary": "Benchmark_summary",
-    "schedule_history": "Historia_planow",
+    "schedule_history_summary": "Historia_planow",
+    "schedule_history": "Historia_szczegoly",
     "stk_access_matches": "STK_Access",
     "stk_aer_matches": "STK_AER",
 }
 
 
-def _write_table(workbook, worksheet, rows, header_format, percent_format) -> None:
+def _write_table(
+    worksheet,
+    rows,
+    header_format,
+    percent_format,
+    wrapped_format,
+    *,
+    wrap_long_text: bool = False,
+) -> None:
     if not rows:
         worksheet.write(0, 0, "Brak danych")
         worksheet.set_column(0, 0, 24)
@@ -40,6 +49,8 @@ def _write_table(workbook, worksheet, rows, header_format, percent_format) -> No
                 value = "Tak" if value else "Nie"
             if isinstance(value, (int, float)) and "ratio" in column.lower():
                 cell_format = percent_format
+            elif wrap_long_text and isinstance(value, str) and len(value) > 80:
+                cell_format = wrapped_format
             worksheet.write(row_index, column_index, value, cell_format)
             widths[column_index] = min(
                 45,
@@ -74,6 +85,7 @@ def render_xlsx(snapshot: ScientificReportSnapshot) -> bytes:
     )
     metric_value = workbook.add_format({"border": 1})
     percent = workbook.add_format({"num_format": "0.00%"})
+    wrapped = workbook.add_format({"text_wrap": True, "valign": "top"})
 
     overview = workbook.add_worksheet("Podsumowanie")
     overview.hide_gridlines(2)
@@ -100,7 +112,16 @@ def render_xlsx(snapshot: ScientificReportSnapshot) -> bytes:
 
     for key, rows in snapshot.table_map().items():
         worksheet = workbook.add_worksheet(_SHEET_NAMES[key])
-        _write_table(workbook, worksheet, rows, header, percent)
+        _write_table(
+            worksheet,
+            rows,
+            header,
+            percent,
+            wrapped,
+            wrap_long_text=key == "schedule_history",
+        )
+        if key == "schedule_history":
+            worksheet.hide()
 
     if snapshot.benchmark_summary_rows:
         sheet = workbook.get_worksheet_by_name("Benchmark_summary")
