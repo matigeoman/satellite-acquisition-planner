@@ -41,6 +41,7 @@ class PublicAccessService:
         end_utc: datetime,
         step: timedelta,
         selected_mode_ids: set[str] | None = None,
+        allow_expired_orbits: bool = False,
     ) -> AccessCalculationResult:
         if start_utc >= end_utc:
             raise ValueError("start_utc musi być wcześniejsze niż end_utc")
@@ -49,6 +50,7 @@ class PublicAccessService:
             start_utc=start_utc,
             duration=end_utc - start_utc,
             step=step,
+            allow_expired_orbits=allow_expired_orbits,
         )
         return self.calculator.calculate(
             request=request,
