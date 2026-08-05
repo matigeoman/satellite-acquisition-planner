@@ -22,6 +22,17 @@ GREEDY_DOCUMENTS = (
     PROJECT_ROOT / "docs" / "planning_model.md",
     PROJECT_ROOT / "docs" / "research_foundations.md",
 )
+DOWNLINK_DOCUMENTS = (
+    PROJECT_ROOT / "docs" / "planning_model.md",
+    PROJECT_ROOT / "docs" / "downlink_and_dynamic_memory.md",
+)
+CANONICAL_DOWNLINK_TERMS = (
+    r"M_s(t)=M_s^0",
+    r"D_i x_i",
+    r"q_w",
+    r"e_i",
+    r"f_w",
+)
 
 
 def _lines_outside_fenced_code(text: str) -> list[tuple[int, str]]:
@@ -115,6 +126,33 @@ def test_greedy_heuristic_uses_canonical_notation() -> None:
             r"\overline{U(N_i)}",
             r"- w_d d_i",
             r"- w_m m_i",
+        )
+        present = [term for term in forbidden if term in text]
+        if present:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: forbidden {', '.join(present)}"
+            )
+
+    assert not failures, "; ".join(failures)
+
+
+def test_downlink_model_uses_canonical_notation() -> None:
+    failures: list[str] = []
+
+    for path in DOWNLINK_DOCUMENTS:
+        text = path.read_text(encoding="utf-8")
+        missing = [term for term in CANONICAL_DOWNLINK_TERMS if term not in text]
+        if missing:
+            failures.append(
+                f"{path.relative_to(PROJECT_ROOT)}: missing {', '.join(missing)}"
+            )
+
+        forbidden = (
+            r"D_a x_a",
+            r"d_w",
+            r"t_a^{end}",
+            r"t_w^{end}",
+            "`d_i` oznacza objętość danych akwizycji",
         )
         present = [term for term in forbidden if term in text]
         if present:
