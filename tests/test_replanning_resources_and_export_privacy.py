@@ -107,8 +107,7 @@ def test_orbit_export_removes_windows_local_path() -> None:
         longitude_deg=21.0,
         altitude_km=600.0,
         teme_position_km=(1.0, 2.0, 3.0),
-        tempi_position_km=(1.0, 2.0, 3.0),
-        tempi_velocity_km_s=(4.0, 5.0, 6.0),
+        teme_velocity_km_s=(4.0, 5.0, 6.0),
         eop_source=(
             r"C:\Users\Example\Desktop\satplan\data\EOP-All-v1.1.txt"
         ),
@@ -127,8 +126,8 @@ def test_orbit_export_removes_posix_local_path() -> None:
         latitude_deg=52.0,
         longitude_deg=21.0,
         altitude_km=600.0,
-        tempi_position_km=(1.0, 2.0, 3.0),
-        tempi_velocity_km_s=(4.0, 5.0, 6.0),
+        teme_position_km=(1.0, 2.0, 3.0),
+        teme_velocity_km_s=(4.0, 5.0, 6.0),
         eop_source="/home/example/satplan/data/EOP-All-v1.1.txt",
     )
 
