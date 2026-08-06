@@ -206,15 +206,17 @@ def render_orbits_page() -> None:
         tracks,
         visible_slot_ids=set(visible_slot_ids),
     )
-    st.plotly_chart(
-        figure,
-        width="stretch",
-        config={
-            "displaylogo": False,
-            "scrollZoom": True,
-            "responsive": True,
-        },
-    )
+    _map_left, map_column, _map_right = st.columns([1, 8, 1])
+    with map_column:
+        st.plotly_chart(
+            figure,
+            width="stretch",
+            config={
+                "displaylogo": False,
+                "scrollZoom": True,
+                "responsive": True,
+            },
+        )
 
     with st.expander("Szczegółowe parametry obiektów orbitalnych"):
         st.dataframe(

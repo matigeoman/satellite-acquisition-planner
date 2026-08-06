@@ -20,9 +20,14 @@ def test_leaflet_toolbar_uses_independent_icons() -> None:
     assert ".leaflet-draw-draw-rectangle::before" in editor
 
 
-def test_orbit_map_uses_full_width_maplibre_view() -> None:
+def test_orbit_map_uses_single_world_geo_view() -> None:
     orbit_view = Path("app/ui/orbit_view.py").read_text(encoding="utf-8")
 
-    assert "go.Scattermap" in orbit_view
-    assert '"style": "carto-darkmatter"' in orbit_view
+    assert "go.Scattergeo" in orbit_view
+    assert '"type": "equirectangular"' in orbit_view
+    assert '"range": [-180.0, 180.0]' in orbit_view
+    assert '"orientation": "h"' in orbit_view
     assert "visible_slot_ids" in orbit_view
+
+    orbit_page = Path("app/ui/pages/orbits.py").read_text(encoding="utf-8")
+    assert "st.columns([1, 8, 1])" in orbit_page
