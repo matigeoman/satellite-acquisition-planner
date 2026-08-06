@@ -4,7 +4,7 @@ pydantic==2.13.4
 ortools==9.15.6755
 matplotlib==3.11.1
 sgp4==2.27
-pandas==2.3.3
+pandas==3.0.5
 plotly==6.9.0
 streamlit==1.60.0
 folium==0.20.0
@@ -16,7 +16,7 @@ ruff==0.12.12
 shapely==2.1.2
 pyproj==3.7.2
 pytest-cov==7.1.0
-pyright==1.1.409
+pyright==1.1.411
 pip-audit==2.10.1
 setuptools==83.0.0
 GitPython==3.1.57
