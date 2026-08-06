@@ -20,6 +20,7 @@ from app.tracking import (
     SkyTrack,
     TopocentricState,
 )
+from app.ui.orbit_view import build_ground_track_figure
 from app.visualization import (
     build_live_ground_map_figure,
     build_sky_map_figure,
@@ -102,6 +103,27 @@ def test_sky_map_uses_polar_coordinates_and_dark_background() -> None:
     assert any(isinstance(trace, go.Scatterpolar) for trace in figure.data)
     assert figure.layout.polar.angularaxis.direction == "clockwise"
     assert figure.layout.paper_bgcolor == "#07111f"
+    assert figure.layout.height == 720
+    assert list(figure.layout.polar.domain.x) == [0.04, 0.96]
+    assert list(figure.layout.polar.radialaxis.tickvals) == [0, 30, 60, 90]
+
+
+def test_public_orbit_map_uses_single_bounded_world() -> None:
+    track = SatelliteGroundTrack(
+        satellite=_satellite(),
+        states=tuple(_propagated(index) for index in range(3)),
+    )
+    figure = build_ground_track_figure([track])
+
+    assert all(isinstance(trace, go.Scattergeo) for trace in figure.data)
+    assert figure.layout.geo.projection.type == "equirectangular"
+    assert list(figure.layout.geo.lonaxis.range) == [-180.0, 180.0]
+    assert list(figure.layout.geo.lataxis.range) == [-90.0, 90.0]
+    assert figure.layout.height == 660
+    assert figure.layout.legend.orientation == "h"
+    assert figure.layout.legend.x == 0.5
+    assert figure.data[0].name == "SAR-01"
+    assert "ICEYE-TEST" in figure.data[0].hovertemplate
 
 
 def test_live_ground_map_contains_observer_satellite_track_and_footprint() -> None:
@@ -124,3 +146,4 @@ def test_live_ground_map_contains_observer_satellite_track_and_footprint() -> No
     assert "Referencyjny footprint" in names
     assert "Terminator" in names
     assert figure.layout.geo.oceancolor == "#071827"
+    assert list(figure.layout.geo.lonaxis.range) == [-180.0, 180.0]
