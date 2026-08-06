@@ -530,16 +530,16 @@ def _render_live_fragment(
         ["Mapa nieba", "Mapa Ziemi", "Najbliższe przeloty", "Kontekst planera"]
     )
     with sky_tab:
-        st.plotly_chart(
-            build_sky_map_figure(
-                states=states,
-                tracks=sky_tracks,
-                minimum_elevation_deg=0.0,
-                selected_slot_id=selected_slot_id,
-            ),
-            width="stretch",
-            config=chart_config,
+        above_horizon_count = sum(
+            item.topocentric.is_above_horizon for item in states
         )
+        if above_horizon_count == 0:
+            st.info(
+                "W tej chwili wszystkie wybrane satelity są pod horyzontem. "
+                "Linie na mapie pokazują prognozowane trajektorie dla "
+                "kolejnych 45 minut."
+            )
+
         state_table = pd.DataFrame(
             [
                 {
@@ -555,36 +555,104 @@ def _render_live_fragment(
                     ),
                     "Wysokość [km]": round(item.propagated.altitude_km, 1),
                     "Prędkość orbitalna [km/s]": round(item.speed_km_s, 3),
-                    "Widoczność": _visibility_label(item.visibility.optical_visibility),
+                    "Widoczność": _visibility_label(
+                        item.visibility.optical_visibility
+                    ),
                     "Jakość OMM": _quality_label(item.orbit_data_quality),
                 }
                 for item in states
             ]
         )
-        st.dataframe(state_table, width="stretch", hide_index=True)
+
+        sky_column, details_column = st.columns([1.35, 0.65], gap="large")
+        with sky_column:
+            st.plotly_chart(
+                build_sky_map_figure(
+                    states=states,
+                    tracks=sky_tracks,
+                    minimum_elevation_deg=0.0,
+                    selected_slot_id=selected_slot_id,
+                ),
+                width="stretch",
+                config=chart_config,
+            )
+
+        with details_column:
+            with st.container(border=True):
+                st.markdown("### Wybrany satelita")
+                st.markdown(f"**{current.slot_id} — {current.object_name}**")
+                detail_metrics = st.columns(2)
+                detail_metrics[0].metric(
+                    "Azymut",
+                    f"{current.topocentric.azimuth_deg:.1f}°",
+                )
+                detail_metrics[1].metric(
+                    "Elewacja",
+                    f"{current.topocentric.elevation_deg:.1f}°",
+                )
+                detail_metrics[0].metric(
+                    "Odległość",
+                    f"{current.topocentric.range_km:.0f} km",
+                )
+                detail_metrics[1].metric(
+                    "Wysokość",
+                    f"{current.propagated.altitude_km:.0f} km",
+                )
+                st.caption(
+                    f"Widoczność: "
+                    f"{_visibility_label(current.visibility.optical_visibility)} · "
+                    f"OMM: {_quality_label(current.orbit_data_quality)}"
+                )
+
+            with st.container(border=True):
+                st.markdown("### Interpretacja")
+                if current.topocentric.is_above_horizon:
+                    st.success(
+                        "Wybrany satelita znajduje się nad lokalnym horyzontem."
+                    )
+                else:
+                    st.warning(
+                        "Wybrany satelita znajduje się pod lokalnym horyzontem. "
+                        "Marker bieżącej pozycji nie jest wtedy rysowany na "
+                        "mapie nieba."
+                    )
+                st.caption(
+                    "Środek wykresu oznacza zenit (90°), a zewnętrzny "
+                    "pierścień — horyzont (0°)."
+                )
+
+        with st.expander("Tabela wszystkich obiektów"):
+            st.dataframe(
+                state_table,
+                width="stretch",
+                hide_index=True,
+                height=280,
+            )
 
     with earth_tab:
-        st.plotly_chart(
-            build_live_ground_map_figure(
-                observer=observer,
-                states=states,
-                tracks=map_tracks,
-                timestamp_utc=focus_utc,
-                selected_slot_id=selected_slot_id,
-                footprint_radius_km=footprint_radius_km,
-                show_ground_tracks=show_ground_tracks,
-                show_footprint=show_footprint,
-                show_terminator=show_terminator,
-                projection_type=earth_projection,
-            ),
-            width="stretch",
-            config=chart_config,
-        )
-        st.caption(
-            "Zielony okrąg jest referencyjnym footprintem prezentacyjnym. "
-            "Nie zastępuje geometrii konkretnego trybu obrazowania. "
-            "Linia kropkowana pokazuje terminator dnia i nocy."
-        )
+        _earth_left, earth_column, _earth_right = st.columns([1, 8, 1])
+        with earth_column:
+            st.plotly_chart(
+                build_live_ground_map_figure(
+                    observer=observer,
+                    states=states,
+                    tracks=map_tracks,
+                    timestamp_utc=focus_utc,
+                    selected_slot_id=selected_slot_id,
+                    footprint_radius_km=footprint_radius_km,
+                    show_ground_tracks=show_ground_tracks,
+                    show_footprint=show_footprint,
+                    show_terminator=show_terminator,
+                    projection_type=earth_projection,
+                ),
+                width="stretch",
+                config=chart_config,
+            )
+            st.caption(
+                "Zielony okrąg jest referencyjnym footprintem prezentacyjnym. "
+                "Nie zastępuje geometrii konkretnego trybu obrazowania. "
+                "Linia kropkowana pokazuje terminator dnia i nocy."
+            )
 
     with passes_tab:
         filtered_passes = tuple(

@@ -54,3 +54,14 @@ def test_live_tracking_hardening_controls_are_present() -> None:
     assert "Ślad naziemny" in source
     assert "Wynik [0–100]" in source
     assert '"Okna dostępu"' in source
+
+
+def test_live_tracking_maps_use_readable_responsive_layout() -> None:
+    source = (PROJECT_ROOT / "app/ui/pages/live_tracking.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'st.columns([1.35, 0.65], gap="large")' in source
+    assert "st.columns([1, 8, 1])" in source
+    assert "Tabela wszystkich obiektów" in source
+    assert "wszystkie wybrane satelity są pod horyzontem" in source

@@ -43,16 +43,17 @@ def test_sky_map_uses_standard_local_horizon_convention() -> None:
         "W",
         "NW",
     ]
-    assert list(polar.radialaxis.tickvals) == [0, 15, 30, 45, 60, 75, 90]
+    assert list(polar.radialaxis.tickvals) == [0, 30, 60, 90]
     assert list(polar.radialaxis.ticktext) == [
         "90°",
-        "75°",
         "60°",
-        "45°",
         "30°",
-        "15°",
-        "0°",
+        "",
     ]
+    assert "0°" not in polar.radialaxis.ticktext
+    assert polar.radialaxis.angle == 135
+    assert list(polar.domain.x) == [0.04, 0.96]
+    assert list(polar.domain.y) == [0.02, 0.92]
 
 
 def test_ground_map_without_selected_satellite_does_not_invent_footprint() -> None:

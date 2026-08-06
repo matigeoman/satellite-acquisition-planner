@@ -10,6 +10,10 @@ from app.integrations.orbits import SatelliteFamily, SatelliteGroundTrack
 
 _SAR_COLORS = ("#4cc9f0", "#4895ef", "#4361ee", "#3a0ca3")
 _EO_COLORS = ("#ffb703", "#fb8500")
+_BACKGROUND_COLOR = "#07111f"
+_OCEAN_COLOR = "#071827"
+_LAND_COLOR = "#2b4050"
+_GRID_COLOR = "rgba(148, 163, 184, 0.24)"
 
 
 def _track_color(track: SatelliteGroundTrack, family_index: int) -> str:
@@ -39,10 +43,10 @@ def _split_dateline_values(
             output_lon.append(None)
             output_lat.append(None)
             output_data.append(None)
-        output_lon.append(longitude)
-        output_lat.append(latitude)
+        output_lon.append(float(longitude))
+        output_lat.append(float(latitude))
         output_data.append(data)
-        previous = longitude
+        previous = float(longitude)
     return output_lon, output_lat, output_data
 
 
@@ -72,7 +76,7 @@ def build_ground_track_figure(
     *,
     visible_slot_ids: set[str] | None = None,
 ) -> go.Figure:
-    """Buduje interaktywną mapę śladów naziemnych na ciemnym podkładzie."""
+    """Buduje mapę śladów naziemnych ograniczoną do jednego świata."""
 
     figure = go.Figure()
     family_counts = {
@@ -106,12 +110,14 @@ def build_ground_track_figure(
             ),
         )
         figure.add_trace(
-            go.Scattermap(
+            go.Scattergeo(
                 lon=longitudes,
                 lat=latitudes,
                 customdata=customdata,
                 mode="lines",
-                name=label,
+                # Krótka nazwa zapobiega obcinaniu poziomej legendy.
+                # Pełna nazwa obiektu pozostaje w dymku po najechaniu.
+                name=track.satellite.slot_id,
                 line={"width": 3.3, "color": color},
                 hovertemplate=(
                     f"<b>{label}</b><br>"
@@ -124,14 +130,15 @@ def build_ground_track_figure(
         )
         first = track.states[0]
         figure.add_trace(
-            go.Scattermap(
+            go.Scattergeo(
                 lon=[first.longitude_deg],
                 lat=[first.latitude_deg],
                 mode="markers",
                 name=f"Pozycja {track.satellite.slot_id}",
                 marker={
-                    "size": 16,
+                    "size": 12,
                     "color": color,
+                    "line": {"color": "#f8fafc", "width": 1.0},
                 },
                 showlegend=False,
                 hovertemplate=(
@@ -142,32 +149,57 @@ def build_ground_track_figure(
             )
         )
 
-    figure.update_layout(
-        height=610,
-        margin={"l": 0, "r": 0, "t": 0, "b": 0},
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        map={
-            "style": "carto-darkmatter",
-            "center": {"lat": 10.0, "lon": 15.0},
-            "zoom": 0.55,
+    figure.update_geos(
+        projection={"type": "equirectangular"},
+        resolution=50,
+        showland=True,
+        landcolor=_LAND_COLOR,
+        showocean=True,
+        oceancolor=_OCEAN_COLOR,
+        showlakes=True,
+        lakecolor=_OCEAN_COLOR,
+        showcountries=True,
+        countrycolor="rgba(203, 213, 225, 0.28)",
+        showcoastlines=True,
+        coastlinecolor="rgba(226, 232, 240, 0.36)",
+        showframe=True,
+        framecolor="rgba(148, 163, 184, 0.45)",
+        bgcolor=_BACKGROUND_COLOR,
+        lonaxis={
+            "range": [-180.0, 180.0],
+            "showgrid": True,
+            "gridcolor": _GRID_COLOR,
+            "dtick": 30,
         },
+        lataxis={
+            "range": [-90.0, 90.0],
+            "showgrid": True,
+            "gridcolor": _GRID_COLOR,
+            "dtick": 15,
+        },
+    )
+    figure.update_layout(
+        height=660,
+        margin={"l": 8, "r": 8, "t": 76, "b": 8},
+        paper_bgcolor=_BACKGROUND_COLOR,
+        plot_bgcolor=_BACKGROUND_COLOR,
+        font={"color": "#f4f7fb"},
         legend={
-            "orientation": "v",
-            "x": 0.012,
-            "y": 0.985,
-            "xanchor": "left",
-            "yanchor": "top",
-            "bgcolor": "rgba(8, 13, 22, 0.84)",
+            "orientation": "h",
+            "x": 0.5,
+            "y": 1.035,
+            "xanchor": "center",
+            "yanchor": "bottom",
+            "bgcolor": "rgba(8, 13, 22, 0.90)",
             "bordercolor": "rgba(255,255,255,0.24)",
             "borderwidth": 1,
-            "font": {"size": 14, "color": "#f4f7fb"},
+            "font": {"size": 12, "color": "#f4f7fb"},
         },
         hoverlabel={
             "font_size": 15,
             "bgcolor": "#101722",
             "bordercolor": "#6f7d90",
         },
-        uirevision="public-orbit-map-v2",
+        uirevision="public-orbit-geo-v5",
     )
     return figure

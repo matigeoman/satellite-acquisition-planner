@@ -32,6 +32,17 @@ def _family_color(family: SatelliteFamily) -> str:
     return SAR_COLOR if family == SatelliteFamily.ICEYE else EO_COLOR
 
 
+def _sky_label_position(azimuth_deg: float) -> str:
+    normalized = azimuth_deg % 360.0
+    if 45.0 <= normalized < 135.0:
+        return "middle left"
+    if 135.0 <= normalized < 225.0:
+        return "top center"
+    if 225.0 <= normalized < 315.0:
+        return "middle right"
+    return "bottom center"
+
+
 def _split_antimeridian(
     longitudes: Sequence[float],
     latitudes: Sequence[float],
@@ -55,7 +66,7 @@ def build_sky_map_figure(
     tracks: Sequence[SkyTrack],
     minimum_elevation_deg: float = 0.0,
     selected_slot_id: str | None = None,
-    height_px: int = 650,
+    height_px: int = 720,
 ) -> go.Figure:
     """Buduje lokalną mapę nieba w układzie azymut–elewacja."""
 
@@ -99,13 +110,20 @@ def build_sky_map_figure(
         current = state_by_slot.get(track.slot_id)
         if current is None or current.topocentric.elevation_deg < minimum_elevation_deg:
             continue
+        show_label = is_selected or current.topocentric.elevation_deg <= 75.0
         figure.add_trace(
             go.Scatterpolar(
                 r=[90.0 - current.topocentric.elevation_deg],
                 theta=[current.topocentric.azimuth_deg],
-                mode="markers+text",
-                text=[track.slot_id],
-                textposition="top center",
+                mode="markers+text" if show_label else "markers",
+                text=[track.slot_id] if show_label else None,
+                textposition=_sky_label_position(
+                    current.topocentric.azimuth_deg
+                ),
+                textfont={
+                    "size": 12 if is_selected else 10,
+                    "color": "#f8fafc" if is_selected else "#cbd5e1",
+                },
                 marker={
                     "size": 17 if is_selected else 10,
                     "color": _family_color(track.family),
@@ -134,21 +152,32 @@ def build_sky_map_figure(
 
     figure.update_layout(
         height=height_px,
-        margin={"l": 35, "r": 35, "t": 55, "b": 35},
+        margin={"l": 16, "r": 16, "t": 70, "b": 18},
         paper_bgcolor=BACKGROUND_COLOR,
         plot_bgcolor=BACKGROUND_COLOR,
         font={"color": "#e2e8f0"},
-        title={"text": "Lokalna mapa nieba", "x": 0.5},
+        title={
+            "text": "Lokalna mapa nieba",
+            "x": 0.5,
+            "y": 0.985,
+            "xanchor": "center",
+            "yanchor": "top",
+            "font": {"size": 18},
+        },
         polar={
+            "domain": {"x": [0.04, 0.96], "y": [0.02, 0.92]},
             "bgcolor": "#0b1728",
             "radialaxis": {
                 "range": [0, 90],
-                "tickvals": [0, 15, 30, 45, 60, 75, 90],
-                "ticktext": ["90°", "75°", "60°", "45°", "30°", "15°", "0°"],
+                "tickvals": [0, 30, 60, 90],
+                # Zewnętrzny pierścień jest opisany jako horyzont obok wykresu.
+                # Pusta etykieta zapobiega kolizji z oznaczeniem kierunku NW.
+                "ticktext": ["90°", "60°", "30°", ""],
+                "tickfont": {"size": 13},
                 "gridcolor": GRID_COLOR,
                 "linecolor": "rgba(226, 232, 240, 0.45)",
-                "angle": 90,
-                "title": {"text": "Elewacja"},
+                "angle": 135,
+                "title": {"text": ""},
             },
             "angularaxis": {
                 "direction": "clockwise",
@@ -156,13 +185,14 @@ def build_sky_map_figure(
                 "tickmode": "array",
                 "tickvals": [0, 45, 90, 135, 180, 225, 270, 315],
                 "ticktext": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+                "tickfont": {"size": 14},
                 "gridcolor": GRID_COLOR,
                 "linecolor": "rgba(226, 232, 240, 0.45)",
             },
         },
         showlegend=False,
         template=None,
-        uirevision="satplan-sky-map-v2",
+        uirevision="satplan-sky-map-v5",
     )
     if not figure.data:
         figure.add_annotation(
@@ -389,8 +419,18 @@ def build_live_ground_map_figure(
         showframe=True,
         framecolor="rgba(148, 163, 184, 0.45)",
         bgcolor=BACKGROUND_COLOR,
-        lonaxis={"showgrid": True, "gridcolor": GRID_COLOR, "dtick": 30},
-        lataxis={"showgrid": True, "gridcolor": GRID_COLOR, "dtick": 15},
+        lonaxis={
+            "range": [-180.0, 180.0],
+            "showgrid": True,
+            "gridcolor": GRID_COLOR,
+            "dtick": 30,
+        },
+        lataxis={
+            "range": [-90.0, 90.0],
+            "showgrid": True,
+            "gridcolor": GRID_COLOR,
+            "dtick": 15,
+        },
     )
     figure.update_layout(
         height=height_px,
@@ -407,7 +447,7 @@ def build_live_ground_map_figure(
         },
         showlegend=False,
         template=None,
-        uirevision=f"satplan-ground-map-{projection_type}-v2",
+        uirevision=f"satplan-ground-map-{projection_type}-v3",
     )
     return figure
 
